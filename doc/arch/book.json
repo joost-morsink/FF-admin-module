@@ -1,0 +1,18 @@
+{
+    "frontmatter": "front.yml",
+    "chapters": [
+        "intro.md",
+        "overview.md",
+        "events.md",
+        "database.md"
+    ],
+    "out": "document.md",
+    "pdf": {
+        "cover": "cover.html",
+        "header": "header.html",
+        "footer": "footer.html",
+        "toc": "toc.xsl",
+        "css": "doc.css",
+        "out": "document.pdf"
+    }
+} 
