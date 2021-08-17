@@ -17,19 +17,43 @@ It also specifies a database model for storage of the _current_ situation.
 
 The Future Fund business domain contains of the following events:
 
-* New Donation
+* Metadata events
+  
+  * New Charity
+  
+  * New Fund
+  
+  * Update Fund reinvestment fraction
 
-* New Charity
+* Donation events
+  
+  * New Donation
 
-* New Investment Option
+* Conversion day events
+  
+  * Enter 
+  
+  * Invest
+  
+  * Calculate withdrawal
+  
+  * Withdraw
+  
+  * Gift
 
-* Update Investment Option reinvestment fraction
+Events will generally happen in the order illustrated by the following picture:
 
-* Conversion day 'investments'
+![Events](./images/process-events.svg)
 
-* Conversion day calculate 'gifting'
+Metadata events in _red_ will generally only happen in the beginning of an iteration. 
+Donations in _green_ can happen all the time.
+Conversion day events in=_yellow_, out=_blue_ happen in the order shown.
 
-* Conversion day execute 'gifting' 
+A full grammar for the conversion day events is as follows:
+
+```
+(ENTER+ INVEST) | (CALCULATE WITHDRAW GIFT)
+```
 
 Note that there is no notion of a new donor. 
 Donors will be known only to the online system, although an identifier is carried over to the offline system for tracing donations by same donors.
@@ -42,51 +66,69 @@ We still have to specify and implement events for cases such as charity end-of-l
 
 Events are specified using a field by field description.
 
-### New Donation
+### Meta events and donations
 
-| Field | Type | Value        | Description          |
-| ----- | ---- | ------------ | -------------------- |
-| Type  | A    | NEW_DONATION | Identifies the event |
-| ...   |      |              |                      |
+#### New Charity
 
-### New Charity
+| Field | Type | Value            | Description          |
+| ----- | ---- | ---------------- | -------------------- |
+| Type  | A    | META_NEW_CHARITY | Identifies the event |
+| ...   |      |                  |                      |
+
+#### New Fund
+
+| Field | Type | Value         | Description          |
+| ----- | ---- | ------------- | -------------------- |
+| Type  | A    | META_NEW_FUND | Identifies the event |
+| ...   |      |               |                      |
+
+#### Update Fund reinvestment fraction
+
+| Field | Type | Value                             | Description          |
+| ----- | ---- | --------------------------------- | -------------------- |
+| Type  | A    | META_UPDATE_REINVESTMENT_FRACTION | Identifies the event |
+| ...   |      |                                   |                      |
+
+#### New Donation
+
+| Field | Type | Value    | Description          |
+| ----- | ---- | -------- | -------------------- |
+| Type  | A    | DONA_NEW | Identifies the event |
+| ...   |      |          |                      |
+
+### Conversion day
+
+#### Conversion day Enter
+
+| Field | Type | Value      | Description          |
+| ----- | ---- | ---------- | -------------------- |
+| Type  | A    | CONV_ENTER | Identifies the event |
+| ...   |      |            |                      |
+
+#### Conversion day Invest
 
 | Field | Type | Value       | Description          |
 | ----- | ---- | ----------- | -------------------- |
-| Type  | A    | NEW_CHARITY | Identifies the event |
+| Type  | A    | CONV_INVEST | Identifies the event |
 | ...   |      |             |                      |
 
-### New Investment option
+#### Conversion day Calculate
 
-| Field | Type | Value                 | Description          |
-| ----- | ---- | --------------------- | -------------------- |
-| Type  | A    | NEW_INVESTMENT_OPTION | Identifies the event |
-| ...   |      |                       |                      |
+| Field | Type | Value          | Description          |
+| ----- | ---- | -------------- | -------------------- |
+| Type  | A    | CONV_CALCULATE | Identifies the event |
+| ...   |      |                |                      |
 
-### Update investment option reinvestment fraction
+#### Conversion day Withdraw
 
-| Field | Type | Value                        | Description          |
-| ----- | ---- | ---------------------------- | -------------------- |
-| Type  | A    | UPDATE_REINVESTMENT_FRACTION | Identifies the event |
-| ...   |      |                              |                      |
+| Field | Type | Value         | Description          |
+| ----- | ---- | ------------- | -------------------- |
+| Type  | A    | CONV_WITHDRAW | Identifies the event |
+| ...   |      |               |                      |
 
-### Conversion day investments
+#### Conversion day Gift
 
-| Field | Type | Value                  | Description          |
-| ----- | ---- | ---------------------- | -------------------- |
-| Type  | A    | CONVERSION_INVESTMENTS | Identifies the event |
-| ...   |      |                        |                      |
-
-### Conversion day calculate gifting
-
-| Field | Type | Value                        | Description          |
-| ----- | ---- | ---------------------------- | -------------------- |
-| Type  | A    | CONVERSION_CALCULATE_GIFTING | Identifies the event |
-| ...   |      |                              |                      |
-
-### Conversion day execute gifting
-
-| Field | Type | Value                      | Description          |
-| ----- | ---- | -------------------------- | -------------------- |
-| Type  | A    | CONVERSION_EXECUTE_GIFTING | Identifies the event |
-| ...   |      |                            |                      |
+| Field | Type | Value     | Description          |
+| ----- | ---- | --------- | -------------------- |
+| Type  | A    | CONV_GIFT | Identifies the event |
+| ...   |      |           |                      |
