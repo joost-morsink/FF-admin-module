@@ -40,6 +40,8 @@ The Future Fund business domain contains of the following events:
   * Withdraw
   
   * Gift
+  
+  * Charity transfer
 
 Events will generally happen in the order illustrated by the following picture:
 
@@ -59,76 +61,143 @@ Note that there is no notion of a new donor.
 Donors will be known only to the online system, although an identifier is carried over to the offline system for tracing donations by same donors.
 This also limits any GDPR considerations to the online system.
 
-There will be more events in the future, as we only have consider regular operation of the Future Fund. 
+There will be more events in the future, as we only have considered regular operation of the Future Fund. 
 We still have to specify and implement events for cases such as charity end-of-life (or mergers), but this is beyond the scope of the initial project.
 
 ## Event specification
 
 Events are specified using a field by field description.
 
+Every event has a timestamp to validate the sequence of events and automatically the scoping of handling the events.
+All events received 'out of sync' may only be applied after undoing everything already recorded with a higher timestamp and rerunning them in the correct order.
+
 ### Meta events and donations
 
 #### New Charity
 
-| Field | Type | Value            | Description          |
-| ----- | ---- | ---------------- | -------------------- |
-| Type  | A    | META_NEW_CHARITY | Identifies the event |
-| ...   |      |                  |                      |
+This event creates a new charity that can be chosen by a donor as a beneficiary for donations.
+
+| Field     | Type               | Description             | Value            |
+| --------- | ------------------ | ----------------------- | ---------------- |
+| Type      | A                  | Identifies the event    | META_NEW_CHARITY |
+| Timestamp | DateTime(ISO-8601) | The time of the event   |                  |
+| Code      | AN                 | Identifies the charity  |                  |
+| Name      | AN                 | The name of the charity |                  |
 
 #### New Fund
 
-| Field | Type | Value         | Description          |
-| ----- | ---- | ------------- | -------------------- |
-| Type  | A    | META_NEW_FUND | Identifies the event |
-| ...   |      |               |                      |
+This event creates a new fund that can be used for investing the donations.
+The three fractions in the event should add up to 1.
+
+| Field                 | Type                | Description                                              | Value         |
+| --------------------- | ------------------- | -------------------------------------------------------- | ------------- |
+| Type                  | A                   | Identifies the event                                     | META_NEW_FUND |
+| Timestamp             | DateTime (ISO-8601) | The time of the event                                    |               |
+| Code                  | AN                  | Identifies the fund                                      |               |
+| Name                  | AN                  | The name of the fund                                     |               |
+| Currency              | AN                  | The ISO-4217 currency code of the investment fund        |               |
+| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                  |               |
+| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund |               |
+| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity     |               |
 
 #### Update Fund reinvestment fraction
 
-| Field | Type | Value                             | Description          |
-| ----- | ---- | --------------------------------- | -------------------- |
-| Type  | A    | META_UPDATE_REINVESTMENT_FRACTION | Identifies the event |
-| ...   |      |                                   |                      |
+This event updates the reinvestment fraction for a fund.
+The three fractions in the event should add up to 1.
+
+| Field                 | Type                | Description                                              | Value                             |
+| --------------------- | ------------------- | -------------------------------------------------------- | --------------------------------- |
+| Type                  | A                   | Identifies the event                                     | META_UPDATE_REINVESTMENT_FRACTION |
+| Timestamp             | DateTime (ISO-8601) | The time of the event                                    |                                   |
+| Code                  | AN                  | The identifier for the fund                              |                                   |
+| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                  |                                   |
+| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund |                                   |
+| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity     |                                   |
 
 #### New Donation
 
-| Field | Type | Value    | Description          |
-| ----- | ---- | -------- | -------------------- |
-| Type  | A    | DONA_NEW | Identifies the event |
-| ...   |      |          |                      |
+This event represents some donation made by some donor to some charity through investment in some fund.
+If the currency matches the investment fund's currency, the fields `Amount` and `Exchanged_amount` are equal, otherwise the result of currency exchange is recorded in the `Exhanged_amount` field.
+
+| Field                 | Type                | Description                                                 | Value    |
+| --------------------- | ------------------- | ----------------------------------------------------------- | -------- |
+| Type                  | A                   | Identifies the event                                        | DONA_NEW |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                  |          |
+| Donation              | AN                  | Identifies the donation                                     |          |
+| Donor                 | AN                  | The identifier for the donor                                |          |
+| Charity               | AN                  | The identifier for the charity                              |          |
+| Fund                  | AN                  | The identifier for the fund                                 |          |
+| Currency              | AN                  | An ISO-4217 currency code                                   |          |
+| Amount                | N(16,4)             | The donated amount                                          |          |
+| Exchanged_amount      | N(16,4)             | The donated amount in the currency of the investment fund   |          |
+| Transaction_reference | AN                  | An external reference for the donation transaction          |          |
+| Exchange_reference    | AN?                 | An optional external reference for the exchange transaction |          |
 
 ### Conversion day
 
 #### Conversion day Enter
 
-| Field | Type | Value      | Description          |
-| ----- | ---- | ---------- | -------------------- |
-| Type  | A    | CONV_ENTER | Identifies the event |
-| ...   |      |            |                      |
+This event signifies the point in time at which all new donations are made part (in cash form) of the new investment fund.
+
+| Field           | Type                | Description                                                                                  | Value      |
+| --------------- | ------------------- | -------------------------------------------------------------------------------------------- | ---------- |
+| Type            | A                   | Identifies the event                                                                         | CONV_ENTER |
+| Timestamp       | DateTime (ISO-8601) | The timestamp of the event                                                                   |            |
+| Fund            | AN                  | The identifier for the fund                                                                  |            |
+| Invested_amount | N(20,4)             | The total **invested** amount of money in the fund (calculated by current price information) |            |
 
 #### Conversion day Invest
 
-| Field | Type | Value       | Description          |
-| ----- | ---- | ----------- | -------------------- |
-| Type  | A    | CONV_INVEST | Identifies the event |
-| ...   |      |             |                      |
+This event represents the investment of (newly added) donations into the investment fund.
+
+| Field                 | Type                | Description                                               | Value       |
+| --------------------- | ------------------- | --------------------------------------------------------- | ----------- |
+| Type                  | A                   | Identifies the event                                      | CONV_INVEST |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                |             |
+| Fund                  | AN                  | The identfier for the fund                                |             |
+| Invested_amount       | N(20,4)             | The new total invested amount of money in the fund        |             |
+| Cash_amount           | N(20,4)             | The new total cash amount of money in the fund's reserves |             |
+| Transaction_reference | AN                  | An external reference for the investment transaction      |             |
 
 #### Conversion day Calculate
 
-| Field | Type | Value          | Description          |
-| ----- | ---- | -------------- | -------------------- |
-| Type  | A    | CONV_CALCULATE | Identifies the event |
-| ...   |      |                |                      |
+Although the Calculate event is an important event in the business process of the future fund, it plays no role in the recreation of history by replaying events and is therefore skipped.
 
 #### Conversion day Withdraw
 
-| Field | Type | Value         | Description          |
-| ----- | ---- | ------------- | -------------------- |
-| Type  | A    | CONV_WITHDRAW | Identifies the event |
-| ...   |      |               |                      |
+This event represents a withdrawal from an investment fund, for the purpose of donating the withdrawn money to the charities.
+
+| Field                 | Type                | Description                                               | Value         |
+| --------------------- | ------------------- | --------------------------------------------------------- | ------------- |
+| Type                  | A                   | Identifies the event                                      | CONV_WITHDRAW |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                |               |
+| Fund                  | AN                  | The identifier for the fund                               |               |
+| Invested_amount       | N(20,4)             | The new total invested amount of money in the fund        |               |
+| Cash_amount           | N(20,4)             | The new total cash amount of money in the fund's reserves |               |
+| Transaction_reference | AN                  | An external reference for the withdrawal transaction      |               |
 
 #### Conversion day Gift
 
-| Field | Type | Value     | Description          |
-| ----- | ---- | --------- | -------------------- |
-| Type  | A    | CONV_GIFT | Identifies the event |
-| ...   |      |           |                      |
+This event represents an allocation of money to a charity from the cash part of an investment fund.
+The actual donation to the charity may be delayed.
+
+| Field     | Type                | Description                       | Value     |
+| --------- | ------------------- | --------------------------------- | --------- |
+| Type      | A                   | Identifies the event              | CONV_GIFT |
+| Timestamp | DateTime (ISO-8601) | The timestamp of the event        |           |
+| Fund      | AN                  | The identifier of the fund        |           |
+| Charity   | AN                  | The identifier of the charity     |           |
+| Amount    | N(20,4)             | The amount donated to the charity |           |
+
+##### Conversion day Charity transfer
+
+This event represents the actual transfer of allocated money to the charity
+
+| Field                 | Type                | Description                             | Value         |
+| --------------------- | ------------------- | --------------------------------------- | ------------- |
+| Type                  | A                   | Identifies the event                    | CONV_TRANSFER |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event              |               |
+| Charity               | AN                  | The identifier of the charity           |               |
+| Currency              | AN                  | An ISO-4217 currency code               |               |
+| Amount                | N(20,4)             | The amount donated to the charity       |               |
+| Transaction_reference | AN                  | External reference code for transaction |               |
