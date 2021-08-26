@@ -3,6 +3,8 @@
     "chapters": [
         "intro.md",
         "overview.md",
+        "process.md",
+        "application.md",
         "events.md",
         "database.md"
     ],
