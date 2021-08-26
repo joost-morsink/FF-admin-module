@@ -207,7 +207,7 @@ The actual transfer to the charity may be delayed.
 | Charity   | AN                  | The identifier of the charity     |           |
 | Amount    | N(20,4)             | The amount donated to the charity |           |
 
-##### Conversion day Charity transfer
+#### Conversion day Charity transfer
 
 This event represents the actual transfer of allocated money to the charity
 

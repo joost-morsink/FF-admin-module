@@ -20,15 +20,17 @@ Although the proposed solution gives us several advantages, we also need to cons
 
 Some terminology is used within the Future Fund, which need a unambiguous description:
 
-| Term               | Definition                                                                                     |
-| ------------------ | ---------------------------------------------------------------------------------------------- |
-| Donation           | An amount of money donated by a donor to the Future Fund.                                      |
-| Investment fund    | A selected actual fund, that consists of money that is invested and a cash amount of money.    |
-| Invested amount    | The amount of money allocated to an actual fund.                                               |
-| Cash amount        | The amount of money not allocated to an actual fund.                                           |
-| Enter              | Making new donations part of some investment fund.                                             |
-| Exit               | Extracting (cash) money from an investment fund for the purpose of transferring it to charity. |
-| Charity            | A good cause, for NL a registered ANBI.                                                        |
-| (Money) transfer   | A transfer of money (profits) to a charity.                                                    |
-| Conversion day     | The day on which donations and profits are converted into a next process step.                 |
-| Ownership fraction | The fraction of an investment fund that is owned by a donation.                                |
+| Term                | Definition                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| Donation            | An amount of money donated by a donor to the Future Fund.                                          |
+| Investment fund     | A selected actual fund, that consists of money that is invested and a cash amount of money.        |
+| Invested amount     | The amount of money allocated to an actual fund.                                                   |
+| Cash amount         | The amount of money not allocated to an actual fund.                                               |
+| Enter               | Making new donations part of some investment fund.                                                 |
+| Exit                | Extracting (cash) money from an investment fund for the purpose of transferring it to charity.     |
+| Charity             | A good cause, for NL a registered ANBI.                                                            |
+| (Money) transfer    | A transfer of money (profits) to a charity.                                                        |
+| Conversion day      | The day on which donations and profits are converted into a next process step.                     |
+| Ownership fraction  | The fraction of an investment fund that is owned by a donation.                                    |
+| Ideal valuation     | The amount of money a donation should be worth, any excess money could be transferred.             |
+| Bad year percentage | The fraction of the worth that should be transferred to charity, regardless of investment results. |        
