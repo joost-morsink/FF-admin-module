@@ -1,16 +1,16 @@
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Montserrat, Arial, Helvetica, sans-serif;
 }
 body header {
     display: none;
 }
 h1,h2,h3,h4,h5,h6 {
-    color: #5cc4e8
+    font-family: ABeeZee, Arial, Helvetica, sans-serif;
+    color: #5cc4e8;
 }
 h1 {
     font-size: 24pt;
     font-weight: bold;
-    text-decoration: underline;
 }
 h2 {
     font-size: 18pt;

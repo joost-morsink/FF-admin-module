@@ -28,10 +28,11 @@
           h1 {
               font-size: 24pt;
               font-weight: bold;
-              text-decoration: underline;
+              font-family: ABeeZee, Arial, Helvetica, sans-serif;
+
           }
           body {
-              font-family: Arial, Helvetica, sans-serif;
+              font-family: Montserrat, Arial, Helvetica, sans-serif;
           }
   
           div {border-bottom: 1px dashed rgb(200,200,200);}
@@ -44,7 +45,7 @@
 
             font-size: 20px;
 
-            font-family: arial;
+            font-family: Montserrat, arial;
 
           }
 
