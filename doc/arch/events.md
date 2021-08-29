@@ -25,9 +25,10 @@ The Future Fund business domain contains of the following events:
   
   * Update Fund reinvestment fraction
 
-* Donation events
+* Main events
   
   * New Donation
+  * Price info
 
 * Conversion day events
   
@@ -84,7 +85,7 @@ Events are specified using a field by field description.
 Every event has a timestamp to validate the sequence of events and automatically the scoping of handling the events.
 All events received 'out of sync' may only be applied after undoing everything already recorded with a higher timestamp and rerunning them in the correct order.
 
-### Meta events and donations
+### Meta and main events
 
 #### New Charity
 
@@ -147,6 +148,20 @@ If the currency matches the investment fund's currency, the fields `Amount` and 
 | Exchanged_amount      | N(16,4)             | The donated amount in the currency of the investment fund   |          |
 | Transaction_reference | AN                  | An external reference for the donation transaction          |          |
 | Exchange_reference    | AN?                 | An optional external reference for the exchange transaction |          |
+
+#### Price info
+
+This event allows for the input of fund pricing info, so the donations' worth can be more easily plotted.
+This event may also be used to decrease the cash amount if debit transactions have occured for 
+
+| Field                 | Type                | Description                                                                         | Value      |
+| --------------------- | ------------------- | ----------------------------------------------------------------------------------- | ---------- |
+| Type                  | A                   | Identifies the event                                                                | PRICE_INFO |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                                          |            |
+| Fund                  | AN                  | The identifier for the fund                                                         |            |
+| Invested_amount       | N(20,4)             | The total invested amount of money in the fund, according to the current fund price |            |
+| Cash_amount           | N(20,4)             | The total cash amount of money in the fund                                          |            |
+| Transaction_reference | AN?                 | An optional external reference for the debit transaction (if applicable)            |            |
 
 ### Conversion day
 
