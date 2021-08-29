@@ -84,6 +84,9 @@ Events are specified using a field by field description.
 
 Every event has a timestamp to validate the sequence of events and automatically the scoping of handling the events.
 All events received 'out of sync' may only be applied after undoing everything already recorded with a higher timestamp and rerunning them in the correct order.
+To avoid ambiguity in the timestamps, they will all be serialized as UTC timestamps according to the ISO-8601 format (with a trailing 'Z').
+
+
 
 ### Meta and main events
 
@@ -214,23 +217,26 @@ This event only pertains to the liquidation of invested money to the cash amount
 This event represents an allocation of money to a charity from the cash part of an investment fund.
 The actual transfer to the charity may be delayed.
 
-| Field     | Type                | Description                       | Value     |
-| --------- | ------------------- | --------------------------------- | --------- |
-| Type      | A                   | Identifies the event              | CONV_GIFT |
-| Timestamp | DateTime (ISO-8601) | The timestamp of the event        |           |
-| Fund      | AN                  | The identifier of the fund        |           |
-| Charity   | AN                  | The identifier of the charity     |           |
-| Amount    | N(20,4)             | The amount donated to the charity |           |
+| Field     | Type                | Description                             | Value     |
+| --------- | ------------------- | --------------------------------------- | --------- |
+| Type      | A                   | Identifies the event                    | CONV_GIFT |
+| Timestamp | DateTime (ISO-8601) | The timestamp of the event              |           |
+| Fund      | AN                  | The identifier of the fund              |           |
+| Charity   | AN                  | The identifier of the charity           |           |
+| Amount    | N(20,4)             | The amount to be donated to the charity |           |
 
 #### Conversion day Charity transfer
 
 This event represents the actual transfer of allocated money to the charity
 
-| Field                 | Type                | Description                             | Value         |
-| --------------------- | ------------------- | --------------------------------------- | ------------- |
-| Type                  | A                   | Identifies the event                    | CONV_TRANSFER |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event              |               |
-| Charity               | AN                  | The identifier of the charity           |               |
-| Currency              | AN                  | An ISO-4217 currency code               |               |
-| Amount                | N(20,4)             | The amount donated to the charity       |               |
-| Transaction_reference | AN                  | External reference code for transaction |               |
+| Field                 | Type                | Description                                                                    | Value         |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------ | ------------- |
+| Type                  | A                   | Identifies the event                                                           | CONV_TRANSFER |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                                     |               |
+| Charity               | AN                  | The identifier of the charity                                                  |               |
+| Currency              | AN                  | An ISO-4217 currency code                                                      |               |
+| Amount                | N(20,4)             | The amount donated to the charity                                              |               |
+| Exhanged_Currency     | AN                  | An ISO-4217 currency code for the currency after exchange (charity's currency) |               |
+| Exchanged_Amount      | N(20,4)             | The amount donated to the charity in the exchanged currency.                   |               |
+| Transaction_reference | AN                  | External reference code for transaction                                        |               |
+| Exchange_reference    | AN?                 | An optional external reference for the exchange                                |               |
