@@ -6,7 +6,12 @@ body header {
 }
 h1,h2,h3,h4,h5,h6 {
     font-family: ABeeZee, Arial, Helvetica, sans-serif;
+}
+h1,h3, h5 {
     color: #5cc4e8;
+}
+h2,h4,h6 {
+    color: #198cb3;
 }
 h1 {
     font-size: 24pt;
@@ -54,8 +59,8 @@ thead > tr {
     background-color: lightgray;
 }
 blockquote {
-    border: 1px solid goldenrod;
-    background-color: lightyellow;
+    border: 1px solid #f9b000;
+    background-color: #ffd980;
     font-style: italic;
     padding-left: 10px;
     padding-right: 10px;
