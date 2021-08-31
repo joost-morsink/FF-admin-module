@@ -86,8 +86,6 @@ Every event has a timestamp to validate the sequence of events and automatically
 All events received 'out of sync' may only be applied after undoing everything already recorded with a higher timestamp and rerunning them in the correct order.
 To avoid ambiguity in the timestamps, they will all be serialized as UTC timestamps according to the ISO-8601 format (with a trailing 'Z').
 
-
-
 ### Meta and main events
 
 #### New Charity
