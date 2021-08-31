@@ -56,7 +56,7 @@ try {
 	$md = Get-Item $mdout
 
 		$html = [IO.Path]::ChangeExtension($md.Name, ".html")
-		$pdf =  [IO.Path]::ChangeExtension($md.Name, ".pdf")
+		$pdf =  $book.pdf.out #[IO.Path]::ChangeExtension($md.Name, ".pdf")
 		$tmp = "tmp/$($md.Name)"
 		pandoc $md.Name --template $md.Name -o $tmp 
 		pandoc $tmp -o $html -s -c $book.pdf.css -N
