@@ -19,6 +19,12 @@ Git provides us with a hash code that we can use on our audit reports to referen
 We will use PostgreSql to store all data relevant to the business domain and processes.
 The database will contain all complex calculation logic as well, leaving only the presentation to the application layer.
 
+> #### Assumption
+> 
+> We assume we will not change database engines in the nearby future. 
+> This combined with the performance benefit of having computionally complex logic close to the data leads us to this choice.
+> If we would prefer portability over performance, we would have chosen to implement this logic in the application.
+
 ## Event storage
 
 The entire chain of events will be stored in Git.
@@ -77,17 +83,26 @@ The only exception from this rule is the relationships from `Allocation` and `Fu
 
 The table `Donation` contains all donations and relevant data:
 
-| Field            | Type    | Description                                                                                         |
-| ---------------- | ------- | --------------------------------------------------------------------------------------------------- |
-| Donation_Id      | N       | An internal primary key for the donation                                                            |
-| Donation_Ext_Id  | AN      | The external id of the donation                                                                     |
-| Donor_Id         | AN      | The external id of the donor                                                                        |
-| Currency         | AN      | The currency of the donation                                                                        |
-| Amount           | N(16,4) | The amount of the donation                                                                          |
-| Exchanged_amount | N(16,4) | The exchanged amount of the donation in the fund's currency                                         |
-| Fund_Id          | N       | A reference to the investment fund                                                                  |
-| Charity_Id       | N       | A reference to the charity                                                                          |
-| Entered          | DT?     | The timestamp when the donation has been entered into the investment fund; empty if not yet entered |
+| Field                 | Type    | Description                                                                                         |
+| --------------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| Donation_Id           | N       | An internal primary key for the donation                                                            |
+| Donation_Ext_Id       | AN      | The external id of the donation                                                                     |
+| Donor_Id              | AN      | The external id of the donor                                                                        |
+| Currency              | AN      | The currency of the donation                                                                        |
+| Amount                | N(16,4) | The amount of the donation                                                                          |
+| Exchanged_amount      | N(16,4) | The exchanged amount of the donation in the fund's currency                                         |
+| Fund_Id               | N       | A reference to the investment fund                                                                  |
+| Charity_Id            | N       | A reference to the charity                                                                          |
+| Entered               | DT?     | The timestamp when the donation has been entered into the investment fund; empty if not yet entered |
+| Exit_actual_valuation | N(16,4) | The actual valuation after the last `Exit`; initial value equal to `Amount`                         |
+| Exit_ideal_valuation  | N(16,4) | The ideal valuation after the last `Exit`; initial value equal to `Amount`                          |
+
+
+
+> #### Assumption
+> 
+> Given the situation there is only a single `Enter` between two `Exit` *and* it is positioned right after the `Exit`, we can certainly get away with including the valuation columns here.
+> When we choose to deviate from this convention we will have to take a look at it again, and maybe redesign a bit.
 
 #### Charity
 
@@ -113,9 +128,9 @@ The table `Fund` contains all investment funds, with current worth and current a
 | Bad_year_fraction     | N(10,10) | The fraction of the total amount of money in the investment fund that should always be transferred |
 | Currency              | AN       | The currency of the investment fund                                                                |
 | Invested_amount       | N(20,4\) | The current amount of invested money in the investment fund                                        |
-| Cash_amount           | N(20,4)  | The current  amount of cash in the investment fund                                                 |
+| Cash_amount           | N(20,4)  | The current amount of cash in the investment fund                                                  |
 | Fractionset_Id        | N        | A reference to the current ownership fractions of the investment fund                              |
-| Last_Exit             | DT       | A timestamp of the last `Exit` on this investment fund                                             |
+| Last_Exit             | DT?      | A timestamp of the last `Exit` on this investment fund                                             |
 
 #### Allocation
 
@@ -166,7 +181,7 @@ The `Fraction` table contains the actual link to donations and the fraction the 
 All fractions belonging to a fraction set should sum up to 1, or very close to it (rounding errors may occur).
 We might have to correct for rounding errors at a later time.
 
-#### Database code
+### Database code
 
 As mentioned earlier in this document, the Sql database will contain the logic for processing all events and making the necessary calculations.
 In PostgreSql the most obvious choice is to use functions for all types of logic.
@@ -193,3 +208,15 @@ In PostgreSql the most obvious choice is to use functions for all types of logic
 
 This total 41 functions, most of which are fairly simple.
 Some of the more complex functions might call even more functions, but that is an implementation detail and out of scope for this document.
+
+#### Processing events
+
+> #### TODO
+> 
+> Describe the steps to take when processing events.
+
+#### Rolling events back
+
+> #### TODO
+> 
+> Describe the steps to take when rolling events back.

@@ -39,5 +39,5 @@ Some terminology is used within the Future Fund, which need a unambiguous descri
 | (Money) transfer    | A transfer of money (profits) to a charity.                                                        |
 | Conversion day      | The day on which donations and profits are converted into a next process step.                     |
 | Ownership fraction  | The fraction of an investment fund that is owned by a donation.                                    |
-| Ideal valuation     | The amount of money a donation should be worth, any excess money could be transferred.             |
+| Ideal valuation     | The amount of money a donation should be worth, any excess money is transferrable.                 |
 | Bad year percentage | The fraction of the worth that should be transferred to charity, regardless of investment results. |
