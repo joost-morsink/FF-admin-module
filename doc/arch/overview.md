@@ -11,31 +11,36 @@ A physical actor, called the _administrator_, has access to both systems and can
 
 The purpose of the online database is to:
 
-* administer payments and (chosen) charities;
+* administer donations and (chosen) charities;
 
-* display statistics about investment results and actual donations.
+* display statistics about investment results and actual transfers to charity.
 
 ### Offline database
 
 The purpose of the offline database is to:
 
-* import payments;
+* import donations;
 
 * export financial data for usage in the online database;
 
 * administer investments;
 
-* perform calculations based on investments and withdrawals;
+* perform calculations based on investments and liquidations;
 
-* administer actual donations;
+* administer money transfers to charities;
 
 * provide a datasource to reinitialize the database from scratch.
 
-## Requirements 
+## Requirements
 
 ### Online
 
-We need an export of donations, and import of reporting data for display purposes on the website.
+We need an export of donations, and an import of reporting data for display purposes on the website.  
+It should have on a donation-level information about 
+
+* the current invested value of the donation;
+
+* money transferred to charity based on the profits/interest on the donation.
 
 Although we also need a list of charities and investment options on the offline site, we do not require those data to be synchronized via an automated process.
 
@@ -47,9 +52,11 @@ We need to be able to reliably calculate and administer all the transactions we 
 We break this down into the following categories:
 
 * Administration of new donations, charities and investment options.
+  Charities can be detected from the import, but need more information, investment options should be added manually. 
+  Both operations should be supported by the application.
 
 * Conversion day calculations and administration.
-
-    * The first conversion day logic should pertain to the investing of newly donated money into investment options.
-
-    * The second conversion day logic should pertain to the withdrawal of money from the funds with the goal of making a gift to the selected charities.
+  
+  * The first conversion day logic should pertain to the liquidation of stocks from the investment funds with the ultimate goal of making a money transfer to the selected charities.
+  
+  * The second conversion day logic should pertain to the allocation of newly donated money into investment options, and consequently investing the money in the investment funds.

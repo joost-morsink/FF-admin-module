@@ -21,13 +21,14 @@ The Future Fund business domain contains of the following events:
   
   * New Charity
   
-  * New Fund
+  * New Option
   
-  * Update Fund reinvestment fraction
+  * Update Option fractions
 
 * Main events
   
   * New Donation
+  
   * Price info
 
 * Conversion day events
@@ -99,37 +100,38 @@ This event creates a new charity that can be chosen by a donor as a beneficiary 
 | Code      | AN                 | Identifies the charity  |                  |
 | Name      | AN                 | The name of the charity |                  |
 
-#### New Fund
+#### New Option
 
-This event creates a new fund that can be used for investing the donations.
-The three fractions in the event should add up to 1.
+This event creates a new investment option that can be used for investing the donations.
+The three fractions (`Reinvestment_fraction` + `FutureFund_fraction` + `Charity_fraction`) in the event should add up to 1.
+The `Bad_year_fraction` does not apply to profits.
 
-| Field                 | Type                | Description                                                                                        | Value         |
-| --------------------- | ------------------- | -------------------------------------------------------------------------------------------------- | ------------- |
-| Type                  | A                   | Identifies the event                                                                               | META_NEW_FUND |
-| Timestamp             | DateTime (ISO-8601) | The time of the event                                                                              |               |
-| Code                  | AN                  | Identifies the fund                                                                                |               |
-| Name                  | AN                  | The name of the fund                                                                               |               |
-| Currency              | AN                  | The ISO-4217 currency code of the investment fund                                                  |               |
-| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                                                            |               |
-| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund                                           |               |
-| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity                                               |               |
-| Bad_year_fraction     | N(10,10)            | The fraction of the total amount of money in the investment fund that should always be transferred |               |
+| Field                 | Type                | Description                                                                                                  | Value           |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |
+| Type                  | A                   | Identifies the event                                                                                         | META_NEW_OPTION |
+| Timestamp             | DateTime (ISO-8601) | The time of the event                                                                                        |                 |
+| Code                  | AN                  | Identifies the investment option                                                                             |                 |
+| Name                  | AN                  | The name of the investment option                                                                            |                 |
+| Currency              | AN                  | The ISO-4217 currency code of the investment option                                                          |                 |
+| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                                                                      |                 |
+| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund                                                     |                 |
+| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity                                                         |                 |
+| Bad_year_fraction     | N(10,10)            | The minimal fraction of the total amount of money in the investment option that should always be transferred |                 |
 
-#### Update Fund reinvestment fraction
+#### Update Option fractions
 
 This event updates the reinvestment fraction for a fund.
 The three fractions in the event should add up to 1.
 
-| Field                 | Type                | Description                                                                                        | Value                             |
-| --------------------- | ------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Type                  | A                   | Identifies the event                                                                               | META_UPDATE_REINVESTMENT_FRACTION |
-| Timestamp             | DateTime (ISO-8601) | The time of the event                                                                              |                                   |
-| Code                  | AN                  | The identifier for the fund                                                                        |                                   |
-| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                                                            |                                   |
-| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund                                           |                                   |
-| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity                                               |                                   |
-| Bad_year_fraction     | N(10,10)            | The fraction of the total amount of money in the investment fund that should always be transferred |                                   |
+| Field                 | Type                | Description                                                                                                  | Value                 |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------- |
+| Type                  | A                   | Identifies the event                                                                                         | META_UPDATE_FRACTIONS |
+| Timestamp             | DateTime (ISO-8601) | The time of the event                                                                                        |                       |
+| Code                  | AN                  | The identifier for the option                                                                                |                       |
+| Reinvestment_fraction | N(10,10)            | The fraction of the profits to reinvest                                                                      |                       |
+| FutureFund_fraction   | N(10,10)            | The fraction of the profits to donate to the future fund                                                     |                       |
+| Charity_fraction      | N(10,10)            | The fraction of the profits to donate to the charity                                                         |                       |
+| Bad_year_fraction     | N(10,10)            | The minimal fraction of the total amount of money in the investment option that should always be transferred |                       |
 
 #### New Donation
 
@@ -143,54 +145,53 @@ If the currency matches the investment fund's currency, the fields `Amount` and 
 | Donation              | AN                  | Identifies the donation                                     |          |
 | Donor                 | AN                  | The identifier for the donor                                |          |
 | Charity               | AN                  | The identifier for the charity                              |          |
-| Fund                  | AN                  | The identifier for the fund                                 |          |
+| Option                | AN                  | The identifier for the investment option                    |          |
 | Currency              | AN                  | An ISO-4217 currency code                                   |          |
 | Amount                | N(16,4)             | The donated amount                                          |          |
-| Exchanged_amount      | N(16,4)             | The donated amount in the currency of the investment fund   |          |
+| Exchanged_amount      | N(16,4)             | The donated amount in the currency of the investment option |          |
 | Transaction_reference | AN                  | An external reference for the donation transaction          |          |
 | Exchange_reference    | AN?                 | An optional external reference for the exchange transaction |          |
 
 #### Price info
 
 This event allows for the input of fund pricing info, so the donations' worth can be more easily plotted.
-This event may also be used to decrease the cash amount if debit transactions have occured for 
 
-| Field                 | Type                | Description                                                                         | Value      |
-| --------------------- | ------------------- | ----------------------------------------------------------------------------------- | ---------- |
-| Type                  | A                   | Identifies the event                                                                | PRICE_INFO |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                                          |            |
-| Fund                  | AN                  | The identifier for the fund                                                         |            |
-| Invested_amount       | N(20,4)             | The total invested amount of money in the fund, according to the current fund price |            |
-| Cash_amount           | N(20,4)             | The total cash amount of money in the fund                                          |            |
-| Transaction_reference | AN?                 | An optional external reference for the debit transaction (if applicable)            |            |
+| Field                 | Type                | Description                                                                                    | Value      |
+| --------------------- | ------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
+| Type                  | A                   | Identifies the event                                                                           | PRICE_INFO |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                                                     |            |
+| Option                | AN                  | The identifier for the option                                                                  |            |
+| Invested_amount       | N(20,4)             | The total invested amount of money in the fund, according to the current investment fund price |            |
+| Cash_amount           | N(20,4)             | The total cash amount of money in the investment option                                        |            |
+| Transaction_reference | AN?                 | An optional external reference for the debit transaction (if applicable)                       |            |
 
 ### Conversion day
 
 #### Conversion day Enter
 
-This event signifies the point in time at which all new donations are made part (in cash form) of the new investment fund.
+This event signifies the point in time at which all new donations are made part (in cash form) of the new investment option.
 
-Although the `Invested_amount` does not seem to have anything to do with the `Enter` event, it is the only piece of data that is both not yet known and influences the recalculation of ownership fractions.
+Although the `Invested_amount` does not seem to have anything to do with the `Enter` event, it is the only piece of data that is both not yet known and it influences the recalculation of ownership fractions.
 
-| Field           | Type                | Description                                                                                  | Value      |
-| --------------- | ------------------- | -------------------------------------------------------------------------------------------- | ---------- |
-| Type            | A                   | Identifies the event                                                                         | CONV_ENTER |
-| Timestamp       | DateTime (ISO-8601) | The timestamp of the event                                                                   |            |
-| Fund            | AN                  | The identifier for the fund                                                                  |            |
-| Invested_amount | N(20,4)             | The total **invested** amount of money in the fund (calculated by current price information) |            |
+| Field           | Type                | Description                                                                                                        | Value      |
+| --------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------- |
+| Type            | A                   | Identifies the event                                                                                               | CONV_ENTER |
+| Timestamp       | DateTime (ISO-8601) | The timestamp of the event                                                                                         |            |
+| Option          | AN                  | The identifier for the option                                                                                      |            |
+| Invested_amount | N(20,4)             | The total **invested** amount of money in the investment option (possibly calculated by current price information) |            |
 
 #### Conversion day Invest
 
 This event represents the investment of an amount of cash into the actual investment fund.
 
-| Field                 | Type                | Description                                               | Value       |
-| --------------------- | ------------------- | --------------------------------------------------------- | ----------- |
-| Type                  | A                   | Identifies the event                                      | CONV_INVEST |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                |             |
-| Fund                  | AN                  | The identfier for the fund                                |             |
-| Invested_amount       | N(20,4)             | The new total invested amount of money in the fund        |             |
-| Cash_amount           | N(20,4)             | The new total cash amount of money in the fund's reserves |             |
-| Transaction_reference | AN                  | An external reference for the investment transaction      |             |
+| Field                 | Type                | Description                                                            | Value       |
+| --------------------- | ------------------- | ---------------------------------------------------------------------- | ----------- |
+| Type                  | A                   | Identifies the event                                                   | CONV_INVEST |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                             |             |
+| Option                | AN                  | The identfier for the investment option                                |             |
+| Invested_amount       | N(20,4)             | The new total invested amount of money in the investment fund          |             |
+| Cash_amount           | N(20,4)             | The new total cash amount of money in the investment option's reserves |             |
+| Transaction_reference | AN                  | An external reference for the investment transaction                   |             |
 
 #### Conversion day Calculate
 
@@ -199,27 +200,27 @@ Although the Calculate event is an important event in the business process of th
 #### Conversion day Liquidate
 
 This event represents a liquidation from an investment fund, for the purpose of donating the withdrawn money to the charities. 
-This event only pertains to the liquidation of invested money to the cash amount.
+This event only pertains to the liquidation of invested money to the cash part of the investment option.
 
-| Field                 | Type                | Description                                               | Value         |
-| --------------------- | ------------------- | --------------------------------------------------------- | ------------- |
-| Type                  | A                   | Identifies the event                                      | CONV_WITHDRAW |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                |               |
-| Fund                  | AN                  | The identifier for the fund                               |               |
-| Invested_amount       | N(20,4)             | The new total invested amount of money in the fund        |               |
-| Cash_amount           | N(20,4)             | The new total cash amount of money in the fund's reserves |               |
-| Transaction_reference | AN                  | An external reference for the withdrawal transaction      |               |
+| Field                 | Type                | Description                                                            | Value         |
+| --------------------- | ------------------- | ---------------------------------------------------------------------- | ------------- |
+| Type                  | A                   | Identifies the event                                                   | CONV_WITHDRAW |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                             |               |
+| Option                | AN                  | The identifier for the investment option                               |               |
+| Invested_amount       | N(20,4)             | The new total invested amount of money in the investment option        |               |
+| Cash_amount           | N(20,4)             | The new total cash amount of money in the investment option's reserves |               |
+| Transaction_reference | AN                  | An external reference for the withdrawal transaction                   |               |
 
 #### Conversion day Exit
 
-This event represents an allocation of money to a charity from the cash part of an investment fund.
+This event represents an allocation of money to a charity from the cash amount of an investment option.
 The actual transfer to the charity may be delayed.
 
 | Field     | Type                | Description                             | Value     |
 | --------- | ------------------- | --------------------------------------- | --------- |
 | Type      | A                   | Identifies the event                    | CONV_GIFT |
 | Timestamp | DateTime (ISO-8601) | The timestamp of the event              |           |
-| Fund      | AN                  | The identifier of the fund              |           |
+| Option    | AN                  | The identifier of the investment option |           |
 | Charity   | AN                  | The identifier of the charity           |           |
 | Amount    | N(20,4)             | The amount to be donated to the charity |           |
 

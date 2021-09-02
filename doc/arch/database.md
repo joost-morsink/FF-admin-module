@@ -34,7 +34,7 @@ Every conversion day process cycle must output all events in a single file and u
 Every line in the file should contain an event. 
 The format used for the event is json.
 
-The application and database is responsible for ensuring the monotonicity (in time) of events.
+The application and database are responsible for ensuring the monotonicity (in time) of events.
 
 ## Sql database
 
@@ -47,6 +47,7 @@ First of all the events need to be stored in the database, which will require an
 
 We also would like to record rollback data in case events arrive in case monotonicity is not respected.
 This will be recorded in a separate table.
+This part can be postponed to a later stage.
 
 ### Main model
 
@@ -55,8 +56,8 @@ This comprises:
 
 * All donations
 * All charities
-* All investment funds, invested amounts and cash amounts
-* All current ownership fractions of donations in investment funds
+* All investment options, invested amounts and cash amounts
+* All current ownership fractions of donations in investment options
 * All current allocations for charities
 * All money transfers for charities, along with historic or calculated fractions for donations
 
@@ -69,11 +70,11 @@ The relationships between the tables are shown in the following diagram:
 ![](./images/database.svg)
 
 In this diagram, all relationships are directed from multiple to single.
-The only exception from this rule is the relationships from `Allocation` and `Fund` to `Fractionset`:
+The only exception from this rule is the relationships from `Allocation` and `Option` to `Fractionset`:
 
 * `Allocation` is owned by `Fractionset`
 
-* `Fund` is owned by `Fractionset`
+* `Option` is owned by `Fractionset`
 
 > #### TODO
 > 
@@ -83,68 +84,69 @@ The only exception from this rule is the relationships from `Allocation` and `Fu
 
 The table `Donation` contains all donations and relevant data:
 
-| Field                 | Type    | Description                                                                                         |
-| --------------------- | ------- | --------------------------------------------------------------------------------------------------- |
-| Donation_Id           | N       | An internal primary key for the donation                                                            |
-| Donation_Ext_Id       | AN      | The external id of the donation                                                                     |
-| Donor_Id              | AN      | The external id of the donor                                                                        |
-| Currency              | AN      | The currency of the donation                                                                        |
-| Amount                | N(16,4) | The amount of the donation                                                                          |
-| Exchanged_amount      | N(16,4) | The exchanged amount of the donation in the fund's currency                                         |
-| Fund_Id               | N       | A reference to the investment fund                                                                  |
-| Charity_Id            | N       | A reference to the charity                                                                          |
-| Entered               | DT?     | The timestamp when the donation has been entered into the investment fund; empty if not yet entered |
-| Exit_actual_valuation | N(16,4) | The actual valuation after the last `Exit`; initial value equal to `Amount`                         |
-| Exit_ideal_valuation  | N(16,4) | The ideal valuation after the last `Exit`; initial value equal to `Amount`                          |
+| Field            | Type    | Description                                                                                         |
+| ---------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| Donation_Id      | N       | An internal primary key for the donation                                                            |
+| Donation_Ext_Id  | AN      | The external id of the donation                                                                     |
+| Donor_Id         | AN      | The external id of the donor                                                                        |
+| Currency         | AN      | The currency of the donation                                                                        |
+| Amount           | N(16,4) | The amount of the donation                                                                          |
+| Exchanged_amount | N(16,4) | The exchanged amount of the donation in the fund's currency                                         |
+| Option_Id        | N       | A reference to the investment option                                                                |
+| Charity_Id       | N       | A reference to the charity                                                                          |
+| Entered          | DT?     | The timestamp when the donation has been entered into the investment fund; empty if not yet entered |
 
+#### Charity
 
+The table `Charity` contains all charities.
+
+| Field           | Type | Description                                                          |
+| --------------- | ---- | -------------------------------------------------------------------- |
+| Charity_Id      | N    | An internal primary key for the donation                             |
+| Charity_Ext_Id  | AN   | The external id of the charity                                       |
+| Name            | AN   | The name of the charity                                              |
+| Bank_name       | AN   | The name of the charity as registered for the charity's bank account |
+| Bank_account_no | AN   | The bank account number for the charity (IBAN for EU zone)           |
+| Bank_Bic        | AN?  | The BIC for the charity's bank (Optional for EU zone)                |
+
+#### Option
+
+The table `Option` contains all investment funds, with current worth and current applicable fractions.
+
+| Field                 | Type     | Description                                                                                          |
+| --------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| Option_Id             | N        | An internal primary key for the investment option                                                    |
+| Option_Ext_Id         | AN       | An external id of the investment option                                                              |
+| Reinvestment_fraction | N(10,10) | The fraction of the profits to reinvest                                                              |
+| FutureFund_fraction   | N(10,10) | The fraction of the profits to donate to the future fund                                             |
+| Charity_fraction      | N(10,10) | The fraction of the profits to donate to the charity                                                 |
+| Bad_year_fraction     | N(10,10) | The fraction of the total amount of money in the investment option that should always be transferred |
+| Currency              | AN       | The currency of the investment option                                                                |
+| Invested_amount       | N(20,4\) | The current amount of invested money in the investment option                                        |
+| Cash_amount           | N(20,4)  | The current amount of cash in the investment option                                                  |
+| Fractionset_Id        | N        | A reference to the current ownership fractions of the investment option                              |
+| Last_Exit             | DT?      | A timestamp of the last `Exit` on this investment option                                             |
+| Exit_actual_valuation | N(16,4)  | The actual valuation after the last `Exit`; initial value equal to `Amount`                          |
+| Exit_ideal_valuation  | N(16,4)  | The ideal valuation after the last `Exit`; initial value equal to `Amount`                           |
 
 > #### Assumption
 > 
 > Given the situation there is only a single `Enter` between two `Exit` *and* it is positioned right after the `Exit`, we can certainly get away with including the valuation columns here.
 > When we choose to deviate from this convention we will have to take a look at it again, and maybe redesign a bit.
 
-#### Charity
-
-The table `Charity` contains all charities.
-
-| Field          | Type | Description                              |
-| -------------- | ---- | ---------------------------------------- |
-| Charity_Id     | N    | An internal primary key for the donation |
-| Charity_Ext_Id | AN   | The external id of the charity           |
-| Name           | AN   | The name of the charity                  |
-
-#### Fund
-
-The table `Fund` contains all investment funds, with current worth and current applicable fractions.
-
-| Field                 | Type     | Description                                                                                        |
-| --------------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| Fund_Id               | N        | An internal primary key for the investment fund                                                    |
-| Fund_Ext_Id           | AN       | An external id of the investment fund                                                              |
-| Reinvestment_fraction | N(10,10) | The fraction of the profits to reinvest                                                            |
-| FutureFund_fraction   | N(10,10) | The fraction of the profits to donate to the future fund                                           |
-| Charity_fraction      | N(10,10) | The fraction of the profits to donate to the charity                                               |
-| Bad_year_fraction     | N(10,10) | The fraction of the total amount of money in the investment fund that should always be transferred |
-| Currency              | AN       | The currency of the investment fund                                                                |
-| Invested_amount       | N(20,4\) | The current amount of invested money in the investment fund                                        |
-| Cash_amount           | N(20,4)  | The current amount of cash in the investment fund                                                  |
-| Fractionset_Id        | N        | A reference to the current ownership fractions of the investment fund                              |
-| Last_Exit             | DT?      | A timestamp of the last `Exit` on this investment fund                                             |
-
 #### Allocation
 
 The table `Allocation` contains all the money allocated to charities due to the `Exit` event.
 
-| Field          | Type    | Description                                                          |
-| -------------- | ------- | -------------------------------------------------------------------- |
-| Allocation_Id  | N       | An internal primary key for the allocation                           |
-| Timestamp      | DT      | The datetime of the allocation                                       |
-| Fund_Id        | N       | A reference to the investment fund                                   |
-| Charity_Id     | N       | A reference to the charity                                           |
-| Fractionset_Id | N       | A reference to the fraction set of the allocation                    |
-| Amount         | N(20,4) | The amount of money allocated in the currency of the investment fund |
-| Transferred    | B       | True if the allocation has actually been transferred to the charity  |
+| Field          | Type    | Description                                                            |
+| -------------- | ------- | ---------------------------------------------------------------------- |
+| Allocation_Id  | N       | An internal primary key for the allocation                             |
+| Timestamp      | DT      | The datetime of the allocation                                         |
+| Option_Id      | N       | A reference to the investment option                                   |
+| Charity_Id     | N       | A reference to the charity                                             |
+| Fractionset_Id | N       | A reference to the fraction set of the allocation                      |
+| Amount         | N(20,4) | The amount of money allocated in the currency of the investment option |
+| Transferred    | B       | True if the allocation has actually been transferred to the charity    |
 
 #### Transfer
 
@@ -193,11 +195,13 @@ In PostgreSql the most obvious choice is to use functions for all types of logic
 * Process events, calls
   
   * Process event, calls
+    
     * Process specific event (x11)
 
 * Rollback events, calls
   
   * Rollback event, calls
+    
     * Rollback specific event (x11)
 
 * Calculate liquidation
