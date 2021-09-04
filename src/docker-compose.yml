@@ -23,4 +23,9 @@ services:
     - ./pgadmin:/var/lib/pgadmin
     - ./database:/var/lib/pgadmin/storage/postgres_toekomstfonds.nl
 
+  web: 
+    build:
+      context: ./web/FfAdminWeb
+    ports:
+    - "8081:80"
 

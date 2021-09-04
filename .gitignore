@@ -2,3 +2,6 @@ dist
 images
 pgdata
 pgadmin
+.vs
+bin
+obj

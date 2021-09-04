@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.810.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FfAdminWeb", "FfAdminWeb.csproj", "{304B4467-4B72-4242-8254-327795684B86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{304B4467-4B72-4242-8254-327795684B86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{304B4467-4B72-4242-8254-327795684B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{304B4467-4B72-4242-8254-327795684B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{304B4467-4B72-4242-8254-327795684B86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7206E82-7211-4AE5-B26C-16CD76DB9D76}
+	EndGlobalSection
+EndGlobal
