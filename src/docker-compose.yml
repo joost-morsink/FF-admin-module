@@ -1,0 +1,22 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:13.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ff
+      POSTGRES_PASSWORD: notsecret
+    volumes:
+    - ./pgdata:/var/lib/postgresql/data
+    ports:
+    - "5432:5432"
+  admin:
+    image: dpage/pgadmin4
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: postgres@toekomstfonds.nl
+      PGADMIN_DEFAULT_PASSWORD: notsecret
+    ports: 
+    - "8080:80"
+
+
