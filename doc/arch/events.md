@@ -163,7 +163,6 @@ This event allows for the input of fund pricing info, so the donations' worth ca
 | Option                | AN                  | The identifier for the option                                                                  |            |
 | Invested_amount       | N(20,4)             | The total invested amount of money in the fund, according to the current investment fund price |            |
 | Cash_amount           | N(20,4)             | The total cash amount of money in the investment option                                        |            |
-| Transaction_reference | AN?                 | An optional external reference for the debit transaction (if applicable)                       |            |
 
 ### Conversion day
 
@@ -202,14 +201,14 @@ Although the Calculate event is an important event in the business process of th
 This event represents a liquidation from an investment fund, for the purpose of donating the withdrawn money to the charities. 
 This event only pertains to the liquidation of invested money to the cash part of the investment option.
 
-| Field                 | Type                | Description                                                            | Value         |
-| --------------------- | ------------------- | ---------------------------------------------------------------------- | ------------- |
-| Type                  | A                   | Identifies the event                                                   | CONV_WITHDRAW |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                             |               |
-| Option                | AN                  | The identifier for the investment option                               |               |
-| Invested_amount       | N(20,4)             | The new total invested amount of money in the investment option        |               |
-| Cash_amount           | N(20,4)             | The new total cash amount of money in the investment option's reserves |               |
-| Transaction_reference | AN                  | An external reference for the withdrawal transaction                   |               |
+| Field                 | Type                | Description                                                            | Value          |
+| --------------------- | ------------------- | ---------------------------------------------------------------------- | -------------- |
+| Type                  | A                   | Identifies the event                                                   | CONV_LIQUIDATE |
+| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                             |                |
+| Option                | AN                  | The identifier for the investment option                               |                |
+| Invested_amount       | N(20,4)             | The new total invested amount of money in the investment option        |                |
+| Cash_amount           | N(20,4)             | The new total cash amount of money in the investment option's reserves |                |
+| Transaction_reference | AN                  | An external reference for the withdrawal transaction                   |                |
 
 #### Conversion day Exit
 
@@ -222,7 +221,7 @@ The actual transfer to the charity may be delayed.
 | Timestamp | DateTime (ISO-8601) | The timestamp of the event              |           |
 | Option    | AN                  | The identifier of the investment option |           |
 | Charity   | AN                  | The identifier of the charity           |           |
-| Amount    | N(20,4)             | The amount to be donated to the charity |           |
+| Amount    | N(20,4)             | The amount to be donated to charities   |           |
 
 #### Conversion day Charity transfer
 

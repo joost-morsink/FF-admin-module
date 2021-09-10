@@ -8,7 +8,7 @@ The reader is encouraged to read up on the Future Fund's advertised model on the
 ## Abstract
 
 This document describes the architecture and technical design of an administration module for the Future Fund.
-Initially, the proposed solution was to administer all financial data in the website's database, but several conditions have changed the preferred architecture to be an highly offine scenario.
+Initially, the proposed solution was to administer all financial data in the website's database, but several conditions have changed the preferred architecture to be an highly offline scenario.
 
 The proposed solution is an event sourcing solution.
 The key motivating drivers for this insight are:
