@@ -100,8 +100,57 @@ The admin module has two data interfaces with the Future Fund website.
 
 ### Donation data
 
-> **TODO** XML? Transforms?
+The GiveWP plugin has a default export functionality to export donations from a certain period in CSV format.
+Within the fields of the CSV some formatting has been done depending on the regional settings of the WordPress website.
+We won't need all the exported fields, and will show a selection in the corresponding section.
+
+#### Regional settings
+
+The application should be configurable with respect to handling regional deviations from the standard. 
+
+| Setting             | Preferred  | nl-NL      | en-US      |
+| ------------------- | ---------- | ---------- | ---------- |
+| List separator      | ,          | ;          | ,          |
+| Thousands separator | none       | .          | ,          |
+| Decimal separator   | .          | ,          | .          |
+| Dateformat          | yyyy-MM-dd | dd/MM/yyyy | MM/dd/yyyy |
+| Quotation           | "          | "          | "          |
+
+If choosing a predefined culture suffices, we needn't implement custom parsing logic.
+
+#### Columns
+
+| Field                       | Type | Description                                                                                          |
+| --------------------------- | ---- | ---------------------------------------------------------------------------------------------------- |
+| Donation ID                 | N    | An identifier for the donation                                                                       |
+| Donation Total              | N    | A total amount for the donation                                                                      |
+| Currency Code               | AN   | An ISO-4217 currency code                                                                            |
+| Donation Status             | AN   | A status for the donation, only Complete and Renewal are eligible for import                         |
+| Donation Date               | AN   | The date part of the timestamp                                                                       |
+| Donation Time               | AN   | The time part of the timestamp                                                                       |
+| Payment Gateway, Mode, Type | AN   | These columns might be used to determine cancellation timespans and determine eligibility for import |
+| Form ID                     | N    | An identifier for the charity                                                                        |
+| Form Title                  | AN   | A name of the charity, can be used for _New charity_ events                                          |
+| Donor ID                    | N    | An identifier for the donor                                                                          |
+
+The missing data points (which can be found in chapter [Events](#events)) to create an event are:
+
+| Field                 | Remark                                                                       |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Option_id             | Might be determined by a default or a combination of items in the CSV row    |
+| Exchanged_amount      | If currencies do not match up, this needs to be entered by the administrator |
+| Exchange_reference    | If currencies do not match up, this can be entered by the administrator      |
+| Transaction_reference | Can be empty, or matched with bank account records                           |
+
+> #### Assumption
+> 
+> With only one option and accepting only the EUR currency, we are effectively not missing data points.
+> If these conditions change, we need to revise the usefulness of this import on its own.
 
 ### Aggregated data
 
-> **TODO** SQL?
+> #### Todo
+> 
+> We can determine how to export relevant data to the website when that design has been made.
+> 
+> 

@@ -11,7 +11,7 @@ We will use two separate data storage technologies for two distinct purposes:
 We will use Git for storing all the events that have occured.
 Git provides us with a hash code that we can use on our audit reports to reference a certain state in the history of the Future Fund's administration.
 
-> #### TODO
+> #### Todo
 > 
 > We need to investigate the possibility of using SHA-256 hashes instead of SHA-1 hashes.
 > If not possible we might need to create a content-based hash ourselves.
@@ -36,12 +36,10 @@ The format used for the event is json.
 
 The application and database are responsible for ensuring the monotonicity (in time) of events.
 
-## Sql database
+## Event tables
 
 An Sql database is used to store all the relevant data to facilitate the business process.
 Initially this will be a fairly minimum set of tables, but the model might grow in the future as new requirements emerge.
-
-### Event tables
 
 First of all the events need to be stored in the database, which will require an event table containing fields for all the possible events. 
 
@@ -49,7 +47,7 @@ We also would like to record rollback data in case events arrive in case monoton
 This will be recorded in a separate table.
 This part can be postponed to a later stage.
 
-#### Event
+### Event
 
 | Field                     | Type     | Description                                                                                                  | Used in                                                                                                          |
 | ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
@@ -77,11 +75,11 @@ This part can be postponed to a later stage.
 | Transfer_amount           | N(20,4)  | The amount transferred to the charity before exchange                                                        | CONV_TRANSFER                                                                                                    |
 | Exchanged_transfer_amount | N(20,4)  | The amount transferred to the charity after exchange                                                         | CONV_TRANSFER                                                                                                    |
 
-#### Rollback
+### Rollback
 
 The rollback model will not yet be implemented, because we will consider this for the next phase.
 
-### Main model
+## Main model
 
 The main model should contain the current state of affairs according to all the events that have been processed.
 This comprises:
@@ -114,7 +112,7 @@ The only exception from this rule is the relationships from `Allocation` and `Op
 > We might need to renormalize fractions in a fraction set to sum to 1, or we might need to introduce rational fractions when rounding errors are becoming significant.
 > We do not have strategy for determining whether we have significant errors or not.
 
-#### Donation
+### Donation
 
 The table `Donation` contains all donations and relevant data:
 
@@ -130,7 +128,7 @@ The table `Donation` contains all donations and relevant data:
 | Charity_Id       | N        | A reference to the charity                                                                            |
 | Entered          | DT?      | The timestamp when the donation has been entered into the investment option; empty if not yet entered |
 
-#### Charity
+### Charity
 
 The table `Charity` contains all charities.
 
@@ -143,7 +141,7 @@ The table `Charity` contains all charities.
 | Bank_account_no | AN   | The bank account number for the charity (IBAN for EU zone)           |
 | Bank_Bic        | AN?  | The BIC for the charity's bank (Optional for EU zone)                |
 
-#### Option
+### Option
 
 The table `Option` contains all investment funds, with current worth and current applicable fractions.
 
@@ -168,7 +166,7 @@ The table `Option` contains all investment funds, with current worth and current
 > Given the situation there is only a single `Enter` between two `Exit` *and* it is positioned right after the `Exit`, we can certainly get away with including the valuation columns here.
 > When we choose to deviate from this convention we will have to take a look at it again, and maybe redesign a bit.
 
-#### Allocation
+### Allocation
 
 The table `Allocation` contains all the money allocated to charities due to the `Exit` event.
 
@@ -182,7 +180,7 @@ The table `Allocation` contains all the money allocated to charities due to the 
 | Amount         | N(20,4) | The amount of money allocated in the currency of the investment option |
 | Transferred    | B       | True if the allocation has actually been transferred to the charity    |
 
-#### Transfer
+### Transfer
 
 The table `Transfer` contains all the transactions of money transfers to charities.
 
@@ -196,7 +194,7 @@ The table `Transfer` contains all the transactions of money transfers to chariti
 | Exchanged_Currency | AN?     | The optional currency of the transfer after exchange |
 | Exchanged_Amount   | N(20,4) | The amount of the transfer after currency exchange   |
 
-#### Fractions
+### Fractions
 
 The `Fractionset` table groups multiple fractions into a set.
 
@@ -217,7 +215,7 @@ The `Fraction` table contains the actual link to donations and the fraction the 
 All fractions belonging to a fraction set should sum up to 1, or very close to it (rounding errors may occur).
 We might have to correct for rounding errors at a later time.
 
-### Database code
+## Database code
 
 As mentioned earlier in this document, the Sql database will contain the logic for processing all events and making the necessary calculations.
 In PostgreSql the most obvious choice is to use functions for all types of logic.
@@ -247,7 +245,7 @@ In PostgreSql the most obvious choice is to use functions for all types of logic
 This total 41 functions, most of which are fairly simple.
 Some of the more complex functions might call even more functions, but that is an implementation detail and out of scope for this document.
 
-#### Processing events
+## Processing events
 
 Each and every event that is processed is first entered into the `Event` table. 
 A primary key (auto incerement) is assigned to the event, and it is checked the timestamp is not before the last timestamp.
@@ -260,7 +258,7 @@ The data in the `Invest` event is used to subtract from `Cash_amount` and add to
 
 The charity transfer should set the `Transferred` flag to `true`.
 
-##### Enter
+### Enter
 
 When the `Enter` event occurs, a candidate set of donations are selected by using the following criteria:
 
@@ -286,7 +284,7 @@ Then the following changes should apply atomically:
 
 * Each donation is given a `Fraction` in the `Fractionset` of `(amount/new amount)`
 
-##### Calculate liquidation
+### Calculate liquidation
 
 This should be done after updating the `Invested_amount` either by processing a `Price_info` event or an `Enter` event.
 
@@ -315,7 +313,7 @@ The current cash amount can be subtracted from this amount to determine how much
 > If the `Option` has a actual valuation below the ideal valuation on the last `Exit`, all newly `Enter`ed donations will be treated as if they also have a higher ideal valuation.
 > If this is not what we aim to do, we need to move the columns to the donation level.
 
-##### Exit
+### Exit
 
 The `Exit` event uses the `Fractionset` to determine how much of the amount in the event data should go to each charity allocation.
 It atomically:
@@ -328,10 +326,8 @@ It atomically:
 
 The sum of the `Allocation`s should equal the `Cash_amount` reduction.
 
-#### Rolling events back
+## Rolling events back
 
-Rolling back events requires more data to be stored in the model, and as such will only be documented in the next phase.
-
-> #### TODO
+> #### Todo
 > 
-> Describe the steps to take when rolling events back.
+> Rolling back events requires more data to be stored in the model, and as such will only be documented in the next phase.
