@@ -74,6 +74,7 @@ This part can be postponed to a later stage.
 | Transfer_currency         | AN       | An ISO-4217 currency code for the transfer                                                                   | CONV_TRANSFER                                                                                                    |
 | Transfer_amount           | N(20,4)  | The amount transferred to the charity before exchange                                                        | CONV_TRANSFER                                                                                                    |
 | Exchanged_transfer_amount | N(20,4)  | The amount transferred to the charity after exchange                                                         | CONV_TRANSFER                                                                                                    |
+| Processed                 | B        | Indicates whether the event has been processed                                                               | N/A                                                                                                              |
 
 ### Rollback
 
@@ -210,7 +211,7 @@ The `Fraction` table contains the actual link to donations and the fraction the 
 | Fraction_Id    | N        | An internal primary key for an ownership fraction |
 | Fractionset_Id | N        | A reference to the fraction set                   |
 | Donation_Id    | N        | A reference to the donation                       |
-| Fraction       | N(20,20) | The actual fraction                               |
+| Fraction       | N(21,20) | The actual fraction                               |
 
 All fractions belonging to a fraction set should sum up to 1, or very close to it (rounding errors may occur).
 We might have to correct for rounding errors at a later time.

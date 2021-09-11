@@ -13,10 +13,14 @@ services:
     - "5432:5432"
   admin:
     image: dpage/pgadmin4
+    restart: unless-stopped
     environment: 
       PGADMIN_DEFAULT_EMAIL: postgres@toekomstfonds.nl
       PGADMIN_DEFAULT_PASSWORD: notsecret
     ports: 
     - "8080:80"
+    volumes:
+    - ./pgadmin:/var/lib/pgadmin
+    - ./database:/var/lib/pgadmin/storage/postgres_toekomstfonds.nl
 
 
