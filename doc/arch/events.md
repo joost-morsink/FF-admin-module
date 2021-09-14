@@ -217,7 +217,7 @@ The actual transfer to the charity may be delayed.
 
 | Field     | Type                | Description                             | Value     |
 | --------- | ------------------- | --------------------------------------- | --------- |
-| Type      | A                   | Identifies the event                    | CONV_GIFT |
+| Type      | A                   | Identifies the event                    | CONV_EXIT |
 | Timestamp | DateTime (ISO-8601) | The timestamp of the event              |           |
 | Option    | AN                  | The identifier of the investment option |           |
 | Charity   | AN                  | The identifier of the charity           |           |

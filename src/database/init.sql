@@ -1,15 +1,15 @@
 /*
 drop schema ff cascade;
-update ev.event set processed = FALSE
-drop schema ev cascade;
+update core.event set processed = FALSE;
+drop schema core cascade;
 */
-create schema if not exists ev;
+create schema if not exists core;
 create schema if not exists ff;
 
-create sequence if not exists ev.event_seq;
+create sequence if not exists core.event_seq;
 
-create table if not exists ev.event (
-	event_id int primary key not null default nextval('ev.event_seq'),
+create table if not exists core.event (
+	event_id int primary key not null default nextval('core.event_seq'),
 	type varchar(32) not null,
 	timestamp timestamp not null,
 	name varchar(256) null,
@@ -18,6 +18,7 @@ create table if not exists ev.event (
 	futurefund_fraction numeric(10,10) null,
 	charity_fraction numeric(10,10) null,
 	bad_year_fraction numeric(10,10) null,
+	donation_id varchar(16) null,
 	donor_id varchar(16) null,
 	charity_id varchar(16) null,
 	option_id varchar(16) null,
@@ -35,6 +36,13 @@ create table if not exists ev.event (
 	processed boolean not null default FALSE
 );
 
+create index if not exists event_timestamp on core.event (timestamp);
+create unique index if not exists event_donation on core.event(donation_id);
+
+drop type if exists core.message;
+create type core.message as (status int, key varchar(64), message varchar(256));
+
+
 create sequence if not exists ff.fractionset_seq;
 create table if not exists ff.fractionset (
 	fractionset_id int primary key not null default nextval('ff.fractionset_seq'),
@@ -49,6 +57,8 @@ create table if not exists ff.fraction (
 	fraction numeric(21,20) not null
 );
 
+create index if not exists fraction_fractionset on ff.fraction (fractionset_id);
+
 create sequence if not exists ff.charity_seq;
 create table if not exists ff.charity (
 	charity_id int primary key not null default nextval('ff.charity_seq'),
@@ -58,6 +68,8 @@ create table if not exists ff.charity (
 	bank_account_no varchar(64) null,
 	bank_nic varchar(32) null
 );
+
+create unique index if not exists charity_ext on ff.charity(charity_ext_id);
 
 create sequence if not exists ff.option_seq;
 create table if not exists ff.option (
@@ -76,6 +88,8 @@ create table if not exists ff.option (
 	exit_ideal_valudation numeric(20,4) null
 );
 
+create unique index if not exists option_ext on ff.option (option_ext_id);
+
 create sequence if not exists ff.donation_seq;
 create table if not exists ff.donation (
 	donation_id int primary key not null default nextval('ff.donation_seq'),
@@ -89,6 +103,10 @@ create table if not exists ff.donation (
 	entered timestamp null
 );
 
+create unique index if not exists donation_ext on ff.donation(donation_ext_id);
+create index if not exists donation_option on ff.donation(option_id);
+create index if not exists donation_charity on ff.donation(charity_id);
+
 create sequence if not exists ff.allocation_seq;
 create table if not exists ff.allocation (
 	allocation_id int primary key not null default nextval('ff.allocation_seq'),
@@ -99,6 +117,9 @@ create table if not exists ff.allocation (
 	amount numeric(20,4) not null,
 	transferred boolean not null default FALSE
 );
+
+create index if not exists allocation_option on ff.allocation(option_id);
+create index if not exists allocation_charity on ff.allocation(charity_id);
 
 create sequence if not exists ff.transfer_seq;
 create table if not exists ff.transfer (
@@ -111,4 +132,5 @@ create table if not exists ff.transfer (
 	exchanged_amount numeric(20,4) null
 );
 
+create index if not exists transfer_charity on ff.transfer(charity_id);
 
