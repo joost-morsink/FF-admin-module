@@ -53,7 +53,7 @@ Metadata events in _red_ will generally only happen in the beginning of an itera
 Donations in _green_ can happen all the time.
 Conversion day events in=_yellow_, out=_blue_ happen in the order shown.
 
-The conversion day starts at the dotted line, although the first ever conversion day event has been/will be the `Enter` event.
+The conversion day starts at the left, although the first ever conversion day event has been/will be the `Enter` event.
 The reason for this is there is nothing to liquidate when there has never been anything invested.
 The conversion day process makes a full cycle of all of the events, although we might change this in the future.
 
@@ -104,7 +104,7 @@ This event creates a new charity that can be chosen by a donor as a beneficiary 
 
 This event creates a new investment option that can be used for investing the donations.
 The three fractions (`Reinvestment_fraction` + `FutureFund_fraction` + `Charity_fraction`) in the event should add up to 1.
-The `Bad_year_fraction` does not apply to profits.
+The `Bad_year_fraction` does not apply to profits, like the other three fractions, but instead it applies to the invested value of the donation.
 
 | Field                 | Type                | Description                                                                                                  | Value           |
 | --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------ | --------------- |

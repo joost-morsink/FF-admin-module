@@ -11,13 +11,15 @@ The process consists of the following _strictly sequential_ steps:
 
 * Transfer money to charities and administer results
 
-* Export data (donations) from the online database
-
-* Import this data into the event source
-
-* Execute `Enter`
-
-* Execute investment of newly added liquid assets (cash amount) and administer results
+* Optional 2nd part of the process:
+  
+  * Export data (donations) from the online database
+  
+  * Import this data into the event source
+  
+  * Execute `Enter`
+  
+  * Execute investment of newly added liquid assets (cash amount) and administer results
 
 * Make an export for auditing purposes
 
@@ -53,7 +55,11 @@ After the liquidation has been executed on the investment platform, the results 
 
 The `Exit` step allocates money in the right proportions to all the charities that have been selected by the original donations.
 If there are enough liquid assets in the investment option, the total amount of calculated money can be transferred.
-If there aren't, a fraction should be calculated based on the availability of liquid assets.
+If there aren't, either:
+
+* more stocks need to be liquidated, or
+
+* a fraction should be calculated based on the availability of liquid assets.
 
 ### Transfer money to charities and administer results
 
@@ -152,5 +158,3 @@ The missing data points (which can be found in chapter [Events](#events)) to cre
 > #### Todo
 > 
 > We can determine how to export relevant data to the website when that design has been made.
-> 
-> 

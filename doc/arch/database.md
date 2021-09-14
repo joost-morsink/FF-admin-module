@@ -329,6 +329,8 @@ The sum of the `Allocation`s should equal the `Cash_amount` reduction.
 
 ## Rolling events back
 
+Rolling events back can always be done by starting from scratch and reprocessing all events up to the events that need to be rolled back.
+
 > #### Todo
 > 
 > Rolling back events requires more data to be stored in the model, and as such will only be documented in the next phase.

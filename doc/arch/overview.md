@@ -60,3 +60,4 @@ We break this down into the following categories:
   * The first conversion day logic should pertain to the liquidation of stocks from the investment funds with the ultimate goal of making a money transfer to the selected charities.
   
   * The second conversion day logic should pertain to the allocation of newly donated money into investment options, and consequently investing the money in the investment funds.
+    Theoretically this part can be skipped.

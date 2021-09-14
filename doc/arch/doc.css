@@ -73,7 +73,7 @@ pre {
     h1 {
       page-break-before: always !important;
     }
-    h1, h2, h3, h4, h5, h6, table, img {
+    h1, h2, h3, h4, h5, h6, table, img, blockquote {
         page-break-inside: avoid !important;
     }
     .page-breaker {
