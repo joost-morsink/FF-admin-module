@@ -1,7 +1,8 @@
 # Overview
 
-The solution architecture consists of an online and an offline system.
+The solution architecture consists of an online (website) and an offline (admin module) system.
 A physical actor, called the _administrator_, has access to both systems and can use them to synchronize data between these systems.
+This synchronization is manual, and the administrator is responsible for the execution of the synchronization.
 
 ![Overview](./images/overview.svg)
 
@@ -13,7 +14,12 @@ The purpose of the online database is to:
 
 * administer donations and (chosen) charities;
 
-* display statistics about investment results and actual transfers to charity.
+* display statistics about investment results and actual transfers to charity;
+
+* keep track of individual donors and donations.
+
+This database contains some personal data, all of which is entered by the donor. 
+The website should have measures in place to comply with the GDPR.
 
 ### Offline database
 
@@ -21,7 +27,7 @@ The purpose of the offline database is to:
 
 * import donations;
 
-* export financial data for usage in the online database;
+* export statistical data for usage in the online database;
 
 * administer investments;
 
@@ -30,6 +36,9 @@ The purpose of the offline database is to:
 * administer money transfers to charities;
 
 * provide a datasource to reinitialize the database from scratch.
+
+This database only contains identifiers, which can be correlated to the user accounts on the website.
+No GDPR measures need to be taken here.
 
 ## Requirements
 

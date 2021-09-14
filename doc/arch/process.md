@@ -3,7 +3,7 @@
 The Admin module mainly supports the business process of the conversion day.
 The process consists of the following _strictly sequential_ steps:
 
-* Calculate liquidation and transfers
+* Calculate liquidation of investments and transfers to charity
 
 * Execute liquidation and administer results
 
@@ -15,7 +15,7 @@ The process consists of the following _strictly sequential_ steps:
   
   * Export data (donations) from the online database
   
-  * Import this data into the event source
+  * Import this data into the [event storage](#event-storage)
   
   * Execute `Enter`
   

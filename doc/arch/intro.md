@@ -8,7 +8,16 @@ The reader is encouraged to read up on the Future Fund's advertised model on the
 ## Abstract
 
 This document describes the architecture and technical design of an administration module for the Future Fund.
-Initially, the proposed solution was to administer all financial data in the website's database, but several conditions have changed the preferred architecture to be an highly offline scenario.
+Initially, the proposed solution was to administer all statistical data in the website's database, but several conditions have changed the preferred architecture to be an highly offline scenario.
+
+This scenario comprises the Future Fund's online website as well as an administration module that is described in this document.
+The purpose of this module is to:
+
+* Import donation data
+
+* Perform necessary calculations for investments, liquidations and transfers to charity, based on the Future Fund's business rules
+
+* Export data for statistics
 
 The proposed solution is an event sourcing solution.
 The key motivating drivers for this insight are:
@@ -27,23 +36,24 @@ Although the proposed solution gives us several advantages, we also need to cons
 
 Some terminology is used within the Future Fund, which need a unambiguous description:
 
-| Term                  | Definition                                                                                                                                                                                            |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Donation              | An amount of money donated by a donor to the Future Fund.                                                                                                                                             |
-| Investment **option** | An aggregate of both an investment fund and liquid assets.                                                                                                                                            |
-| Investment **fund**   | An actual investment fund, consisting of stocks, obligations, etc.                                                                                                                                    |
-| Invested amount       | The amount of money in an investment option allocated to an investment fund.                                                                                                                          |
-| Cash amount           | The amount of money in an investment option not allocated to an investment fund, the liquid assets.                                                                                                   |
-| `Invest`              | A step that turns the cash amount of an investment option into an equivalent invested amount in the same investment option.                                                                           |
-| `Liquidate`           | A step that turns an invested amount in an investment option into an equivalent cash amount of that same investment option.                                                                           |
-| `Enter`               | Making new donations part of some investment option.                                                                                                                                                  |
-| `Exit`                | Extracting liquid assets from an investment option for the purpose of transferring it to charity.                                                                                                     |
-| Charity               | A good cause, ()potential) beneficiary of money transfers from the Future Fund. For NL a registered ANBI.                                                                                             |
-| (Money) transfer      | A transfer of money (profits) to a charity.                                                                                                                                                           |
-| Conversion day        | The day on which donations and profits are converted into a next process step.                                                                                                                        |
-| Ownership fraction    | The fraction of an investment option that is owned by a _donation_. Fractions are owned by donations and not by donors, since donations are the lowest level of disaggregation                        |
-| Ideal valuation       | The amount of money a donation should be worth, any excess money is transferrable.                                                                                                                    |
-| Reinvestment fraction | The fraction of the profits that should remain in the investment option.                                                                                                                              |
-| Future Fund fraction  | The fraction of the profits that should be transferred to the future fund.                                                                                                                            |
-| Charity fraction      | The fraction of the profits that should be transferred to the chosen charity.                                                                                                                         |
-| Bad year fraction     | The fraction of the worth that should be transferred to charity in a year when the investments results are negative or the Future Fund is still correcting for previous years with negative interest. |
+| Term                  | Definition                                                                                                                                                                                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Donation              | An amount of money donated by a donor to the Future Fund.                                                                                                                                                                                                         |
+| Donor                 | A person or organization that makes a donation.                                                                                                                                                                                                                   |
+| Investment **option** | An aggregate of both an investment fund and liquid assets.                                                                                                                                                                                                        |
+| Investment **fund**   | An actual investment fund, consisting of stocks, obligations, etc.                                                                                                                                                                                                |
+| Invested amount       | The amount of money in an investment option allocated to an investment fund.                                                                                                                                                                                      |
+| Cash amount           | The amount of money in an investment option not allocated to an investment fund, the liquid assets.                                                                                                                                                               |
+| `Invest`              | A step that turns the cash amount of an investment option into an equivalent invested amount in the same investment option.                                                                                                                                       |
+| `Liquidate`           | A step that turns an invested amount in an investment option into an equivalent cash amount of that same investment option.                                                                                                                                       |
+| `Enter`               | Making new donations part of some investment option.                                                                                                                                                                                                              |
+| `Exit`                | Extracting liquid assets from an investment option for the purpose of transferring it to charity.                                                                                                                                                                 |
+| Charity               | A good cause, ()potential) beneficiary of money transfers from the Future Fund. For NL a registered ANBI.                                                                                                                                                         |
+| (Money) transfer      | A transfer of money (profits) to a charity.                                                                                                                                                                                                                       |
+| Conversion day        | The day on which donations and profits are converted into a next process step.                                                                                                                                                                                    |
+| Ownership fraction    | The fraction of an investment option that is owned by a _donation_. Fractions are owned by donations and not by donors, since donations are the lowest level of disaggregation. This is necessary to provide the donor with statistics for all his/her donations. |
+| Ideal valuation       | The amount of money a donation should be worth, any excess money is transferrable.                                                                                                                                                                                |
+| Reinvestment fraction | The fraction of the profits that should remain in the investment option.                                                                                                                                                                                          |
+| Future Fund fraction  | The fraction of the profits that should be transferred to the future fund.                                                                                                                                                                                        |
+| Charity fraction      | The fraction of the profits that should be transferred to the chosen charity.                                                                                                                                                                                     |
+| Bad year fraction     | The fraction of the worth that should be transferred to charity in a year when the investments results are negative or the Future Fund is still correcting for previous years with negative interest.                                                             |
