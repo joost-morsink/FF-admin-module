@@ -29,6 +29,7 @@ BEGIN
 	for r in (
 		select * from core.event e where processed = FALSE and e.timestamp <= until
 		) loop
+		RAISE INFO 'processing event %', r.event_id;
 		res := (select ff.process_event(r));
 		IF res.status > 3 THEN
 			return ROW(res.status, event.event_id || '.' || res.key, res.message);
@@ -41,6 +42,7 @@ create or replace function ff.process_event(event core.event) returns core.messa
 DECLARE
 	typ varchar(32);
 	res core.message;
+	n integer;
 BEGIN
 	
 	res := CASE event.type
@@ -56,7 +58,10 @@ BEGIN
 				WHEN 'CONV_TRANSFER' THEN (select ff.process_conv_transfer(event))
 				ELSE ROW(4, 'Type', 'Unknown type ' || typ)::core.message END;
 	IF res.status = 0 THEN
-		update core.event ev set processed = TRUE where event_id = ev.event_id;
+		RAISE INFO 'Setting processed to true on %', event.event_id;
+		update core.event ev set processed = TRUE where ev.event_id = event.event_id;
+		get diagnostics n = ROW_COUNT;
+		raise info '% rows affected', n;
 	END IF;
 	return res;
 END;
@@ -120,7 +125,16 @@ create or replace function ff.process_meta_update_fractions(event core.event) re
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	update ff.option set reinvestment_fraction = event.reinvestment_fraction
+						, futurefund_fraction = event.futurefund_fraction
+						, charity_fraction = event.charity_fraction
+						, bad_year_fraction = event.bad_year_fraction
+		where option_ext_id = event.option_id;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -128,7 +142,14 @@ create or replace function ff.process_price_info(event core.event) returns core.
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	update ff.option set invested_amount = event.invested_amount
+						, cash_amount = event.cash_amount
+		where option_ext_id = event.option_id;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -136,7 +157,11 @@ create or replace function ff.process_conv_enter(event core.event) returns core.
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -144,7 +169,14 @@ create or replace function ff.process_conv_invest(event core.event) returns core
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	update ff.option set invested_amount = event.invested_amount
+						, cash_amount = event.cash_amount
+		where option_ext_id = event.option_id and cash_amount > event.cash_amount;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -152,7 +184,14 @@ create or replace function ff.process_conv_liquidate(event core.event) returns c
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	update ff.option set invested_amount = event.invested_amount
+						, cash_amount = event.cash_amount
+		where option_ext_id = event.option_id and cash_amount < event.cash_amount;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -160,7 +199,11 @@ create or replace function ff.process_conv_exit(event core.event) returns core.m
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -168,13 +211,18 @@ create or replace function ff.process_conv_transfer(event core.event) returns co
 DEClARE
 	res core.message;
 BEGIN
-	return ROW(0,'','OK');
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
 
 /*
-select * from ff.process_events('2021-09-14T19:07:00Z');
+select * from ff.process_events('2021-09-16T07:30:00Z');
+select * from core.event;
 select * from ff.donation;
 select * from ff.option;
 
