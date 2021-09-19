@@ -318,7 +318,8 @@ select * from core.import_events(ARRAY[
 ,'{ "Type": "META_NEW_CHARITY", "Timestamp":"2021-09-14T07:57:00.00001Z", "Name": "World Wildlife Fund", "Code":"1" }'::jsonb
 ,'{ "Type": "DONA_NEW", "Timestamp":"2021-09-14T07:58:00.123456Z", "Donation":"1", "Donor":"1", "Charity":"1", 
 								   "Option":"1", "Currency":"EUR", "Amount":10.00 }'::jsonb
-,'{ "Type": "META_UPDATE_FRACTIONS", "Timestamp":"2021-09-15T18:12:00Z", "Code": "1", "Reinvestment_fraction":0.55, "FutureFund_fraction":0.1, "Charity_fraction":0.35, "Bad_year_fraction":0.01 }']);
-
+,'{ "Type": "META_UPDATE_FRACTIONS", "Timestamp":"2021-09-15T18:12:00Z", "Code": "1", "Reinvestment_fraction":0.55, "FutureFund_fraction":0.1, "Charity_fraction":0.35, "Bad_year_fraction":0.01 }'
+,'{ "Type": "CONV_ENTER", "Timestamp":"2021-11-15T19:00:00Z", "Option":"1", "Invested_amount": 0 }'
+]);
 select * from core.event;
 */

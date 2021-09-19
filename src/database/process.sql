@@ -71,9 +71,9 @@ create or replace function ff.process_dona_new(event core.event) returns core.me
 DEClARE
 	res core.message;
 BEGIN
-	INSERT INTO ff.donation (donation_ext_id, donor_id, currency, amount, exchanged_amount, option_id
+	INSERT INTO ff.donation (donation_ext_id, timestamp, donor_id, currency, amount, exchanged_amount, option_id
 							 , charity_id, entered)
-	select event.donation_id, event.donor_id, event.donation_currency, event.donation_amount,
+	select event.donation_id, event.timestamp, event.donor_id, event.donation_currency, event.donation_amount,
 		case when event.donation_currency = o.currency then event.donation_amount
 		else event.exchanged_donation_amount end, o.option_id, c.charity_id, NULL
 		from ff.option o 
@@ -153,10 +153,78 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.process_conv_enter(event core.event) returns core.message as $$
-DEClARE
-	res core.message;
+create or replace function ff.process_select_enter_candidates(option integer, moment timestamp) returns setof integer as $$
 BEGIN
+	return query
+		select donation_id from donation
+		where option_id = option
+		and entered is null
+		and timestamp < moment - interval '8 weeks';
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.process_conv_enter(event core.event) returns core.message as $$
+DECLARE
+	res core.message;
+	opt_id int;
+	candidates int[];
+	
+	old_amount numeric(20,4);
+	donations_amount numeric(20,4);
+	recalculate numeric(21,20);
+	
+	new_fractionset_id int;
+BEGIN
+	select option_id 
+		into opt_id 
+		from ff.option where option_ext_id = event.option_id;
+    candidates := ARRAY(select * from ff.process_select_enter_candidates(opt_id,event.timestamp));
+	IF array_length(candidates, 1) = 0 THEN
+		return ROW(4,'','No donation candidates found')::core.message;
+	END IF;
+	
+	select invested_amount + cash_amount 
+		into old_amount 
+		from ff.option where option_id = opt_id;
+	select sum(exchanged_amount) into donations_amount
+		from ff.donation 
+		join generate_subscripts(candidates, 1) i on donation_id = i;
+	
+	IF old_amount = 0 THEN
+		with inserted as(insert into ff.fractionset (created) values(current_timestamp) returning fractionset_id)
+		select fractionset_id into new_fractionset_id 
+			from inserted;
+		
+		insert into ff.fraction (fractionset_id, donation_id, fraction)
+			select new_fractionset_id, i, exchanged_amount/donations_amount
+				from ff.donation
+				join generate_subscripts(candidates, 1) i on donation_id = i;
+	ELSE
+		with inserted as(insert into ff.fractionset (created) values(current_timestamp) returning fractionset_id)
+		select fractionset_id into new_fractionset_id
+			from inserted;
+		
+		recalculate := old_amount / (old_amount + donations_amount);
+		insert into ff.fraction (fractionset_id, donation_id, fraction)
+			select new_fractionset_id, f.donation_id, f.fraction * recalculate
+			from ff.option o 
+			join ff.fraction f on o.fractionset_id = f.fractionset_id;
+		insert into ff.fraction (fractionset_id, donation_id, fraction)
+			select new_fractionset_id, i, exchanged_amount/(old_amount + donations_amount)
+				from ff.donation
+				join generate_subscripts(candidates, 1) i on donation_id = i;
+	END IF;
+	
+	update ff.option set
+		invested_amount = event.invested_amount,
+		cash_amount = cash_amount + donations_amount,
+		fractionset_id = new_fractionset_id
+		where option_id = opt_id;
+	update ff.donation set
+		entered = event.timestamp
+		from generate_subscripts(candidates, 1) i
+		where donation_id = i;	
+
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -221,11 +289,11 @@ $$ LANGUAGE plpgsql;
 
 
 /*
-select * from ff.process_events('2021-09-16T07:30:00Z');
+select * from ff.process_events('2021-11-16T07:30:00Z');
 select * from core.event;
 select * from ff.donation;
 select * from ff.option;
-
+select * from ff.fraction where fractionset_id = 4;
 
 */
 

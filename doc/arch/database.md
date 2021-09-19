@@ -122,6 +122,7 @@ The table `Donation` contains all donations and relevant data:
 | ---------------- | -------- | ----------------------------------------------------------------------------------------------------- |
 | Donation_Id      | N        | An internal primary key for the donation                                                              |
 | Donation_Ext_Id  | AN       | The external id of the donation                                                                       |
+| Timestamp        | DT       | The timestamp of the donation                                                                         |
 | Donor_Id         | AN       | The external id of the donor                                                                          |
 | Currency         | AN       | The currency of the donation                                                                          |
 | Amount           | N(16,4)  | The amount of the donation                                                                            |

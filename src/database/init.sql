@@ -93,6 +93,7 @@ create unique index if not exists option_ext on ff.option (option_ext_id);
 create sequence if not exists ff.donation_seq;
 create table if not exists ff.donation (
 	donation_id int primary key not null default nextval('ff.donation_seq'),
+	timestamp timestamp not null,
 	donation_ext_id varchar(32) not null,
 	donor_id varchar(32) not null,
 	currency varchar(4) not null,
