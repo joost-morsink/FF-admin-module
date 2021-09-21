@@ -304,25 +304,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.calculate_ideal_valuation(opt_id int, current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
-DECLARE
-	new_amount numeric(20,4);
-BEGIN
-	select sum(exchanged_amount) into new_amount
-		from ff.option o
-		cross join ff.donation d
-		where o.option_id = opt_id
-		and (o.last_exit is null and d.entered is not null or d.entered > o.last_exit);
-	new_amount := coalesce(new_amount,0);
-	
-	return (select (current_invested_amount + o.cash_amount - coalesce(o.exit_actual_valuation,0) - new_amount) /* profit */
-			* o.reinvestment_fraction
-			+ new_amount
-			+ coalesce(o.exit_ideal_valuation,0)
-			from ff.option o);
-END;
-$$ LANGUAGE plpgsql;
-
 create or replace function ff.process_conv_exit(event core.event) returns core.message as $$
 DECLARE
 	res core.message;

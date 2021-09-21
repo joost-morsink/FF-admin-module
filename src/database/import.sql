@@ -333,6 +333,7 @@ select * from core.import_events(ARRAY[
 ,'{ "Type": "DONA_NEW", "Timestamp": "2021-10-14T08:00:00Z", "Donation":"6", "Donor":"3", "Charity":"1",
 									"Option":"1", "Currency":"EUR", "Amount": 10.00 }'
 ,'{ "Type": "CONV_ENTER", "Timestamp":"2021-11-16T19:00:01Z", "Option":"1", "Invested_amount": 25 }'
+,'{ "Type": "PRICE_INFO", "Timestamp":"2021-11-15T20:00:00Z", "Option":"1", "Invested_amount": 3, "Cash_amount":20 }'
 ,'{ "Type": "CONV_EXIT", "Timestamp":"2021-12-16T19:00:00Z", "Option":"1", "Amount": 2.00 }'
 ,'{ "Type": "CONV_ENTER", "Timestamp":"2021-12-16T19:00:01Z", "Option":"1", "Invested_amount": 30 }'
 
