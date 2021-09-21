@@ -262,19 +262,17 @@ DECLARE
 	res core.message;
 	timestamp timestamp;
 	option_id varchar(16);
-	charity_id varchar(16);
 	exit_amount numeric(20,4);
 BEGIN
 	select eventdata->>'Timestamp'
-		, eventdata-->>'Option'
-		, eventdata-->>'Charity'
-		, eventdata-->>'Amount'
-		into timestamp, option_id, charity_id, exit_amount;
-	IF timestamp is null or option_id is null or charity_id is null or exit_amount is null THEN
+		, eventdata->>'Option'
+		, eventdata->>'Amount'
+		into timestamp, option_id, exit_amount;
+	IF timestamp is null or option_id is null or exit_amount is null THEN
 		return ROW(4,'','Missing data in CONV_EXIT event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, charity_id, exit_amount)
-					VALUES('CONV_EXIT', timestamp, option_id, charity_id, exit_amount);
+	INSERT INTO core.event(type, timestamp, option_id, exit_amount)
+					VALUES('CONV_EXIT', timestamp, option_id, exit_amount);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
@@ -303,8 +301,8 @@ BEGIN
 	IF timestamp is null or charity_id is null or transfer_currency is null or transfer_amount is null THEN
 		return ROW(4,'','Missing data in CONV_TRANSFER event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
-						  , exchanged_amount, transaction_reference, exchange_reference)
+	INSERT INTO core.event(type, timestamp, charity_id, transfer_currency, transfer_amount, exchanged_transfer_currency
+						  , exchanged_transfer_amount, transaction_reference, exchange_reference)
 				VALUES ('CONV_TRANSFER', timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
 						  , exchanged_amount, transaction_reference, exchange_reference);
 	return ROW(0,'','OK')::core.message;
@@ -315,11 +313,19 @@ Dummy data:
 
 select * from core.import_events(ARRAY[
 '{ "Type": "META_NEW_OPTION", "Timestamp":"2021-09-14T07:06:00Z", "Code":"1", "Name":"Default ABN Amro fund", "Currency":"EUR", "Reinvestment_fraction":0.45, "FutureFund_fraction":0.1, "Charity_fraction":0.45, "Bad_year_fraction":0.01 }'::jsonb
+,'{ "Type": "META_NEW_CHARITY", "Timestamp":"2021-09-14T07:57:00.00001Z", "Name": "Toekomstfonds", "Code":"FF" }'::jsonb
 ,'{ "Type": "META_NEW_CHARITY", "Timestamp":"2021-09-14T07:57:00.00001Z", "Name": "World Wildlife Fund", "Code":"1" }'::jsonb
+,'{ "Type": "META_NEW_CHARITY", "Timestamp":"2021-09-14T07:57:00.00001Z", "Name": "Amnesty international", "Code":"2" }'::jsonb
 ,'{ "Type": "DONA_NEW", "Timestamp":"2021-09-14T07:58:00.123456Z", "Donation":"1", "Donor":"1", "Charity":"1", 
 								   "Option":"1", "Currency":"EUR", "Amount":10.00 }'::jsonb
+,'{ "Type": "DONA_NEW", "Timestamp":"2021-09-14T07:58:00.123456Z", "Donation":"2", "Donor":"2", "Charity":"1", 
+								   "Option":"1", "Currency":"EUR", "Amount":5.00 }'::jsonb
+,'{ "Type": "DONA_NEW", "Timestamp":"2021-09-14T07:58:00.123456Z", "Donation":"3", "Donor":"1", "Charity":"2", 
+								   "Option":"1", "Currency":"EUR", "Amount":5.00 }'::jsonb
 ,'{ "Type": "META_UPDATE_FRACTIONS", "Timestamp":"2021-09-15T18:12:00Z", "Code": "1", "Reinvestment_fraction":0.55, "FutureFund_fraction":0.1, "Charity_fraction":0.35, "Bad_year_fraction":0.01 }'
 ,'{ "Type": "CONV_ENTER", "Timestamp":"2021-11-15T19:00:00Z", "Option":"1", "Invested_amount": 0 }'
+,'{ "Type": "CONV_EXIT", "Timestamp":"2021-11-16T19:00:00Z", "Option":"1", "Amount": 2.00 }'
+,'{ "Type": "CONV_TRANSFER", "Timestamp": "2021-11-17T12:00:00Z", "Charity":"1", "Currency": "EUR", "Amount": 1.50, "Exchanged_Currency": "EUR", "Exchanged_Amount": 1.50 }'
 ]);
 select * from core.event;
 */

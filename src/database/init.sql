@@ -2,6 +2,11 @@
 drop schema ff cascade;
 update core.event set processed = FALSE;
 drop schema core cascade;
+******************************************
+truncate table ff.fractionset cascade;
+truncate table ff.donation cascade;
+truncate table ff.transfer cascade;
+truncate table core.event;
 */
 create schema if not exists core;
 create schema if not exists ff;
@@ -32,6 +37,7 @@ create table if not exists core.event (
 	exit_amount numeric(20,4) null,
 	transfer_currency varchar(4) null,
 	transfer_amount numeric(20,4) null,
+	exchanged_transfer_currency varchar(4) null,
 	exchanged_transfer_amount numeric(20,4) null,
 	processed boolean not null default FALSE
 );
@@ -39,9 +45,16 @@ create table if not exists core.event (
 create index if not exists event_timestamp on core.event (timestamp);
 create unique index if not exists event_donation on core.event(donation_id);
 
-drop type if exists core.message;
-create type core.message as (status int, key varchar(64), message varchar(256));
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'message' and ns.nspname = 'core') THEN
 
+		create type core.message as (status int, key varchar(64), message varchar(256));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 create sequence if not exists ff.fractionset_seq;
 create table if not exists ff.fractionset (

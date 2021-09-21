@@ -12,36 +12,34 @@ drop function core.process_conv_liquidate;
 drop function core.process_conv_exit;
 drop function core.process_conv_transfer;
 */
-create or replace function ff.process_events(until timestamp) returns core.message as $$
+create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
 DECLARE
 	i int;
 	n int;
 	r core.event%rowtype;
 	themax timestamp;
 	first timestamp;
-	res core.message;
 BEGIN
 	select max(timestamp) into themax from core.event where processed=TRUE;
 	select min(timestamp) into first from core.event where processed=FALSE;
 	IF first < themax THEN
-		return ROW(4,'Timestamp','Events are out of chronological order.');
+		res := ROW(4,'Timestamp','Events are out of chronological order.');
+		return;
 	END IF;
 	for r in (
 		select * from core.event e where processed = FALSE and e.timestamp <= until
 		) loop
 		RAISE INFO 'processing event %', r.event_id;
-		res := (select ff.process_event(r));
+		call ff.process_event(r,res);
 		IF res.status > 3 THEN
-			return ROW(res.status, event.event_id || '.' || res.key, res.message);
+			return;
 		END IF;
 	END LOOP;
-	return res;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function ff.process_event(event core.event) returns core.message as $$
+create or replace procedure ff.process_event(event core.event, inout res core.message) as $$
 DECLARE
 	typ varchar(32);
-	res core.message;
 	n integer;
 BEGIN
 	
@@ -62,8 +60,11 @@ BEGIN
 		update core.event ev set processed = TRUE where ev.event_id = event.event_id;
 		get diagnostics n = ROW_COUNT;
 		raise info '% rows affected', n;
+		COMMIT;
+	ELSE
+		ROLLBACK;
 	END IF;
-	return res;
+	return;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -263,10 +264,79 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.process_conv_exit(event core.event) returns core.message as $$
-DEClARE
+create or replace function ff.process_conv_exit_charity(event core.event, opt_id int, char_id int) returns core.message as $$
+DECLARE
 	res core.message;
+	new_fractionset_id int;
+	total_fraction numeric(21,20);
 BEGIN
+	select sum(f.fraction) into total_fraction
+		from ff.option o
+		join ff.fraction f on o.fractionset_id = f.fractionset_id
+		join ff.donation d on f.donation_id = d.donation_id
+		join ff.charity c on d.charity_id = c.charity_id
+		where d.charity_id = char_id
+			and o.option_id = opt_id;
+		
+	with inserted as (
+		insert into ff.fractionset(created) values (event.timestamp) returning fractionset_id
+	)
+	select fractionset_id into new_fractionset_id from inserted;
+	
+	insert into ff.fraction (fractionset_id, donation_id, fraction)
+		select new_fractionset_id, d.donation_id, f.fraction / total_fraction
+			from ff.option o
+			join ff.fraction f on o.fractionset_id = f.fractionset_id
+			join ff.donation d on f.donation_id = d.donation_id
+			join ff.charity c on d.charity_id = c.charity_id
+			where d.charity_id = char_id
+				and o.option_id = opt_id;
+
+	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
+		values (event.timestamp, opt_id, char_id, new_fractionset_id, total_fraction*event.exit_amount, FALSE);
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'charity ' || char_id, 'Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.process_conv_exit(event core.event) returns core.message as $$
+DECLARE
+	res core.message;
+	opt_id int;
+	char_id int;
+	new_fractionset_id int;
+	total_fraction numeric(21,20);
+BEGIN
+	select option_id 
+		into opt_id 
+		from ff.option where option_ext_id = event.option_id;
+	select charity_id 
+		into char_id 
+		from ff.charity where charity_ext_id = event.charity_id;
+
+    IF (select cash_amount from ff.option where option_id = opt_id) < event.exit_amount THEN
+		return ROW(4,'Amount','Not enough cash in option.');
+	END IF;
+	
+	FOR char_id IN 
+		select distinct charity_id 
+			from ff.option o
+			join ff.fraction f on o.fractionset_id = f.fractionset_id
+			join ff.donation d on f.donation_id = d.donation_id
+			where o.option_id = opt_id
+	LOOP
+		res := (select ff.process_conv_exit_charity(event,opt_id,char_id));
+		IF res.status > 3 THEN
+			return ROW(res.status, event.event_id || '.' || res.key, res.message);
+		END IF;
+	END LOOP;
+
+	update ff.option set cash_amount = cash_amount - event.exit_amount
+		where option_id=opt_id;
+		
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -278,23 +348,51 @@ $$ LANGUAGE plpgsql;
 create or replace function ff.process_conv_transfer(event core.event) returns core.message as $$
 DEClARE
 	res core.message;
+	opt_curr varchar(4);
+	char_id int;
+	
 BEGIN
-	IF FOUND THEN
-		return ROW(0,'','OK')::core.message;
-	ELSE
+    update ff.allocation a  
+		set transferred = TRUE
+		from ff.charity c
+		cross join ff.option o
+		where c.charity_id = a.charity_id
+		and o.option_id = a.option_id
+		and c.charity_ext_id = event.charity_id
+		and event.amount = a.amount
+		and a.currency = o.currency
+		returning o.currency, c.charity_id into opt_curr, char_id;
+	IF NOT FOUND THEN
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
+	INSERT INTO ff.transfer (timestamp, charity_id, currency, amount, exchanged_currency, exchanged_amount) 
+		VALUES (event.timestamp, char_id, opt_curr, event.amount, event.exchanged_currency, event.exchanged_amount);
+	
+	return ROW(0,'','OK')::core.message;
 END;
 $$ LANGUAGE plpgsql;
 
 
 /*
-select * from ff.process_events('2021-11-16T07:30:00Z');
+do $$
+declare
+	res core.message;
+begin
+	call ff.process_events('2021-11-17T07:30:00Z', res);
+	IF res.status = 0 THEN
+		raise info 'OK';
+	ELSE
+		raise warning '%, %, %', res.status, res.key, res.message;
+	END IF;
+end;
+$$ LANGUAGE plpgsql;
+
 select * from core.event;
 select * from ff.donation;
 select * from ff.option;
 select * from ff.fraction where fractionset_id = 4;
-
+select * from ff.fraction;
+select * from ff.allocation;
 */
 
 

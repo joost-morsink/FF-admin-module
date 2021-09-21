@@ -212,15 +212,14 @@ This event only pertains to the liquidation of invested money to the cash part o
 
 #### Conversion day Exit
 
-This event represents an allocation of money to a charity from the cash amount of an investment option.
-The actual transfer to the charity may be delayed.
+This event represents an allocation of money to charities from the cash amount of an investment option.
+The actual transfer to the charities may be delayed.
 
 | Field     | Type                | Description                             | Value     |
 | --------- | ------------------- | --------------------------------------- | --------- |
 | Type      | A                   | Identifies the event                    | CONV_EXIT |
 | Timestamp | DateTime (ISO-8601) | The timestamp of the event              |           |
 | Option    | AN                  | The identifier of the investment option |           |
-| Charity   | AN                  | The identifier of the charity           |           |
 | Amount    | N(20,4)             | The amount to be donated to charities   |           |
 
 #### Conversion day Charity transfer
