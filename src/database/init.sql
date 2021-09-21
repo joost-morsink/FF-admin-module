@@ -102,7 +102,7 @@ create table if not exists ff.option (
 	fractionset_id int null references fractionset(fractionset_id),
 	last_exit timestamp null,
 	exit_actual_valuation numeric(20,4) null,
-	exit_ideal_valudation numeric(20,4) null
+	exit_ideal_valuation numeric(20,4) null
 );
 
 create unique index if not exists option_ext on ff.option (option_ext_id);
@@ -122,7 +122,7 @@ create table if not exists ff.donation (
 );
 
 create unique index if not exists donation_ext on ff.donation(donation_ext_id);
-create index if not exists donation_option on ff.donation(option_id);
+create index if not exists donation_option on ff.donation(option_id, entered);
 create index if not exists donation_charity on ff.donation(charity_id);
 
 create sequence if not exists ff.allocation_seq;

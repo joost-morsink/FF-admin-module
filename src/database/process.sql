@@ -1,16 +1,18 @@
 /*
-drop function core.process_events;
-drop function core.process_event;
-drop function core.process_dona_new;
-drop function core.process_meta_new_charity;
-drop function core.process_meta_new_option;
-drop function core.process_meta_update_fractions;
-drop function core.process_price_info;
-drop function core.process_conv_enter;
-drop function core.process_conv_invest;
-drop function core.process_conv_liquidate;
-drop function core.process_conv_exit;
-drop function core.process_conv_transfer;
+drop function ff.process_events;
+drop function ff.process_event;
+drop function ff.process_dona_new;
+drop function ff.process_meta_new_charity;
+drop function ff.process_meta_new_option;
+drop function ff.process_meta_update_fractions;
+drop function ff.process_price_info;
+drop function ff.process_select_enter_candidates;
+drop function ff.process_conv_enter;
+drop function ff.process_conv_invest;
+drop function ff.process_conv_liquidate;
+drop function ff.process_conv_exit_charity;
+drop function ff.process_conv_exit;
+drop function ff.process_conv_transfer;
 */
 create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
 DECLARE
@@ -27,7 +29,7 @@ BEGIN
 		return;
 	END IF;
 	for r in (
-		select * from core.event e where processed = FALSE and e.timestamp <= until
+		select * from core.event e where processed = FALSE and e.timestamp <= until order by timestamp
 		) loop
 		RAISE INFO 'processing event %', r.event_id;
 		call ff.process_event(r,res);
@@ -55,7 +57,7 @@ BEGIN
 				WHEN 'CONV_EXIT' THEN (select ff.process_conv_exit(event))
 				WHEN 'CONV_TRANSFER' THEN (select ff.process_conv_transfer(event))
 				ELSE ROW(4, 'Type', 'Unknown type ' || typ)::core.message END;
-	IF res.status = 0 THEN
+	IF res.status < 4 THEN
 		RAISE INFO 'Setting processed to true on %', event.event_id;
 		update core.event ev set processed = TRUE where ev.event_id = event.event_id;
 		get diagnostics n = ROW_COUNT;
@@ -180,52 +182,52 @@ BEGIN
 		into opt_id 
 		from ff.option where option_ext_id = event.option_id;
     candidates := ARRAY(select * from ff.process_select_enter_candidates(opt_id,event.timestamp));
-	IF array_length(candidates, 1) = 0 THEN
-		return ROW(4,'','No donation candidates found')::core.message;
-	END IF;
 	
 	select invested_amount + cash_amount 
 		into old_amount 
 		from ff.option where option_id = opt_id;
 	select sum(exchanged_amount) into donations_amount
 		from ff.donation 
-		join generate_subscripts(candidates, 1) i on donation_id = i;
+		join generate_subscripts(candidates, 1) i on donation_id = candidates[i];
+	donations_amount := coalesce(donations_amount,0);
+	raise info 'old_amount = %, donations_amount = %', old_amount, donations_amount;
 	
 	IF old_amount = 0 THEN
-		with inserted as(insert into ff.fractionset (created) values(current_timestamp) returning fractionset_id)
-		select fractionset_id into new_fractionset_id 
-			from inserted;
-		
-		insert into ff.fraction (fractionset_id, donation_id, fraction)
-			select new_fractionset_id, i, exchanged_amount/donations_amount
-				from ff.donation
-				join generate_subscripts(candidates, 1) i on donation_id = i;
+		IF donations_amount > 0 THEN
+			with inserted as(insert into ff.fractionset (created) values(current_timestamp) returning fractionset_id)
+			select fractionset_id into new_fractionset_id 
+				from inserted;
+
+			insert into ff.fraction (fractionset_id, donation_id, fraction)
+				select new_fractionset_id, candidates[i], exchanged_amount/donations_amount
+					from ff.donation
+					join generate_subscripts(candidates, 1) i on donation_id = candidates[i];
+		END IF;
 	ELSE
 		with inserted as(insert into ff.fractionset (created) values(current_timestamp) returning fractionset_id)
 		select fractionset_id into new_fractionset_id
 			from inserted;
-		
 		recalculate := old_amount / (old_amount + donations_amount);
 		insert into ff.fraction (fractionset_id, donation_id, fraction)
 			select new_fractionset_id, f.donation_id, f.fraction * recalculate
 			from ff.option o 
 			join ff.fraction f on o.fractionset_id = f.fractionset_id;
 		insert into ff.fraction (fractionset_id, donation_id, fraction)
-			select new_fractionset_id, i, exchanged_amount/(old_amount + donations_amount)
+			select new_fractionset_id, candidates[i], exchanged_amount/(old_amount + donations_amount)
 				from ff.donation
-				join generate_subscripts(candidates, 1) i on donation_id = i;
+				join generate_subscripts(candidates, 1) i on donation_id = candidates[i];
 	END IF;
-	
+
+	update ff.donation set
+		entered = event.timestamp
+		from generate_subscripts(candidates, 1) i
+		where donation_id = candidates[i];	
 	update ff.option set
 		invested_amount = event.invested_amount,
 		cash_amount = cash_amount + donations_amount,
 		fractionset_id = new_fractionset_id
 		where option_id = opt_id;
-	update ff.donation set
-		entered = event.timestamp
-		from generate_subscripts(candidates, 1) i
-		where donation_id = i;	
-
+		
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -302,12 +304,32 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create or replace function ff.calculate_ideal_valuation(opt_id int, current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
+DECLARE
+	new_amount numeric(20,4);
+BEGIN
+	select sum(exchanged_amount) into new_amount
+		from ff.option o
+		cross join ff.donation d
+		where o.option_id = opt_id
+		and (o.last_exit is null and d.entered is not null or d.entered > o.last_exit);
+	new_amount := coalesce(new_amount,0);
+	
+	return (select (current_invested_amount + o.cash_amount - coalesce(o.exit_actual_valuation,0) - new_amount) /* profit */
+			* o.reinvestment_fraction
+			+ new_amount
+			+ coalesce(o.exit_ideal_valuation,0)
+			from ff.option o);
+END;
+$$ LANGUAGE plpgsql;
+
 create or replace function ff.process_conv_exit(event core.event) returns core.message as $$
 DECLARE
 	res core.message;
 	opt_id int;
 	char_id int;
 	ff_fraction numeric(21,20);
+
 BEGIN
 	select option_id, futurefund_fraction / (futurefund_fraction + charity_fraction)
 		into opt_id, ff_fraction
@@ -338,9 +360,13 @@ BEGIN
 		select event.timestamp, opt_id, char_id, o.fractionset_id, ff_fraction * event.exit_amount, FALSE
 			from ff.option o
 			where o.option_id = opt_id;
-			
-	update ff.option set cash_amount = cash_amount - event.exit_amount
-		where option_id=opt_id;
+	
+	update ff.option o
+		set cash_amount = o.cash_amount - event.exit_amount
+		, last_exit = event.timestamp
+		, exit_ideal_valuation = ff.calculate_ideal_valuation(opt_id, o.invested_amount)
+		, exit_actual_valuation = o.invested_amount + o.cash_amount - event.exit_amount
+		where o.option_id=opt_id;
 		
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
@@ -351,39 +377,26 @@ END;
 $$ LANGUAGE plpgsql;
 
 create or replace function ff.process_conv_transfer(event core.event) returns core.message as $$
-DEClARE
-	res core.message;
-	opt_curr varchar(4);
-	char_id int;
-	
 BEGIN
-    update ff.allocation a  
-		set transferred = TRUE
-		from ff.charity c
-		cross join ff.option o
-		where c.charity_id = a.charity_id
-		and o.option_id = a.option_id
-		and c.charity_ext_id = event.charity_id
-		and event.amount = a.amount
-		and a.currency = o.currency
-		returning o.currency, c.charity_id into opt_curr, char_id;
-	IF NOT FOUND THEN
+	INSERT INTO ff.transfer (timestamp, charity_id, currency, amount, exchanged_currency, exchanged_amount) 
+		select event.timestamp, charity_id, event.transfer_currency, event.transfer_amount, event.exchanged_transfer_currency, event.exchanged_transfer_amount
+			from ff.charity c
+			where c.charity_ext_id = event.charity_id; 
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
-	INSERT INTO ff.transfer (timestamp, charity_id, currency, amount, exchanged_currency, exchanged_amount) 
-		VALUES (event.timestamp, char_id, opt_curr, event.amount, event.exchanged_currency, event.exchanged_amount);
-	
-	return ROW(0,'','OK')::core.message;
 END;
 $$ LANGUAGE plpgsql;
 
-
 /*
+
 do $$
 declare
 	res core.message;
 begin
-	call ff.process_events('2021-11-17T07:30:00Z', res);
+	call ff.process_events('2021-12-17T19:00:00Z', res);
 	IF res.status = 0 THEN
 		raise info 'OK';
 	ELSE
@@ -391,6 +404,11 @@ begin
 	END IF;
 end;
 $$ LANGUAGE plpgsql;
+		
+select *
+		from ff.option o
+		cross join ff.donation d
+		where (o.last_exit is null and d.entered is not null or d.entered > o.last_exit);
 
 select * from core.event;
 select * from ff.donation;

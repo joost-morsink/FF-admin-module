@@ -325,7 +325,17 @@ select * from core.import_events(ARRAY[
 ,'{ "Type": "META_UPDATE_FRACTIONS", "Timestamp":"2021-09-15T18:12:00Z", "Code": "1", "Reinvestment_fraction":0.55, "FutureFund_fraction":0.1, "Charity_fraction":0.35, "Bad_year_fraction":0.01 }'
 ,'{ "Type": "CONV_ENTER", "Timestamp":"2021-11-15T19:00:00Z", "Option":"1", "Invested_amount": 0 }'
 ,'{ "Type": "CONV_EXIT", "Timestamp":"2021-11-16T19:00:00Z", "Option":"1", "Amount": 2.00 }'
-,'{ "Type": "CONV_TRANSFER", "Timestamp": "2021-11-17T12:00:00Z", "Charity":"1", "Currency": "EUR", "Amount": 1.50, "Exchanged_Currency": "EUR", "Exchanged_Amount": 1.50 }'
+,'{ "Type": "CONV_TRANSFER", "Timestamp": "2021-11-17T12:00:00Z", "Charity":"1", "Currency": "EUR", "Amount": 1.10, "Exchanged_Currency": "EUR", "Exchanged_Amount": 1.50 }'
+,'{ "Type": "DONA_NEW", "Timestamp": "2021-10-14T08:00:00Z", "Donation":"4", "Donor":"3", "Charity":"1",
+									"Option":"1", "Currency":"EUR", "Amount": 5.00 }'
+,'{ "Type": "DONA_NEW", "Timestamp": "2021-10-14T08:00:00Z", "Donation":"5", "Donor":"3", "Charity":"2",
+									"Option":"1", "Currency":"EUR", "Amount": 25.00 }'
+,'{ "Type": "DONA_NEW", "Timestamp": "2021-10-14T08:00:00Z", "Donation":"6", "Donor":"3", "Charity":"1",
+									"Option":"1", "Currency":"EUR", "Amount": 10.00 }'
+,'{ "Type": "CONV_ENTER", "Timestamp":"2021-11-16T19:00:01Z", "Option":"1", "Invested_amount": 25 }'
+,'{ "Type": "CONV_EXIT", "Timestamp":"2021-12-16T19:00:00Z", "Option":"1", "Amount": 2.00 }'
+,'{ "Type": "CONV_ENTER", "Timestamp":"2021-12-16T19:00:01Z", "Option":"1", "Invested_amount": 30 }'
+
 ]);
 select * from core.event;
 */
