@@ -3,9 +3,13 @@ drop schema ff cascade;
 update core.event set processed = FALSE;
 drop schema core cascade;
 ******************************************
+truncate table ff.fraction cascade;
 truncate table ff.fractionset cascade;
+truncate table ff.option cascade;
 truncate table ff.donation cascade;
+truncate table ff.charity cascade;
 truncate table ff.transfer cascade;
+truncate table ff.allocation cascade;
 truncate table core.event;
 */
 create schema if not exists core;

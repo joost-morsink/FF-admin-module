@@ -264,7 +264,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.process_conv_exit_charity(event core.event, opt_id int, char_id int) returns core.message as $$
+create or replace function ff.process_conv_exit_charity(event core.event, opt_id int, char_id int, char_fraction numeric(21,20)) returns core.message as $$
 DECLARE
 	res core.message;
 	new_fractionset_id int;
@@ -293,7 +293,7 @@ BEGIN
 				and o.option_id = opt_id;
 
 	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
-		values (event.timestamp, opt_id, char_id, new_fractionset_id, total_fraction*event.exit_amount, FALSE);
+		values (event.timestamp, opt_id, char_id, new_fractionset_id, char_fraction * total_fraction * event.exit_amount, FALSE);
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -307,15 +307,11 @@ DECLARE
 	res core.message;
 	opt_id int;
 	char_id int;
-	new_fractionset_id int;
-	total_fraction numeric(21,20);
+	ff_fraction numeric(21,20);
 BEGIN
-	select option_id 
-		into opt_id 
+	select option_id, futurefund_fraction / (futurefund_fraction + charity_fraction)
+		into opt_id, ff_fraction
 		from ff.option where option_ext_id = event.option_id;
-	select charity_id 
-		into char_id 
-		from ff.charity where charity_ext_id = event.charity_id;
 
     IF (select cash_amount from ff.option where option_id = opt_id) < event.exit_amount THEN
 		return ROW(4,'Amount','Not enough cash in option.');
@@ -328,12 +324,21 @@ BEGIN
 			join ff.donation d on f.donation_id = d.donation_id
 			where o.option_id = opt_id
 	LOOP
-		res := (select ff.process_conv_exit_charity(event,opt_id,char_id));
+		res := (select ff.process_conv_exit_charity(event, opt_id, char_id, 1-ff_fraction));
 		IF res.status > 3 THEN
 			return ROW(res.status, event.event_id || '.' || res.key, res.message);
 		END IF;
 	END LOOP;
 
+	select charity_id into char_id
+		from ff.charity
+		where charity_ext_id = 'FF';
+		
+	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
+		select event.timestamp, opt_id, char_id, o.fractionset_id, ff_fraction * event.exit_amount, FALSE
+			from ff.option o
+			where o.option_id = opt_id;
+			
 	update ff.option set cash_amount = cash_amount - event.exit_amount
 		where option_id=opt_id;
 		
@@ -393,6 +398,7 @@ select * from ff.option;
 select * from ff.fraction where fractionset_id = 4;
 select * from ff.fraction;
 select * from ff.allocation;
+select * from ff.charity;
 */
 
 
