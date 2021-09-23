@@ -11,7 +11,8 @@ RUN dotnet build -c Release
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim
+RUN apt-get update && apt-get -y install git
 WORKDIR /app
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "FfAdminWeb.dll"]

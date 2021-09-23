@@ -21,11 +21,12 @@ services:
     - "8080:80"
     volumes:
     - ./pgadmin:/var/lib/pgadmin
-    - ./database:/var/lib/pgadmin/storage/postgres_toekomstfonds.nl
-
+    - ./src/database:/var/lib/pgadmin/storage/postgres_toekomstfonds.nl
   web: 
     build:
-      context: ./web/FfAdminWeb
+      context: ./src/web/FfAdminWeb
     ports:
     - "8081:80"
+    volumes:
+    - ./events:/app/data
 

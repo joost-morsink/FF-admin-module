@@ -2,6 +2,7 @@ dist
 images
 pgdata
 pgadmin
+events
 .vs
 bin
 obj
