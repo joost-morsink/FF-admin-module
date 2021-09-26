@@ -24,7 +24,8 @@ services:
     - ./src/database:/var/lib/pgadmin/storage/postgres_toekomstfonds.nl
   web: 
     build:
-      context: ./src/web/FfAdminWeb
+      context: ./src/web
+    restart: unless-stopped
     ports:
     - "8081:80"
     volumes:

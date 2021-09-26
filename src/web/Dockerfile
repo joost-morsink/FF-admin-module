@@ -8,7 +8,7 @@ RUN dotnet restore
 RUN dotnet build -c Release
 
 # Copy everything else and build
-RUN dotnet publish -c Release -o out
+RUN dotnet publish FfAdminWeb -c Release -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim
