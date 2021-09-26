@@ -83,7 +83,7 @@ create table if not exists ff.charity (
 	name varchar(32) not null,
 	bank_name varchar(256) null,
 	bank_account_no varchar(64) null,
-	bank_nic varchar(32) null
+	bank_bic varchar(32) null
 );
 
 create unique index if not exists charity_ext on ff.charity(charity_ext_id);
