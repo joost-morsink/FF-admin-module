@@ -7,12 +7,16 @@ try {
         $password = Read-Host -Prompt "Git password? " -MaskInput
 
         git clone "https://$($username):$($password)@gitlab.com/future-fund/event-data.git" ./events
+
+        $user = Read-Host -Prompt "Username for commit messages? "
+        $email = Read-Host -Prompt "Email for commit messages? "
+
+        git config user.name $user
+        git config user.email $email
     }
 
-    Push-Location src/web
-    docker build .
-    docker compose up -d
-    Pop-Location
+    docker compose up --build -d
+
 } finally {
     Pop-Location
 }
