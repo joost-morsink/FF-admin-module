@@ -9,14 +9,14 @@ apt-get install -y build-essential nodejs
 # End Install
 WORKDIR /app
 
+COPY ./FfAdminWeb/ClientApp/package*.json ./FfAdminWeb/ClientApp/
+RUN npm install ./FfAdminWeb/ClientApp --prefix ./FfAdminWeb/ClientApp
+
 COPY ./FfAdminWeb.sln ./
 COPY ./AdminModule/AdminModule.csproj ./AdminModule/
 COPY ./EventStore/EventStore.csproj ./EventStore/
 COPY ./FfAdminWeb/FfAdminWeb.csproj ./FfAdminWeb/
-COPY ./FfAdminWeb/ClientApp/package*.json ./FfAdminWeb/ClientApp/
-
 RUN dotnet restore
-RUN npm install ./FfAdminWeb/ClientApp --prefix ./FfAdminWeb/ClientApp
 
 COPY ./ ./
 RUN dotnet publish FfAdminWeb -c Release -o out
