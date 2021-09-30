@@ -1,2 +1,5 @@
-bin/
-obj/
+**/bin/
+**/obj/
+**/dist/
+**/node_modules/
+FfAdminWeb/data/
