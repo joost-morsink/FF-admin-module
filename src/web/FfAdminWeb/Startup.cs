@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using EventStore;
+using FfAdminWeb.Utils;
+using AdminModule;
 
 namespace FfAdminWeb
 {
@@ -21,7 +23,15 @@ namespace FfAdminWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IEventStore, EventStore.EventStore>();
-            services.AddControllersWithViews();
+            services.AddScoped<IOptionRepository, OptionRepository>();
+            services.AddScoped<ICharityRepository, CharityRepository>();
+            services.AddScoped<IDatabase, Database>();
+            services.AddOptions<DatabaseOptions>().Configure(opts => Configuration.GetSection("Database").Bind(opts));
+            
+            services.AddControllersWithViews().AddJsonOptions(o =>
+            {
+                o.JsonSerializerOptions.Converters.Add(EventConverter.Instance);
+            });
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

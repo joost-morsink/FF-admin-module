@@ -1,6 +1,7 @@
 ﻿using System;
 using EventStore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace FfAdminWeb.Controllers
 {
@@ -9,10 +10,12 @@ namespace FfAdminWeb.Controllers
     public class EventStoreController : Controller
     {
         private readonly IEventStore _eventStore;
+        private readonly IOptions<JsonOptions> _jsonOptions;
 
-        public EventStoreController(IEventStore eventStore)
+        public EventStoreController(IEventStore eventStore, IOptions<JsonOptions> jsonOptions)
         {
             _eventStore = eventStore;
+            _jsonOptions = jsonOptions;
         }
         [HttpGet("session/is-available")]
         public bool HasSession()
@@ -43,6 +46,11 @@ namespace FfAdminWeb.Controllers
         public void StopSession([FromBody]StopRequest body)
         {
             _eventStore.EndSession(body.Message);
+        }
+        [HttpPost]
+        public void PostEvent([FromBody] Event e)
+        {
+            //_jsonOptions.Value.JsonSerializerOptions
         }
     }
 }

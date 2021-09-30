@@ -3,7 +3,12 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+
+import { MatTableModule } from "@angular/material/table";
+import { MatIconModule } from '@angular/material/icon';
+
 import { EventStore } from './eventstore/eventstore';
+import { Admin } from './admin/admin';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -11,6 +16,10 @@ import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { SessionButtonComponent } from './sessionButton/sessionButton.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { OptionsComponent } from './option/option.component';
+import { CharitiesComponent } from './charity/charity.component';
+
 
 @NgModule({
   declarations: [
@@ -19,7 +28,9 @@ import { SessionButtonComponent } from './sessionButton/sessionButton.component'
     HomeComponent,
     CounterComponent,
     FetchDataComponent,
-    SessionButtonComponent
+    SessionButtonComponent,
+    OptionsComponent,
+    CharitiesComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -29,9 +40,14 @@ import { SessionButtonComponent } from './sessionButton/sessionButton.component'
     { path: '', component: HomeComponent, pathMatch: 'full' },
     { path: 'counter', component: CounterComponent },
     { path: 'fetch-data', component: FetchDataComponent },
-], { relativeLinkResolution: 'legacy' })
+    { path: 'charities', component: CharitiesComponent },
+    { path: 'options', component: OptionsComponent }
+    ], { relativeLinkResolution: 'legacy' }),
+    BrowserAnimationsModule,
+    MatTableModule,
+    MatIconModule
   ],
-  providers: [EventStore],
+  providers: [EventStore, Admin],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,0 +1,31 @@
+<h1>Options</h1>
+
+<p *ngIf="data==null">Loading...</p>
+<mat-table class="mat-elevation-z8" [dataSource]="data" *ngIf="data != null">
+    <ng-container matColumnDef="code">
+        <mat-header-cell *matHeaderCellDef>Code</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.code }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.name }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="currency">
+        <mat-header-cell *matHeaderCellDef>Currency</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.currency }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="fractions">
+        <mat-header-cell *matHeaderCellDef>Fractions</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.reinvestment_fraction }} / {{ x.charity_fraction }} / {{ x.futureFund_fraction }} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="badyear">
+        <mat-header-cell *matHeaderCellDef>Bad year fraction</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.bad_year_fraction }} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="update">
+        <mat-header-cell *matHeaderCellDef>Update fractions</mat-header-cell>
+        <mat-cell *matCellDef="let x"> <button><span class="inline-icon material-icons">edit</span><span>Update</span></button> </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+</mat-table>

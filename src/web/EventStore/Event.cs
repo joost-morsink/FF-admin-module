@@ -8,9 +8,8 @@ namespace EventStore
     {
         public abstract EventType Type { get; }
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-        public static Event ReadFrom(Stream reader)
+        public static Event ReadFrom(JsonDocument doc)
         {
-            var doc = JsonDocument.Parse(reader);
             var type = doc.RootElement.GetProperty("Type").GetString();
             var json = doc.RootElement.ToString() ?? "{}";
             if (Enum.TryParse<EventType>(type, out var eventType))

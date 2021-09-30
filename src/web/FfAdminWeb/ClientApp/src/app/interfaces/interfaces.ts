@@ -1,19 +1,39 @@
 
 export interface IEvent {
-  Type: string;
-  Timestamp: Date;
+  type: string;
+  timestamp: Date;
 }
-export interface INewOption extends IEvent {
-  Code: string;
-  Name: string;
-  Currency: string;
-  Reinvestment_fraction: number;
-  FutureFund_fraction: number;
-  Charity_fraction: number;
-  Bad_year_fraction: number;
+export interface ICode {
+  id: number;
+  code: string;
+}
+export interface IName {
+  name: string;
+}
+export interface IOptionFractions {
+  reinvestment_fraction: number;
+  futureFund_fraction: number;
+  charity_fraction: number;
+  bad_year_fraction: number;
+}
+export interface IOption extends ICode, IName, IOptionFractions{
+  currency: string;
+}
+export interface IBank {
+  bank_name: string;
+  bank_account_no: string;
+  bank_bic: string;
+}
+export interface ICharity extends ICode, IName, IBank {
+
+}
+export interface IOptionUpdate extends ICode, IOptionFractions {
+
+}
+export interface IEventNewOption extends IEvent, IOption {
+  
 }
 
-export interface INewCharity extends IEvent {
-  Code: string;
-  Name: string;
+export interface IEventNewCharity extends IEvent, ICode, IName {
+
 }
