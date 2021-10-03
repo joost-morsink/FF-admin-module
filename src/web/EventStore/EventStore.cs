@@ -3,14 +3,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FfAdmin.Common;
 
-namespace EventStore
+namespace FfAdmin.EventStore
 {
     public interface IEventStore : IDisposable
     {
         void StartSession();
         void EndSession(string? comment);
         bool HasSession { get; }
+
+        void WriteEvent(Event e);
+
         void IDisposable.Dispose() => EndSession("Automatically closed.");
     }
     public class SessionFile : IDisposable
@@ -21,7 +25,7 @@ namespace EventStore
             var dir = Path.Combine(basepath, Path.GetDirectoryName(CurrentFile)!);
             MakeDir(dir);
             Stream = File.OpenWrite(Path.Combine(basepath, CurrentFile));
-            JsonWriter = new Utf8JsonWriter(Stream);
+            Writer = new StreamWriter(Stream);
         }
         private void MakeDir(string dir)
         {
@@ -33,12 +37,12 @@ namespace EventStore
         }
         public string CurrentFile { get; }
         public FileStream Stream { get; }
-        public Utf8JsonWriter JsonWriter { get; }
+        public TextWriter Writer { get; }
         public void Dispose()
         {
-            JsonWriter.Flush();
+            Writer.Flush();
             Stream.Flush();
-            JsonWriter.Dispose();
+            Writer.Dispose();
             Stream.Close();
             IsDisposed = true;
         }
@@ -49,15 +53,10 @@ namespace EventStore
     {
         public EventStore() {
             _git = new Git("data");
-            _jsonOptions = new JsonSerializerOptions
-            {
-                Converters = { new JsonStringEnumConverter() },
-                WriteIndented = false
-            };
+        
         }
         private SessionFile? _sessionFile;
         private Git _git;
-        private readonly JsonSerializerOptions _jsonOptions;
         private static readonly byte[] CRLF = new byte[] { 0x0a, 0x0d };
 
         public bool HasSession => _sessionFile != null;
@@ -89,10 +88,8 @@ namespace EventStore
         {
             if (_sessionFile == null)
                 throw new InvalidOperationException("No open session.");
-            JsonSerializer.Serialize(_sessionFile.JsonWriter, _jsonOptions);
-            _sessionFile.JsonWriter.Flush();
-            _sessionFile.Stream.Write(CRLF.AsSpan());
-
+            _sessionFile.Writer.WriteLine(e.ToJsonString());
+            _sessionFile.Writer.Flush();
         }
     }
 

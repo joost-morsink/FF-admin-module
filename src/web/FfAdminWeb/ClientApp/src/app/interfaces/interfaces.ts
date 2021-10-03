@@ -1,10 +1,10 @@
 
 export interface IEvent {
   type: string;
-  timestamp: Date;
+  timestamp?: Date;
 }
 export interface ICode {
-  id: number;
+  id?: number;
   code: string;
 }
 export interface IName {
@@ -36,4 +36,10 @@ export interface IEventNewOption extends IEvent, IOption {
 
 export interface IEventNewCharity extends IEvent, ICode, IName {
 
+}
+
+
+export interface IValidationMessage {
+  key: string;
+  message: string;
 }

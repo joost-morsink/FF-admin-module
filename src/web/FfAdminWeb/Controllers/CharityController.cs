@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminModule;
+using FfAdmin.AdminModule;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FfAdminWeb.Controllers

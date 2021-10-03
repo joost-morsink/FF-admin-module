@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 
-namespace AdminModule
+namespace FfAdmin.AdminModule
 {
     public interface IOptionRepository
     {
@@ -37,12 +37,7 @@ namespace AdminModule
         }
 
         public Task<Option[]> GetOptions()
-            => _db.Run(async c =>
-            {
-                var res = await c.QueryAsync<Option>
-                    (@"select * from ff.option;");
-                return res.ToArray();
-            });
-
+            => _db.Query<Option>(@"select * from ff.option;");
+             
     }
 }

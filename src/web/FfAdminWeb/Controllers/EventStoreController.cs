@@ -1,5 +1,9 @@
 ﻿using System;
-using EventStore;
+using System.Linq;
+using System.Threading.Tasks;
+using FfAdmin.AdminModule;
+using FfAdmin.Common;
+using FfAdmin.EventStore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -10,11 +14,13 @@ namespace FfAdminWeb.Controllers
     public class EventStoreController : Controller
     {
         private readonly IEventStore _eventStore;
+        private readonly IEventRepository _eventRepository;
         private readonly IOptions<JsonOptions> _jsonOptions;
 
-        public EventStoreController(IEventStore eventStore, IOptions<JsonOptions> jsonOptions)
+        public EventStoreController(IEventStore eventStore, IEventRepository eventRepository, IOptions<JsonOptions> jsonOptions)
         {
             _eventStore = eventStore;
+            _eventRepository = eventRepository;
             _jsonOptions = jsonOptions;
         }
         [HttpGet("session/is-available")]
@@ -47,10 +53,23 @@ namespace FfAdminWeb.Controllers
         {
             _eventStore.EndSession(body.Message);
         }
-        [HttpPost]
-        public void PostEvent([FromBody] Event e)
+#pragma warning disable 1998
+        [HttpPost("process")]
+        public async Task<IActionResult> PostEvent([FromBody] Event e)
         {
-            //_jsonOptions.Value.JsonSerializerOptions
+            var msgs = e.Validate().ToArray();
+            if (!_eventStore.HasSession)
+                return BadRequest(new ValidationMessage[] {
+                    new("main","No session")
+                });
+
+            if (msgs.Length > 0)
+                return BadRequest(msgs);
+
+            _eventStore.WriteEvent(e);
+            await _eventRepository.Import(new[] { e });
+
+            return Ok();
         }
     }
 }

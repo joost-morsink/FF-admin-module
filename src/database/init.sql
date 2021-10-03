@@ -92,6 +92,7 @@ create sequence if not exists ff.option_seq;
 create table if not exists ff.option (
 	option_id int primary key not null default nextval('ff.option_seq'),
 	option_ext_id varchar(32) not null,
+	name varchar(64) not null,
 	reinvestment_fraction numeric(10,10) not null,
 	futurefund_fraction numeric(10,10) not null,
 	charity_fraction numeric(10,10) not null,

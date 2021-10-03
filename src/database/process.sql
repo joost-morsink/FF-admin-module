@@ -110,10 +110,10 @@ create or replace function ff.process_meta_new_option(event core.event) returns 
 DEClARE
 	res core.message;
 BEGIN
-	INSERT INTO ff.option (option_ext_id, reinvestment_fraction, futurefund_fraction
+	INSERT INTO ff.option (option_ext_id, name, reinvestment_fraction, futurefund_fraction
 						   , charity_fraction, bad_year_fraction, currency, invested_amount
 						   , cash_amount)
-					VALUES(event.option_id, event.reinvestment_fraction, event.futurefund_fraction
+					VALUES(event.option_id, event.name, event.reinvestment_fraction, event.futurefund_fraction
 						  , event.charity_fraction, event.bad_year_fraction, event.option_currency
 						  , 0, 0);
 	IF FOUND THEN

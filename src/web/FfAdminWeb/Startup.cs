@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using EventStore;
+using FfAdmin.EventStore;
+using FfAdmin.Common;
+using FfAdmin.AdminModule;
 using FfAdminWeb.Utils;
-using AdminModule;
 
 namespace FfAdminWeb
 {
@@ -22,14 +23,16 @@ namespace FfAdminWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IEventStore, EventStore.EventStore>();
+            services.AddSingleton<IEventStore, EventStore>();
             services.AddScoped<IOptionRepository, OptionRepository>();
             services.AddScoped<ICharityRepository, CharityRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IDatabase, Database>();
             services.AddOptions<DatabaseOptions>().Configure(opts => Configuration.GetSection("Database").Bind(opts));
             
             services.AddControllersWithViews().AddJsonOptions(o =>
             {
+                o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 o.JsonSerializerOptions.Converters.Add(EventConverter.Instance);
             });
             // In production, the Angular files will be served from this directory

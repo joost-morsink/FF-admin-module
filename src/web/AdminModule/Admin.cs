@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AdminModule
+namespace FfAdmin.AdminModule
 {
     public interface IAdmin
     {

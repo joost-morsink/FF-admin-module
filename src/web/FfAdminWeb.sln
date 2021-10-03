@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore", "EventStore\Ev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminModule", "AdminModule\AdminModule.csproj", "{8E5DAF7B-8ED9-4979-A105-21005F8F449A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{8E5DAF7B-8ED9-4979-A105-21005F8F449A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E5DAF7B-8ED9-4979-A105-21005F8F449A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E5DAF7B-8ED9-4979-A105-21005F8F449A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

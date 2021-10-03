@@ -5,8 +5,10 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using Dapper;
+using System.Linq;
 
-namespace AdminModule
+namespace FfAdmin.AdminModule
 {
     public class DatabaseOptions
     {
@@ -15,12 +17,25 @@ namespace AdminModule
         public string Password { get; set; } = "notsecret";
     }
     public interface IDatabase {
-        Task<R> Run<R>(Func<DbConnection, Task<R>> action);
-        Task Run(Func<DbConnection, Task> action);
+        Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action);
+        Task Run(Func<NpgsqlConnection, Task> action);
    
+    }
+    public static class DatabaseExt
+    {
+        public static Task<R[]> Query<R>(this IDatabase db, string query, object? param = null)
+            => db.Run(async c => (await c.QueryAsync<R>(query, param)).ToArray());
+        public static Task<R> QueryFirst<R>(this IDatabase db, string query, object? param = null)
+            => db.Run(c => c.QueryFirstAsync<R>(query, param));
+        public static Task Execute(this IDatabase db, string query, object? param = null)
+            => db.Run(c => c.ExecuteAsync(query, param));
     }
     public class Database : IDatabase
     {
+        static Database()
+        {
+            NpgsqlConnection.GlobalTypeMapper.MapComposite<CoreMessage>("core.message");
+        }
         private readonly IOptions<DatabaseOptions> _dbOptions;
 
         public Database(IOptions<DatabaseOptions> dbOptions)
@@ -28,19 +43,19 @@ namespace AdminModule
             _dbOptions = dbOptions;
         }
 
-        public async Task<R> Run<R>(Func<DbConnection, Task<R>> action)
+        public async Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action)
         {
             using var conn = CreateConnection();
             return await action(conn);
         }
 
-        public async Task Run(Func<DbConnection, Task> action)
+        public async Task Run(Func<NpgsqlConnection, Task> action)
         {
             using var conn = CreateConnection();
             await action(conn);
         }
 
-        private DbConnection CreateConnection()
+        private NpgsqlConnection CreateConnection()
         {
             var options = _dbOptions.Value;
             var connectionString = new NpgsqlConnectionStringBuilder()

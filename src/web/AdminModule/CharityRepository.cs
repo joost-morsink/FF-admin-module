@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 
-namespace AdminModule
+namespace FfAdmin.AdminModule
 {
     public interface ICharityRepository
     {
@@ -28,11 +28,6 @@ namespace AdminModule
         }
 
         public Task<Charity[]> GetCharities()
-            => _db.Run(async conn =>
-            {
-                var res = await conn.QueryAsync<Charity>
-                    ("select * from ff.charity");
-                return res.ToArray();
-            });
+            => _db.Query<Charity>("select * from ff.charity");
     }
 }

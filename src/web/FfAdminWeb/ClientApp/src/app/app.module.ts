@@ -1,11 +1,13 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { MatTableModule } from "@angular/material/table";
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { EventStore } from './eventstore/eventstore';
 import { Admin } from './admin/admin';
@@ -17,7 +19,7 @@ import { CounterComponent } from './counter/counter.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { SessionButtonComponent } from './sessionButton/sessionButton.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { OptionsComponent } from './option/option.component';
+import { OptionsComponent, AddOptionComponent } from './option/option.component';
 import { CharitiesComponent } from './charity/charity.component';
 
 
@@ -30,6 +32,7 @@ import { CharitiesComponent } from './charity/charity.component';
     FetchDataComponent,
     SessionButtonComponent,
     OptionsComponent,
+    AddOptionComponent,
     CharitiesComponent
   ],
   imports: [
@@ -45,7 +48,11 @@ import { CharitiesComponent } from './charity/charity.component';
     ], { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     MatTableModule,
-    MatIconModule
+    MatIconModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatFormFieldModule
   ],
   providers: [EventStore, Admin],
   bootstrap: [AppComponent]

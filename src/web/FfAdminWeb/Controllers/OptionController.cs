@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdminModule;
+using FfAdmin.AdminModule;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FfAdminWeb.Controllers
@@ -32,6 +32,7 @@ namespace FfAdminWeb.Controllers
                 {
                     Id = o.Option_id,
                     Code = o.Option_ext_id,
+                    Name = o.Name,
                     Currency = o.Currency,
                     Reinvestment_fraction = o.Reinvestment_fraction,
                     FutureFund_fraction = o.FutureFund_fraction,
@@ -42,6 +43,6 @@ namespace FfAdminWeb.Controllers
 
         public async Task<IEnumerable<OptionGridRow>> GetOptions()
             => (await _repository.GetOptions()).Select(OptionGridRow.Create);
-        
+
     }
 }
