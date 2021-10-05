@@ -53,8 +53,8 @@ namespace FfAdminWeb.Controllers
         {
             _eventStore.EndSession(body.Message);
         }
-#pragma warning disable 1998
-        [HttpPost("process")]
+
+        [HttpPost("import")]
         public async Task<IActionResult> PostEvent([FromBody] Event e)
         {
             var msgs = e.Validate().ToArray();
@@ -70,6 +70,21 @@ namespace FfAdminWeb.Controllers
             await _eventRepository.Import(new[] { e });
 
             return Ok();
+        }
+        [HttpPost("process")]
+        public async Task<IActionResult> ProcessEvents()
+        {
+            var res = await _eventRepository.ProcessEvents(DateTime.UtcNow);
+
+            if (res.Status >= 4)
+                return StatusCode(500, new ValidationMessage[] { new ValidationMessage("Process", res.Message) });
+            return Ok();
+        }
+        [HttpGet("statistics/main")]
+        public async Task<ActionResult<IEventRepository.Statistics>> GetStatistics()
+        {
+            var stats = await _eventRepository.GetStatistics();
+            return Ok(stats);
         }
     }
 }

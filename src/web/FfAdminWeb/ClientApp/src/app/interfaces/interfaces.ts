@@ -43,3 +43,9 @@ export interface IValidationMessage {
   key: string;
   message: string;
 }
+export interface IEventStatistics {
+  processed: number;
+  lastProcessed: Date;
+  unprocessed: number;
+  firstUnprocessed: Date;
+}

@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IEvent } from '../interfaces/interfaces';
+import { IEvent, IEventStatistics } from '../interfaces/interfaces';
 
 @Injectable()
 export class EventStore {
@@ -23,6 +23,12 @@ export class EventStore {
     return true;
   }
   public async postEvent(ev: IEvent) {
-    await this.http.post(this.baseUrl + "eventstore/process", ev).toPromise();
+    await this.http.post<void>(this.baseUrl + "eventstore/import", ev).toPromise();
+  }
+  public getStatistics(): Promise<IEventStatistics> {
+    return this.http.get<IEventStatistics>("eventstore/statistics/main").toPromise();
+  }
+  public process(): Promise<void> {
+    return this.http.post<void>("eventstore/process", {}).toPromise();
   }
 }

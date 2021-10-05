@@ -15,11 +15,10 @@ import { Admin } from './admin/admin';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-import { CounterComponent } from './counter/counter.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { SessionButtonComponent } from './sessionButton/sessionButton.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OptionsComponent, AddOptionComponent } from './option/option.component';
+import { EventsComponent, EventStatsComponent } from './events/events.component';
 import { CharitiesComponent } from './charity/charity.component';
 
 
@@ -28,23 +27,22 @@ import { CharitiesComponent } from './charity/charity.component';
     AppComponent,
     NavMenuComponent,
     HomeComponent,
-    CounterComponent,
-    FetchDataComponent,
     SessionButtonComponent,
     OptionsComponent,
     AddOptionComponent,
-    CharitiesComponent
+    CharitiesComponent,
+    EventsComponent,
+    EventStatsComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-    { path: '', component: HomeComponent, pathMatch: 'full' },
-    { path: 'counter', component: CounterComponent },
-    { path: 'fetch-data', component: FetchDataComponent },
-    { path: 'charities', component: CharitiesComponent },
-    { path: 'options', component: OptionsComponent }
+      { path: '', component: HomeComponent, pathMatch: 'full' },
+      { path: 'charities', component: CharitiesComponent },
+      { path: 'options', component: OptionsComponent },
+      { path: 'events', component: EventsComponent }
     ], { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     MatTableModule,

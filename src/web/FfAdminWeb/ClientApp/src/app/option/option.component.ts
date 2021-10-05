@@ -35,6 +35,7 @@ export class AddOptionComponent {
   public adding: boolean = false;
 
   private newOption() {
+    this.timestamp = new FormControl("");
     this.code = new FormControl("");
     this.name = new FormControl("");
     this.currency = new FormControl("");
@@ -43,6 +44,7 @@ export class AddOptionComponent {
     this.charity_fraction = new FormControl("0.45");
     this.bad_year_fraction = new FormControl("0.01");
     this.formGroup = new FormGroup({
+      timestamp: this.timestamp,
       code: this.code,
       name: this.name,
       currency: this.currency,
@@ -51,8 +53,10 @@ export class AddOptionComponent {
       charity_fraction: this.charity_fraction,
       bad_year_fraction: this.bad_year_fraction
     });
+    this.eventStore.getStatistics().then(stats => this.timestamp.setValue(stats.firstUnprocessed || stats.lastProcessed));
   }
   public formGroup: FormGroup;
+  public timestamp: FormControl;
   public code: FormControl;
   public name: FormControl;
   public currency: FormControl;

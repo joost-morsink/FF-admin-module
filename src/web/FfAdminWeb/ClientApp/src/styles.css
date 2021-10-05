@@ -22,3 +22,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   vertical-align: bottom;
   font-size: 24px !important;
 }
+
+div.mat-form-field-infix {
+  width: 300px;
+}
