@@ -57,13 +57,13 @@ namespace FfAdmin.AdminModule
         {
             try
             {
-                await _db.Execute(
-                    @"do $$
-                Declare
-                    res core.message;
-                begin
-                    call ff.process_events(current_timestamp::timestamp, res);
-                end; $$ language PLPGSQL;");
+                return await _db.Run(async c =>
+                {
+                    var cmd = c.CreateCommand();
+                    cmd.CommandText = "call ff.process_events(current_timestamp::timestamp, ROW(1,'','Nothing to process.')::core.message)";
+                    var res = await cmd.ExecuteScalarAsync();
+                    return (CoreMessage)res!;
+                });
             }
             catch (Exception ex)
             {
@@ -73,14 +73,7 @@ namespace FfAdmin.AdminModule
                     Status = 4,
                     Message = ex.Message
                 };
-            }
-   
-            return new CoreMessage
-            {
-                Key = "",
-                Message = "OK",
-                Status = 0
-            };
+            } 
         }
     }
     public class ImportException : ApplicationException
