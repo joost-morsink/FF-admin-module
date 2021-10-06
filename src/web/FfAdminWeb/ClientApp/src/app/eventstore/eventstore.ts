@@ -31,4 +31,10 @@ export class EventStore {
   public process(): Promise<void> {
     return this.http.post<void>("eventstore/process", {}).toPromise();
   }
+  public reset(): Promise<void> {
+    return this.http.post<void>("eventstore/reset", {}).toPromise();
+  }
+  public deleteAll(): Promise<void> {
+    return this.http.post<void>("eventstore/deleteAll", {}).toPromise();
+  }
 }

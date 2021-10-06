@@ -86,5 +86,17 @@ namespace FfAdminWeb.Controllers
             var stats = await _eventRepository.GetStatistics();
             return Ok(stats);
         }
+        [HttpPost("reset")]
+        public async Task<IActionResult> Reset()
+        {
+            await _eventRepository.ResetEvents();
+            return Ok();
+        }
+        [HttpPost("deleteAll")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            await _eventRepository.DeleteAllEvents();
+            return Ok();
+        }
     }
 }

@@ -20,6 +20,9 @@ namespace FfAdmin.AdminModule
         Task<CoreMessage> Import(IEnumerable<Event> e);
         Task<CoreMessage> ProcessEvents(DateTime until);
         Task<Statistics> GetStatistics();
+        Task ResetEvents();
+        Task DeleteAllEvents();
+
         public class Statistics
         {
             public int Processed { get; set; }
@@ -74,6 +77,22 @@ namespace FfAdmin.AdminModule
                     Message = ex.Message
                 };
             } 
+        }
+        public Task ResetEvents()
+        {
+            return _db.Execute(@"truncate table ff.fraction cascade;
+truncate table ff.fractionset cascade;
+truncate table ff.option cascade;
+truncate table ff.donation cascade;
+truncate table ff.charity cascade;
+truncate table ff.transfer cascade;
+truncate table ff.allocation cascade;
+update core.event set processed = FALSE;");
+        }
+        public async Task DeleteAllEvents()
+        {
+            await ResetEvents();
+            await _db.Execute("truncate table core.event cascade;");
         }
     }
     public class ImportException : ApplicationException
