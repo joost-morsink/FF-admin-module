@@ -34,7 +34,7 @@ DECLARE
 	typ varchar(32);
 	res core.message;
 BEGIN
-	typ := (select eventdata->>'Type');
+	typ := (select eventdata->>'type');
 	res := CASE typ
 				WHEN 'DONA_NEW' THEN (select core.import_dona_new(eventdata))
 				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(eventdata))
@@ -46,7 +46,7 @@ BEGIN
 				WHEN 'CONV_LIQUIDATE' THEN (select core.import_conv_liquidate(eventdata))
 				WHEN 'CONV_EXIT' THEN (select core.import_conv_exit(eventdata))
 				WHEN 'CONV_TRANSFER' THEN (select core.import_conv_transfer(eventdata))
-				ELSE ROW(4, 'Type', 'Unknown type ' || typ)::core.message END;
+				ELSE ROW(4, 'type', 'Unknown type ' || typ)::core.message END;
 	return res;
 END;
 $$ LANGUAGE plpgsql;
@@ -65,16 +65,16 @@ DECLARE
 	transaction_reference varchar(128);
 	exchange_reference varchar(128);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Donation'
-		, eventdata->>'Donor'
-		, eventdata->>'Charity'
-		, eventdata->>'Option'
-		, eventdata->>'Currency'
-		, eventdata->>'Amount'
-		, eventdata->>'Exchanged_amount'
-		, eventdata->>'Transaction_reference'
-		, eventdata->>'Exchange_reference'
+	select eventdata->>'timestamp'
+		, eventdata->>'donation'
+		, eventdata->>'donor'
+		, eventdata->>'charity'
+		, eventdata->>'option'
+		, eventdata->>'currency'
+		, eventdata->>'amount'
+		, eventdata->>'exchanged_amount'
+		, eventdata->>'transaction_reference'
+		, eventdata->>'exchange_reference'
 		into timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount
 			, exchanged_donation_amount, transaction_reference, exchange_reference;
 	IF timestamp is null or donation_id is null or donor_id is null or charity_id is null or option_id is null 
@@ -95,9 +95,9 @@ DECLARE
 	charity_id varchar(16);
 	name varchar(256);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Code'
-		, eventdata->>'Name'
+	select eventdata->>'timestamp'
+		, eventdata->>'code'
+		, eventdata->>'name'
 		into timestamp, charity_id, name;
 	IF timestamp is null or charity_id is null or name is null THEN
 		return ROW(4,'','Missing data in META_NEW_CHARITY event');
@@ -119,14 +119,14 @@ DECLARE
 	charity_fraction numeric(10,10);
 	bad_year_fraction numeric(10,10);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Code'
-		, eventdata->>'Name'
-		, eventdata->>'Currency'
-		, eventdata->>'Reinvestment_fraction'
-		, eventdata->>'FutureFund_fraction'
-		, eventdata->>'Charity_fraction'
-		, eventdata->>'Bad_year_fraction'
+	select eventdata->>'timestamp'
+		, eventdata->>'code'
+		, eventdata->>'name'
+		, eventdata->>'currency'
+		, eventdata->>'reinvestment_fraction'
+		, eventdata->>'futureFund_fraction'
+		, eventdata->>'charity_fraction'
+		, eventdata->>'bad_year_fraction'
 		into timestamp, option_id, name, option_currency, reinvestment_fraction, futurefund_fraction, charity_fraction, bad_year_fraction;
 		
 	IF timestamp is null or option_id is null or name is null or option_currency is null 
@@ -151,12 +151,12 @@ DECLARE
 	charity_fraction numeric(10,10);
 	bad_year_fraction numeric(10,10);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Code'
-		, eventdata->>'Reinvestment_fraction'
-		, eventdata->>'FutureFund_fraction'
-		, eventdata->>'Charity_fraction'
-		, eventdata->>'Bad_year_fraction'
+	select eventdata->>'timestamp'
+		, eventdata->>'code'
+		, eventdata->>'reinvestment_fraction'
+		, eventdata->>'futureFund_fraction'
+		, eventdata->>'charity_fraction'
+		, eventdata->>'bad_year_fraction'
 		into timestamp, option_id, reinvestment_fraction, futurefund_fraction, charity_fraction, bad_year_fraction;
 		
 	IF timestamp is null or option_id is null
@@ -179,10 +179,10 @@ DECLARE
 	invested_amount numeric(20,4);
 	cash_amount numeric(20,4);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Option'
-		, eventdata->>'Invested_amount'
-		, eventdata->>'Cash_amount'
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'invested_amount'
+		, eventdata->>'cash_amount'
 		into timestamp, option_id, invested_amount, cash_amount;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in PRICE_INFO event');
@@ -199,9 +199,9 @@ DECLARE
 	option_id varchar(16);
 	invested_amount numeric(20,4);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Option'
-		, eventdata->>'Invested_amount'
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'invested_amount'
 		into timestamp, option_id, invested_amount;
 	IF timestamp is null or option_id is null or invested_amount is null  THEN
 		return ROW(4,'','Missing data in CONV_ENTER event');
@@ -220,11 +220,11 @@ DECLARE
 	cash_amount numeric(20,4);
 	transaction_reference varchar(128);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Option'
-		, eventdata->>'Invested_amount'
-		, eventdata->>'Cash_amount'
-		, eventdata->>'Transaction_reference'
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'invested_amount'
+		, eventdata->>'cash_amount'
+		, eventdata->>'transaction_reference'
 		into timestamp, option_id, invested_amount, cash_amount;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in CONV_INVEST event');
@@ -243,11 +243,11 @@ DECLARE
 	cash_amount numeric(20,4);
 	transaction_reference varchar(128);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Option'
-		, eventdata->>'Invested_amount'
-		, eventdata->>'Cash_amount'
-		, eventdata->>'Transaction_reference'
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'invested_amount'
+		, eventdata->>'cash_amount'
+		, eventdata->>'transaction_reference'
 		into timestamp, option_id, invested_amount, cash_amount;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in CONV_LIQUIDATE event');
@@ -264,9 +264,9 @@ DECLARE
 	option_id varchar(16);
 	exit_amount numeric(20,4);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Option'
-		, eventdata->>'Amount'
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'amount'
 		into timestamp, option_id, exit_amount;
 	IF timestamp is null or option_id is null or exit_amount is null THEN
 		return ROW(4,'','Missing data in CONV_EXIT event');
@@ -288,14 +288,14 @@ DECLARE
 	transaction_reference varchar(128);
 	exchange_reference varchar(128);
 BEGIN
-	select eventdata->>'Timestamp'
-		, eventdata->>'Charity'
-		, eventdata->>'Currency'
-		, eventdata->>'Amount'
-		, eventdata->>'Exchanged_currency'
-		, eventdata->>'Exchanged_amount'
-		, eventdata->>'Transaction_reference'
-		, eventdata->>'Exchange_reference'
+	select eventdata->>'timestamp'
+		, eventdata->>'charity'
+		, eventdata->>'currency'
+		, eventdata->>'amount'
+		, eventdata->>'exchanged_currency'
+		, eventdata->>'exchanged_amount'
+		, eventdata->>'transaction_reference'
+		, eventdata->>'exchange_reference'
 		into timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
 						   , exchanged_amount, transaction_reference, exchange_reference;
 	IF timestamp is null or charity_id is null or transfer_currency is null or transfer_amount is null THEN

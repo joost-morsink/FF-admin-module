@@ -8,6 +8,7 @@ using FfAdmin.EventStore;
 using FfAdmin.Common;
 using FfAdmin.AdminModule;
 using FfAdminWeb.Utils;
+using System.Text.Json.Serialization;
 
 namespace FfAdminWeb
 {
@@ -33,6 +34,7 @@ namespace FfAdminWeb
             services.AddControllersWithViews().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 o.JsonSerializerOptions.Converters.Add(EventConverter.Instance);
             });
             // In production, the Angular files will be served from this directory

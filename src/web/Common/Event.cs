@@ -3,14 +3,35 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
 namespace FfAdmin.Common
 {
     public abstract class Event
     {
         public abstract EventType Type { get; }
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-        public static Event ReadFrom(JsonDocument doc, JsonSerializerOptions options)
+        public static async Task<Event[]> ReadAll(Stream stream, JsonSerializerOptions? options = null)
         {
+            var opts = options ??= DefaultJsonOptions;
+            JsonDocument? e;
+            var res = new List<Event>();
+            using var rdr = new StreamReader(stream);
+            string? str;
+            while ((str = await rdr.ReadLineAsync())!=null)
+            {
+                if (!string.IsNullOrWhiteSpace(str))
+                {
+                    e = JsonSerializer.Deserialize<JsonDocument>(str, opts);
+                    if(e!=null)
+                        res.Add(ReadFrom(e, options));
+                }
+            }
+            return res.ToArray();
+        }
+        public static Event ReadFrom(JsonDocument doc, JsonSerializerOptions? options = null)
+        {
+            options ??= DefaultJsonOptions;
             var type = doc.RootElement.GetProperty("type").GetString();
             var json = doc.RootElement.ToString() ?? "{}";
             if (Enum.TryParse<EventType>(type, out var eventType))
@@ -25,13 +46,16 @@ namespace FfAdmin.Common
             else
                 throw new InvalidDataException("Invalid event type");
         }
+        public static JsonSerializerOptions DefaultJsonOptions { get; } = new JsonSerializerOptions
+        {
+            Converters = { new JsonStringEnumConverter() },
+            WriteIndented = false,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+           
+        };
         public abstract IEnumerable<ValidationMessage> Validate();
-        public string ToJsonString(JsonSerializerOptions options = null)
-            => JsonSerializer.Serialize(this, GetType(), options ?? new JsonSerializerOptions
-            {
-                Converters = { new JsonStringEnumConverter() },
-                WriteIndented = false
-            });
+        public string ToJsonString(JsonSerializerOptions? options = null)
+            => JsonSerializer.Serialize(this, GetType(), options ?? DefaultJsonOptions);
     }
     public class NewOption : Event
     {

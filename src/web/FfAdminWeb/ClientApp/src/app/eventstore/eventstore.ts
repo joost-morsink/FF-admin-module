@@ -37,4 +37,10 @@ export class EventStore {
   public deleteAll(): Promise<void> {
     return this.http.post<void>("eventstore/deleteAll", {}).toPromise();
   }
+  public getUnimported(): Promise<string[]> {
+    return this.http.get<string[]>("eventstore/files/unimported").toPromise();
+  }
+  public import(files: string[]): Promise<void> {
+    return this.http.post<void>("eventstore/files/import", files).toPromise();
+  }
 }

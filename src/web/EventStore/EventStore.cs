@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using FfAdmin.Common;
 
 namespace FfAdmin.EventStore
@@ -12,8 +15,13 @@ namespace FfAdmin.EventStore
         void StartSession();
         void EndSession(string? comment);
         bool HasSession { get; }
+        string? SessionFile { get; }
 
         void WriteEvent(Event e);
+
+        Task<Event[]> GetEventsFromFile(string path);
+
+        IEnumerable<string> AllFiles();
 
         void IDisposable.Dispose() => EndSession("Automatically closed.");
     }
@@ -32,7 +40,7 @@ namespace FfAdmin.EventStore
             var parent = Path.GetDirectoryName(dir);
             if (!string.IsNullOrWhiteSpace(parent) && !Directory.Exists(parent))
                 MakeDir(parent);
-            
+
             Directory.CreateDirectory(dir);
         }
         public string CurrentFile { get; }
@@ -48,18 +56,20 @@ namespace FfAdmin.EventStore
         }
         public bool IsDisposed { get; private set; }
     }
-   
+
     public class EventStore : IEventStore
     {
-        public EventStore() {
+        public EventStore()
+        {
             _git = new Git("data");
-        
+
         }
         private SessionFile? _sessionFile;
         private Git _git;
         private static readonly byte[] CRLF = new byte[] { 0x0a, 0x0d };
 
         public bool HasSession => _sessionFile != null;
+        public string? SessionFile => _sessionFile?.CurrentFile;
 
         public void EndSession(string? comment)
         {
@@ -90,6 +100,29 @@ namespace FfAdmin.EventStore
                 throw new InvalidOperationException("No open session.");
             _sessionFile.Writer.WriteLine(e.ToJsonString());
             _sessionFile.Writer.Flush();
+        }
+        public IEnumerable<string> AllFiles()
+        {
+            var baseDir = _git.Path;
+            return from dir in Directory.GetDirectories(baseDir)
+                   from path in ProcessDir(Path.GetFileName(dir))
+                   select path;
+
+            IEnumerable<string> ProcessDir(string prefix)
+                => (from dir in Directory.GetDirectories(Path.Combine(baseDir, prefix))
+                    from path in ProcessDir(Path.Combine(prefix, Path.GetFileName(dir)))
+                    select path)
+                    .Concat(from file in Directory.GetFiles(Path.Combine(baseDir, prefix), "*.json")
+                            select Path.Combine(prefix, Path.GetFileName(file)));
+        }
+        public async Task<Event[]> GetEventsFromFile(string path)
+        {
+            var filename = Path.Combine(_git.Path, path);
+            if (!File.Exists(filename))
+                return new Event[0];
+            using var stream = File.OpenRead(filename);
+            var res = new List<Event>();
+            return await Event.ReadAll(stream);
         }
     }
 

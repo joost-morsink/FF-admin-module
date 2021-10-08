@@ -11,6 +11,7 @@ truncate table ff.charity cascade;
 truncate table ff.transfer cascade;
 truncate table ff.allocation cascade;
 truncate table core.event;
+truncate table core.event_file;
 */
 create schema if not exists core;
 create schema if not exists ff;
@@ -48,6 +49,10 @@ create table if not exists core.event (
 
 create index if not exists event_timestamp on core.event (timestamp);
 create unique index if not exists event_donation on core.event(donation_id);
+
+create table if not exists core.event_file(
+	path varchar(64) primary key not null
+);
 
 do $$
 BEGIN

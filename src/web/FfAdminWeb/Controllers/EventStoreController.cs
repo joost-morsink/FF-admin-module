@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
@@ -43,6 +45,7 @@ namespace FfAdminWeb.Controllers
         public void StartSession()
         {
             _eventStore.StartSession();
+            _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
         }
         public class StopRequest
         {
@@ -97,6 +100,23 @@ namespace FfAdminWeb.Controllers
         {
             await _eventRepository.DeleteAllEvents();
             return Ok();
+        }
+        [HttpGet("files/unimported")]
+        public async Task<IEnumerable<string>> UnimportedFiles()
+        {
+            var allFiles = _eventStore.AllFiles();
+            var importedFiles = new HashSet<string>(await _eventRepository.GetProcessedFiles());
+            return allFiles.Where(f => !importedFiles.Contains(f));
+        }
+        [HttpPost("files/import")]
+        public async Task ImportFiles([FromBody] string[] files)
+        {
+            foreach (var file in files)
+            {
+                var events = await _eventStore.GetEventsFromFile(file);
+                await _eventRepository.Import(events);
+                await _eventRepository.SetFileImported(file);
+            }
         }
     }
 }

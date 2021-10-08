@@ -75,6 +75,7 @@ export class AddOptionComponent {
     try {
       let e = {
         type: "META_NEW_OPTION",
+        timestamp: this.timestamp.value,
         code: this.code.value,
         name: this.name.value,
         currency: this.currency.value,

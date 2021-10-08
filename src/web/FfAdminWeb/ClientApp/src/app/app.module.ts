@@ -18,7 +18,7 @@ import { HomeComponent } from './home/home.component';
 import { SessionButtonComponent } from './sessionButton/sessionButton.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OptionsComponent, AddOptionComponent } from './option/option.component';
-import { EventsComponent, EventStatsComponent } from './events/events.component';
+import { EventsComponent, EventStatsComponent, EventUnimportedComponent } from './events/events.component';
 import { CharitiesComponent } from './charity/charity.component';
 
 
@@ -32,7 +32,8 @@ import { CharitiesComponent } from './charity/charity.component';
     AddOptionComponent,
     CharitiesComponent,
     EventsComponent,
-    EventStatsComponent
+    EventStatsComponent,
+    EventUnimportedComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

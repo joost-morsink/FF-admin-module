@@ -18,10 +18,12 @@ namespace FfAdmin.AdminModule
     public interface IEventRepository
     {
         Task<CoreMessage> Import(IEnumerable<Event> e);
+        Task SetFileImported(string path);
         Task<CoreMessage> ProcessEvents(DateTime until);
         Task<Statistics> GetStatistics();
         Task ResetEvents();
         Task DeleteAllEvents();
+        Task<string[]> GetProcessedFiles();
 
         public class Statistics
         {
@@ -39,14 +41,14 @@ namespace FfAdmin.AdminModule
         {
             _db = db;
         }
-        
+
         public Task<IEventRepository.Statistics> GetStatistics()
         {
             return _db.QueryFirst<IEventRepository.Statistics>(@"
                 select (select count(*) from core.event where processed = TRUE) processed
                     , (select max(timestamp) from core.event where processed = TRUE) lastProcessed
                     , (select count(*) from core.event where processed = FALSE) unprocessed
-                    , (select min(timestamp) from core.event where processed = FALSE) firstUnprocessed");      
+                    , (select min(timestamp) from core.event where processed = FALSE) firstUnprocessed");
         }
         public async Task<CoreMessage> Import(IEnumerable<Event> events)
         {
@@ -56,6 +58,13 @@ namespace FfAdmin.AdminModule
 
             return import;
         }
+
+        public async Task SetFileImported(string path)
+        {
+            await _db.Execute(@"insert into core.event_file(path)
+                select @path where not exists (select 1 from core.event_file where path=@path);", new { path = path });
+        }
+
         public async Task<CoreMessage> ProcessEvents(DateTime until)
         {
             try
@@ -76,7 +85,7 @@ namespace FfAdmin.AdminModule
                     Status = 4,
                     Message = ex.Message
                 };
-            } 
+            }
         }
         public Task ResetEvents()
         {
@@ -92,7 +101,16 @@ update core.event set processed = FALSE;");
         public async Task DeleteAllEvents()
         {
             await ResetEvents();
-            await _db.Execute("truncate table core.event cascade;");
+            await _db.Execute("truncate table core.event cascade; truncate table core.event_file cascade;");
+        }
+        private class EventFile
+        {
+            public string Path { get; set; } = "";
+        }
+        public async Task<string[]> GetProcessedFiles()
+        {
+            var res = await _db.Query<EventFile>("select * from core.event_file;");
+            return res.Select(x => x.Path).ToArray();
         }
     }
     public class ImportException : ApplicationException
