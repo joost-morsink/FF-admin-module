@@ -55,7 +55,10 @@ namespace FfAdmin.Common
         };
         public abstract IEnumerable<ValidationMessage> Validate();
         public string ToJsonString(JsonSerializerOptions? options = null)
-            => JsonSerializer.Serialize(this, GetType(), options ?? DefaultJsonOptions);
+        {
+            Timestamp = Timestamp.ToUniversalTime();
+            return JsonSerializer.Serialize(this, GetType(), options ?? DefaultJsonOptions);
+        }
     }
     public class NewOption : Event
     {

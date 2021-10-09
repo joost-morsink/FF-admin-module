@@ -28,9 +28,9 @@ namespace FfAdmin.AdminModule
         public class Statistics
         {
             public int Processed { get; set; }
-            public DateTime? LastProcessed { get; set; }
+            public DateTimeOffset? LastProcessed { get; set; }
             public int Unprocessed { get; set; }
-            public DateTime? FirstUnprocessed { get; set; }
+            public DateTimeOffset? FirstUnprocessed { get; set; }
         }
     }
     public class EventRepository : IEventRepository
@@ -46,9 +46,9 @@ namespace FfAdmin.AdminModule
         {
             return _db.QueryFirst<IEventRepository.Statistics>(@"
                 select (select count(*) from core.event where processed = TRUE) processed
-                    , (select max(timestamp) from core.event where processed = TRUE) lastProcessed
+                    , (select max(timestamp)::timestamp at time zone 'UTC' from core.event where processed = TRUE) lastProcessed
                     , (select count(*) from core.event where processed = FALSE) unprocessed
-                    , (select min(timestamp) from core.event where processed = FALSE) firstUnprocessed");
+                    , (select min(timestamp)::timestamp at time zone 'UTC' from core.event where processed = FALSE) firstUnprocessed");
         }
         public async Task<CoreMessage> Import(IEnumerable<Event> events)
         {
