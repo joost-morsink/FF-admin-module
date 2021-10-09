@@ -5,6 +5,8 @@ import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/inte
 import { } from '@angular/material';
 import { EventEmitter } from 'protractor';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ErrorDialog } from '../error/error.dialog';
 
 @Component({
   selector: 'ff-options',
@@ -28,7 +30,7 @@ export class OptionsComponent {
   templateUrl: './addOption.component.html'
 })
 export class AddOptionComponent {
-  constructor(private eventStore: EventStore) {
+  constructor(private eventStore: EventStore, private dialog: MatDialog) {
     this.newOption();
   }
   public showAddForm: boolean = false;
@@ -99,6 +101,9 @@ export class AddOptionComponent {
           control.setErrors(ve);
         }
       }
+      this.dialog.open(ErrorDialog, {
+        data: { errors: ex.error },
+      });
     } finally {
       this.adding = false;
     }

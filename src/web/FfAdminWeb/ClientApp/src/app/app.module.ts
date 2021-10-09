@@ -8,9 +8,10 @@ import { MatTableModule } from "@angular/material/table";
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { MatDialogModule } from '@angular/material/dialog';
 import { EventStore } from './eventstore/eventstore';
 import { Admin } from './admin/admin';
+
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -20,7 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OptionsComponent, AddOptionComponent } from './option/option.component';
 import { EventsComponent, EventStatsComponent, EventUnimportedComponent } from './events/events.component';
 import { CharitiesComponent } from './charity/charity.component';
-
+import { ErrorDialog } from './error/error.dialog';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,11 @@ import { CharitiesComponent } from './charity/charity.component';
     CharitiesComponent,
     EventsComponent,
     EventStatsComponent,
-    EventUnimportedComponent
+    EventUnimportedComponent,
+    ErrorDialog
+  ],
+  entryComponents: [
+    ErrorDialog
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -51,7 +56,8 @@ import { CharitiesComponent } from './charity/charity.component';
     FormsModule,
     ReactiveFormsModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatDialogModule
   ],
   providers: [EventStore, Admin],
   bootstrap: [AppComponent]

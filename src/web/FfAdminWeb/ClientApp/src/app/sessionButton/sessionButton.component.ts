@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { EventStore } from '../eventstore/eventstore';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ErrorDialog } from '../error/error.dialog';
 
 @Component({
   selector: 'session-button',
   templateUrl: './sessionButton.component.html'
 })
 export class SessionButtonComponent {
-  constructor(private eventStore: EventStore) {
+  constructor(private eventStore: EventStore, private dialog: MatDialog) {
     this.fetchAndSetAvailability();
   }
   private async fetchAndSetAvailability(): Promise<void> {
@@ -36,7 +38,9 @@ export class SessionButtonComponent {
         await this.eventStore.endSession("All work is done");
       }
     } catch (ex) {
-      throw ex;
+      this.dialog.open(ErrorDialog, {
+        data: { errors: ex.error }
+      });
     } finally {
       this.enabled = true;
       await this.fetchAndSetAvailability();

@@ -42,19 +42,35 @@ namespace FfAdminWeb.Controllers
             }
         }
         [HttpPost("session/start")]
-        public void StartSession()
+        public IActionResult StartSession()
         {
-            _eventStore.StartSession();
-            _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
+            try
+            {
+                _eventStore.StartSession();
+                if (_eventStore.SessionFile == null)
+                    return StatusCode(500,new ValidationMessage[] { new("", "Failed to start session.") });
+                _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
+                return Ok();
+            } catch (Exception ex) {
+                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+            }
         }
         public class StopRequest
         {
             public string? Message { get; set; }
         }
         [HttpPost("session/stop")]
-        public void StopSession([FromBody]StopRequest body)
+        public IActionResult StopSession([FromBody]StopRequest body)
         {
-            _eventStore.EndSession(body.Message);
+            try
+            {
+                _eventStore.EndSession(body.Message);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+            }
         }
 
         [HttpPost("import")]
