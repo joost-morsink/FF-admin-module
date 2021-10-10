@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Commit</h1>
+<mat-dialog-content>
+    <mat-form-field>
+        <mat-label>Commit message</mat-label>
+        <input matNativeControl name="message" [formControl]="message" />
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="true"><span class="inline-icon material-icons">check</span> OK</button>
+    <button mat-button mat-dialog-close><span class="inline-icon material-icons">close</span> Cancel</button>
+
+</mat-dialog-actions>

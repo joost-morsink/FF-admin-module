@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { EventStore } from '../eventstore/eventstore';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormControl } from '@angular/forms';
 import { ErrorDialog } from '../error/error.dialog';
 
 @Component({
@@ -35,15 +36,35 @@ export class SessionButtonComponent {
       if (!this.available)
         await this.eventStore.startSession();
       else {
-        await this.eventStore.endSession("All work is done");
+        let dlg = this.dialog.open(CommitDialog);
+        let result = await dlg.beforeClosed().toPromise();
+        if (result) {
+          let msg = dlg.componentInstance.getMessage() || "All work is done";
+          await this.eventStore.endSession(msg);
+        }
       }
     } catch (ex) {
+      let errs = ex.error || [{ key: "main", message: ex.message }];
       this.dialog.open(ErrorDialog, {
-        data: { errors: ex.error }
+        data: { errors: errs}
       });
     } finally {
       this.enabled = true;
       await this.fetchAndSetAvailability();
     }
+  }
+}
+
+@Component({
+  selector: 'ff-commit-dialog',
+  templateUrl: './commit.dialog.html'
+})
+export class CommitDialog {
+  constructor() {
+    this.message = new FormControl();
+  }
+  public message: FormControl;
+  public getMessage(): string {
+    return this.message.value;
   }
 }

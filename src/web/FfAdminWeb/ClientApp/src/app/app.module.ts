@@ -16,7 +16,7 @@ import { Admin } from './admin/admin';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-import { SessionButtonComponent } from './sessionButton/sessionButton.component';
+import { SessionButtonComponent, CommitDialog } from './sessionButton/sessionButton.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OptionsComponent, AddOptionComponent } from './option/option.component';
 import { EventsComponent, EventStatsComponent, EventUnimportedComponent } from './events/events.component';
@@ -35,10 +35,12 @@ import { ErrorDialog } from './error/error.dialog';
     EventsComponent,
     EventStatsComponent,
     EventUnimportedComponent,
-    ErrorDialog
+    ErrorDialog,
+    CommitDialog
   ],
   entryComponents: [
-    ErrorDialog
+    ErrorDialog,
+    CommitDialog
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
