@@ -16,9 +16,22 @@ export interface IOptionFractions {
   charity_fraction: number;
   bad_year_fraction: number;
 }
+
+export interface IOptionAmounts {
+  invested_amount: number;
+  cash_amount?: number;
+}
 export interface IOption extends ICode, IName, IOptionFractions{
   currency: string;
 }
+export interface IFullEvent extends IEvent, IName, IOptionFractions, IOptionAmounts {
+  option_currency: string;
+  donation_currency: string;
+  donation_amount: number;
+  transfer_currency: string;
+  transfer_amount: number;
+}
+
 export interface IBank {
   bank_name: string;
   bank_account_no: string;

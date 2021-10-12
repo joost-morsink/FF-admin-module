@@ -24,7 +24,7 @@
     </ng-container>
     <ng-container matColumnDef="update">
         <mat-header-cell *matHeaderCellDef>Update fractions</mat-header-cell>
-        <mat-cell *matCellDef="let x"> <button><span class="inline-icon material-icons">edit</span><span>Update</span></button> </mat-cell>
+        <mat-cell *matCellDef="let x"> <button (click)="update(x)"><span class="inline-icon material-icons">edit</span><span>Update</span></button> </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>

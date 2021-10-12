@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IEvent, IEventStatistics } from '../interfaces/interfaces';
+import { IEvent, IEventStatistics, IFullEvent } from '../interfaces/interfaces';
 
 @Injectable()
 export class EventStore {
@@ -39,6 +39,9 @@ export class EventStore {
   }
   public getUnimported(): Promise<string[]> {
     return this.http.get<string[]>("eventstore/files/unimported").toPromise();
+  }
+  public getUnprocessed(): Promise<IFullEvent[]> {
+    return this.http.get<IFullEvent[]>("eventstore/unprocessed").toPromise();
   }
   public import(files: string[]): Promise<void> {
     return this.http.post<void>("eventstore/files/import", files).toPromise();

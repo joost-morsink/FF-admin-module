@@ -18,8 +18,8 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { SessionButtonComponent, CommitDialog } from './sessionButton/sessionButton.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { OptionsComponent, AddOptionComponent } from './option/option.component';
-import { EventsComponent, EventStatsComponent, EventUnimportedComponent } from './events/events.component';
+import { OptionsComponent, AddOptionComponent, UpdateOptionDialog } from './option/option.component';
+import { EventsComponent, EventStatsComponent, EventUnimportedComponent, EventTileComponent } from './events/events.component';
 import { CharitiesComponent } from './charity/charity.component';
 import { ErrorDialog } from './error/error.dialog';
 
@@ -35,12 +35,15 @@ import { ErrorDialog } from './error/error.dialog';
     EventsComponent,
     EventStatsComponent,
     EventUnimportedComponent,
+    EventTileComponent,
     ErrorDialog,
-    CommitDialog
+    CommitDialog,
+    UpdateOptionDialog
   ],
   entryComponents: [
     ErrorDialog,
-    CommitDialog
+    CommitDialog,
+    UpdateOptionDialog
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

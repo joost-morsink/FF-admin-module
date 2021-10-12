@@ -117,6 +117,11 @@ namespace FfAdminWeb.Controllers
             await _eventRepository.DeleteAllEvents();
             return Ok();
         }
+        [HttpGet("unprocessed")]
+        public Task<IEventRepository.DbEvent[]> UnprocessedEvents()
+        {
+            return _eventRepository.GetUnprocessedEvents();
+        }
         [HttpGet("files/unimported")]
         public async Task<IEnumerable<string>> UnimportedFiles()
         {

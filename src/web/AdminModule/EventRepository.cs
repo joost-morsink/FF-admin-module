@@ -24,6 +24,7 @@ namespace FfAdmin.AdminModule
         Task ResetEvents();
         Task DeleteAllEvents();
         Task<string[]> GetProcessedFiles();
+        Task<DbEvent[]> GetUnprocessedEvents();
 
         public class Statistics
         {
@@ -31,6 +32,23 @@ namespace FfAdmin.AdminModule
             public DateTimeOffset? LastProcessed { get; set; }
             public int Unprocessed { get; set; }
             public DateTimeOffset? FirstUnprocessed { get; set; }
+        }
+        public class DbEvent
+        {
+            public EventType Type { get; set; } = EventType.META_NEW_OPTION;
+            public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.MinValue;
+            public string? Option_id { get; set; } 
+            public string? Charity_id { get; set; } 
+            public string? Donation_id { get; set; } 
+            public string? Donor_id { get; set; } 
+            public string? Name { get; set; } 
+            public string? Option_currency { get; set; } 
+            public decimal? Reinvestment_fraction { get; set; }
+            public decimal? FutureFund_fraction { get; set; }
+            public decimal? Charity_fraction { get; set; }
+            public decimal? Bad_year_fraction { get; set; }
+            public string? Donation_currency { get; set; }
+            public decimal? Donation_amount { get; set; }
         }
     }
     public class EventRepository : IEventRepository
@@ -111,6 +129,11 @@ update core.event set processed = FALSE;");
         {
             var res = await _db.Query<EventFile>("select * from core.event_file;");
             return res.Select(x => x.Path).ToArray();
+        }
+        public async Task<IEventRepository.DbEvent[]> GetUnprocessedEvents()
+        {
+            var res = await _db.Query<IEventRepository.DbEvent>("select * from core.event where processed = FALSE order by timestamp asc;");
+            return res;
         }
     }
     public class ImportException : ApplicationException

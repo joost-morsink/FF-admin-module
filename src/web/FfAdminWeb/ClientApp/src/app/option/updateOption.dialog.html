@@ -1,0 +1,40 @@
+
+<h1 mat-dialog-title>{{name}} ({{code}})</h1>
+<mat-dialog-content>
+    <form>
+        <mat-form-field>
+            <mat-label>Timestamp</mat-label>
+            <input matNativeControl name="timestamp" [formControl]="timestamp" />
+            <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Reinvestment fraction</mat-label>
+            <input matNativeControl name="reinvestment_fraction" [(formControl)]="reinvestment_fraction" />
+            <mat-error *ngIf="formGroup.get('reinvestment_fraction').errors"> {{ formGroup.get('reinvestment_fraction').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Future fund fraction</mat-label>
+            <input matNativeControl name="futureFund_fraction" [(formControl)]="futureFund_fraction" />
+            <mat-error *ngIf="formGroup.get('futureFund_fraction').errors"> {{ formGroup.get('futureFund_fraction').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Charity fraction</mat-label>
+            <input matNativeControl name="charity_fraction" [(formControl)]="charity_fraction" />
+            <mat-error *ngIf="formGroup.get('charity_fraction').errors"> {{ formGroup.get('charity_fraction').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Bad year fraction</mat-label>
+            <input matNativeControl name="bad_year_fraction" [(formControl)]="bad_year_fraction" />
+            <mat-error *ngIf="formGroup.get('bad_year_fraction').errors"> {{ formGroup.get('bad_year_fraction').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button *ngIf="!updating" (click)="updateOption()"><span class="inline-icon material-icons">save</span> Save</button>
+    <button *ngIf="updating" disabled><span class="inline-icon material-icons">save</span>Saving...</button>
+</mat-dialog-actions>

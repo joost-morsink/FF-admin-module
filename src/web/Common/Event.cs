@@ -18,12 +18,12 @@ namespace FfAdmin.Common
             var res = new List<Event>();
             using var rdr = new StreamReader(stream);
             string? str;
-            while ((str = await rdr.ReadLineAsync())!=null)
+            while ((str = await rdr.ReadLineAsync()) != null)
             {
                 if (!string.IsNullOrWhiteSpace(str))
                 {
                     e = JsonSerializer.Deserialize<JsonDocument>(str, opts);
-                    if(e!=null)
+                    if (e != null)
                         res.Add(ReadFrom(e, options));
                 }
             }
@@ -39,6 +39,7 @@ namespace FfAdmin.Common
                 return eventType switch
                 {
                     EventType.META_NEW_OPTION => JsonSerializer.Deserialize<NewOption>(json, options)!,
+                    EventType.META_UPDATE_FRACTIONS => JsonSerializer.Deserialize<UpdateFractions>(json, options)!,
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
@@ -51,7 +52,7 @@ namespace FfAdmin.Common
             Converters = { new JsonStringEnumConverter() },
             WriteIndented = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-           
+
         };
         public abstract IEnumerable<ValidationMessage> Validate();
         public string ToJsonString(JsonSerializerOptions? options = null)
@@ -66,6 +67,31 @@ namespace FfAdmin.Common
         public string Code { get; set; } = "";
         public string Name { get; set; } = "";
         public string Currency { get; set; } = "";
+        public decimal Reinvestment_fraction { get; set; }
+        public decimal FutureFund_fraction { get; set; }
+        public decimal Charity_fraction { get; set; }
+        public decimal Bad_year_fraction { get; set; }
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (Reinvestment_fraction < 0 || Reinvestment_fraction > 1)
+                yield return new ValidationMessage(nameof(Reinvestment_fraction), "Reinvestment fraction out of range.");
+            if (FutureFund_fraction < 0 || FutureFund_fraction > 1)
+                yield return new ValidationMessage(nameof(FutureFund_fraction), "Future Fund fraction out of range.");
+            if (Charity_fraction < 0 || Charity_fraction > 1)
+                yield return new ValidationMessage(nameof(Charity_fraction), "Charity fraction fraction out of range.");
+            if (Bad_year_fraction < 0 || Bad_year_fraction > 0.1m)
+                yield return new ValidationMessage(nameof(Bad_year_fraction), "Bad year fraction fraction out of range.");
+
+            if (string.IsNullOrWhiteSpace(Code))
+                yield return new ValidationMessage(nameof(Code), "Code is required.");
+            if (Reinvestment_fraction + FutureFund_fraction + Charity_fraction != 1)
+                yield return new ValidationMessage(nameof(Reinvestment_fraction), "Fractions should add up to 1");
+        }
+    }
+    public class UpdateFractions : Event
+    {
+        public override EventType Type => EventType.META_UPDATE_FRACTIONS;
+        public string Code { get; set; } = "";
         public decimal Reinvestment_fraction { get; set; }
         public decimal FutureFund_fraction { get; set; }
         public decimal Charity_fraction { get; set; }

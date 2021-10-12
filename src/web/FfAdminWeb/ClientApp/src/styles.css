@@ -15,7 +15,7 @@ code {
   border-color: #1861ac;
 }
 
-html, body { height: 100%; }
+html, body { height: 100%; width: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .inline-icon {
@@ -25,4 +25,40 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 div.mat-form-field-infix {
   width: 300px;
+}
+
+div.event-tile {
+  width: 400px;
+  min-height: 250px;
+  margin: 10px;
+  padding: 5px;
+}
+div.section {
+  padding: 5px;
+  margin: 10px;
+  width: 100%;
+}
+
+div.meta-new-option, div.meta-new-charity, div.meta-update-fractions {
+  background-color: lightpink;
+}
+div.dona-new {
+  background-color: lightgreen;
+}
+div.conv-exit, div.conv-enter {
+  background-color: lightblue;
+}
+div.conv-transfer {
+  background-color: lightskyblue;
+}
+div.conv-liquidate, div.conv-invest {
+  background-color: lightyellow;
+}
+div.price-info {
+  background-color: lightgray;
+}
+div.tile-container {
+  display: inline-flex;
+  width: 100%;
+  flex-wrap: wrap;
 }
