@@ -85,7 +85,7 @@ create sequence if not exists ff.charity_seq;
 create table if not exists ff.charity (
 	charity_id int primary key not null default nextval('ff.charity_seq'),
 	charity_ext_id varchar(32) not null,
-	name varchar(32) not null,
+	name varchar(256) not null,
 	bank_name varchar(256) null,
 	bank_account_no varchar(64) null,
 	bank_bic varchar(32) null

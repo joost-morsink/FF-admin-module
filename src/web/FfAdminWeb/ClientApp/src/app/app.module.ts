@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OptionsComponent, AddOptionComponent, UpdateOptionDialog } from './option/option.component';
 import { EventsComponent, EventStatsComponent, EventUnimportedComponent, EventTileComponent } from './events/events.component';
 import { CharitiesComponent } from './charity/charity.component';
+import { ImportCsvComponent } from './import/import.component';
 import { ErrorDialog } from './error/error.dialog';
 
 @NgModule({
@@ -36,6 +37,7 @@ import { ErrorDialog } from './error/error.dialog';
     EventStatsComponent,
     EventUnimportedComponent,
     EventTileComponent,
+    ImportCsvComponent,
     ErrorDialog,
     CommitDialog,
     UpdateOptionDialog
@@ -53,7 +55,8 @@ import { ErrorDialog } from './error/error.dialog';
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'charities', component: CharitiesComponent },
       { path: 'options', component: OptionsComponent },
-      { path: 'events', component: EventsComponent }
+      { path: 'events', component: EventsComponent },
+      { path: 'donations', component: ImportCsvComponent }
     ], { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     MatTableModule,

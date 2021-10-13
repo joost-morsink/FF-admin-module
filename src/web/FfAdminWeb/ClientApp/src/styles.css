@@ -62,3 +62,6 @@ div.tile-container {
   width: 100%;
   flex-wrap: wrap;
 }
+input.file-input {
+  display: none;
+}

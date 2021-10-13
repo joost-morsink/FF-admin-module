@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminModule", "AdminModule\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External.GiveWp", "External.GiveWp\External.GiveWp.csproj", "{CECEB799-BEAB-4C87-8D59-3954B028C2BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F78ECC03-DC9C-4CD3-86B6-A12E536B6E98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECEB799-BEAB-4C87-8D59-3954B028C2BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECEB799-BEAB-4C87-8D59-3954B028C2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECEB799-BEAB-4C87-8D59-3954B028C2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECEB799-BEAB-4C87-8D59-3954B028C2BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

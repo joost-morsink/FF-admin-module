@@ -46,4 +46,7 @@ export class EventStore {
   public import(files: string[]): Promise<void> {
     return this.http.post<void>("eventstore/files/import", files).toPromise();
   }
+  public importCsv(formData: FormData) {
+    return this.http.post<void>("eventstore/donations/give", formData).toPromise();
+  }
 }

@@ -41,6 +41,7 @@ namespace FfAdmin.Common
                     EventType.META_NEW_OPTION => JsonSerializer.Deserialize<NewOption>(json, options)!,
                     EventType.META_UPDATE_FRACTIONS => JsonSerializer.Deserialize<UpdateFractions>(json, options)!,
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
+                    EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -67,10 +68,10 @@ namespace FfAdmin.Common
         public string Code { get; set; } = "";
         public string Name { get; set; } = "";
         public string Currency { get; set; } = "";
-        public decimal Reinvestment_fraction { get; set; }
-        public decimal FutureFund_fraction { get; set; }
-        public decimal Charity_fraction { get; set; }
-        public decimal Bad_year_fraction { get; set; }
+        public decimal Reinvestment_fraction { get; set; } = 0.45m;
+        public decimal FutureFund_fraction { get; set; } = 0.1m;
+        public decimal Charity_fraction { get; set; } = 0.45m;
+        public decimal Bad_year_fraction { get; set; } = 0.01m;
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (Reinvestment_fraction < 0 || Reinvestment_fraction > 1)
@@ -122,6 +123,34 @@ namespace FfAdmin.Common
         {
             if (string.IsNullOrWhiteSpace(Code))
                 yield return new ValidationMessage(nameof(Code), "Code is required.");
+        }
+    }
+    public class NewDonation : Event
+    {
+        public override EventType Type => EventType.DONA_NEW;
+        public string Donation { get; set; } = "";
+        public string Donor { get; set; } = "";
+        public string Charity { get; set; } = "";
+        public string Option { get; set; } = "";
+        public string Currency { get; set; } = "";
+        public decimal Amount { get; set; }
+        public decimal Exchanged_amount { get; set; }
+        public string Transaction_reference { get; set; } = "";
+        public string? Exchange_reference { get; set; }
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Donation))
+                yield return new ValidationMessage(nameof(Donation), "Field is required");
+            if (string.IsNullOrWhiteSpace(Donor))
+                yield return new ValidationMessage(nameof(Donor), "Field is required");
+            if (string.IsNullOrWhiteSpace(Charity))
+                yield return new ValidationMessage(nameof(Charity), "Field is required");
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new ValidationMessage(nameof(Option), "Field is required");
+            if (string.IsNullOrWhiteSpace(Currency))
+                yield return new ValidationMessage(nameof(Currency), "Field is required");
+            if (Amount <= 0)
+                yield return new ValidationMessage(nameof(Amount), "Donation should have positive Amount");
         }
     }
 }

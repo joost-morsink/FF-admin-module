@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using FfAdmin.AdminModule;
 using FfAdmin.Common;
 using FfAdmin.EventStore;
+using FfAdmin.External.GiveWp;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -17,12 +19,20 @@ namespace FfAdminWeb.Controllers
     {
         private readonly IEventStore _eventStore;
         private readonly IEventRepository _eventRepository;
+        private readonly IOptionRepository _optionRepository;
+        private readonly ICharityRepository _charityRepository;
         private readonly IOptions<JsonOptions> _jsonOptions;
 
-        public EventStoreController(IEventStore eventStore, IEventRepository eventRepository, IOptions<JsonOptions> jsonOptions)
+        public EventStoreController(IEventStore eventStore,
+                                    IEventRepository eventRepository,
+                                    IOptionRepository optionRepository,
+                                    ICharityRepository charityRepository,
+                                    IOptions<JsonOptions> jsonOptions)
         {
             _eventStore = eventStore;
             _eventRepository = eventRepository;
+            _optionRepository = optionRepository;
+            _charityRepository = charityRepository;
             _jsonOptions = jsonOptions;
         }
         [HttpGet("session/is-available")]
@@ -137,6 +147,44 @@ namespace FfAdminWeb.Controllers
                 var events = await _eventStore.GetEventsFromFile(file);
                 await _eventRepository.Import(events);
                 await _eventRepository.SetFileImported(file);
+            }
+        }
+        [HttpPost("donations/give")]
+        public async Task<IActionResult> ImportGiveCsv()
+        {
+            var file = Request.Form.Files.FirstOrDefault();
+            if (file == null)
+                return BadRequest(new ValidationMessage[] { new("", "No file uploaded") });
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+            if(content==null)
+                return BadRequest(new ValidationMessage[] { new("", "File is empty") });
+            try
+            {
+                var rows = GiveExportRows.FromCsv(content);
+                var options = await _optionRepository.GetOptions();
+                var charities = await _charityRepository.GetCharities();
+                var events = rows.ToEvents(charities.Select(c => c.Charity_ext_id), options.Select(o => o.Option_ext_id)).ToArray();
+
+                if (!_eventStore.HasSession)
+                    return BadRequest(new ValidationMessage[] {
+                    new("main","No session")
+                });
+                var msgs = events.SelectMany(e => e.Validate()).ToArray();
+
+                if (msgs.Length > 0)
+                    return BadRequest(msgs);
+                foreach (var e in events)
+                    _eventStore.WriteEvent(e);
+
+                await _eventRepository.Import(events);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ValidationMessage[] { new("", ex.Message) });
             }
         }
     }
