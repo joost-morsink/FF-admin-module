@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { EventStore } from '../eventstore/eventstore';
+import { EventStore } from '../backend/eventstore';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { ErrorDialog } from '../error/error.dialog';

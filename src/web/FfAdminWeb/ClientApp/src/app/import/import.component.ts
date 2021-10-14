@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Admin } from '../admin/admin';
-import { EventStore } from '../eventstore/eventstore';
+import { Admin } from '../backend/admin';
+import { EventStore } from '../backend/eventstore';
 import { IOption, IEventNewOption, IValidationMessage, IEventStatistics, IFullEvent } from '../interfaces/interfaces';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';

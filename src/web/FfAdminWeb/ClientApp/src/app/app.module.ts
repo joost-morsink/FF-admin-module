@@ -1,27 +1,23 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { FfUiModule } from './ffUi.module';
+import { FfBackendModule } from './backend/backend.module';
 
-import { MatTableModule } from "@angular/material/table";
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDialogModule } from '@angular/material/dialog';
-import { EventStore } from './eventstore/eventstore';
-import { Admin } from './admin/admin';
-
+import { CharityModule } from './charity/charity.module';
+import { CharitiesComponent } from './charity/charity.component';
+import { EventModule } from './events/event.module';
+import { EventsComponent } from './events/events.component';
+import { ImportModule } from './import/import.module';
+import { ImportCsvComponent } from './import/import.component';
+import { OptionModule } from './option/option.module';
+import { OptionsComponent } from './option/option.component';
+import { SessionModule } from './session/session.module';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-import { SessionButtonComponent, CommitDialog } from './sessionButton/sessionButton.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { OptionsComponent, AddOptionComponent, UpdateOptionDialog } from './option/option.component';
-import { EventsComponent, EventStatsComponent, EventUnimportedComponent, EventTileComponent } from './events/events.component';
-import { CharitiesComponent } from './charity/charity.component';
-import { ImportCsvComponent } from './import/import.component';
+
 import { ErrorDialog } from './error/error.dialog';
 
 @NgModule({
@@ -29,28 +25,13 @@ import { ErrorDialog } from './error/error.dialog';
     AppComponent,
     NavMenuComponent,
     HomeComponent,
-    SessionButtonComponent,
-    OptionsComponent,
-    AddOptionComponent,
-    CharitiesComponent,
-    EventsComponent,
-    EventStatsComponent,
-    EventUnimportedComponent,
-    EventTileComponent,
-    ImportCsvComponent,
     ErrorDialog,
-    CommitDialog,
-    UpdateOptionDialog
   ],
   entryComponents: [
     ErrorDialog,
-    CommitDialog,
-    UpdateOptionDialog
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
-    HttpClientModule,
-    FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'charities', component: CharitiesComponent },
@@ -58,16 +39,15 @@ import { ErrorDialog } from './error/error.dialog';
       { path: 'events', component: EventsComponent },
       { path: 'donations', component: ImportCsvComponent }
     ], { relativeLinkResolution: 'legacy' }),
-    BrowserAnimationsModule,
-    MatTableModule,
-    MatIconModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDialogModule
+    FfBackendModule,
+    FfUiModule,
+    CharityModule,
+    EventModule,
+    ImportModule,
+    OptionModule,
+    SessionModule
   ],
-  providers: [EventStore, Admin],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,6 +1,6 @@
 import { Component, Output, Inject } from '@angular/core';
-import { Admin } from '../admin/admin';
-import { EventStore } from '../eventstore/eventstore';
+import { Admin } from '../backend/admin';
+import { EventStore } from '../backend/eventstore';
 import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/interfaces';
 import { } from '@angular/material';
 import { EventEmitter } from 'protractor';

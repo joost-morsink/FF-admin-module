@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { Admin } from '../admin/admin';
+import { Admin } from '../backend/admin';
 import { ICharity } from '../interfaces/interfaces';
-import { } from '@angular/material';
 
 @Component({
   selector: 'ff-charities',
