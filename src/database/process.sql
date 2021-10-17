@@ -242,7 +242,7 @@ DEClARE
 BEGIN
 	update ff.option set invested_amount = event.invested_amount
 						, cash_amount = event.cash_amount
-		where option_ext_id = event.option_id and cash_amount > event.cash_amount;
+		where option_ext_id = event.option_id and cash_amount >= event.cash_amount;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -257,7 +257,7 @@ DEClARE
 BEGIN
 	update ff.option set invested_amount = event.invested_amount
 						, cash_amount = event.cash_amount
-		where option_ext_id = event.option_id and cash_amount < event.cash_amount;
+		where option_ext_id = event.option_id and cash_amount <= event.cash_amount;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE

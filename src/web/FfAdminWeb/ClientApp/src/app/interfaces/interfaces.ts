@@ -10,6 +10,9 @@ export interface ICode {
 export interface IName {
   name: string;
 }
+export interface ICurrency {
+  currency: string;
+}
 export interface IOptionFractions {
   reinvestment_fraction: number;
   futureFund_fraction: number;
@@ -21,8 +24,7 @@ export interface IOptionAmounts {
   invested_amount: number;
   cash_amount?: number;
 }
-export interface IOption extends ICode, IName, IOptionFractions{
-  currency: string;
+export interface IOption extends ICode, IName, ICurrency, IOptionFractions, IOptionAmounts{
 }
 export interface IFullEvent extends IEvent, IName, IOptionFractions, IOptionAmounts {
   option_currency: string;
@@ -43,7 +45,7 @@ export interface ICharity extends ICode, IName, IBank {
 export interface IOptionUpdate extends ICode, IOptionFractions {
 
 }
-export interface IEventNewOption extends IEvent, IOption {
+export interface IEventNewOption extends IEvent, ICode, IName, ICurrency, IOptionFractions {
   
 }
 
@@ -51,7 +53,10 @@ export interface IEventNewCharity extends IEvent, ICode, IName {
 
 }
 
-
+export interface IEventLiquidate extends IEvent, IOptionAmounts {
+  option: string;
+  transaction_reference: string;
+}
 export interface IValidationMessage {
   key: string;
   message: string;

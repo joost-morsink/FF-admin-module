@@ -1,0 +1,9 @@
+<h2>Select Option</h2>
+
+<div *ngIf="options!=null">
+    <ul>
+        <li *ngFor="let option of options">
+            <button (click)="click(option)">{{ option.name }}</button>
+        </li>
+    </ul>
+</div>

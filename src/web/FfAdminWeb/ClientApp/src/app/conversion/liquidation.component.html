@@ -1,0 +1,45 @@
+<h2>Liquidate</h2>
+
+<form>
+    <mat-form-field>
+        <mat-label>Invested amount</mat-label>
+        <input matNativeControl name="invested" [(formControl)]="invested" />
+        <mat-error *ngIf="formGroup.get('invested').errors"> {{ formGroup.get('invested').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+        <mat-label>Timestamp</mat-label>
+        <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
+        <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <strong>Exit amount: </strong>{{option.currency}} {{ exit_amount }}
+    <br />
+    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount }}
+    <br />
+    <span *ngIf="exit_amount!=null">
+        <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount }}
+    </span>
+    <br />
+    <button (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>
+    <br/>
+    <mat-form-field>
+        <mat-label>New invested amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="newInvested" [(formControl)]="newInvested" />
+        <mat-error *ngIf="formGroup.get('newInvested').errors"> {{ formGroup.get('newInvested').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br/>
+    <mat-form-field>
+        <mat-label>New cash amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="newCash" [(formControl)]="newCash" />
+        <mat-error *ngIf="formGroup.get('newCash').errors"> {{ formGroup.get('newCash').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br/>
+    <mat-form-field>
+        <mat-label>Transaction reference</mat-label>
+        <input matNativeControl name="transactionRef" [(formControl)]="transactionRef" />
+        <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br/>
+    <button (click)="liquidate()">Liquidate</button>
+</form>

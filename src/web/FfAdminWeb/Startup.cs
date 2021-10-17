@@ -25,11 +25,7 @@ namespace FfAdminWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IEventStore, EventStore>();
-            services.AddScoped<IOptionRepository, OptionRepository>();
-            services.AddScoped<ICharityRepository, CharityRepository>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IDatabase, Database>();
-            services.AddOptions<DatabaseOptions>().Configure(opts => Configuration.GetSection("Database").Bind(opts));
+            services.AddAdminModule(opts => Configuration.GetSection("Database").Bind(opts));
             
             services.AddControllersWithViews().AddJsonOptions(o =>
             {

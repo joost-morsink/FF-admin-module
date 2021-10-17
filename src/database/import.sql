@@ -248,7 +248,7 @@ BEGIN
 		, eventdata->>'invested_amount'
 		, eventdata->>'cash_amount'
 		, eventdata->>'transaction_reference'
-		into timestamp, option_id, invested_amount, cash_amount;
+		into timestamp, option_id, invested_amount, cash_amount, transaction_reference;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in CONV_LIQUIDATE event');
 	END IF;

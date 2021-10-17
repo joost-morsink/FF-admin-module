@@ -13,4 +13,9 @@ export class Admin {
   public async getCharities(): Promise<ICharity[]> {
     return this.http.get<ICharity[]>(this.baseUrl + "admin/charities").toPromise();
   }
+
+  public async calculateExit(option: IOption, invested: number, timestamp: string) {
+    var res : number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&timestamp=${timestamp}`).toPromise();
+    return res || 0;
+  }
 }

@@ -3,7 +3,6 @@ import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/interfaces';
 import { } from '@angular/material';
-import { EventEmitter } from 'protractor';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ErrorDialog } from '../error/error.dialog';

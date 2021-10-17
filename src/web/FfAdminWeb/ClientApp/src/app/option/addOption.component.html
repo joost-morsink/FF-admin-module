@@ -6,13 +6,13 @@
     <form>
         <mat-form-field>
             <mat-label>Timestamp</mat-label>
-            <input matNativeControl name="timestamp" [formControl]="timestamp" />
+            <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
             <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
         </mat-form-field>
         <br />
         <mat-form-field>
             <mat-label>Code</mat-label>
-            <input matNativeControl name="code" [formControl]="code" />
+            <input matNativeControl name="code" [(formControl)]="code" />
             <mat-error *ngIf="formGroup.get('code').errors"> {{ formGroup.get('code').errors?.message }} </mat-error>
         </mat-form-field>
         <br />

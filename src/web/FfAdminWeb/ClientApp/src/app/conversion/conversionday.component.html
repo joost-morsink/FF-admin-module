@@ -1,0 +1,7 @@
+<h1>
+    Conversion day<span *ngIf="option!=null"> - {{ option.name }}</span>
+</h1>
+
+<ff-select-option  *ngIf="step=='init'" (optionSelected)="onOptionSelected($event)"></ff-select-option>
+
+<ff-liquidation-admin *ngIf="step=='liquidate'" [option]="option" (liquidated)="onLiquidated($event)"></ff-liquidation-admin>
