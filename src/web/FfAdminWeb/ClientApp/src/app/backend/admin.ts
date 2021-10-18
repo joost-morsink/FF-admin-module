@@ -10,6 +10,9 @@ export class Admin {
   public async getOptions(): Promise<IOption[]> {
     return this.http.get<IOption[]>(this.baseUrl + "admin/options").toPromise();
   }
+  public async getOption(optionId: number): Promise<IOption> {
+    return this.http.get<IOption>(this.baseUrl + `admin/options/${optionId}`).toPromise();
+  }
   public async getCharities(): Promise<ICharity[]> {
     return this.http.get<ICharity[]>(this.baseUrl + "admin/charities").toPromise();
   }

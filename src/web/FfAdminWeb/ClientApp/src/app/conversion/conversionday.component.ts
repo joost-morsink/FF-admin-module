@@ -5,20 +5,35 @@ import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption } from '../interfaces/interfaces';
 import { ErrorDialog } from '../error/error.dialog';
+import { timeStamp } from 'console';
 
 @Component({
   selector: 'ff-conversion-day-component',
   templateUrl: './conversionday.component.html'
 })
 export class ConversionDayComponent {
+  constructor(private admin: Admin) { }
   public option: IOption;
   public step: string = 'init';
   public onOptionSelected(option: IOption) {
     this.option = option;
     this.step = 'liquidate';
   }
-  public onLiquidated(dummy: any) {
+  public async onLiquidated(dummy: any) {
+    this.option = await this.admin.getOption(this.option.id);
     this.step = 'exit';
+  }
+  public onExited(dummy: any) {
+    this.step = 'transfer';
+  }
+  public onTransferred(dummy: any) {
+    this.step = 'enter';
+  }
+  public onEntered(dummy: any) {
+    this.step = 'invest';
+  }
+  public onInvested(dummy: any) {
+    this.step = 'done';
   }
 }
 
@@ -54,6 +69,7 @@ export class LiquidationComponent implements OnInit {
   @Output() public liquidated: EventEmitter<void> = new EventEmitter();
 
   public exit_amount: number;
+  public enabled: boolean;
 
   public invested: FormControl;
   public timestamp: FormControl;
@@ -75,6 +91,7 @@ export class LiquidationComponent implements OnInit {
       newCash: this.newCash,
       transactionRef: this.transactionRef
     });
+    this.enabled = true;
   }
 
   public async recalculate() {
@@ -91,7 +108,9 @@ export class LiquidationComponent implements OnInit {
       transaction_reference: this.transactionRef.value
     }
     try {
+      this.enabled = false;
       await this.eventStore.postEvent(event);
+      await this.eventStore.process();
       this.liquidated.emit();
     } catch (ex) {
       for (let err of ex.error) {
@@ -108,7 +127,67 @@ export class LiquidationComponent implements OnInit {
       this.dialog.open(ErrorDialog, {
         data: { errors: ex.error },
       });
+      this.enabled = true;
+    }
+  }
+}
 
+@Component({
+  selector: 'ff-exit-admin',
+  templateUrl: './exit.component.html'
+})
+export class ExitComponent implements OnInit{
+  constructor(private eventStore: EventStore, private admin: Admin, private dialog: MatDialog) {
+  }
+  @Input() public option: IOption;
+  @Output() public exited: EventEmitter<void> = new EventEmitter();
+
+  public exit_amount: number;
+  public timestamp: FormControl;
+  public exitAmount: FormControl;
+  public formGroup: FormGroup;
+
+  public ngOnInit() {
+    this.timestamp = new FormControl(new Date().toISOString());
+    this.exitAmount = new FormControl("0.00");
+    this.formGroup = new FormGroup({
+      timestamp: this.timestamp,
+      exitAmount: this.exitAmount
+    });
+  }
+  public async recalculate() {
+    this.exit_amount = await this.admin.calculateExit(this.option, this.option.invested_amount, this.timestamp.value);
+  }
+  public async exit() {
+    if (parseFloat(this.exitAmount.value) == 0) {
+      this.exited.emit();
+      return;
+    }
+    let event = {
+      type: 'CONV_EXIT',
+      timestamp: this.timestamp.value,
+      option: this.option.code,
+      exit_amount: this.exitAmount.value,
+    }
+    try {
+      await this.eventStore.postEvent(event);
+      await this.eventStore.process();
+      this.exited.emit();
+    } catch (ex) {
+      for (let err of ex.error) {
+        let key = err.key[0].toLowerCase() + err.key.substring(1);
+
+        if (key in this) {
+          let control: FormControl = this[key];
+          let ve: ValidationErrors = {};
+          ve["message"] = err.message;
+
+          control.setErrors(ve);
+        }
+      }
+      this.dialog.open(ErrorDialog, {
+        data: { errors: ex.error },
+      });
     }
   }
 }

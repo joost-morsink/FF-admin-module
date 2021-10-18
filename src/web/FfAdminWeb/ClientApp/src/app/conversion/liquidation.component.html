@@ -21,7 +21,7 @@
         <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount }}
     </span>
     <br />
-    <button (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>
+    <button [disabled]="!enabled" (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>
     <br/>
     <mat-form-field>
         <mat-label>New invested amount ({{option.currency}})</mat-label>
@@ -41,5 +41,5 @@
         <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
     </mat-form-field>
     <br/>
-    <button (click)="liquidate()">Liquidate</button>
+    <button [disabled]="!enabled" (click)="liquidate()">Liquidate</button>
 </form>

@@ -5,3 +5,6 @@
 <ff-select-option  *ngIf="step=='init'" (optionSelected)="onOptionSelected($event)"></ff-select-option>
 
 <ff-liquidation-admin *ngIf="step=='liquidate'" [option]="option" (liquidated)="onLiquidated($event)"></ff-liquidation-admin>
+
+<ff-exit-admin *ngIf="step=='exit'" [option]="option" (exited)="onExited($event)"></ff-exit-admin>
+

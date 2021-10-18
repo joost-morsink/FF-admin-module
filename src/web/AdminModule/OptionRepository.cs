@@ -8,6 +8,8 @@ namespace FfAdmin.AdminModule
     public interface IOptionRepository
     {
         Task<Option[]> GetOptions();
+        Task<Option> GetOption(int optionId);
+        
     }
     public class Option
     {
@@ -38,6 +40,7 @@ namespace FfAdmin.AdminModule
 
         public Task<Option[]> GetOptions()
             => _db.Query<Option>(@"select * from ff.option;");
-             
+        public Task<Option> GetOption(int optionId)
+            => _db.QueryFirst<Option>(@"select * from ff.option where option_id = @opt;", new { opt = optionId });
     }
 }

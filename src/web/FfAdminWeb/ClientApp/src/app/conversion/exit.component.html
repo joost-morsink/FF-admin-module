@@ -1,0 +1,25 @@
+<h2>Exit</h2>
+<form>
+    <mat-form-field>
+        <mat-label>Timestamp</mat-label>
+        <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
+        <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <strong>Exit amount: </strong>{{option.currency}} {{ exit_amount }}
+    <br />
+    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount }}
+    <br />
+    <span *ngIf="exit_amount!=null && exit_amount > option.cash_amount">
+        <strong>Shortage: </strong>{{option.currency}} {{ exit_amount - option.cash_amount }}
+    </span>
+    <br />
+    <button (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>
+    <br />
+    <mat-form-field>
+        <mat-label>Exit amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="exitAmount" [(formControl)]="exitAmount" />
+        <mat-error *ngIf="formGroup.get('exitAmount').errors"> {{ formGroup.get('exitAmount').errors?.message }} </mat-error>
+    </mat-form-field>
+    <button (click)="exit()">Exit</button>
+</form>

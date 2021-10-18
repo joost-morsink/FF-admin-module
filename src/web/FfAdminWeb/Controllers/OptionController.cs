@@ -49,6 +49,8 @@ namespace FfAdminWeb.Controllers
         [HttpGet]
         public async Task<IEnumerable<OptionGridRow>> GetOptions()
             => (await _repository.GetOptions()).Select(OptionGridRow.Create);
-
+        [HttpGet("{optionId}")]
+        public async Task<OptionGridRow> GetOption(int optionId)
+            => OptionGridRow.Create(await _repository.GetOption(optionId));
     }
 }

@@ -43,6 +43,7 @@ namespace FfAdmin.Common
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
                     EventType.CONV_LIQUIDATE => JsonSerializer.Deserialize<ConvLiquidate>(json, options)!,
+                    EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json,options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -165,6 +166,19 @@ namespace FfAdmin.Common
         {
             if (string.IsNullOrWhiteSpace(Option))
                 yield return new ValidationMessage(nameof(Option), "Field is required");
+        }
+    }
+    public class ConvExit : Event
+    {
+        public override EventType Type => EventType.CONV_EXIT;
+        public string Option { get; set; } = "";
+        public decimal Amount { get; set; }
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new ValidationMessage(nameof(Option), "Field is required");
+            if (Amount <= 0)
+                yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
         }
     }
 }

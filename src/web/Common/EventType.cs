@@ -6,6 +6,7 @@
         META_NEW_OPTION,
         META_NEW_CHARITY,
         META_UPDATE_FRACTIONS,
-        CONV_LIQUIDATE
-    };
+        CONV_LIQUIDATE,
+        CONV_EXIT
+    }
 }
