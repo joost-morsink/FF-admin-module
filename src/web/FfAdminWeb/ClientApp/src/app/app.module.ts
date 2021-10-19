@@ -15,6 +15,8 @@ import { OptionsComponent } from './option/option.component';
 import { SessionModule } from './session/session.module';
 import { ConversionModule } from './conversion/conversion.module';
 import { ConversionDayComponent } from './conversion/conversionday.component';
+import { DatabaseModule } from './database/database.module';
+import { DatabaseComponent } from './database/database.component';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -40,7 +42,8 @@ import { ErrorDialog } from './error/error.dialog';
       { path: 'options', component: OptionsComponent },
       { path: 'events', component: EventsComponent },
       { path: 'donations', component: ImportCsvComponent },
-      { path: 'conversion', component: ConversionDayComponent }
+      { path: 'conversion', component: ConversionDayComponent },
+      { path: 'database', component: DatabaseComponent }
     ], { relativeLinkResolution: 'legacy' }),
     FfBackendModule,
     FfUiModule,
@@ -49,7 +52,8 @@ import { ErrorDialog } from './error/error.dialog';
     ImportModule,
     OptionModule,
     SessionModule,
-    ConversionModule
+    ConversionModule,
+    DatabaseModule
   ],
   providers: [],
   bootstrap: [AppComponent]

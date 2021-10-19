@@ -24,4 +24,10 @@ export class Admin {
     var res : number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&timestamp=${timestamp}`).toPromise();
     return res || 0;
   }
+  public async recreateDatabase(): Promise<void> {
+    return this.http.post<void>(this.baseUrl + "admin/database/recreate", {}).toPromise();
+  }
+  public async updateDatabase(): Promise<void> {
+    return this.http.post<void>(this.baseUrl + "admin/database/update", {}).toPromise();
+  }
 }

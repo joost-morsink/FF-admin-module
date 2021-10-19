@@ -36,8 +36,6 @@ namespace FfAdmin.AdminModule
 
         public Database(IOptions<DatabaseOptions> dbOptions)
         {
-            if (!NpgsqlConnection.GlobalTypeMapper.Mappings.Any(m => m.PgTypeName == "core.message"))
-                NpgsqlConnection.GlobalTypeMapper.MapComposite<CoreMessage>("core.message");
             _dbOptions = dbOptions;
         }
 
@@ -65,6 +63,7 @@ namespace FfAdmin.AdminModule
             };
             var connection = new NpgsqlConnection(connectionString.ConnectionString);
             connection.Open();
+            connection.TypeMapper.MapComposite<CoreMessage>("core.message");
             return connection;
         }
     }
