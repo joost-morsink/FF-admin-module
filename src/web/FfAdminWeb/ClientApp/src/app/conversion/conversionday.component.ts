@@ -279,3 +279,46 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
   }
 }
 
+@Component({
+  selector: 'ff-invest-admin',
+  templateUrl: './invest.component.html'
+})
+export class InvestComponent extends ConversionBaseComponent implements OnInit {
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
+    super(eventStore, dialog);
+  }
+  @Input() public option: IOption;
+  @Output() public invested: EventEmitter<void> = new EventEmitter();
+
+  public timestamp: FormControl;
+  public newInvested: FormControl;
+  public newCash: FormControl;
+  public transactionRef: FormControl;
+  public formGroup: FormGroup;
+
+  public ngOnInit(): void {
+    this.timestamp = new FormControl(new Date().toISOString());
+    this.newInvested = new FormControl(this.option.invested_amount);
+    this.newCash = new FormControl(this.option.cash_amount);
+    this.transactionRef = new FormControl("");
+    this.formGroup = new FormGroup({
+      timestamp: this.timestamp,
+      newInvested: this.newInvested,
+      newCash: this.newCash,
+      transactionRef: this.transactionRef
+    });
+    this.enabled = true;
+  }
+
+  public async invest() {
+    let event = {
+      type: 'CONV_INVEST',
+      timestamp: this.timestamp.value,
+      option: this.option.code,
+      invested_amount: this.newInvested.value,
+      cash_amount: this.newCash.value,
+      transaction_reference: this.transactionRef.value
+    }
+    await this.importAndProcess(event, this.invested);
+  }
+}

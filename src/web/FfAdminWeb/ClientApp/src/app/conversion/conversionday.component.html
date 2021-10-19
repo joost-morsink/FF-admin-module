@@ -11,3 +11,5 @@
 <ff-transfers-admin *ngIf="step=='transfer'" (done)="onTransferred($event)"></ff-transfers-admin>
 
 <ff-enter-admin *ngIf="step=='enter'" [option]="option" (entered)="onEntered($event)"></ff-enter-admin>
+
+<ff-invest-admin *ngIf="step=='invest'" [option]="option" (invested)="onInvested($event)"></ff-invest-admin>

@@ -1,0 +1,29 @@
+<h2>Invest</h2>
+
+<form>
+    <mat-form-field>
+        <mat-label>Timestamp</mat-label>
+        <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
+        <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+        <mat-label>New invested amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="newInvested" [(formControl)]="newInvested" />
+        <mat-error *ngIf="formGroup.get('newInvested').errors"> {{ formGroup.get('newInvested').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+        <mat-label>New cash amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="newCash" [(formControl)]="newCash" />
+        <mat-error *ngIf="formGroup.get('newCash').errors"> {{ formGroup.get('newCash').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <mat-form-field>
+        <mat-label>Transaction reference</mat-label>
+        <input matNativeControl name="transactionRef" [(formControl)]="transactionRef" />
+        <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+    <button [disabled]="!enabled" (click)="invest()">Invest</button>
+</form>

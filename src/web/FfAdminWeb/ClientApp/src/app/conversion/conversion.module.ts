@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FfUiModule } from '../ffUi.module';
-import { ConversionDayComponent, SelectOptionComponent, LiquidationComponent, ExitComponent, TransfersComponent, TransferComponent, EnterComponent } from './conversionday.component';
+import { ConversionDayComponent, SelectOptionComponent, LiquidationComponent, ExitComponent, TransfersComponent, TransferComponent, EnterComponent, InvestComponent } from './conversionday.component';
 
 @NgModule({
   declarations: [
@@ -11,7 +11,8 @@ import { ConversionDayComponent, SelectOptionComponent, LiquidationComponent, Ex
     ExitComponent,
     TransfersComponent,
     TransferComponent,
-    EnterComponent
+    EnterComponent,
+    InvestComponent
   ],
   imports: [
     CommonModule,

@@ -46,6 +46,7 @@ namespace FfAdmin.Common
                     EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json, options)!,
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
                     EventType.CONV_ENTER => JsonSerializer.Deserialize<ConvEnter>(json, options)!,
+                    EventType.CONV_INVEST => JsonSerializer.Deserialize<ConvInvest>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -218,5 +219,21 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Invested_amount), "Amount must not be negative");
         }
     }
-
+    public class ConvInvest : Event
+    {
+        public override EventType Type => EventType.CONV_INVEST;
+        public string Option { get; set; } = "";
+        public decimal Invested_amount { get; set; }
+        public decimal Cash_amount { get; set; }
+        public string Transaction_reference { get; set; } = "";
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new ValidationMessage(nameof(Option), "Field is required");
+            if (Invested_amount < 0)
+                yield return new ValidationMessage(nameof(Invested_amount), "Amount must not be negative");
+            if (Cash_amount < 0)
+                yield return new ValidationMessage(nameof(Cash_amount), "Amount must not be negative");
+        }
+    }
 }
