@@ -8,6 +8,7 @@
         META_UPDATE_FRACTIONS,
         CONV_LIQUIDATE,
         CONV_EXIT,
-        CONV_TRANSFER
+        CONV_TRANSFER,
+        CONV_ENTER
     }
 }

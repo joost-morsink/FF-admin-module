@@ -9,3 +9,5 @@
 <ff-exit-admin *ngIf="step=='exit'" [option]="option" (exited)="onExited($event)"></ff-exit-admin>
 
 <ff-transfers-admin *ngIf="step=='transfer'" (done)="onTransferred($event)"></ff-transfers-admin>
+
+<ff-enter-admin *ngIf="step=='enter'" [option]="option" (entered)="onEntered($event)"></ff-enter-admin>

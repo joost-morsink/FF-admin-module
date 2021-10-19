@@ -244,3 +244,38 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
     await this.importAndProcess(event, this.completed, this.transfer);
   }
 }
+
+@Component({
+  selector: 'ff-enter-admin',
+  templateUrl: './enter.component.html'
+})
+export class EnterComponent extends ConversionBaseComponent implements OnInit {
+  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog) {
+    super(eventStore, dialog);
+  }
+  @Input() public option: IOption;
+  @Output() public entered: EventEmitter<void> = new EventEmitter();
+
+  public timestamp: FormControl;
+  public investedAmount: FormControl;
+  public formGroup: FormGroup;
+
+  public ngOnInit() {
+    this.timestamp = new FormControl(new Date().toISOString());
+    this.investedAmount = new FormControl("0.00");
+    this.formGroup = new FormGroup({
+      timestamp: this.timestamp,
+      investedAmount: this.investedAmount
+    });
+  }
+  public async enter() {
+    let event = {
+      type: 'CONV_ENTER',
+      timestamp: this.timestamp.value,
+      option: this.option.code,
+      invested_amount: this.investedAmount.value,
+    }
+    await this.importAndProcess(event, this.entered);
+  }
+}
+
