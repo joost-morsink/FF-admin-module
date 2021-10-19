@@ -32,14 +32,12 @@ namespace FfAdmin.AdminModule
     }
     public class Database : IDatabase
     {
-        static Database()
-        {
-            NpgsqlConnection.GlobalTypeMapper.MapComposite<CoreMessage>("core.message");
-        }
         private readonly IOptions<DatabaseOptions> _dbOptions;
 
         public Database(IOptions<DatabaseOptions> dbOptions)
         {
+            if (!NpgsqlConnection.GlobalTypeMapper.Mappings.Any(m => m.PgTypeName == "core.message"))
+                NpgsqlConnection.GlobalTypeMapper.MapComposite<CoreMessage>("core.message");
             _dbOptions = dbOptions;
         }
 
