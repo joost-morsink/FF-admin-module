@@ -20,17 +20,22 @@ export class ConversionDayComponent {
     this.option = option.option;
     this.step = option.process;
   }
-  public async onLiquidated(dummy: any) {
+  public async refreshOption() {
     this.option = await this.admin.getOption(this.option.id);
+  }
+  public async onLiquidated(dummy: any) {
+    await this.refreshOption()
     this.step = 'exit';
   }
-  public onExited(dummy: any) {
+  public async onExited(dummy: any) {
+    await this.refreshOption();
     this.step = 'transfer';
   }
   public onTransferred(dummy: any) {
     this.step = 'enter';
   }
-  public onEntered(dummy: any) {
+  public async onEntered(dummy: any) {
+    await this.refreshOption();
     this.step = 'invest';
   }
   public onInvested(dummy: any) {
@@ -169,6 +174,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
       timestamp: this.timestamp,
       exitAmount: this.exitAmount
     });
+    this.enabled = true;
   }
   public async recalculate() {
     this.exit_amount = await this.admin.calculateExit(this.option, this.option.invested_amount, this.timestamp.value);
@@ -182,7 +188,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
       type: 'CONV_EXIT',
       timestamp: this.timestamp.value,
       option: this.option.code,
-      exit_amount: this.exitAmount.value,
+      amount: this.exitAmount.value,
     }
     await this.importAndProcess(event, this.exited);
   }
@@ -199,7 +205,7 @@ export class TransfersComponent {
   public transfers: IOpenTransfer[];
 
   public async fetchOpenTransfers() {
-    this.transfers = await this.admin.getOpenTransfers();
+    this.transfers = (await this.admin.getOpenTransfers()).sort((x, y) => x.name<y.name?-1:1);
   }
   public onTransferCompleted(transfer: IOpenTransfer) {
     this.transfers = this.transfers.filter(t => t.charity != transfer.charity || t.currency != transfer.currency);
@@ -231,6 +237,10 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
       amount: this.amount,
       transactionRef: this.transactionRef
     });
+    this.enabled = true;
+  }
+  public totalAmount() {
+    this.amount.setValue(Math.floor(this.transfer.amount * 100) / 100);
   }
   public async doTransfer() {
     let event = {
@@ -267,6 +277,7 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
       timestamp: this.timestamp,
       investedAmount: this.investedAmount
     });
+    this.enabled = true;
   }
   public async enter() {
     let event = {

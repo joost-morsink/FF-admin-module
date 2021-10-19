@@ -12,5 +12,5 @@
         <mat-error *ngIf="formGroup.get('investedAmount').errors"> {{ formGroup.get('investedAmount').errors?.message }} </mat-error>
     </mat-form-field>
     <br />
-    <button (click)="enter()">Enter</button>
+    <button [disabled]="!enabled" (click)="enter()">Enter</button>
 </form>

@@ -1,9 +1,9 @@
 <div class="mat-elevation-z8">
-    <h2>{{ transfer.name }}</h2>
-    <h2>{{ transfer.currency }} {{ transfer.amount }} </h2>
+    <h2>{{ transfer.name }} ({{ transfer.charity }})</h2>
+    <h2 (click)="totalAmount()">{{ transfer.currency }} {{ transfer.amount }} </h2>
     <form>
         <mat-form-field>
-            <mat-label>Timestamp</mat-label>
+            <mat-label>Timestamp</mat-label> 
             <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
             <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
         </mat-form-field>
@@ -20,6 +20,7 @@
             <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
         </mat-form-field>
         <br />
-        <button (click)="doTransfer()"><span class="inline-icon material-icons">repeat</span> Transfer</button>
+        <button [disabled]="!enabled" (click)="doTransfer()"><span class="inline-icon material-icons">repeat</span> Transfer</button>
     </form>
 </div>
+<br/>

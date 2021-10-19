@@ -191,7 +191,7 @@ namespace FfAdmin.Common
         public string Currency { get; set; } = "";
         public decimal Amount { get; set; }
         public string Exchanged_currency { get; set; } = "";
-        public decimal Exchanged_amount { get; set; }
+        public decimal? Exchanged_amount { get; set; }
         public string Transaction_reference { get; set; } = "";
         public string Exchange_reference { get; set; } = "";
         public override IEnumerable<ValidationMessage> Validate()
@@ -202,8 +202,8 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Currency), "Field is required");
             if (Amount <= 0)
                 yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
-            if (Exchanged_amount < 0)
-                yield return new ValidationMessage(nameof(Amount), "Exchanged amount must not be negative");
+            if (Exchanged_amount <= 0)
+                yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
         }
     }
     public class ConvEnter : Event
