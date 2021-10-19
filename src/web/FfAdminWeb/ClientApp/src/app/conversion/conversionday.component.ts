@@ -1,11 +1,12 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, Injectable } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
-import { IOption } from '../interfaces/interfaces';
+import { IOption, IEvent } from '../interfaces/interfaces';
 import { ErrorDialog } from '../error/error.dialog';
-import { timeStamp } from 'console';
+
+type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
 
 @Component({
   selector: 'ff-conversion-day-component',
@@ -15,9 +16,9 @@ export class ConversionDayComponent {
   constructor(private admin: Admin) { }
   public option: IOption;
   public step: string = 'init';
-  public onOptionSelected(option: IOption) {
-    this.option = option;
-    this.step = 'liquidate';
+  public onOptionSelected(option: { option: IOption, process: ProcessStep }) {
+    this.option = option.option;
+    this.step = option.process;
   }
   public async onLiquidated(dummy: any) {
     this.option = await this.admin.getOption(this.option.id);
@@ -33,7 +34,8 @@ export class ConversionDayComponent {
     this.step = 'invest';
   }
   public onInvested(dummy: any) {
-    this.step = 'done';
+    this.option = null;
+    this.step = 'init';
   }
 }
 
@@ -45,15 +47,46 @@ export class SelectOptionComponent {
   constructor(private admin:Admin){
     this.fetchOptions();
   }
-  
-  public options : IOption[];
-  @Output() public optionSelected : EventEmitter<IOption> = new EventEmitter();
+  public displayedColumns: string[] = ["name", "liquidate", "enter", "transfer"];
+  public options: IOption[];
+  @Output() public optionSelected: EventEmitter<{ option: IOption, process: ProcessStep }> = new EventEmitter();
 
-  public click(option: IOption) {
-    this.optionSelected.emit(option);
+  public click(option: IOption, process: ProcessStep) {
+    this.optionSelected.emit({ option: option, process: process });
   }
   public async fetchOptions() {
     this.options = await this.admin.getOptions();
+  }
+}
+
+export abstract class ConversionBaseComponent {
+  constructor(protected eventStore: EventStore, protected dialog: MatDialog) { }
+
+  public enabled: boolean;
+
+  public async importAndProcess(event: IEvent, success?: EventEmitter<void>) {
+    try {
+      this.enabled = false;
+      await this.eventStore.postEvent(event);
+      await this.eventStore.process();
+      success?.emit();
+    } catch (ex) {
+      for (let err of ex.error) {
+        let key = err.key[0].toLowerCase() + err.key.substring(1);
+
+        if (key in this) {
+          let control: FormControl = this[key];
+          let ve: ValidationErrors = {};
+          ve["message"] = err.message;
+
+          control.setErrors(ve);
+        }
+      }
+      this.dialog.open(ErrorDialog, {
+        data: { errors: ex.error },
+      });
+      this.enabled = true;
+    }
   }
 }
 
@@ -61,16 +94,15 @@ export class SelectOptionComponent {
   selector: 'ff-liquidation-admin',
   templateUrl: './liquidation.component.html'
 })
-export class LiquidationComponent implements OnInit {
-  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
-    
+export class LiquidationComponent extends ConversionBaseComponent implements OnInit {
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
+    super(eventStore, dialog);
   }
   @Input() public option: IOption;
   @Output() public liquidated: EventEmitter<void> = new EventEmitter();
 
   public exit_amount: number;
-  public enabled: boolean;
-
+  
   public invested: FormControl;
   public timestamp: FormControl;
   public newInvested: FormControl;
@@ -107,28 +139,7 @@ export class LiquidationComponent implements OnInit {
       cash_amount: this.newCash.value,
       transaction_reference: this.transactionRef.value
     }
-    try {
-      this.enabled = false;
-      await this.eventStore.postEvent(event);
-      await this.eventStore.process();
-      this.liquidated.emit();
-    } catch (ex) {
-      for (let err of ex.error) {
-        let key = err.key[0].toLowerCase() + err.key.substring(1);
-
-        if (key in this) {
-          let control: FormControl = this[key];
-          let ve: ValidationErrors = {};
-          ve["message"] = err.message;
-
-          control.setErrors(ve);
-        }
-      }
-      this.dialog.open(ErrorDialog, {
-        data: { errors: ex.error },
-      });
-      this.enabled = true;
-    }
+    await this.importAndProcess(event, this.liquidated);
   }
 }
 
@@ -136,8 +147,9 @@ export class LiquidationComponent implements OnInit {
   selector: 'ff-exit-admin',
   templateUrl: './exit.component.html'
 })
-export class ExitComponent implements OnInit{
-  constructor(private eventStore: EventStore, private admin: Admin, private dialog: MatDialog) {
+export class ExitComponent extends ConversionBaseComponent implements OnInit{
+  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog) {
+    super(eventStore, dialog);
   }
   @Input() public option: IOption;
   @Output() public exited: EventEmitter<void> = new EventEmitter();
@@ -169,25 +181,6 @@ export class ExitComponent implements OnInit{
       option: this.option.code,
       exit_amount: this.exitAmount.value,
     }
-    try {
-      await this.eventStore.postEvent(event);
-      await this.eventStore.process();
-      this.exited.emit();
-    } catch (ex) {
-      for (let err of ex.error) {
-        let key = err.key[0].toLowerCase() + err.key.substring(1);
-
-        if (key in this) {
-          let control: FormControl = this[key];
-          let ve: ValidationErrors = {};
-          ve["message"] = err.message;
-
-          control.setErrors(ve);
-        }
-      }
-      this.dialog.open(ErrorDialog, {
-        data: { errors: ex.error },
-      });
-    }
+    await this.importAndProcess(event, this.exited);
   }
 }

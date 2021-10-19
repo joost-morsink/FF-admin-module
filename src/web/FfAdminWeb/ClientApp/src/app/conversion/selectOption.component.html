@@ -3,7 +3,35 @@
 <div *ngIf="options!=null">
     <ul>
         <li *ngFor="let option of options">
-            <button (click)="click(option)">{{ option.name }}</button>
+            <button (click)="click(option,'liquidate')">{{ option.name }}</button>
         </li>
     </ul>
 </div>
+
+<p *ngIf="options==null">Loading...</p>
+<mat-table class="mat-elevation-z8" [dataSource]="options" *ngIf="options != null">
+    <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+        <mat-cell *matCellDef="let option">{{ option.name }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="liquidate">
+        <mat-header-cell *matHeaderCellDef>Liquidate</mat-header-cell>
+        <mat-cell *matCellDef="let option">
+            <button (click)="click(option,'liquidate')"><span class="inline-icon material-icons">launch</span>Liquidation/exit</button>
+        </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="enter">
+        <mat-header-cell *matHeaderCellDef>Enter</mat-header-cell>
+        <mat-cell *matCellDef="let option">
+            <button (click)="click(option,'enter')"><span class="inline-icon material-icons">trending_up</span>Enter/invest</button>
+        </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="transfer">
+        <mat-header-cell *matHeaderCellDef>Transfer</mat-header-cell>
+        <mat-cell *matCellDef="let option">
+            <button (click)="click(option,'transfer')"><span class="inline-icon material-icons">repeat</span>Transfer</button>
+        </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+</mat-table>
