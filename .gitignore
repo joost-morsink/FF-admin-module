@@ -7,3 +7,4 @@ events
 bin
 obj
 src/web/FfAdminWeb/data
+src/web/FfAdminWeb/database.sql

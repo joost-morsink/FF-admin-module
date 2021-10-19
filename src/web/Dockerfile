@@ -13,7 +13,8 @@ COPY ./FfAdminWeb/ClientApp/package*.json ./FfAdminWeb/ClientApp/
 RUN npm install ./FfAdminWeb/ClientApp --prefix ./FfAdminWeb/ClientApp
 
 COPY ./FfAdminWeb.sln ./
-COPY ./FfAdminWeb.Comon/FfAdminWeb.Common.csproj ./FfAdminWeb.Common
+COPY ./Common/Common.csproj ./Common/
+COPY ./External.GiveWp/External.GiveWp.csproj ./External.GiveWp/
 COPY ./AdminModule/AdminModule.csproj ./AdminModule/
 COPY ./EventStore/EventStore.csproj ./EventStore/
 COPY ./FfAdminWeb/FfAdminWeb.csproj ./FfAdminWeb/
