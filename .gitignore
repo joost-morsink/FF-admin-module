@@ -1,8 +1,8 @@
 dist
 images
-pgdata
-pgadmin
-events
+/pgdata
+/pgadmin
+/events
 .vs
 bin
 obj

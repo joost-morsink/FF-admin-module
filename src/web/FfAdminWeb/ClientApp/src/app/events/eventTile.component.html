@@ -1,0 +1,16 @@
+<div class="mat-elevation-z8 event-tile {{getClass()}}">
+<h1>{{data.type}}</h1>
+<p>@ {{getDate()}} </p>
+<h2 *ngIf="data.type == 'META_NEW_OPTION' || data.type == 'META_NEW_CHARITY'">{{data.name}}</h2>
+<div *ngIf="data.type == 'META_NEW_OPTION' || data.type == 'META_UPDATE_FRACTIONS'">
+    <p><strong>Fractions:</strong> {{data.reinvestment_fraction}} / {{data.charity_fraction}} / {{data.futureFund_fraction}} </p>
+    <p><strong>Bad year fraction:</strong> {{data.bad_year_fraction}}</p>
+</div>
+<h2 *ngIf="data.type == 'DONA_NEW'">{{data.donation_currency}} {{data.donation_amount}}</h2>
+<div *ngIf="data.type == 'CONV_ENTER' || data.type == 'CONV_LIQUIDATE' || data.type == 'CONV_EXIT' || data.type == 'CONV_INVEST' || data.type == 'PRICE_INFO'">
+    <span *ngIf="data.invested_amount != null"><strong>Invested amount:</strong> {{dta.invested_amount}}</span>
+    <span *ngIf="data.cash_amount != null"><strong>Cash amount:</strong> {{dta.cash_amount}}</span>
+    <span *ngIf="data.exit_amount != null"><strong>Exit amount:</strong> {{dta.exit_amount}}</span>
+</div>
+<h2 *ngIf="data.type == 'CONV_TRANSFER'">{{data.transfer_currency}} {{data.transfer_amount}}</h2>
+</div>

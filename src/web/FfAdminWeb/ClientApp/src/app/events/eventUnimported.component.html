@@ -1,0 +1,6 @@
+<strong> {{ unimported?.length }} </strong> unimported file{{unimported?.length != 1 ? "s" : ""}}{{unimported?.length > 0 ? ":" : ""}}
+<ul>
+    <li *ngFor="let x of unimported?.slice(0,10)"> {{ x }} </li>
+    <li *ngIf="unimported?.length > 10">...</li>
+</ul>
+
