@@ -52,6 +52,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'open_transfer' and ns.nspname = 'ff') THEN
+
+		create type ff.open_transfer as (charity_id int, currency varchar(4), amount numeric(20,4));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.calculate_open_transfers() returns SETOF ff.open_transfer as $$
+BEGIN
+	return query select charity_id as charity_id, currency, sum(amount)::numeric(20,4) as amount from
+	(select c.charity_id, o.currency, a.amount
+	from ff.charity c
+	join ff.allocation a on c.charity_id = a.charity_id
+	join ff.option o on a.option_id = o.option_id
+	union all
+	select c.charity_id, t.currency, -t.amount
+	from ff.charity c
+	join ff.transfer t on c.charity_id = t.charity_id) s
+	group by charity_id, currency
+	having sum(amount)>0.01;
+END; $$ LANGUAGE plpgsql;
 /*
 
 do $$
@@ -78,3 +103,4 @@ select ff.calculate_exit(o.option_id, 3,'2021-12-16')
 from ff.option o;
 
 */
+

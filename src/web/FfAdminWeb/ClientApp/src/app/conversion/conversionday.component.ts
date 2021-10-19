@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/f
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
-import { IOption, IEvent } from '../interfaces/interfaces';
+import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
 import { ErrorDialog } from '../error/error.dialog';
 
 type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
@@ -47,7 +47,7 @@ export class SelectOptionComponent {
   constructor(private admin:Admin){
     this.fetchOptions();
   }
-  public displayedColumns: string[] = ["name", "liquidate", "enter", "transfer"];
+  public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter"];
   public options: IOption[];
   @Output() public optionSelected: EventEmitter<{ option: IOption, process: ProcessStep }> = new EventEmitter();
 
@@ -64,12 +64,15 @@ export abstract class ConversionBaseComponent {
 
   public enabled: boolean;
 
-  public async importAndProcess(event: IEvent, success?: EventEmitter<void>) {
+  public async importAndProcess<T>(event: IEvent, success?: EventEmitter<T>, data?: T) {
     try {
       this.enabled = false;
       await this.eventStore.postEvent(event);
       await this.eventStore.process();
-      success?.emit();
+      if (data)
+        success?.emit(data);
+      else
+        success?.emit();
     } catch (ex) {
       for (let err of ex.error) {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
@@ -182,5 +185,62 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
       exit_amount: this.exitAmount.value,
     }
     await this.importAndProcess(event, this.exited);
+  }
+}
+@Component({
+  selector: 'ff-transfers-admin',
+  templateUrl: './transfers.component.html'
+})
+export class TransfersComponent {
+  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
+    this.fetchOpenTransfers();
+  }
+  @Output() public done: EventEmitter<void> = new EventEmitter();
+  public transfers: IOpenTransfer[];
+
+  public async fetchOpenTransfers() {
+    this.transfers = await this.admin.getOpenTransfers();
+  }
+  public onTransferCompleted(transfer: IOpenTransfer) {
+    this.transfers = this.transfers.filter(t => t.charity != transfer.charity || t.currency != transfer.currency);
+  }
+}
+
+@Component({
+  selector: 'ff-transfer',
+  templateUrl: './transfer.component.html'
+})
+export class TransferComponent extends ConversionBaseComponent implements OnInit {
+  constructor(eventStore: EventStore, dialog: MatDialog) {
+    super(eventStore, dialog);
+  }
+  @Input() public transfer: IOpenTransfer;
+  @Output() public completed: EventEmitter<IOpenTransfer> = new EventEmitter();
+
+  public timestamp: FormControl;
+  public amount: FormControl;
+  public transactionRef: FormControl;
+  public formGroup: FormGroup;
+
+  public ngOnInit() {
+    this.timestamp = new FormControl(new Date().toISOString());
+    this.amount = new FormControl("0.00");
+    this.transactionRef = new FormControl("");
+    this.formGroup = new FormGroup({
+      timestamp: this.timestamp,
+      amount: this.amount,
+      transactionRef: this.transactionRef
+    });
+  }
+  public async doTransfer() {
+    let event = {
+      type: "CONV_TRANSFER",
+      timestamp: this.timestamp.value,
+      charity: this.transfer.charity,
+      currency: this.transfer.currency,
+      amount: parseFloat(this.amount.value),
+      transaction_reference: this.transactionRef.value
+    }
+    await this.importAndProcess(event, this.completed, this.transfer);
   }
 }

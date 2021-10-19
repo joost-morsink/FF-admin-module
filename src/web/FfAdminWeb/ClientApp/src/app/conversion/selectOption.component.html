@@ -20,16 +20,16 @@
             <button (click)="click(option,'liquidate')"><span class="inline-icon material-icons">launch</span>Liquidation/exit</button>
         </mat-cell>
     </ng-container>
-    <ng-container matColumnDef="enter">
-        <mat-header-cell *matHeaderCellDef>Enter</mat-header-cell>
-        <mat-cell *matCellDef="let option">
-            <button (click)="click(option,'enter')"><span class="inline-icon material-icons">trending_up</span>Enter/invest</button>
-        </mat-cell>
-    </ng-container>
     <ng-container matColumnDef="transfer">
         <mat-header-cell *matHeaderCellDef>Transfer</mat-header-cell>
         <mat-cell *matCellDef="let option">
             <button (click)="click(option,'transfer')"><span class="inline-icon material-icons">repeat</span>Transfer</button>
+        </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="enter">
+        <mat-header-cell *matHeaderCellDef>Enter</mat-header-cell>
+        <mat-cell *matCellDef="let option">
+            <button (click)="click(option,'enter')"><span class="inline-icon material-icons">trending_up</span>Enter/invest</button>
         </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

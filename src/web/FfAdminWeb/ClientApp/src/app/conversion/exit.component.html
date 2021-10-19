@@ -21,5 +21,6 @@
         <input matNativeControl name="exitAmount" [(formControl)]="exitAmount" />
         <mat-error *ngIf="formGroup.get('exitAmount').errors"> {{ formGroup.get('exitAmount').errors?.message }} </mat-error>
     </mat-form-field>
+    <br />
     <button (click)="exit()">Exit</button>
 </form>

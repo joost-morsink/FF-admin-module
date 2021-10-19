@@ -43,7 +43,8 @@ namespace FfAdmin.Common
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
                     EventType.CONV_LIQUIDATE => JsonSerializer.Deserialize<ConvLiquidate>(json, options)!,
-                    EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json,options)!,
+                    EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json, options)!,
+                    EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -179,6 +180,28 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Option), "Field is required");
             if (Amount <= 0)
                 yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
+        }
+    }
+    public class ConvTransfer : Event
+    {
+        public override EventType Type => EventType.CONV_TRANSFER;
+        public string Charity { get; set; } = "";
+        public string Currency { get; set; } = "";
+        public decimal Amount { get; set; }
+        public string Exchanged_currency { get; set; } = "";
+        public decimal Exchanged_amount { get; set; }
+        public string Transaction_reference { get; set; } = "";
+        public string Exchange_reference { get; set; } = "";
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Charity))
+                yield return new ValidationMessage(nameof(Charity), "Field is required");
+            if (string.IsNullOrWhiteSpace(Currency))
+                yield return new ValidationMessage(nameof(Currency), "Field is required");
+            if (Amount <= 0)
+                yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
+            if (Exchanged_amount < 0)
+                yield return new ValidationMessage(nameof(Amount), "Exchanged amount must not be negative");
         }
     }
 }

@@ -1,0 +1,25 @@
+<div class="mat-elevation-z8">
+    <h2>{{ transfer.name }}</h2>
+    <h2>{{ transfer.currency }} {{ transfer.amount }} </h2>
+    <form>
+        <mat-form-field>
+            <mat-label>Timestamp</mat-label>
+            <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
+            <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Actual amount</mat-label>
+            <input matNativeControl name="amount" [(formControl)]="amount" />
+            <mat-error *ngIf="formGroup.get('amount').errors"> {{ formGroup.get('amount').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+            <mat-label>Transaction reference</mat-label>
+            <input matNativeControl name="transactionRef" [(formControl)]="transactionRef" />
+            <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
+        </mat-form-field>
+        <br />
+        <button (click)="doTransfer()"><span class="inline-icon material-icons">repeat</span> Transfer</button>
+    </form>
+</div>

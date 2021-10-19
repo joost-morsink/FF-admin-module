@@ -67,3 +67,9 @@ export interface IEventStatistics {
   unprocessed: number;
   firstUnprocessed: Date;
 }
+export interface IOpenTransfer {
+  charity: string;
+  name: string;
+  currency: string;
+  amount: number;
+}

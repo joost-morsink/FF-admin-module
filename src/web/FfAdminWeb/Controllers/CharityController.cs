@@ -36,6 +36,21 @@ namespace FfAdminWeb.Controllers
                     Bank_bic = c.Bank_bic
                 };
         }
+        public class OpenTransferGridRow
+        {
+            public string Charity { get; set; } = "";
+            public string Name { get; set; } = "";
+            public string Currency { get; set; } = "";
+            public decimal Amount { get; set; }
+            public static OpenTransferGridRow Create(OpenTransfer ot)
+                => new OpenTransferGridRow
+                {
+                    Charity = ot.Charity_ext_id,
+                    Name = ot.Name,
+                    Currency = ot.Currency,
+                    Amount = ot.Amount
+                };
+        }
 
         [HttpGet]
         public async Task<IEnumerable<CharityGridRow>> GetCharities()
@@ -43,6 +58,11 @@ namespace FfAdminWeb.Controllers
             var res = await _repository.GetCharities();
             return res.Select(CharityGridRow.Create);
         }
-
+        [HttpGet("opentransfers")]
+        public async Task<IEnumerable<OpenTransferGridRow>> GetOpenTransfers()
+        {
+            var res = await _repository.GetOpenTransfers();
+            return res.Select(OpenTransferGridRow.Create);
+        }
     }
 }
