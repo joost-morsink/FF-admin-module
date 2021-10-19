@@ -1,13 +1,5 @@
 <h2>Select Option</h2>
 
-<div *ngIf="options!=null">
-    <ul>
-        <li *ngFor="let option of options">
-            <button (click)="click(option,'liquidate')">{{ option.name }}</button>
-        </li>
-    </ul>
-</div>
-
 <p *ngIf="options==null">Loading...</p>
 <mat-table class="mat-elevation-z8" [dataSource]="options" *ngIf="options != null">
     <ng-container matColumnDef="name">
