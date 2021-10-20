@@ -16,10 +16,11 @@ namespace FfAdmin.AdminModule
         public string User { get; set; } = "ff";
         public string Password { get; set; } = "notsecret";
     }
-    public interface IDatabase {
+    public interface IDatabase
+    {
         Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action);
         Task Run(Func<NpgsqlConnection, Task> action);
-   
+
     }
     public static class DatabaseExt
     {
@@ -63,9 +64,13 @@ namespace FfAdmin.AdminModule
             };
             var connection = new NpgsqlConnection(connectionString.ConnectionString);
             connection.Open();
-            connection.TypeMapper.MapComposite<CoreMessage>("core.message");
+            try
+            {
+                connection.TypeMapper.MapComposite<CoreMessage>("core.message");
+            }
+            catch { } // Ignore if not found
             return connection;
         }
     }
-   
+
 }
