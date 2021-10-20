@@ -7,10 +7,10 @@
 
     <button mat-mini-fab color="primary" class="upload-btn"
             (click)="fileUpload.click()">
-        <mat-icon>attach_file</mat-icon>
+        <span class="inline-icon material-icons">attach_file</span> Find CSV
     </button>
     <button *ngIf="file!=null" mat-mini-fab color="primary" class="upload-btn"
             (click)="executeUpload()">
-        <mat-icon>file_upload</mat-icon>
+        <span class="inline-icon material-icons">file_upload</span> Upload CSV
     </button>
 </div>

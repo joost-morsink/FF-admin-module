@@ -182,6 +182,10 @@ namespace FfAdminWeb.Controllers
 
                 return Ok();
             }
+            catch (ValidationException vex)
+            {
+                return BadRequest(vex.Messages);
+            }
             catch (Exception ex)
             {
                 return BadRequest(new ValidationMessage[] { new("", ex.Message) });

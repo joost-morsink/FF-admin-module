@@ -6,6 +6,7 @@ import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/f
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { ErrorDialog } from '../dialogs/error.dialog';
+import { InfoDialog } from '../dialogs/info.dialog';
 
 @Component({
   selector: 'ff-import-csv',
@@ -15,21 +16,30 @@ export class ImportCsvComponent {
   constructor(private eventStore: EventStore, private dialog: MatDialog) { }
   public file: File;
   public fileName: string;
-
+  private fileInput: HTMLInputElement;
   public onFileSelected(e) {
-    this.file = (<HTMLInputElement>event.target).files[0];
+    this.fileInput = e.target;
+    this.file = this.fileInput.files[0];
     this.fileName = this.file?.name;
   }
-  public async executeUpload() {
 
+  public async executeUpload() {
     if (this.file) {
       const formData = new FormData();
       formData.append("file", this.file);
 
       try {
         await this.eventStore.importCsv(formData);
+        await this.eventStore.process();
+        this.fileInput.files = null;
+        this.file = null;
+        this.fileName = null;
+
+        this.dialog.open(InfoDialog, {
+          data: { title: "Success", message: "Import and processing successful!" }
+        });
       } catch (ex) {
-        await this.dialog.open(ErrorDialog, {
+        this.dialog.open(ErrorDialog, {
           data: { errors: ex.error }
         }).afterClosed().toPromise();
       }
