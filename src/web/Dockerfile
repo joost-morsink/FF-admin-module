@@ -12,6 +12,7 @@ WORKDIR /app
 COPY ./FfAdminWeb/ClientApp/package*.json ./FfAdminWeb/ClientApp/
 RUN npm install ./FfAdminWeb/ClientApp --prefix ./FfAdminWeb/ClientApp
 
+COPY ./Directory.Build.props ./
 COPY ./FfAdminWeb.sln ./
 COPY ./Common/Common.csproj ./Common/
 COPY ./External.GiveWp/External.GiveWp.csproj ./External.GiveWp/

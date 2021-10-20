@@ -1,16 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FfAdmin.Common</RootNamespace>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Pidgin" />
-    <None Remove="Biz.Morsink.DataConvert" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Pidgin" Version="2.5.0" />
     <PackageReference Include="Biz.Morsink.DataConvert" Version="0.4.0" />

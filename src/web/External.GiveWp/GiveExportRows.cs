@@ -16,31 +16,35 @@ namespace FfAdmin.External.GiveWp
             {
                 var cs = new HashSet<string>(charities);
                 var os = new HashSet<string>(options);
+                var messages = rows.Select((row, index) => row.Validate().Select(m => new ValidationMessage($"{index}.{m.Key}", m.Message))).SelectMany(x => x).ToArray();
+                if (messages.Length > 0)
+                    throw new ValidationException(messages);
                 foreach (var row in rows.OrderBy(r => r.GetTimestamp()))
                 {
-                    if (!os.Contains(row.Fund_id))
+                    
+                    if (!os.Contains(row.Fund_id!))
                     {
                         yield return new NewOption
                         {
-                            Timestamp = row.GetTimestamp().AddSeconds(-1),
-                            Code = row.Fund_id,
-                            Currency = row.Currency_code,
-                            Name = row.Fund_title
+                            Timestamp = (row.GetTimestamp() ?? throw new System.Exception("Invalid timestamp")).AddSeconds(-1),
+                            Code = row.Fund_id!,
+                            Currency = row.Currency_code ?? "EUR",
+                            Name = row.Fund_title ?? "Unknown fund"
                         };
-                        os.Add(row.Fund_id);
+                        os.Add(row.Fund_id!);
                     }
-                    if (!cs.Contains(row.Form_id))
+                    if (!cs.Contains(row.Form_id!))
                     {
                         yield return new NewCharity
                         {
-                            Timestamp = row.GetTimestamp().AddSeconds(-1),
-                            Code = row.Form_id,
-                            Name = row.Form_title
+                            Timestamp = row.GetTimestamp()!.Value.AddSeconds(-1),
+                            Code = row.Form_id!,
+                            Name = row.Form_title ?? "Unknown charity"
                         };
-                        cs.Add(row.Form_id);
+                        cs.Add(row.Form_id!);
                     }
                     if(row.Donation_status == "Complete")
-                        yield return row.ToNewDonation();
+                        yield return row.ToNewDonation()!;
                 }
             }
         }
