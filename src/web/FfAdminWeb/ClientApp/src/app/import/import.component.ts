@@ -5,7 +5,7 @@ import { IOption, IEventNewOption, IValidationMessage, IEventStatistics, IFullEv
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
-import { ErrorDialog } from '../error/error.dialog';
+import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'ff-import-csv',

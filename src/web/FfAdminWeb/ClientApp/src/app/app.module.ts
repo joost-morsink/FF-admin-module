@@ -17,22 +17,17 @@ import { ConversionModule } from './conversion/conversion.module';
 import { ConversionDayComponent } from './conversion/conversionday.component';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseComponent } from './database/database.component';
+import { DialogsModule } from './dialogs/dialogs.module';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 
-import { ErrorDialog } from './error/error.dialog';
-
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
-    HomeComponent,
-    ErrorDialog,
-  ],
-  entryComponents: [
-    ErrorDialog,
+    HomeComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -47,6 +42,7 @@ import { ErrorDialog } from './error/error.dialog';
     ], { relativeLinkResolution: 'legacy' }),
     FfBackendModule,
     FfUiModule,
+    DialogsModule,
     CharityModule,
     EventModule,
     ImportModule,

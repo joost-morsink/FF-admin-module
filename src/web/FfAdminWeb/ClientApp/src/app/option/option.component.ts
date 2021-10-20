@@ -5,7 +5,7 @@ import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/inte
 import { } from '@angular/material';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ErrorDialog } from '../error/error.dialog';
+import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'ff-options',

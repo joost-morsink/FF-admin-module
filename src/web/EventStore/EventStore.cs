@@ -23,7 +23,11 @@ namespace FfAdmin.EventStore
 
         IEnumerable<string> AllFiles();
 
-        void IDisposable.Dispose() => EndSession("Automatically closed.");
+        void IDisposable.Dispose()
+        {
+            if (HasSession)
+                EndSession("Automatically closed.");
+        }
     }
     public class SessionFile : IDisposable
     {

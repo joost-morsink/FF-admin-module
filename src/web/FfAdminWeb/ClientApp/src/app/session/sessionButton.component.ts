@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { EventStore } from '../backend/eventstore';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-import { ErrorDialog } from '../error/error.dialog';
+import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'session-button',

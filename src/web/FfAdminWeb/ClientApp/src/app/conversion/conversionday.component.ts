@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
-import { ErrorDialog } from '../error/error.dialog';
+import { ErrorDialog } from '../dialogs/error.dialog';
 
 type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
 
