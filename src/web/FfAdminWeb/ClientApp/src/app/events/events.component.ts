@@ -1,25 +1,29 @@
 import { Component, Output, ViewChild, Input } from '@angular/core';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
-import { IOption, IEventNewOption, IValidationMessage, IEventStatistics, IFullEvent } from '../interfaces/interfaces';
+import { IOption, IEventNewOption, IValidationMessage, IEventStatistics, IFullEvent, IRemoteStatus } from '../interfaces/interfaces';
 import { EventEmitter } from 'protractor';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { InfoDialog } from '../dialogs/info.dialog';
 
 @Component({
   selector: 'ff-events',
   templateUrl: './events.component.html'
 })
 export class EventsComponent {
-  constructor(private admin: Admin, private eventStore: EventStore) {
+  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
     this.stats = {
       processed: 0, unprocessed: 0, firstUnprocessed: new Date(), lastProcessed: new Date()
     };
     this.unimported = [];
     this.fetchStats();
     this.fetchUnimported();
+    this.fetchRemoteStatus();
   }
   public stats: IEventStatistics;
   public unimported: string[];
+  public remote: IRemoteStatus;
   public enabled: boolean = true;
   public unprocessedEvents: IFullEvent[];
 
@@ -74,6 +78,24 @@ export class EventsComponent {
   }
   public async fetchUnprocessed(): Promise<void> {
     this.unprocessedEvents = await this.eventStore.getUnprocessed();
+  }
+  public async fetchRemoteStatus(): Promise<void> {
+    this.remote = await this.eventStore.getRemoteStatus();
+  }
+  public async pull() {
+    await this.eventStore.pull();
+    this.dialog.open(InfoDialog, {
+      data: { message: "Pulled successfully!" }
+    });
+    this.fetchUnimported();
+    this.fetchRemoteStatus();
+  }
+  public async push() {
+    await this.eventStore.push();
+    this.dialog.open(InfoDialog, {
+      data: { message: "Pushed successfully!" }
+    });
+    this.fetchRemoteStatus();
   }
 }
 

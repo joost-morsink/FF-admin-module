@@ -73,3 +73,9 @@ export interface IOpenTransfer {
   currency: string;
   amount: number;
 }
+export interface IRemoteStatus {
+  name: string;
+  hasRemote: boolean;
+  ahead: number;
+  behind: number;
+}

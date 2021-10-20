@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IEvent, IEventStatistics, IFullEvent } from '../interfaces/interfaces';
+import { IEvent, IEventStatistics, IFullEvent, IRemoteStatus } from '../interfaces/interfaces';
 
 @Injectable()
 export class EventStore {
@@ -26,27 +26,36 @@ export class EventStore {
     await this.http.post<void>(this.baseUrl + "eventstore/import", ev).toPromise();
   }
   public getStatistics(): Promise<IEventStatistics> {
-    return this.http.get<IEventStatistics>("eventstore/statistics/main").toPromise();
+    return this.http.get<IEventStatistics>(this.baseUrl + "eventstore/statistics/main").toPromise();
   }
   public process(): Promise<void> {
-    return this.http.post<void>("eventstore/process", {}).toPromise();
+    return this.http.post<void>(this.baseUrl + "eventstore/process", {}).toPromise();
   }
   public reset(): Promise<void> {
-    return this.http.post<void>("eventstore/reset", {}).toPromise();
+    return this.http.post<void>(this.baseUrl + "eventstore/reset", {}).toPromise();
   }
   public deleteAll(): Promise<void> {
-    return this.http.post<void>("eventstore/deleteAll", {}).toPromise();
+    return this.http.post<void>(this.baseUrl + "eventstore/deleteAll", {}).toPromise();
   }
   public getUnimported(): Promise<string[]> {
-    return this.http.get<string[]>("eventstore/files/unimported").toPromise();
+    return this.http.get<string[]>(this.baseUrl + "eventstore/files/unimported").toPromise();
   }
   public getUnprocessed(): Promise<IFullEvent[]> {
-    return this.http.get<IFullEvent[]>("eventstore/unprocessed").toPromise();
+    return this.http.get<IFullEvent[]>(this.baseUrl + "eventstore/unprocessed").toPromise();
   }
   public import(files: string[]): Promise<void> {
-    return this.http.post<void>("eventstore/files/import", files).toPromise();
+    return this.http.post<void>(this.baseUrl + "eventstore/files/import", files).toPromise();
   }
   public importCsv(formData: FormData) {
-    return this.http.post<void>("eventstore/donations/give", formData).toPromise();
+    return this.http.post<void>(this.baseUrl + "eventstore/donations/give", formData).toPromise();
+  }
+  public getRemoteStatus(): Promise<IRemoteStatus> {
+    return this.http.get<IRemoteStatus>(this.baseUrl + "eventstore/remote/status").toPromise();
+  }
+  public pull(): Promise<void> {
+    return this.http.post<void>(this.baseUrl + "eventstore/remote/pull", {}).toPromise();
+  }
+  public push(): Promise<void> {
+    return this.http.post<void>(this.baseUrl + "eventstore/remote/push", {}).toPromise();
   }
 }

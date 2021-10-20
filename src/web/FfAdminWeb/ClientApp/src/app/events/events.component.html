@@ -1,6 +1,19 @@
 <h1>Events</h1>
 <div class="section mat-elevation-z4">
     <h2>Unimported files in store</h2>
+    <p *ngIf="remote == null">Fetching remote status...</p>
+    <div *ngIf="remote != null">
+        <p *ngIf="!remote.hasRemote">Not working with a remote event store!</p>
+        <p *ngIf="remote.hasRemote">
+            Current branch is
+            <span *ngIf="remote.ahead > 0"><strong>{{ remote.ahead }}</strong> ahead</span>
+            <span *ngIf="remote.ahead > 0 && remote.behind > 0">and</span>
+            <span *ngIf="remote.behind > 0"><strong>{{ remote.behind }} </strong> behind.</span>
+            <span *ngIf="remote.ahead == 0 && remote.behind == 0">up to date with remote.</span>
+        </p>
+        <button (click)="push()" *ngIf="remote.ahead > 0 && remote.behind == 0">Push</button>
+        <button (click)="pull()" *ngIf="remote.behind > 0 && remote.ahead == 0">Pull</button>
+    </div>
     <div>
         <ff-event-unimported [unimported]="unimported"></ff-event-unimported>
     </div>

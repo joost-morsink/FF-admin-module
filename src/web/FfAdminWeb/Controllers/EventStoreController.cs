@@ -191,5 +191,22 @@ namespace FfAdminWeb.Controllers
                 return BadRequest(new ValidationMessage[] { new("", ex.Message) });
             }
         }
+        [HttpGet("remote/status")]
+        public RemoteStatus GetRemoteStatus()
+        {
+            return _eventStore.GetRemoteStatus();
+        }
+        [HttpPost("remote/push")]
+        public async Task<IActionResult> Push()
+        {
+            await _eventStore.Push();
+            return Ok();
+        }
+        [HttpPost("remote/pull")]
+        public async Task<IActionResult> Pull()
+        {
+            await _eventStore.Pull();
+            return Ok();
+        }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -10,56 +9,6 @@ using FfAdmin.Common;
 
 namespace FfAdmin.EventStore
 {
-    public interface IEventStore : IDisposable
-    {
-        void StartSession();
-        void EndSession(string? comment);
-        bool HasSession { get; }
-        string? SessionFile { get; }
-
-        void WriteEvent(Event e);
-
-        Task<Event[]> GetEventsFromFile(string path);
-
-        IEnumerable<string> AllFiles();
-
-        void IDisposable.Dispose()
-        {
-            if (HasSession)
-                EndSession("Automatically closed.");
-        }
-    }
-    public class SessionFile : IDisposable
-    {
-        public SessionFile(string basepath, string path)
-        {
-            CurrentFile = path;
-            var dir = Path.Combine(basepath, Path.GetDirectoryName(CurrentFile)!);
-            MakeDir(dir);
-            Stream = File.OpenWrite(Path.Combine(basepath, CurrentFile));
-            Writer = new StreamWriter(Stream);
-        }
-        private void MakeDir(string dir)
-        {
-            var parent = Path.GetDirectoryName(dir);
-            if (!string.IsNullOrWhiteSpace(parent) && !Directory.Exists(parent))
-                MakeDir(parent);
-
-            Directory.CreateDirectory(dir);
-        }
-        public string CurrentFile { get; }
-        public FileStream Stream { get; }
-        public TextWriter Writer { get; }
-        public void Dispose()
-        {
-            Writer.Flush();
-            Stream.Flush();
-            Writer.Dispose();
-            Stream.Close();
-            IsDisposed = true;
-        }
-        public bool IsDisposed { get; private set; }
-    }
 
     public class EventStore : IEventStore
     {
@@ -128,43 +77,17 @@ namespace FfAdmin.EventStore
             var res = new List<Event>();
             return await Event.ReadAll(stream);
         }
-    }
-
-    public class Git
-    {
-        public string Path { get; }
-        public Git(string path)
+        public RemoteStatus GetRemoteStatus()
+            => _git.GetRemoteStatus();
+        public Task Pull()
         {
-            Path = path ?? throw new ArgumentNullException(nameof(path));
+            _git.PullOrigin();
+            return Task.CompletedTask;
         }
-        public void Add(string argument)
+        public Task Push()
         {
-            ExecuteShell("add", argument);
-        }
-        public void Commit(string message)
-        {
-            ExecuteShell("commit", "-m", message);
-        }
-        public void PushOrigin()
-        {
-            ExecuteShell("push", "origin");
-        }
-        private int ExecuteShell(string command, params string[] arguments)
-        {
-            var psi = new ProcessStartInfo
-            {
-                CreateNoWindow = true,
-                FileName = "git",
-                UseShellExecute = true,
-                WorkingDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Path)
-            };
-            psi.ArgumentList.Add(command);
-            foreach (var arg in arguments)
-                psi.ArgumentList.Add(arg);
-            var p = new Process { StartInfo = psi };
-            p.Start();
-            p.WaitForExit();
-            return p.ExitCode;
+            _git.PushOrigin();
+            return Task.CompletedTask;
         }
     }
 }
