@@ -1,6 +1,8 @@
-/* 
-drop function ff.calculate_ideal_valuation;
-drop function ff.calculate_exit;
+/*
+drop function if exists ff.calculate_ideal_valuation cascade;
+drop function if exists ff.calculate_exit cascade ;
+drop type if exists ff.open_transfer cascade;
+drop function if exists ff.calculate_open_transfers cascade;
 */
 
 create or replace function ff.calculate_ideal_valuation(opt_id int, current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
@@ -63,7 +65,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.calculate_open_transfers() returns SETOF ff.open_transfer as $$
+create or replace function ff.calculate_open_transfers(threshold numeric(20,4)=0.01) returns SETOF ff.open_transfer as $$
 BEGIN
 	return query select charity_id as charity_id, currency, sum(amount)::numeric(20,4) as amount from
 	(select c.charity_id, o.currency, a.amount
@@ -75,7 +77,7 @@ BEGIN
 	from ff.charity c
 	join ff.transfer t on c.charity_id = t.charity_id) s
 	group by charity_id, currency
-	having sum(amount)>0.01;
+	having sum(amount)>=threshold;
 END; $$ LANGUAGE plpgsql;
 /*
 
@@ -102,5 +104,6 @@ select ff.calculate_ideal_valuation(o.option_id, -3)
 select ff.calculate_exit(o.option_id, 3,'2021-12-16')
 from ff.option o;
 
+select * from ff.calculate_open_transfers(5)
 */
 

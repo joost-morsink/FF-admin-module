@@ -20,6 +20,7 @@ try {
     Get-Content ./src/database/import.sql | Add-Content -Path $dbScript
     Get-Content ./src/database/calculation.sql | Add-Content -Path $dbScript
     Get-Content ./src/database/process.sql | Add-Content -Path $dbScript
+    Get-Content ./src/database/export.sql | Add-Content -Path $dbScript
     
     docker compose up --build -d
 
