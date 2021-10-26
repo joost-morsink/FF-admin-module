@@ -15,12 +15,7 @@ try {
         git config user.email $email
     }
 
-    $dbScript = "./src/web/FfAdminWeb/database.sql"
-    Get-Content ./src/database/structure.sql | Set-Content -Path $dbScript
-    Get-Content ./src/database/import.sql | Add-Content -Path $dbScript
-    Get-Content ./src/database/calculation.sql | Add-Content -Path $dbScript
-    Get-Content ./src/database/process.sql | Add-Content -Path $dbScript
-    Get-Content ./src/database/export.sql | Add-Content -Path $dbScript
+    . ./src/update-database.ps1
     
     docker compose up --build -d
 

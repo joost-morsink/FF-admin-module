@@ -11,6 +11,7 @@ drop function core.import_conv_invest;
 drop function core.import_conv_liquidate;
 drop function core.import_conv_exit;
 drop function core.import_conv_transfer;
+drop function core.import_audit;
 */
 create or replace function core.import_events(events jsonb[]) returns core.message as $$
 DECLARE
@@ -46,6 +47,7 @@ BEGIN
 				WHEN 'CONV_LIQUIDATE' THEN (select core.import_conv_liquidate(eventdata))
 				WHEN 'CONV_EXIT' THEN (select core.import_conv_exit(eventdata))
 				WHEN 'CONV_TRANSFER' THEN (select core.import_conv_transfer(eventdata))
+				WHEN 'AUDIT' THEN (select core.import_audit(eventdata))
 				ELSE ROW(4, 'type', 'Unknown type ' || typ)::core.message END;
 	return res;
 END;
@@ -305,6 +307,23 @@ BEGIN
 						  , exchanged_transfer_amount, transaction_reference, exchange_reference)
 				VALUES ('CONV_TRANSFER', timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
 						  , exchanged_amount, transaction_reference, exchange_reference);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_audit(eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	hashcode varchar(128);
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'hashcode'
+		into timestamp, hashcode;
+	IF timestamp is null or hashcode is null THEN
+		return ROW(4,'','Missing data in AUDIT event');
+	END IF;
+	INSERT INTO core.event(type, timestamp, hashcode)
+				VALUES ('AUDIT', timestamp, hashcode);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

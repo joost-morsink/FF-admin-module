@@ -63,4 +63,7 @@ export class EventStore {
   public push(): Promise<void> {
     return this.http.post<void>(this.baseUrl + "eventstore/remote/push", {}).toPromise();
   }
+  public audit(): Promise<void> {
+    return this.http.post<void>(this.baseUrl + "eventstore/audit", {}).toPromise();
+  }
 }

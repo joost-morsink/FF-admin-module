@@ -82,6 +82,10 @@ namespace FfAdmin.EventStore
                 Ahead = rel?.ahead
             };
         }
+        public string GetCurrentSha()
+        {
+            return ExecuteShell("rev-parse", "HEAD").Output.TrimEnd();
+        }
         private ProcessResult ExecuteShell(string command, params string[] arguments)
         {
             var psi = new ProcessStartInfo

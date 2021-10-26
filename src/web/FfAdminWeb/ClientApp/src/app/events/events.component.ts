@@ -6,6 +6,7 @@ import { EventEmitter } from 'protractor';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialog } from '../dialogs/info.dialog';
+import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'ff-events',
@@ -96,6 +97,19 @@ export class EventsComponent {
       data: { message: "Pushed successfully!" }
     });
     this.fetchRemoteStatus();
+  }
+  public async audit() {
+    try {
+      await this.eventStore.audit();
+      this.dialog.open(InfoDialog, {
+        data: { message: "Success!" }
+      });
+    }
+    catch (ex) {
+      this.dialog.open(ErrorDialog, {
+        data: { errors: ex.error }
+      });
+    }
   }
 }
 

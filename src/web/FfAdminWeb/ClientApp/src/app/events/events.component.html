@@ -38,6 +38,9 @@
         <button (click)="reset()" [disabled]="!(enabled && stats.processed > 0)">
             <span class="inline-icon material-icons">backspace</span> Reset
         </button>
+        <button (click)="audit()" [disabled]="!(enabled && stats.unprocessed == 0)">
+            <span class="inline-icon material-icons">playlist_add_check</span> Audit
+        </button>
     </div>
 </div>
 <div class="section mat-elevation-z4">

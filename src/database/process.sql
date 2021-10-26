@@ -13,6 +13,7 @@ drop function ff.process_conv_liquidate;
 drop function ff.process_conv_exit_charity;
 drop function ff.process_conv_exit;
 drop function ff.process_conv_transfer;
+drop function ff.process_audit;
 */
 create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
 DECLARE
@@ -56,6 +57,7 @@ BEGIN
 				WHEN 'CONV_LIQUIDATE' THEN (select ff.process_conv_liquidate(event))
 				WHEN 'CONV_EXIT' THEN (select ff.process_conv_exit(event))
 				WHEN 'CONV_TRANSFER' THEN (select ff.process_conv_transfer(event))
+				WHEN 'AUDIT' THEN (select ff.process_audit(event))
 				ELSE ROW(4, 'Type', 'Unknown type ' || typ)::core.message END;
 	IF res.status < 4 THEN
 		RAISE INFO 'Setting processed to true on %', event.event_id;
@@ -371,6 +373,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create or replace function ff.process_audit(event core.event) returns core.message as $$
+BEGIN
+	perform audit.new_audit(event.hashcode);
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 /*
 
 do $$

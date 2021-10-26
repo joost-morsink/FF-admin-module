@@ -100,6 +100,28 @@ namespace FfAdminWeb.Controllers
 
             return Ok();
         }
+
+        [HttpPost("audit")]
+        public async Task<IActionResult> Audit()
+        {
+            if (_eventStore.HasSession)
+                return BadRequest(new ValidationMessage[]{
+                    new("main","Open session")
+                });
+            _eventStore.StartSession();
+            await _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
+            var e = new FfAdmin.Common.Audit
+            {
+                Timestamp = DateTimeOffset.UtcNow,
+                Hashcode = _eventStore.Hashcode()
+            };
+            _eventStore.WriteEvent(e);
+            _eventStore.EndSession("Audit event");
+            await _eventRepository.Import(new[] { e });
+            await _eventRepository.ProcessEvents(DateTime.UtcNow);
+            return Ok();
+        }
+
         [HttpPost("process")]
         public async Task<IActionResult> ProcessEvents()
         {

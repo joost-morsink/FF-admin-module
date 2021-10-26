@@ -1,8 +1,11 @@
 /*
+drop schema audit cascade;
 drop schema ff cascade;
 update core.event set processed = FALSE;
 drop schema core cascade;
 ******************************************
+truncate table audit.main cascade;
+truncate table audit.financial cascade;
 truncate table ff.fraction cascade;
 truncate table ff.fractionset cascade;
 truncate table ff.option cascade;
@@ -15,6 +18,7 @@ truncate table core.event_file;
 */
 create schema if not exists core;
 create schema if not exists ff;
+create schema if not exists audit;
 
 create sequence if not exists core.event_seq;
 
@@ -23,6 +27,7 @@ create table if not exists core.event (
 	type varchar(32) not null,
 	timestamp timestamp not null,
 	name varchar(256) null,
+	hashcode varchar(128) null,
 	option_currency varchar(4) null,
 	reinvestment_fraction numeric(10,10) null,
 	futurefund_fraction numeric(10,10) null,
@@ -158,3 +163,23 @@ create table if not exists ff.transfer (
 
 create index if not exists transfer_charity on ff.transfer(charity_id);
 
+create sequence if not exists audit.main_seq;
+create table if not exists audit.main (
+	audit_id int primary key not null default nextval('audit.main_seq'),
+	hashcode varchar(128) not null,
+	num_events int not null,
+	num_unprocessed_events int not null,
+	num_donations int not null,
+	num_charities int not null,
+	num_donors int not null);
+	
+create table if not exists audit.financial (
+	audit_id int not null references audit.main(audit_id),
+	currency varchar(4),
+	donation_amount numeric(20,4) not null,
+	unentered_donation_amount numeric(20,4) not null,
+	invested_amount numeric(20,4) not null,
+	cash_amount numeric(20,4) not null,
+	allocated_amount numeric(20,4) not null,
+	transferred_amount numeric(20,4) not null,
+	primary key(audit_id, currency));

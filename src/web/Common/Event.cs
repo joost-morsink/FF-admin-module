@@ -47,6 +47,7 @@ namespace FfAdmin.Common
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
                     EventType.CONV_ENTER => JsonSerializer.Deserialize<ConvEnter>(json, options)!,
                     EventType.CONV_INVEST => JsonSerializer.Deserialize<ConvInvest>(json, options)!,
+                    EventType.AUDIT => JsonSerializer.Deserialize<Audit>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -234,6 +235,16 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Invested_amount), "Amount must not be negative");
             if (Cash_amount < 0)
                 yield return new ValidationMessage(nameof(Cash_amount), "Amount must not be negative");
+        }
+    }
+    public class Audit : Event
+    {
+        public override EventType Type => EventType.AUDIT;
+        public string Hashcode { get; set; } = "";
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Hashcode))
+                yield return new ValidationMessage(nameof(Hashcode), "Field is required");
         }
     }
 }

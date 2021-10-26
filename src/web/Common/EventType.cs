@@ -10,6 +10,7 @@
         CONV_EXIT,
         CONV_TRANSFER,
         CONV_ENTER,
-        CONV_INVEST
+        CONV_INVEST,
+        AUDIT
     }
 }

@@ -13,7 +13,7 @@ namespace FfAdmin.EventStore
         string? SessionFile { get; }
 
         void WriteEvent(Event e);
-
+        string Hashcode();
         Task<Event[]> GetEventsFromFile(string path);
 
         IEnumerable<string> AllFiles();

@@ -68,6 +68,8 @@ namespace FfAdmin.AdminModule
             try
             {
                 connection.TypeMapper.MapComposite<CoreMessage>("core.message");
+                connection.TypeMapper.MapComposite<Audit>("audit.main");
+                connection.TypeMapper.MapComposite<AuditFinancial>("audit.financial");
             }
             catch { } // Ignore if not found
             return connection;

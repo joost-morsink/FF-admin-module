@@ -89,5 +89,7 @@ namespace FfAdmin.EventStore
             _git.PushOrigin();
             return Task.CompletedTask;
         }
+        public string Hashcode()
+            => _git.GetCurrentSha();
     }
 }

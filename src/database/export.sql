@@ -2,8 +2,9 @@
 drop view if exists ff.web_export cascade;
 drop type if exists ff.charity_transfer cascade;
 drop function if exists ff.bank_transfers cascade;
-drop view if exists ff.audit_main cascade;
-
+drop function if exists ff.select_audit cascade;
+drop function if exists ff.new_audit cascade;
+drop function if exists ff.audit_for_currency cascade;
 */
 drop view if exists ff.web_export cascade;
 
@@ -38,42 +39,77 @@ begin
 	join ff.charity c on c.charity_id = t.charity_id;
 end; $$ LANGUAGE plpgsql;
 
-drop view if exists ff.audit_main cascade;
 
-create view ff.audit_main as
-	select 'Total number of events' as name, (select count(*) from core.event where processed=TRUE)::numeric as value
-	union all select 'Unprocessed events', (select count(*) from core.event where processed=FALSE)
-	union all select 'Total number of charities', (select count(*) from ff.charity)
-	union all select 'Total number of donations', (select count(*) from ff.donation)
-	union all select 'Donation total (' || d.currency || ')', sum(d.amount)
-		from ff.donation d 
-		group by d.currency
-	union all select 'Unentered donations (' || d.currency || ')', sum(d.amount)
+create or replace function audit.audit_for_currency(paudit_id int, pcurrency varchar(4)) returns audit.financial as $$
+declare
+	res audit.financial;
+begin
+	res.audit_id := paudit_id;
+	res.currency := pcurrency;
+	select sum(amount), sum(case when entered is null then amount else 0 end)
+		into res.donation_amount, res.unentered_donation_amount
 		from ff.donation d
-		where d.entered is null 
-		group by d.currency
-	union all select 'Worth (' || currency || ')', sum(invested_amount+cash_amount)
-		from ff.option
-		group by currency
-	union all select 'Allocated (' || currency || ')', sum(amount)
+		join ff.option o on d.option_id = o.option_id
+		where o.currency = pcurrency;
+	select sum(invested_amount), sum(cash_amount)
+		into res.invested_amount, res.cash_amount
+		from ff.option o 
+		where o.currency = pcurrency;
+	select sum(amount)
+		into res.allocated_amount
 		from ff.allocation a
 	    join ff.option o on a.option_id = o.option_id
-		group by currency
-	union all select 'Transferred (' || currency || ')', sum(amount)
+		where o.currency = pcurrency;
+	select sum(amount)
+		into res.transferred_amount
 		from ff.transfer
-		group by currency
-	;
-	
-	select * from ff.audit_main
-	
+		where currency = pcurrency;
+	return res;
+end; $$ LANGUAGE plpgsql;
+create or replace function audit.select_audit() returns table (main audit.main, financials audit.financial[]) as 
+$$
+	select a as main, ARRAY(select f from audit.financial f where f.audit_id = a.audit_id) as financials
+	from audit.main a;
+$$ LANGUAGE SQL;
+
+create or replace function audit.new_audit(phashcode varchar(128)) returns table (main audit.main, financials audit.financial[]) as $$
+declare
+	aid int;
+	main audit.main;
+	financial audit.financial;
+	financials audit.financial[];
+begin
+	aid := nextval('audit.main_seq');
+	select aid, phashcode, count(*), count(distinct charity_id), count(distinct donor_id) 
+		into main.audit_id, main.hashcode, main.num_donations, main.num_charities, main.num_donors
+		from ff.donation;
+	select count(*), sum(case when processed=false then 1 else 0 end)
+		into main.num_events, main.num_unprocessed_events
+		from core.event;
+		
+	insert into audit.main(audit_id, hashcode, num_events, num_unprocessed_events, num_donations, num_charities, num_donors)
+		select main.audit_id, main.hashcode, main.num_events, main.num_unprocessed_events, main.num_donations, main.num_charities, main.num_donors;
+		
+	insert into audit.financial(audit_id, currency, donation_amount, unentered_donation_amount,
+		invested_amount, cash_amount, allocated_amount, transferred_amount)
+		select f.audit_id, f.currency, f.donation_amount, f.unentered_donation_amount,
+			f.invested_amount, f.cash_amount, f.allocated_amount, f.transferred_amount
+			from ff.option o
+			join lateral audit.audit_for_currency(aid, o.currency) f on true;
+	return query select a.main, a.financials from audit.select_audit() a where (a.main).audit_id = aid;
+end; $$ LANGUAGE plpgsql;
+
 /*
-	select * from ff.web_export;
+	select * from ff.web_export where charity_id=195;
 	select * from ff.transfer;
-	
+	select * from audit.new_audit();
+	select * from audit.main;
 	select * from ff.bank_transfers(2);
-	
+	select * from audit.select_audit();
 	 select *
 		from ff.allocation
+		
+		select * from fraction where donation_id in (506,508) or fractionset_id in (175)
 */
 	
 	

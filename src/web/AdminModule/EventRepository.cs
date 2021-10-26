@@ -9,12 +9,6 @@ using Npgsql;
 
 namespace FfAdmin.AdminModule
 {
-    public record CoreMessage
-    {
-        public string Key { get; set; } = "";
-        public int Status { get; set; }
-        public string Message { get; set; } = "";
-    }
     public interface IEventRepository
     {
         Task<CoreMessage> Import(IEnumerable<Event> e);
@@ -114,6 +108,7 @@ truncate table ff.donation cascade;
 truncate table ff.charity cascade;
 truncate table ff.transfer cascade;
 truncate table ff.allocation cascade;
+truncate table audit.main cascade;
 update core.event set processed = FALSE;");
         }
         public async Task DeleteAllEvents()
