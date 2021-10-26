@@ -29,7 +29,7 @@ namespace FfAdminWeb.Controllers
             {
                 await DropDatabase();
                 await RunIdempotentDatabaseScript();
-                RestartApplication();
+                await Reset();
                 return Ok();
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace FfAdminWeb.Controllers
             try
             {
                 await RunIdempotentDatabaseScript();
-                RestartApplication();
+                await Reset();
                 return Ok();
             }
             catch (Exception ex)
@@ -73,5 +73,7 @@ namespace FfAdminWeb.Controllers
                 _applicationLifetime.StopApplication();
             });
         }
+        private Task Reset()
+            => _database.Reset();
     }
 }

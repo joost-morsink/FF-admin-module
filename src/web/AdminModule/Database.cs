@@ -18,6 +18,7 @@ namespace FfAdmin.AdminModule
     }
     public interface IDatabase
     {
+        Task Reset();
         Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action);
         Task Run(Func<NpgsqlConnection, Task> action);
 
@@ -71,6 +72,13 @@ namespace FfAdmin.AdminModule
             catch { } // Ignore if not found
             return connection;
         }
+        public Task Reset()
+            => Run(conn =>
+            {
+                conn.ReloadTypes();
+                return Task.CompletedTask;
+            });
+        
     }
 
 }
