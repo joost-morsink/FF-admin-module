@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.10" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.13.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,14 +37,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Remove="database.sql" />
-    <None Remove="ClientApp\src\app\database\" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="database.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ClientApp\src\app\database\" />
   </ItemGroup>
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->

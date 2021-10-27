@@ -79,3 +79,7 @@ export interface IRemoteStatus {
   ahead: number;
   behind: number;
 }
+export interface IAuditInfo {
+  id: number;
+  hashcode: string;
+}

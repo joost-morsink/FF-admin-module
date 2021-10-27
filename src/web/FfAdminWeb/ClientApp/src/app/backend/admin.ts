@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IOption, ICharity, IOpenTransfer} from '../interfaces/interfaces';
+import { IOption, ICharity, IOpenTransfer, IAuditInfo} from '../interfaces/interfaces';
 
 @Injectable()
 export class Admin {
@@ -18,6 +18,9 @@ export class Admin {
   }
   public async getOpenTransfers(): Promise<IOpenTransfer[]> {
     return this.http.get<IOpenTransfer[]>(this.baseUrl + "admin/charities/opentransfers").toPromise();
+  }
+  public async getAuditReports(): Promise<IAuditInfo[]> {
+    return this.http.get<IAuditInfo[]>(this.baseUrl + "audit/all").toPromise();
   }
 
   public async calculateExit(option: IOption, invested: number, timestamp: string) {
