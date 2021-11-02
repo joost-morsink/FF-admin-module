@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Input, Output, OnInit, Injectable } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, Injectable, ViewChildren, QueryList } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
 import { ErrorDialog } from '../dialogs/error.dialog';
-
 type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
 
 @Component({
@@ -203,9 +202,15 @@ export class TransfersComponent {
   }
   @Output() public done: EventEmitter<void> = new EventEmitter();
   public transfers: IOpenTransfer[];
+  @ViewChildren('transfer') public transferComponents: QueryList<TransferComponent>;
 
   public async fetchOpenTransfers() {
-    this.transfers = (await this.admin.getOpenTransfers()).sort((x, y) => x.name<y.name?-1:1);
+    this.transfers = (await this.admin.getOpenTransfers()).sort((x, y) => x.name < y.name ? -1 : 1);
+    var date = new Date().toISOString();
+    setTimeout(() => {
+      for (var t of this.transferComponents)
+        t.timestamp.setValue(date);
+    }, 0);
   }
   public onTransferCompleted(transfer: IOpenTransfer) {
     this.transfers = this.transfers.filter(t => t.charity != transfer.charity || t.currency != transfer.currency);
@@ -226,18 +231,32 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
   public timestamp: FormControl;
   public amount: FormControl;
   public transactionRef: FormControl;
+  public hasExchange: boolean;
+  public exchangedAmount: FormControl;
+  public exchangedCurrency: FormControl;
+  public exchangeRef: FormControl;
   public formGroup: FormGroup;
 
   public ngOnInit() {
-    this.timestamp = new FormControl(new Date().toISOString());
+    this.timestamp = new FormControl();
     this.amount = new FormControl("0.00");
     this.transactionRef = new FormControl("");
+    this.exchangedCurrency = new FormControl("EUR");
+    this.exchangedAmount = new FormControl("0.00");
+    this.exchangeRef = new FormControl("");
     this.formGroup = new FormGroup({
       timestamp: this.timestamp,
       amount: this.amount,
-      transactionRef: this.transactionRef
+      transactionRef: this.transactionRef,
+      exchangedAmount: this.exchangedAmount,
+      exchangedCurrency: this.exchangedCurrency,
+      exchangeRef: this.exchangeRef
     });
     this.enabled = true;
+    this.hasExchange = false;
+  }
+  public setHasExchange(state: boolean) {
+    this.hasExchange = state;
   }
   public totalAmount() {
     this.amount.setValue(Math.floor(this.transfer.amount * 100) / 100);
@@ -249,7 +268,10 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
       charity: this.transfer.charity,
       currency: this.transfer.currency,
       amount: parseFloat(this.amount.value),
-      transaction_reference: this.transactionRef.value
+      transaction_reference: this.transactionRef.value,
+      exchanged_currency: this.hasExchange ? this.exchangedCurrency.value : "",
+      exchanged_amount: this.hasExchange ? this.exchangedAmount.value : null,
+      exchange_reference: this.hasExchange ? this.exchangeRef.value : ""
     }
     await this.importAndProcess(event, this.completed, this.transfer);
   }

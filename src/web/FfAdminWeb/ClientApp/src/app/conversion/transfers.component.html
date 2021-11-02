@@ -2,4 +2,4 @@
 
 <button (click)="done.emit()"><span class="inline-icon material-icons">check</span> Done</button>
 
-<ff-transfer *ngFor="let t of transfers" [transfer]="t" (completed)="onTransferCompleted($event)"></ff-transfer>
+<ff-transfer *ngFor="let t of transfers" [transfer]="t" (completed)="onTransferCompleted($event)" #transfer></ff-transfer>
