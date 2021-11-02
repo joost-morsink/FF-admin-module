@@ -1,8 +1,10 @@
 /*
 drop function if exists ff.calculate_ideal_valuation cascade;
-drop function if exists ff.calculate_exit cascade ;
+drop function if exists ff.calculate_exit cascade;
 drop type if exists ff.open_transfer cascade;
 drop function if exists ff.calculate_open_transfers cascade;
+drop type if exists ff.open_transfer_per_allocation cascade;
+drop function if exists ff.calculate_open_transfers_per_allocation cascade;
 */
 
 create or replace function ff.calculate_ideal_valuation(opt_id int, current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
@@ -79,6 +81,38 @@ BEGIN
 	group by charity_id, currency
 	having sum(amount)>=threshold;
 END; $$ LANGUAGE plpgsql;
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'open_transfer_per_allocation' and ns.nspname = 'ff') THEN
+
+		create type ff.open_transfer_per_allocation as (charity_id int, allocation_id int, currency varchar(4), amount numeric(20,4));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.calculate_open_transfers_per_allocation() returns SETOF ff.open_transfer_per_allocation as $$
+DECLARE
+	open_transfers ff.open_transfer[];
+	res ff.open_transfer_per_allocation[];
+BEGIN
+	open_transfers:=ARRAY(select ff.calculate_open_transfers());
+	return query with data as (
+		select allocation_id, charity_id, o.currency, amount, sum(amount) over(partition by charity_id order by timestamp desc)-amount total 
+		from ff.allocation a
+		join ff.option o on a.option_id = o.option_id
+	)
+	select d.charity_id, d.allocation_id, d.currency, 
+		(case when d.amount <= open_transfers[i].amount - total then d.amount
+			else open_transfers[i].amount - total end)::numeric(20,4) as amount
+	from data d
+	join generate_subscripts(open_transfers, 1) i
+		on d.charity_id = open_transfers[i].charity_id and d.currency = open_transfers[i].currency
+	where total <= open_transfers[i].amount;
+
+END; $$ LANGUAGE plpgsql;
 /*
 
 do $$
@@ -105,5 +139,8 @@ select ff.calculate_exit(o.option_id, 3,'2021-12-16')
 from ff.option o;
 
 select * from ff.calculate_open_transfers(5)
+
+select * from ff.calculate_open_transfers_per_allocation();
+
 */
 
