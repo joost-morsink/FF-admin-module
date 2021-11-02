@@ -24,9 +24,10 @@ namespace FfAdminWeb.Utils
         }
         public static DataSheetWriter New(string name)
             => new DataSheetWriter(new DataSheet(name), 1, 1);
-        public DataSheetWriter Write(object value)
+        public DataSheetWriter Write(object? value)
         {
-            _dataSheet[_x, _y] = value;
+            if (value != null)
+                _dataSheet[_x, _y] = value;
             _x++;
             return this;
         }
@@ -52,7 +53,7 @@ namespace FfAdminWeb.Utils
             builder(writer);
             return writer.GetSheet();
         }
-        
+
         private SortedDictionary<int, SortedDictionary<int, object>> values
             = new SortedDictionary<int, SortedDictionary<int, object>>();
         public string Name { get; set; }
@@ -78,7 +79,8 @@ namespace FfAdminWeb.Utils
     }
     public static class ExcelExport
     {
-        public static byte[] ToExcel(this IEnumerable<DataSheet> sheeets) {
+        public static byte[] ToExcel(this IEnumerable<DataSheet> sheeets)
+        {
             using var ms = new MemoryStream();
             sheeets.ToExcel(ms);
             ms.Seek(0, SeekOrigin.Begin);
@@ -102,7 +104,8 @@ namespace FfAdminWeb.Utils
             var sheets = new Sheets();
             wbPart.Workbook.Append(sheets);
             var idx = 0;
-            foreach(var sheet in sheeets){
+            foreach (var sheet in sheeets)
+            {
                 sheets.Append(new DocumentFormat.OpenXml.Spreadsheet.Sheet { Name = sheet.Name, SheetId = (uint)idx + 1, Id = $"rId{idx}" });
                 wbPart.AddSheet(sheet, $"rId{idx}");
                 idx++;
@@ -153,7 +156,7 @@ namespace FfAdminWeb.Utils
             var wsPart = wbPart.AddNewPart<WorksheetPart>(id);
             var data = new SheetData();
             wsPart.Worksheet = new DocumentFormat.OpenXml.Spreadsheet.Worksheet(data);
-      
+
             foreach (var row in sheet.Rows)
             {
                 var r = new Row { RowIndex = (uint)row.Number };
@@ -161,7 +164,7 @@ namespace FfAdminWeb.Utils
                 {
                     if (col.Value != null)
                         r.Append(CreateCell(row.Number, col.Key, col.Value));
-                }                
+                }
                 data.Append(r);
             }
         }

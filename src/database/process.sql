@@ -375,7 +375,7 @@ $$ LANGUAGE plpgsql;
 
 create or replace function ff.process_audit(event core.event) returns core.message as $$
 BEGIN
-	perform audit.new_audit(event.hashcode);
+	perform audit.new_audit(event.hashcode, event.timestamp);
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE

@@ -167,12 +167,24 @@ create sequence if not exists audit.main_seq;
 create table if not exists audit.main (
 	audit_id int primary key not null default nextval('audit.main_seq'),
 	hashcode varchar(128) not null,
+	timestamp timestamp not null,
 	num_events int not null,
-	num_unprocessed_events int not null,
+	num_processed_events int not null,
 	num_donations int not null,
 	num_charities int not null,
 	num_donors int not null);
 	
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'transfers' and ns.nspname = 'audit') THEN
+
+		create type audit.transfers as (currency varchar(4), amount numeric(20,4), original_amount numeric(20,4));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 create table if not exists audit.financial (
 	audit_id int not null references audit.main(audit_id),
 	currency varchar(4),
@@ -182,4 +194,5 @@ create table if not exists audit.financial (
 	cash_amount numeric(20,4) not null,
 	allocated_amount numeric(20,4) not null,
 	transferred_amount numeric(20,4) not null,
+	transfers audit.transfers[] not null,
 	primary key(audit_id, currency));

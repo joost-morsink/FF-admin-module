@@ -1,4 +1,6 @@
-﻿namespace FfAdmin.AdminModule
+﻿using System;
+
+namespace FfAdmin.AdminModule
 {
     public record AuditFinancial
     {
@@ -10,5 +12,6 @@
         public decimal Cash_amount { get; set; }
         public decimal Allocated_amount { get; set; }
         public decimal Transferred_amount { get; set; }
+        public AuditTransfers[] Transfers { get; set; } = Array.Empty<AuditTransfers>();
     }
 }

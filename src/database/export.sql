@@ -71,6 +71,11 @@ begin
 		into res.transferred_amount
 		from ff.transfer
 		where currency = pcurrency;
+	select ARRAY(select ROW(case when exchanged_currency <> '' then exchanged_currency else currency end, sum(coalesce(exchanged_amount, amount)), sum(amount))::audit.transfers
+					 from ff.transfer 
+					 where currency = pcurrency
+					 group by case when exchanged_currency <> '' then exchanged_currency else currency end)
+			 into res.transfers;
 	return res;
 end; $$ LANGUAGE plpgsql;
 create or replace function audit.select_audit() returns table (main audit.main, financials audit.financial[]) as 
@@ -79,7 +84,7 @@ $$
 	from audit.main a;
 $$ LANGUAGE SQL;
 
-create or replace function audit.new_audit(phashcode varchar(128)) returns table (main audit.main, financials audit.financial[]) as $$
+create or replace function audit.new_audit(phashcode varchar(128), ptimestamp timestamp) returns table (main audit.main, financials audit.financial[]) as $$
 declare
 	aid int;
 	main audit.main;
@@ -90,17 +95,17 @@ begin
 	select aid, phashcode, count(*), count(distinct charity_id), count(distinct donor_id) 
 		into main.audit_id, main.hashcode, main.num_donations, main.num_charities, main.num_donors
 		from ff.donation;
-	select count(*), sum(case when processed=false then 1 else 0 end)
-		into main.num_events, main.num_unprocessed_events
+	select count(*), sum(case when processed=true then 1 else 0 end)
+		into main.num_events, main.num_processed_events
 		from core.event;
 		
-	insert into audit.main(audit_id, hashcode, num_events, num_unprocessed_events, num_donations, num_charities, num_donors)
-		select main.audit_id, main.hashcode, main.num_events, main.num_unprocessed_events, main.num_donations, main.num_charities, main.num_donors;
+	insert into audit.main(audit_id, hashcode, timestamp, num_events, num_processed_events, num_donations, num_charities, num_donors)
+		select main.audit_id, main.hashcode, ptimestamp, main.num_events, main.num_processed_events, main.num_donations, main.num_charities, main.num_donors;
 		
 	insert into audit.financial(audit_id, currency, donation_amount, unentered_donation_amount,
-		invested_amount, cash_amount, allocated_amount, transferred_amount)
+		invested_amount, cash_amount, allocated_amount, transferred_amount, transfers)
 		select f.audit_id, f.currency, f.donation_amount, f.unentered_donation_amount,
-			f.invested_amount, f.cash_amount, f.allocated_amount, f.transferred_amount
+			f.invested_amount, f.cash_amount, f.allocated_amount, f.transferred_amount, f.transfers
 			from ff.option o
 			join lateral audit.audit_for_currency(aid, o.currency) f on true;
 	return query select a.main, a.financials from audit.select_audit() a where (a.main).audit_id = aid;

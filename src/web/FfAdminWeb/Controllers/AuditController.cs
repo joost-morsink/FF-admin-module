@@ -45,9 +45,7 @@ namespace FfAdminWeb.Controllers
                     b.Write("Current").Write(report.Current.Main.Hashcode).RowFeed().RowFeed();
                     b.Empty().Write("Previous").Write("Current").RowFeed();
                     var objs = new[] { report.Previous, report.Current };
-                    b.Line("Total number of events", objs, x => x.Main.Num_events);
-                    b.Line("Processed events", objs, x => x.Main.Num_events - x.Main.Num_unprocessed_events);
-                    b.Line("Unprocessed events", objs, x => x.Main.Num_unprocessed_events);
+                    b.Line("Number of processed events", objs, x => x.Main.Num_processed_events);
                     b.Line("Number of donations", objs, x => x.Main.Num_donations);
                     b.Line("Number of donors", objs, x => x.Main.Num_donors);
                     b.Line("Number of charities", objs, x => x.Main.Num_charities);
@@ -70,6 +68,20 @@ namespace FfAdminWeb.Controllers
                          b.Line("Allocated amount", objs, x => x.Allocated_amount);
                          b.Line("Transferred amount", objs, x => x.Transferred_amount);
                          b.Line("Transfer pending amount", objs, x => x.Allocated_amount - x.Transferred_amount);
+                         b.RowFeed();
+                         b.Write("Transfers").Write("Previous").Write(curF.Currency).Write("Current").Write(curF.Currency).RowFeed(); ;
+                         
+                         foreach (var (curT, prevTs) in from curT in curF.Transfers
+                                                        join prevT in from prev in prevs
+                                                                      from t in prev.Transfers
+                                                                      select t
+                                                            on curT.Currency equals prevT.Currency into prevTs
+                                                        select (curT, prevTs))
+                         {
+                             var transfers = new[] { prevTs.FirstOrDefault(), curT };
+                             b.Write(curT.Currency).Write(prevTs.Select(p => p.Amount).FirstOrDefault()).Write(prevTs.Select(p => p.Original_amount).FirstOrDefault())
+                                .Write(curT.Amount).Write(curT.Original_amount).RowFeed();
+                         }
                      })).ToExcel();
             return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
         }

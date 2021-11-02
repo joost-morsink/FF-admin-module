@@ -15,5 +15,5 @@ export class AuditComponent {
     this.data = opts;
   }
   public data: IAuditInfo[] = null;
-  public displayedColumns: string[] = ["hashcode"]
+  public displayedColumns: string[] = ["hashcode", "timestamp"]
 }

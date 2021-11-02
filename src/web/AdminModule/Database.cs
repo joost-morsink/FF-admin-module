@@ -71,6 +71,7 @@ namespace FfAdmin.AdminModule
                 connection.TypeMapper.MapComposite<CoreMessage>("core.message");
                 connection.TypeMapper.MapComposite<Audit>("audit.main");
                 connection.TypeMapper.MapComposite<AuditFinancial>("audit.financial");
+                connection.TypeMapper.MapComposite<AuditTransfers>("audit.transfers");
             }
             catch { } // Ignore if not found
             return connection;

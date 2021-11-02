@@ -12,6 +12,7 @@ namespace FfAdmin.AdminModule
         public class AuditReportInfo
         {
             public int Id { get; set; }
+            public DateTimeOffset Timestamp { get; set; }
             public string Hashcode { get; set; }
         }
         public class AuditReportPart
@@ -60,6 +61,6 @@ namespace FfAdmin.AdminModule
         }
 
         public Task<IAuditRepository.AuditReportInfo[]> GetReports()
-            => _database.Query<IAuditRepository.AuditReportInfo>("select audit_id as id, hashcode from audit.main");
+            => _database.Query<IAuditRepository.AuditReportInfo>("select audit_id as id, timestamp, hashcode from audit.main order by timestamp desc");
     }
 }
