@@ -21,13 +21,13 @@ namespace FfAdminWeb.Controllers
         public async Task<IActionResult> GetRecent()
         {
             var recent = await _auditRepository.GetRecentReport();
-            return MakeExcel(recent);
+            return MakeExcel(recent, "recent.xlsx");
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var rep = await _auditRepository.GetReport(id);
-            return MakeExcel(rep);
+            return MakeExcel(rep, $"audit_{id}.xlsx");
         }
         [HttpGet("all")]
         public async Task<ActionResult<IAuditRepository.AuditReportInfo[]>> GetAll()
@@ -35,7 +35,7 @@ namespace FfAdminWeb.Controllers
             var all = await _auditRepository.GetReports();
             return all;
         }
-        private IActionResult MakeExcel(IAuditRepository.AuditReport report)
+        private IActionResult MakeExcel(IAuditRepository.AuditReport report, string filename = "audit.xlsx")
         {
             var excel = new[] { DataSheet.Build("Overview", b =>
                 {
@@ -71,7 +71,7 @@ namespace FfAdminWeb.Controllers
                          b.Line("Transferred amount", objs, x => x.Transferred_amount);
                          b.Line("Transfer pending amount", objs, x => x.Allocated_amount - x.Transferred_amount);
                      })).ToExcel();
-            return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
         }
 
     }
