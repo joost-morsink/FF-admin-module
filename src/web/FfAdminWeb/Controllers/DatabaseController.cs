@@ -53,9 +53,9 @@ namespace FfAdminWeb.Controllers
         }
         private Task DropDatabase()
         {
-            return _database.Execute(@"drop schema audit cascade;
-                                       drop schema ff cascade;
-                                       drop schema core cascade;");
+            return _database.Execute(@"drop schema if exists audit cascade;
+                                       drop schema if exists ff cascade;
+                                       drop schema if exists core cascade;");
         }
         private async Task RunIdempotentDatabaseScript()
         {
