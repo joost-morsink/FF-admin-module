@@ -4,7 +4,7 @@ Push-Location $PSScriptRoot
 try {
     if(!(Test-Path ./events/.git)){
         $username = Read-Host -Prompt "Git user name? "
-        $password = Read-Host -Prompt "Git password? " -MaskInput
+        $password = ConvertFrom-SecureString (Read-Host -Prompt "Git password? " -AsSecureString) -AsPlainText
 
         git clone "https://$($username):$($password)@gitlab.com/future-fund/event-data.git" ./events
 
