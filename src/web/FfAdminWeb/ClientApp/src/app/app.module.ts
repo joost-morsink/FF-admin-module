@@ -8,8 +8,8 @@ import { CharityModule } from './charity/charity.module';
 import { CharitiesComponent } from './charity/charity.component';
 import { EventModule } from './events/event.module';
 import { EventsComponent } from './events/events.component';
-import { ImportModule } from './import/import.module';
-import { ImportCsvComponent } from './import/import.component';
+import { DonationModule } from './donation/donation.module';
+import { DonationsComponent } from './donation/donations.component';
 import { OptionModule } from './option/option.module';
 import { OptionsComponent } from './option/option.component';
 import { SessionModule } from './session/session.module';
@@ -38,7 +38,7 @@ import { HomeComponent } from './home/home.component';
       { path: 'charities', component: CharitiesComponent },
       { path: 'options', component: OptionsComponent },
       { path: 'events', component: EventsComponent },
-      { path: 'donations', component: ImportCsvComponent },
+      { path: 'donations', component: DonationsComponent },
       { path: 'conversion', component: ConversionDayComponent },
       { path: 'database', component: DatabaseComponent },
       { path: 'audit', component: AuditComponent }
@@ -48,7 +48,7 @@ import { HomeComponent } from './home/home.component';
     DialogsModule,
     CharityModule,
     EventModule,
-    ImportModule,
+    DonationModule,
     OptionModule,
     SessionModule,
     ConversionModule,

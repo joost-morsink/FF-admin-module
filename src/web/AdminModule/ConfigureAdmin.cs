@@ -12,6 +12,7 @@ namespace FfAdmin.AdminModule
             services.AddScoped<ICharityRepository, CharityRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
+            services.AddScoped<IDonationRepository, DonationRepository>();
             services.AddScoped<IDatabase, Database>();
             if (dbOpts != null)
                 services.AddOptions<DatabaseOptions>().Configure(dbOpts);

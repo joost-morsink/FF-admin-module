@@ -83,3 +83,10 @@ export interface IAuditInfo {
   id: number;
   hashcode: string;
 }
+export interface IDonationsByCurrency {
+  currency: string;
+  amount: number;
+  worth: number;
+  allocated: number;
+  transferred: number;
+}

@@ -1,0 +1,26 @@
+<p *ngIf="data==null">Loading...</p>
+<mat-table class="mat-elevation-z8" [dataSource]="data" *ngIf="data != null">
+    <ng-container matColumnDef="currency">
+        <mat-header-cell *matHeaderCellDef>Currency</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.currency }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="amount">
+        <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.amount.toFixed(2) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="worth">
+        <mat-header-cell *matHeaderCellDef>Worth</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.worth.toFixed(2) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="allocated">
+        <mat-header-cell *matHeaderCellDef>Allocated</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.allocated.toFixed(2) }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="transferred">
+        <mat-header-cell *matHeaderCellDef>Transferred</mat-header-cell>
+        <mat-cell *matCellDef="let x">{{ x.transferred.toFixed(2) }} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+</mat-table>
