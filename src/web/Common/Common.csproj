@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pidgin" Version="2.5.0" />
+    <PackageReference Include="Pidgin" Version="3.0.0" />
     <PackageReference Include="Biz.Morsink.DataConvert" Version="0.4.0" />
   </ItemGroup>
 </Project>
