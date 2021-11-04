@@ -99,17 +99,20 @@ export class EventsComponent {
     this.fetchRemoteStatus();
   }
   public async audit() {
-    try {
-      await this.eventStore.audit();
-      this.dialog.open(InfoDialog, {
-        data: { message: "Success!" }
-      });
-    }
-    catch (ex) {
-      this.dialog.open(ErrorDialog, {
-        data: { errors: ex.error }
-      });
-    }
+    this.executeDisabled(async () => {
+      try {
+        await this.eventStore.audit();
+        this.fetchStats();
+        this.dialog.open(InfoDialog, {
+          data: { message: "Success!" }
+        });
+      }
+      catch (ex) {
+        this.dialog.open(ErrorDialog, {
+          data: { errors: ex.error }
+        });
+      }
+    });
   }
 }
 
