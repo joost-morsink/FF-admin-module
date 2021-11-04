@@ -61,6 +61,7 @@ namespace FfAdminWeb.Controllers
                              b.Write("Previous");
                          b.Write("Current").RowFeed();
                          b.Line("Donations amount", objs, x => x.Donation_amount);
+                         b.Line("Cancelled amount", objs, x => x.Cancelled_donation_amount);
                          b.Line("Unentered donations amount", objs, x => x.Unentered_donation_amount);
                          b.Line("Invested amount", objs, x => x.Invested_amount);
                          b.Line("Cash amount", objs, x => x.Cash_amount);

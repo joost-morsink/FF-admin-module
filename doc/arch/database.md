@@ -54,6 +54,7 @@ This part can be postponed to a later stage.
 | Event_Id                    | N        | Identifies the even within the database, auto increment                                                      | All                                                                                                              |
 | Type                        | AN       | Identifies the event type                                                                                    | All                                                                                                              |
 | Timestamp                   | DT       | The timestamp of the event                                                                                   | All                                                                                                              |
+| Execute_timestamp           | DT       | The execution timestamp of the event                                                                         | DONA_NEW                                                                                                         |
 | Name                        | AN       | An external name for an entity, may apply to different kind of entities based on the event type              | META_NEW_CHARITY, META_NEW_OPTION                                                                                |
 | Option_currency             | AN       | An ISO-4217 currency code for the investment option                                                          | META_NEW_OPTION                                                                                                  |
 | Reinvestment_fraction       | N(10,10) | The fraction of the profits to reinvest                                                                      | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
@@ -119,18 +120,20 @@ The only exception from this rule is the relationships from `Allocation` and `Op
 
 The table `Donation` contains all donations and relevant data:
 
-| Field            | Type     | Description                                                                                           |
-| ---------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| Donation_Id      | N        | An internal primary key for the donation                                                              |
-| Donation_Ext_Id  | AN       | The external id of the donation                                                                       |
-| Timestamp        | DT       | The timestamp of the donation                                                                         |
-| Donor_Id         | AN       | The external id of the donor                                                                          |
-| Currency         | AN       | The currency of the donation                                                                          |
-| Amount           | N(16,4)  | The amount of the donation                                                                            |
-| Exchanged_amount | N(16,4)? | The exchanged amount of the donation in the option's currency                                         |
-| Option_Id        | N        | A reference to the investment option                                                                  |
-| Charity_Id       | N        | A reference to the charity                                                                            |
-| Entered          | DT?      | The timestamp when the donation has been entered into the investment option; empty if not yet entered |
+| Field             | Type     | Description                                                                                           |
+| ----------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| Donation_Id       | N        | An internal primary key for the donation                                                              |
+| Donation_Ext_Id   | AN       | The external id of the donation                                                                       |
+| Timestamp         | DT       | The timestamp of the donation                                                                         |
+| Execute_timestamp | DT       | The execution timestamp of the donation                                                               |
+| Donor_Id          | AN       | The external id of the donor                                                                          |
+| Currency          | AN       | The currency of the donation                                                                          |
+| Amount            | N(16,4)  | The amount of the donation                                                                            |
+| Exchanged_amount  | N(16,4)? | The exchanged amount of the donation in the option's currency                                         |
+| Option_Id         | N        | A reference to the investment option                                                                  |
+| Charity_Id        | N        | A reference to the charity                                                                            |
+| Entered           | DT?      | The timestamp when the donation has been entered into the investment option; empty if not yet entered |
+| Cancelled         | B        | Indicates if the donation was cancelled                                                               |
 
 ### Charity
 

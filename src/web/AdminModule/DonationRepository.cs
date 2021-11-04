@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 
 namespace FfAdmin.AdminModule
 {
@@ -22,6 +25,7 @@ namespace FfAdmin.AdminModule
             }
         }
         Task<DonationAggregation[]> GetAggregations();
+        Task<string[]> GetAlreadyImported(IEnumerable<string> extIds);
     }
     public class DonationRepository : IDonationRepository
     {
@@ -41,5 +45,10 @@ namespace FfAdmin.AdminModule
                     , sum(transferred) transferred
                     from ff.web_export
                     group by currency");
+
+        public Task<string[]> GetAlreadyImported(IEnumerable<string> extIds)
+            => _database.Query<string>(@"select extId from unnest(@ids) extId
+                                            join core.event on extId = donation_id", new { ids = extIds.ToArray()});
+
     }
 }

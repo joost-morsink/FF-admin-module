@@ -11,6 +11,7 @@
         CONV_TRANSFER,
         CONV_ENTER,
         CONV_INVEST,
-        AUDIT
+        AUDIT,
+        DONA_CANCEL
     }
 }

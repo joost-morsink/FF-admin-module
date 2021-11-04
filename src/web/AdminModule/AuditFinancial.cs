@@ -7,6 +7,7 @@ namespace FfAdmin.AdminModule
         public int Audit_id { get; set; }
         public string Currency { get; set; } = "";
         public decimal Donation_amount { get; set; }
+        public decimal Cancelled_donation_amount { get; set; }
         public decimal Unentered_donation_amount { get; set; }
         public decimal Invested_amount { get; set; }
         public decimal Cash_amount { get; set; }

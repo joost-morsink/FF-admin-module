@@ -53,8 +53,10 @@ declare
 begin
 	res.audit_id := paudit_id;
 	res.currency := pcurrency;
-	select sum(amount), sum(case when entered is null then amount else 0 end)
-		into res.donation_amount, res.unentered_donation_amount
+	select sum(amount)
+		, sum(case when cancelled = TRUE then amount else 0 end)
+		, sum(case when entered is null then amount else 0 end)
+		into res.donation_amount, res.cancelled_donation_amount, res.unentered_donation_amount
 		from ff.donation d
 		join ff.option o on d.option_id = o.option_id
 		where o.currency = pcurrency;

@@ -42,6 +42,7 @@ namespace FfAdmin.Common
                     EventType.META_UPDATE_FRACTIONS => JsonSerializer.Deserialize<UpdateFractions>(json, options)!,
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
+                    EventType.DONA_CANCEL => JsonSerializer.Deserialize<CancelDonation>(json,options)!,
                     EventType.CONV_LIQUIDATE => JsonSerializer.Deserialize<ConvLiquidate>(json, options)!,
                     EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json, options)!,
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
@@ -134,6 +135,7 @@ namespace FfAdmin.Common
     public class NewDonation : Event
     {
         public override EventType Type => EventType.DONA_NEW;
+        public DateTimeOffset Execute_timestamp { get; set; }
         public string Donation { get; set; } = "";
         public string Donor { get; set; } = "";
         public string Charity { get; set; } = "";
@@ -157,6 +159,17 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Currency), "Field is required");
             if (Amount <= 0)
                 yield return new ValidationMessage(nameof(Amount), "Donation should have positive Amount");
+        }
+    }
+    public class CancelDonation : Event
+    {
+        public override EventType Type => EventType.DONA_CANCEL;
+        public string Donation { get; set; } = "";
+
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Donation))
+                yield return new ValidationMessage(nameof(Donation), "Field is required");
         }
     }
     public class ConvLiquidate : Event

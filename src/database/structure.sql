@@ -26,6 +26,7 @@ create table if not exists core.event (
 	event_id int primary key not null default nextval('core.event_seq'),
 	type varchar(32) not null,
 	timestamp timestamp not null,
+	execute_timestamp timestamp null,
 	name varchar(256) null,
 	hashcode varchar(128) null,
 	option_currency varchar(4) null,
@@ -53,7 +54,7 @@ create table if not exists core.event (
 );
 
 create index if not exists event_timestamp on core.event (timestamp);
-create unique index if not exists event_donation on core.event(donation_id);
+create index if not exists event_donation on core.event(donation_id);
 
 create table if not exists core.event_file(
 	path varchar(64) primary key not null
@@ -122,6 +123,7 @@ create sequence if not exists ff.donation_seq;
 create table if not exists ff.donation (
 	donation_id int primary key not null default nextval('ff.donation_seq'),
 	timestamp timestamp not null,
+	execute_timestamp timestamp not null,
 	donation_ext_id varchar(32) not null,
 	donor_id varchar(32) not null,
 	currency varchar(4) not null,
@@ -129,7 +131,8 @@ create table if not exists ff.donation (
 	exchanged_amount numeric(16,4) not null,
 	option_id int not null references option(option_id),
 	charity_id int not null references charity(charity_id),
-	entered timestamp null
+	entered timestamp null,
+	cancelled boolean not null default FALSE
 );
 
 create unique index if not exists donation_ext on ff.donation(donation_ext_id);
@@ -189,6 +192,7 @@ create table if not exists audit.financial (
 	audit_id int not null references audit.main(audit_id),
 	currency varchar(4),
 	donation_amount numeric(20,4) not null,
+	cancelled_donation_amount numeric(20,4) not null,
 	unentered_donation_amount numeric(20,4) not null,
 	invested_amount numeric(20,4) not null,
 	cash_amount numeric(20,4) not null,

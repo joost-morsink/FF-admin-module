@@ -2,6 +2,7 @@
 drop function core.import_events;
 drop function core.import_event;
 drop function core.import_dona_new;
+drop function core.import_dona_cancel;
 drop function core.import_meta_new_charity;
 drop function core.import_meta_new_option;
 drop function core.import_meta_update_fractions;
@@ -38,6 +39,7 @@ BEGIN
 	typ := (select eventdata->>'type');
 	res := CASE typ
 				WHEN 'DONA_NEW' THEN (select core.import_dona_new(eventdata))
+				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(eventdata))
 				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(eventdata))
 				WHEN 'META_NEW_OPTION' THEN (select core.import_meta_new_option(eventdata))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select core.import_meta_update_fractions(eventdata))
@@ -57,6 +59,7 @@ create or replace function core.import_dona_new(eventdata jsonb) returns core.me
 DECLARE
 	res core.message;
 	timestamp timestamp;
+	execute_timestamp timestamp;
 	donation_id varchar(16);
 	donor_id varchar(16);
 	charity_id varchar(16);
@@ -68,6 +71,7 @@ DECLARE
 	exchange_reference varchar(128);
 BEGIN
 	select eventdata->>'timestamp'
+		, eventdata->>'execute_timestamp'
 		, eventdata->>'donation'
 		, eventdata->>'donor'
 		, eventdata->>'charity'
@@ -77,16 +81,33 @@ BEGIN
 		, eventdata->>'exchanged_amount'
 		, eventdata->>'transaction_reference'
 		, eventdata->>'exchange_reference'
-		into timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount
+		into timestamp, execute_timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount
 			, exchanged_donation_amount, transaction_reference, exchange_reference;
 	IF timestamp is null or donation_id is null or donor_id is null or charity_id is null or option_id is null 
 		or donation_currency is null or donation_amount is null THEN
 		return ROW(4,'','Missing data in DONA_NEW event')::core.message;
 	END IF;
-	INSERT INTO core.event(type,timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
+	INSERT INTO core.event(type,timestamp, execute_timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
 						   exchanged_donation_amount, transaction_reference, exchange_reference)
-					VALUES ('DONA_NEW', timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
+					VALUES ('DONA_NEW', timestamp, coalesce(execute_timestamp, timestamp), donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
 						   exchanged_donation_amount, transaction_reference, exchange_reference);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_dona_cancel(eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	donation_id varchar(16);
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'donation'
+		into timestamp, donation_id;
+	IF timestamp is null or donation_id is null THEN
+		return ROW(4,'','Missing data in DONA_CANCEL event')::core.message;
+	END IF;
+	INSERT INTO core.event(type, timestamp, donation_id)
+					VALUES ('DONA_CANCEL', timestamp, donation_id);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

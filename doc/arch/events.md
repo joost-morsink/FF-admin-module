@@ -138,19 +138,30 @@ The three fractions in the event should add up to 1.
 This event represents some donation made by some donor to some charity through investment in some fund.
 If the currency matches the investment fund's currency, the fields `Amount` and `Exchanged_amount` are equal, otherwise the result of currency exchange is recorded in the `Exhanged_amount` field.
 
-| Field                 | Type                | Description                                                 | Value    |
-| --------------------- | ------------------- | ----------------------------------------------------------- | -------- |
-| Type                  | A                   | Identifies the event                                        | DONA_NEW |
-| Timestamp             | DateTime (ISO-8601) | The timestamp of the event                                  |          |
-| Donation              | AN                  | Identifies the donation                                     |          |
-| Donor                 | AN                  | The identifier for the donor                                |          |
-| Charity               | AN                  | The identifier for the charity                              |          |
-| Option                | AN                  | The identifier for the investment option                    |          |
-| Currency              | AN                  | An ISO-4217 currency code                                   |          |
-| Amount                | N(16,4)             | The donated amount                                          |          |
-| Exchanged_amount      | N(16,4)             | The donated amount in the currency of the investment option |          |
-| Transaction_reference | AN                  | An external reference for the donation transaction          |          |
-| Exchange_reference    | AN?                 | An optional external reference for the exchange transaction |          |
+| Field                 | Type                 | Description                                                                                             | Value    |
+| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------- | -------- |
+| Type                  | A                    | Identifies the event                                                                                    | DONA_NEW |
+| Timestamp             | DateTime (ISO-8601)  | The timestamp of the event                                                                              |          |
+| Execute_timestamp     | DateTime (ISO-8601)? | The timestamp the donation should be considered valid, if not present, consider it equal to `Timestamp` |          |
+| Donation              | AN                   | Identifies the donation                                                                                 |          |
+| Donor                 | AN                   | The identifier for the donor                                                                            |          |
+| Charity               | AN                   | The identifier for the charity                                                                          |          |
+| Option                | AN                   | The identifier for the investment option                                                                |          |
+| Currency              | AN                   | An ISO-4217 currency code                                                                               |          |
+| Amount                | N(16,4)              | The donated amount                                                                                      |          |
+| Exchanged_amount      | N(16,4)              | The donated amount in the currency of the investment option                                             |          |
+| Transaction_reference | AN                   | An external reference for the donation transaction                                                      |          |
+| Exchange_reference    | AN?                  | An optional external reference for the exchange transaction                                             |          |
+
+#### Cancel donation
+
+This event represents revocation of a direct debit, and is only valid if the timestamp for the cancellation lies before the execution timestamp of the original donation.
+
+| Field     | Type                | Description                                      | Value       |
+| --------- | ------------------- | ------------------------------------------------ | ----------- |
+| Type      | A                   | Identifies the event                             | DONA_CANCEL |
+| Timestamp | DateTime (ISO-8601) | The timestamp of the event                       |             |
+| Donation  | AN                  | Identifies the donation that should be cancelled |             |
 
 #### Price info
 

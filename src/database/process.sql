@@ -2,6 +2,7 @@
 drop function ff.process_events;
 drop function ff.process_event;
 drop function ff.process_dona_new;
+drop function ff.process_dona_cancel;
 drop function ff.process_meta_new_charity;
 drop function ff.process_meta_new_option;
 drop function ff.process_meta_update_fractions;
@@ -48,6 +49,7 @@ BEGIN
 	
 	res := CASE event.type
 				WHEN 'DONA_NEW' THEN (select ff.process_dona_new(event))
+				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
 				WHEN 'META_NEW_OPTION' THEN (select ff.process_meta_new_option(event))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select ff.process_meta_update_fractions(event))
@@ -76,9 +78,9 @@ create or replace function ff.process_dona_new(event core.event) returns core.me
 DEClARE
 	res core.message;
 BEGIN
-	INSERT INTO ff.donation (donation_ext_id, timestamp, donor_id, currency, amount, exchanged_amount, option_id
+	INSERT INTO ff.donation (donation_ext_id, timestamp, execute_timestamp, donor_id, currency, amount, exchanged_amount, option_id
 							 , charity_id, entered)
-	select event.donation_id, event.timestamp, event.donor_id, event.donation_currency, event.donation_amount,
+	select event.donation_id, event.timestamp, event.execute_timestamp, event.donor_id, event.donation_currency, event.donation_amount,
 		case when event.donation_currency = o.currency then event.donation_amount
 		else event.exchanged_donation_amount end, o.option_id, c.charity_id, NULL
 		from ff.option o 
@@ -86,6 +88,21 @@ BEGIN
 		where o.option_ext_id = event.option_id
 		and c.charity_ext_id = event.charity_id
 		limit 1;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.process_dona_cancel(event core.event) returns core.message as $$
+DEClARE
+	res core.message;
+BEGIN
+	update ff.donation
+		set cancelled = TRUE
+		where event.timestamp <= execute_timestamp and event.donation_id = donation_ext_id;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -164,7 +181,7 @@ BEGIN
 		select donation_id from donation
 		where option_id = option
 		and entered is null
-		and timestamp < moment - interval '8 weeks';
+		and execute_timestamp < moment;
 END;
 $$ LANGUAGE plpgsql;
 

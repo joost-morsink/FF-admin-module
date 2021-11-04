@@ -21,18 +21,21 @@ namespace FfAdminWeb.Controllers
         private readonly IEventRepository _eventRepository;
         private readonly IOptionRepository _optionRepository;
         private readonly ICharityRepository _charityRepository;
+        private readonly IDonationRepository _donationRepository;
         private readonly IOptions<JsonOptions> _jsonOptions;
 
         public EventStoreController(IEventStore eventStore,
                                     IEventRepository eventRepository,
                                     IOptionRepository optionRepository,
                                     ICharityRepository charityRepository,
+                                    IDonationRepository donationRepository,
                                     IOptions<JsonOptions> jsonOptions)
         {
             _eventStore = eventStore;
             _eventRepository = eventRepository;
             _optionRepository = optionRepository;
             _charityRepository = charityRepository;
+            _donationRepository = donationRepository;
             _jsonOptions = jsonOptions;
         }
         [HttpGet("session/is-available")]
@@ -58,10 +61,12 @@ namespace FfAdminWeb.Controllers
             {
                 _eventStore.StartSession();
                 if (_eventStore.SessionFile == null)
-                    return StatusCode(500,new ValidationMessage[] { new("", "Failed to start session.") });
+                    return StatusCode(500, new ValidationMessage[] { new("", "Failed to start session.") });
                 _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
                 return Ok();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
             }
         }
@@ -70,7 +75,7 @@ namespace FfAdminWeb.Controllers
             public string? Message { get; set; }
         }
         [HttpPost("session/stop")]
-        public IActionResult StopSession([FromBody]StopRequest body)
+        public IActionResult StopSession([FromBody] StopRequest body)
         {
             try
             {
@@ -108,6 +113,9 @@ namespace FfAdminWeb.Controllers
                 return BadRequest(new ValidationMessage[]{
                     new("main","Open session")
                 });
+            if ((await _eventRepository.GetStatistics()).Unprocessed > 0)
+                return BadRequest(new ValidationMessage[] {
+                    new("main","Unprocessed events") });
             _eventStore.StartSession();
             await _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
             var e = new FfAdmin.Common.Audit
@@ -180,7 +188,7 @@ namespace FfAdminWeb.Controllers
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
             var content = await reader.ReadToEndAsync();
-            if(content==null)
+            if (content == null)
                 return BadRequest(new ValidationMessage[] { new("", "File is empty") });
             try
             {
@@ -197,7 +205,10 @@ namespace FfAdminWeb.Controllers
 
                 if (msgs.Length > 0)
                     return BadRequest(msgs);
-                foreach (var e in events)
+                var alreadyImported = new HashSet<string>(
+                    await _donationRepository.GetAlreadyImported(from e in events.OfType<NewDonation>()
+                                                                 select e.Donation)); 
+                foreach (var e in events.Where(x => !(x is NewDonation nd && alreadyImported.Contains(nd.Donation))))
                     _eventStore.WriteEvent(e);
 
                 await _eventRepository.Import(events);

@@ -56,6 +56,7 @@ namespace FfAdmin.External.GiveWp
                 ? new NewDonation
                 {
                     Timestamp = GetTimestamp()!.Value,
+                    Execute_timestamp = GetTimestamp()!.Value.AddDays(56),
                     Donation = Donation_id!,
                     Donor = Donor_id!,
                     Charity = Form_id!,
