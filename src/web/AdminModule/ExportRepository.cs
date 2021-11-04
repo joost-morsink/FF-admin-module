@@ -5,7 +5,7 @@ namespace FfAdmin.AdminModule
 {
     public interface IExportRepository
     {
-        public record ExportRow
+        public class ExportRow
         {
             public string Donation_id { get; set; } = "";
             public string Donor_id { get; set; } = "";

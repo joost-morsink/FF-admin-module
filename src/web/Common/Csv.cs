@@ -29,7 +29,7 @@ namespace FfAdmin.Common
             if (result.Any())
             {
                 var headers = result.First();
-                return result.Skip(1).Select(row => row.Zip(headers, (v, n) => (n, v)).ToDictionary(x => x.n.Replace(' ','_'), x => x.v, equalityComparer)).Where(d => d.Count > 1);
+                return result.Skip(1).Select(row => row.Zip(headers, (v, n) => (n, v)).ToDictionary(x => x.n.Replace(' ', '_'), x => x.v, equalityComparer)).Where(d => d.Count > 1);
             }
             else
                 return Enumerable.Empty<Dictionary<string, string>>();
@@ -55,5 +55,23 @@ namespace FfAdmin.Common
                 new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
             );
+        public static IEnumerable<Dictionary<string, string>> ConvertAllToDictionary<T>(this IEnumerable<T> records)
+            => records.Select(rec =>
+                    dataConverter.Convert(rec)
+                    .To(new Dictionary<string, string>()))
+                .Where(d => d.Count > 0);
+        public static string ToCsv<T>(this IEnumerable<T> records)
+        {
+            var data = records.ConvertAllToDictionary();
+            if (!data.Any())
+                return "No data";
+            var columns = data.First().Keys;
+            return string.Join("\r\n",
+                new[] { string.Join(",", columns) }.Concat(data.Select(dict => dict.ToLine(columns))));
+        }
+        private static string ToLine(this Dictionary<string, string> dict, IEnumerable<string> columns)
+            => string.Join(",", columns
+                .Select(c => dict.TryGetValue(c, out var x) ? x ?? "" : "")
+                .Select(x => $"\"{x.Replace("\"", "\"\"")}\""));
     }
 }

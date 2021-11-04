@@ -25,5 +25,12 @@ namespace FfAdminWeb.Controllers
             var res = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data, Event.DefaultJsonOptions));
             return File(res, "application/json", "web_export.json");
         }
+        [HttpGet("csv")]
+        public async Task<IActionResult> Csv()
+        {
+            var data = await _exportRepository.GetExportRows();
+            var res = Encoding.UTF8.GetBytes(data.ToCsv());
+            return File(res, "text/csv", "web_export.csv");
+        }
     }
 }

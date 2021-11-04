@@ -33,10 +33,16 @@ export class AuditComponent {
 export class WebExportComponent {
   constructor() { }
   public downloadJson() {
+    this.download('json');
+  }
+  public downloadCsv() {
+    this.download('csv');
+  }
+  public download(format: string) {
     const link = document.createElement('a');
-    link.setAttribute('href', 'admin/export/json');
+    link.setAttribute('href', `admin/export/${format}`);
     link.setAttribute('style', 'display:none;');
-    link.setAttribute('download', `web_export.json`);
+    link.setAttribute('download', `web_export.${format}`);
     document.body.appendChild(link);
     link.click();
     link.remove();
