@@ -21,13 +21,13 @@ namespace FfAdminWeb.Controllers
         public async Task<IActionResult> GetRecent()
         {
             var recent = await _auditRepository.GetRecentReport();
-            return MakeExcel(recent, "recent.xlsx");
+            return MakeExcel(recent, $"audit_{recent.Current.Main.Timestamp.ToString("yyyyMMdd_HHmmss")}.xlsx");
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var rep = await _auditRepository.GetReport(id);
-            return MakeExcel(rep, $"audit_{id}.xlsx");
+            return MakeExcel(rep, $"audit_{rep.Current.Main.Timestamp.ToString("yyyyMMdd_HHmmss")}.xlsx");
         }
         [HttpGet("all")]
         public async Task<ActionResult<IAuditRepository.AuditReportInfo[]>> GetAll()
