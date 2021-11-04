@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FfAdminWeb.Controllers
 {
     [ApiController]
-    [Route("audit")]
+    [Route("admin/audit")]
     public class AuditController : Controller
     {
         private readonly IAuditRepository _auditRepository;

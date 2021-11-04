@@ -20,7 +20,7 @@ export class Admin {
     return this.http.get<IOpenTransfer[]>(this.baseUrl + "admin/charities/opentransfers").toPromise();
   }
   public async getAuditReports(): Promise<IAuditInfo[]> {
-    return this.http.get<IAuditInfo[]>(this.baseUrl + "audit/all").toPromise();
+    return this.http.get<IAuditInfo[]>(this.baseUrl + "admin/audit/all").toPromise();
   }
   public async getDonationsByCurrency(): Promise<IDonationsByCurrency[]> {
     return this.http.get<IDonationsByCurrency[]>(this.baseUrl + "admin/donations/bycurrency").toPromise();
