@@ -104,9 +104,9 @@ begin
 	insert into audit.main(audit_id, hashcode, timestamp, num_events, num_processed_events, num_donations, num_charities, num_donors)
 		select main.audit_id, main.hashcode, ptimestamp, main.num_events, main.num_processed_events, main.num_donations, main.num_charities, main.num_donors;
 		
-	insert into audit.financial(audit_id, currency, donation_amount, unentered_donation_amount,
+	insert into audit.financial(audit_id, currency, donation_amount, cancelled_donation_amount, unentered_donation_amount,
 		invested_amount, cash_amount, allocated_amount, transferred_amount, transfers)
-		select f.audit_id, f.currency, f.donation_amount, f.unentered_donation_amount,
+		select f.audit_id, f.currency, f.donation_amount, f.cancelled_donation_amount, f.unentered_donation_amount,
 			f.invested_amount, f.cash_amount, f.allocated_amount, f.transferred_amount, f.transfers
 			from ff.option o
 			join lateral audit.audit_for_currency(aid, o.currency) f on true;

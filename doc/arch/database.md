@@ -54,6 +54,7 @@ This part can be postponed to a later stage.
 | Event_Id                    | N        | Identifies the even within the database, auto increment                                                      | All                                                                                                              |
 | Type                        | AN       | Identifies the event type                                                                                    | All                                                                                                              |
 | Timestamp                   | DT       | The timestamp of the event                                                                                   | All                                                                                                              |
+| File_timestamp              | DT       | The timestamp of the file containing the event                                                               | All                                                                                                              |
 | Execute_timestamp           | DT       | The execution timestamp of the event                                                                         | DONA_NEW                                                                                                         |
 | Name                        | AN       | An external name for an entity, may apply to different kind of entities based on the event type              | META_NEW_CHARITY, META_NEW_OPTION                                                                                |
 | Option_currency             | AN       | An ISO-4217 currency code for the investment option                                                          | META_NEW_OPTION                                                                                                  |
@@ -255,7 +256,7 @@ Some of the more complex functions might call even more functions, but that is a
 ## Processing events
 
 Each and every event that is processed is first entered into the `Event` table. 
-A primary key (auto incerement) is assigned to the event, and it is checked the timestamp is not before the last timestamp.
+A primary key (auto incerement) is assigned to the event, and the chronology is checked by file_timestamp first, then timestamp.
 
 The metadata events and the '_New donation_' event perform a single insert/update on the database table that corresponds to the event.
 

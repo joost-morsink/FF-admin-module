@@ -14,7 +14,7 @@ drop function core.import_conv_exit;
 drop function core.import_conv_transfer;
 drop function core.import_audit;
 */
-create or replace function core.import_events(events jsonb[]) returns core.message as $$
+create or replace function core.import_events(file_timestamp timestamp, events jsonb[]) returns core.message as $$
 DECLARE
 	i int;
 	n int;
@@ -23,7 +23,7 @@ DECLARE
 BEGIN
 	foreach j in array events loop
 		n := n + 1;
-		res := (select core.import_event(j));
+		res := (select core.import_event(file_timestamp, j));
 		if(res.status > 3) THEN
 			return ROW(res.status, n || '.' || res.key, res.message);
 		END IF;
@@ -31,31 +31,31 @@ BEGIN
 	return res;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_event(eventdata jsonb) returns core.message as $$
+create or replace function core.import_event(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	typ varchar(32);
 	res core.message;
 BEGIN
 	typ := (select eventdata->>'type');
 	res := CASE typ
-				WHEN 'DONA_NEW' THEN (select core.import_dona_new(eventdata))
-				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(eventdata))
-				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(eventdata))
-				WHEN 'META_NEW_OPTION' THEN (select core.import_meta_new_option(eventdata))
-				WHEN 'META_UPDATE_FRACTIONS' THEN (select core.import_meta_update_fractions(eventdata))
-				WHEN 'PRICE_INFO' THEN (select core.import_price_info(eventdata))
-				WHEN 'CONV_ENTER' THEN (select core.import_conv_enter(eventdata))
-				WHEN 'CONV_INVEST' THEN (select core.import_conv_invest(eventdata))
-				WHEN 'CONV_LIQUIDATE' THEN (select core.import_conv_liquidate(eventdata))
-				WHEN 'CONV_EXIT' THEN (select core.import_conv_exit(eventdata))
-				WHEN 'CONV_TRANSFER' THEN (select core.import_conv_transfer(eventdata))
-				WHEN 'AUDIT' THEN (select core.import_audit(eventdata))
+				WHEN 'DONA_NEW' THEN (select core.import_dona_new(file_timestamp ,eventdata))
+				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(file_timestamp ,eventdata))
+				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(file_timestamp ,eventdata))
+				WHEN 'META_NEW_OPTION' THEN (select core.import_meta_new_option(file_timestamp ,eventdata))
+				WHEN 'META_UPDATE_FRACTIONS' THEN (select core.import_meta_update_fractions(file_timestamp ,eventdata))
+				WHEN 'PRICE_INFO' THEN (select core.import_price_info(file_timestamp ,eventdata))
+				WHEN 'CONV_ENTER' THEN (select core.import_conv_enter(file_timestamp ,eventdata))
+				WHEN 'CONV_INVEST' THEN (select core.import_conv_invest(file_timestamp ,eventdata))
+				WHEN 'CONV_LIQUIDATE' THEN (select core.import_conv_liquidate(file_timestamp ,eventdata))
+				WHEN 'CONV_EXIT' THEN (select core.import_conv_exit(file_timestamp ,eventdata))
+				WHEN 'CONV_TRANSFER' THEN (select core.import_conv_transfer(file_timestamp ,eventdata))
+				WHEN 'AUDIT' THEN (select core.import_audit(file_timestamp ,eventdata))
 				ELSE ROW(4, 'type', 'Unknown type ' || typ)::core.message END;
 	return res;
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function core.import_dona_new(eventdata jsonb) returns core.message as $$
+create or replace function core.import_dona_new(file_timestamp timestamp,eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -87,14 +87,14 @@ BEGIN
 		or donation_currency is null or donation_amount is null THEN
 		return ROW(4,'','Missing data in DONA_NEW event')::core.message;
 	END IF;
-	INSERT INTO core.event(type,timestamp, execute_timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
+	INSERT INTO core.event(type,timestamp, file_timestamp, execute_timestamp, donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
 						   exchanged_donation_amount, transaction_reference, exchange_reference)
-					VALUES ('DONA_NEW', timestamp, coalesce(execute_timestamp, timestamp), donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
+					VALUES ('DONA_NEW', timestamp, file_timestamp, coalesce(execute_timestamp, timestamp), donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
 						   exchanged_donation_amount, transaction_reference, exchange_reference);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_dona_cancel(eventdata jsonb) returns core.message as $$
+create or replace function core.import_dona_cancel(file_timestamp timestamp,eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -106,12 +106,12 @@ BEGIN
 	IF timestamp is null or donation_id is null THEN
 		return ROW(4,'','Missing data in DONA_CANCEL event')::core.message;
 	END IF;
-	INSERT INTO core.event(type, timestamp, donation_id)
-					VALUES ('DONA_CANCEL', timestamp, donation_id);
+	INSERT INTO core.event(type, timestamp, file_timestamp, donation_id)
+					VALUES ('DONA_CANCEL', timestamp, file_timestamp, donation_id);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_new_charity(eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_new_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -125,12 +125,12 @@ BEGIN
 	IF timestamp is null or charity_id is null or name is null THEN
 		return ROW(4,'','Missing data in META_NEW_CHARITY event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, name, charity_id)
-		VALUES ('META_NEW_CHARITY', timestamp, name, charity_id);
+	INSERT INTO core.event(type, timestamp, file_timestamp, name, charity_id)
+		VALUES ('META_NEW_CHARITY', timestamp, file_timestamp, name, charity_id);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_new_option(eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_new_option(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -157,14 +157,14 @@ BEGIN
 	or bad_year_fraction is null THEN
 		return ROW(4,'','Missing data in META_NEW_OPTION event');
 	END IF;
-	INSERT INTO core.event(type,timestamp, option_id, name, option_currency, reinvestment_fraction, 
+	INSERT INTO core.event(type,timestamp, file_timestamp, option_id, name, option_currency, reinvestment_fraction, 
 						   futurefund_fraction, charity_fraction, bad_year_fraction)
-					VALUES ('META_NEW_OPTION', timestamp, option_id, name, option_currency, reinvestment_fraction, 
+					VALUES ('META_NEW_OPTION', timestamp, file_timestamp, option_id, name, option_currency, reinvestment_fraction, 
 							futurefund_fraction, charity_fraction, bad_year_fraction);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_update_fractions(eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_update_fractions(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -187,14 +187,14 @@ BEGIN
 	or bad_year_fraction is null THEN
 		return ROW(4,'','Missing data in META_UPDATE_FRACTIONS event');
 	END IF;
-	INSERT INTO core.event(type,timestamp, option_id, reinvestment_fraction, 
+	INSERT INTO core.event(type,timestamp, file_timestamp, option_id, reinvestment_fraction, 
 						   futurefund_fraction, charity_fraction, bad_year_fraction)
-					VALUES ('META_UPDATE_FRACTIONS', timestamp, option_id, reinvestment_fraction, 
+					VALUES ('META_UPDATE_FRACTIONS', timestamp, file_timestamp, option_id, reinvestment_fraction, 
 							futurefund_fraction, charity_fraction, bad_year_fraction);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_price_info(eventdata jsonb) returns core.message as $$
+create or replace function core.import_price_info(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -210,12 +210,12 @@ BEGIN
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in PRICE_INFO event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, invested_amount, cash_amount)
-				VALUES('PRICE_INFO', timestamp, option_id, invested_amount, cash_amount);
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount)
+				VALUES('PRICE_INFO', timestamp, file_timestamp, option_id, invested_amount, cash_amount);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_enter(eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_enter(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -229,12 +229,12 @@ BEGIN
 	IF timestamp is null or option_id is null or invested_amount is null  THEN
 		return ROW(4,'','Missing data in CONV_ENTER event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, invested_amount)
-				VALUES('CONV_ENTER', timestamp, option_id, invested_amount);
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount)
+				VALUES('CONV_ENTER', timestamp, file_timestamp, option_id, invested_amount);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_invest(eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_invest(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -252,12 +252,12 @@ BEGIN
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in CONV_INVEST event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, invested_amount, cash_amount, transaction_reference)
-				VALUES('CONV_INVEST', timestamp, option_id, invested_amount, cash_amount, transaction_reference);
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference)
+				VALUES('CONV_INVEST', timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_liquidate(eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_liquidate(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -275,12 +275,12 @@ BEGIN
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
 		return ROW(4,'','Missing data in CONV_LIQUIDATE event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, invested_amount, cash_amount, transaction_reference)
-				VALUES('CONV_LIQUIDATE', timestamp, option_id, invested_amount, cash_amount, transaction_reference);
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference)
+				VALUES('CONV_LIQUIDATE', timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_exit(eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_exit(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -294,12 +294,12 @@ BEGIN
 	IF timestamp is null or option_id is null or exit_amount is null THEN
 		return ROW(4,'','Missing data in CONV_EXIT event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, option_id, exit_amount)
-					VALUES('CONV_EXIT', timestamp, option_id, exit_amount);
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, exit_amount)
+					VALUES('CONV_EXIT', timestamp, file_timestamp, option_id, exit_amount);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_transfer(eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_transfer(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -324,14 +324,14 @@ BEGIN
 	IF timestamp is null or charity_id is null or transfer_currency is null or transfer_amount is null THEN
 		return ROW(4,'','Missing data in CONV_TRANSFER event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, charity_id, transfer_currency, transfer_amount, exchanged_transfer_currency
+	INSERT INTO core.event(type, timestamp, file_timestamp, charity_id, transfer_currency, transfer_amount, exchanged_transfer_currency
 						  , exchanged_transfer_amount, transaction_reference, exchange_reference)
-				VALUES ('CONV_TRANSFER', timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
+				VALUES ('CONV_TRANSFER', timestamp, file_timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
 						  , exchanged_amount, transaction_reference, exchange_reference);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_audit(eventdata jsonb) returns core.message as $$
+create or replace function core.import_audit(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
 	timestamp timestamp;
@@ -343,8 +343,8 @@ BEGIN
 	IF timestamp is null or hashcode is null THEN
 		return ROW(4,'','Missing data in AUDIT event');
 	END IF;
-	INSERT INTO core.event(type, timestamp, hashcode)
-				VALUES ('AUDIT', timestamp, hashcode);
+	INSERT INTO core.event(type, timestamp, file_timestamp, hashcode)
+				VALUES ('AUDIT', timestamp, file_timestamp, hashcode);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

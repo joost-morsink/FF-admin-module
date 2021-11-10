@@ -11,6 +11,7 @@ namespace FfAdmin.EventStore
         void EndSession(string? comment);
         bool HasSession { get; }
         string? SessionFile { get; }
+        DateTime? FileTimestamp { get; }
 
         void WriteEvent(Event e);
         string Hashcode();

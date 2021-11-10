@@ -22,16 +22,18 @@ DECLARE
 	n int;
 	r core.event%rowtype;
 	themax timestamp;
+	filemax timestamp;
 	first timestamp;
+	firstfile timestamp;
 BEGIN
-	select max(timestamp) into themax from core.event where processed=TRUE;
-	select min(timestamp) into first from core.event where processed=FALSE;
-	IF first < themax THEN
+	select max(file_timestamp), max(timestamp) into filemax, themax from core.event where processed=TRUE;
+	select min(file_timestamp), min(timestamp) into firstfile, first from core.event where processed=FALSE;
+	IF firstfile < filemax or firstfile = filemax and first < themax THEN
 		res := ROW(4,'Timestamp','Events are out of chronological order.');
 		return;
 	END IF;
 	for r in (
-		select * from core.event e where processed = FALSE and e.timestamp <= until order by timestamp
+		select * from core.event e where processed = FALSE and e.timestamp <= until order by file_timestamp, timestamp
 		) loop
 		RAISE INFO 'processing event %', r.event_id;
 		call ff.process_event(r,res);

@@ -23,6 +23,7 @@ namespace FfAdmin.EventStore
 
         public bool HasSession => _sessionFile != null;
         public string? SessionFile => _sessionFile?.CurrentFile;
+        public DateTime? FileTimestamp => _sessionFile?.Timestamp;
 
         public void EndSession(string? comment)
         {
@@ -45,7 +46,8 @@ namespace FfAdmin.EventStore
                     now.Year,
                     now.Month.ToString("D2"),
                     now.Day.ToString("D2"),
-                    $"{now.Hour.ToString("D2")}{now.Minute.ToString("D2")}{now.Second.ToString("D2")}.json"));
+                    $"{now.Hour.ToString("D2")}{now.Minute.ToString("D2")}{now.Second.ToString("D2")}.json"),
+                now - TimeSpan.FromTicks(now.Ticks % TimeSpan.FromSeconds(1).Ticks));
         }
         public void WriteEvent(Event e)
         {

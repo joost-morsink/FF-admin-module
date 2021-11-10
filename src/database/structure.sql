@@ -26,6 +26,7 @@ create table if not exists core.event (
 	event_id int primary key not null default nextval('core.event_seq'),
 	type varchar(32) not null,
 	timestamp timestamp not null,
+	file_timestamp varchar(64) not null,
 	execute_timestamp timestamp null,
 	name varchar(256) null,
 	hashcode varchar(128) null,

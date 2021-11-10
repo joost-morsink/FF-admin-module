@@ -101,7 +101,7 @@ namespace FfAdminWeb.Controllers
                 return BadRequest(msgs);
 
             _eventStore.WriteEvent(e);
-            await _eventRepository.Import(new[] { e });
+            await _eventRepository.Import(_eventStore.FileTimestamp!.Value, new[] { e });
 
             return Ok();
         }
@@ -124,8 +124,9 @@ namespace FfAdminWeb.Controllers
                 Hashcode = _eventStore.Hashcode()
             };
             _eventStore.WriteEvent(e);
+            var timestamp = _eventStore.FileTimestamp!.Value;
             _eventStore.EndSession("Audit event");
-            await _eventRepository.Import(new[] { e });
+            await _eventRepository.Import(timestamp, new[] { e });
             await _eventRepository.ProcessEvents(DateTime.UtcNow);
             return Ok();
         }
@@ -172,12 +173,28 @@ namespace FfAdminWeb.Controllers
         [HttpPost("files/import")]
         public async Task ImportFiles([FromBody] string[] files)
         {
+            
             foreach (var file in files)
             {
                 var events = await _eventStore.GetEventsFromFile(file);
-                await _eventRepository.Import(events);
+                var ts = GetFileTimestamp(file);
+                await _eventRepository.Import(ts, events);
                 await _eventRepository.SetFileImported(file);
             }
+        }
+        private DateTime GetFileTimestamp(string name)
+        {
+            var parts = name.Split('/', '\\');
+
+            var year = int.Parse(parts[0]);
+            var month = int.Parse(parts[1]);
+            var day = int.Parse(parts[2]);
+            if (parts[3].Length == 11 && int.TryParse(parts[3][0..2], out var hour)
+                && int.TryParse(parts[3][2..4], out var minute)
+                && int.TryParse(parts[3][4..6], out var second))
+                return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc);
+            else
+                return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
         [HttpPost("donations/give")]
         public async Task<IActionResult> ImportGiveCsv()
@@ -211,7 +228,7 @@ namespace FfAdminWeb.Controllers
                 foreach (var e in events.Where(x => !(x is NewDonation nd && alreadyImported.Contains(nd.Donation))))
                     _eventStore.WriteEvent(e);
 
-                await _eventRepository.Import(events);
+                await _eventRepository.Import(_eventStore.FileTimestamp!.Value, events);
 
                 return Ok();
             }

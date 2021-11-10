@@ -11,7 +11,7 @@ namespace FfAdmin.AdminModule
 {
     public interface IEventRepository
     {
-        Task<CoreMessage> Import(IEnumerable<Event> e);
+        Task<CoreMessage> Import(DateTime fileTimestamp, IEnumerable<Event> e);
         Task SetFileImported(string path);
         Task<CoreMessage> ProcessEvents(DateTime until);
         Task<Statistics> GetStatistics();
@@ -62,10 +62,10 @@ namespace FfAdmin.AdminModule
                     , (select count(*) from core.event where processed = FALSE) unprocessed
                     , (select min(timestamp)::timestamp at time zone 'UTC' from core.event where processed = FALSE) firstUnprocessed");
         }
-        public async Task<CoreMessage> Import(IEnumerable<Event> events)
+        public async Task<CoreMessage> Import(DateTime fileTimestamp, IEnumerable<Event> events)
         {
             var str = events.Select(e => e.ToJsonString()).ToArray();
-            var import = await _db.QueryFirst<CoreMessage>("select * from core.import_events(@events::jsonb[]);", new { events = str });
+            var import = await _db.QueryFirst<CoreMessage>("select * from core.import_events(@filetime, @events::jsonb[]);", new { filetime = fileTimestamp, events = str });
             import.Key = $"Import.{import.Key}";
 
             return import;
