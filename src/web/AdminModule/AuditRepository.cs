@@ -61,6 +61,6 @@ namespace FfAdmin.AdminModule
         }
 
         public Task<IAuditRepository.AuditReportInfo[]> GetReports()
-            => _database.Query<IAuditRepository.AuditReportInfo>("select audit_id as id, timestamp, hashcode from audit.main order by timestamp desc");
+            => _database.Query<IAuditRepository.AuditReportInfo>("select audit_id as id, timestamp::timestamp with time zone, hashcode from audit.main order by timestamp desc");
     }
 }
