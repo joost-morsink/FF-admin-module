@@ -46,9 +46,9 @@ namespace FfAdminWeb.Controllers
                     b.Empty().Write("Previous").Write("Current").RowFeed();
                     var objs = new[] { report.Previous, report.Current };
                     b.Line("Number of processed events", objs, x => x.Main.Num_processed_events);
-                    b.Line("Number of donations", objs, x => x.Main.Num_donations);
-                    b.Line("Number of donors", objs, x => x.Main.Num_donors);
-                    b.Line("Number of charities", objs, x => x.Main.Num_charities);
+                    b.Line("Number of donations", objs, x => x.Main.Num_donations, "Number of donations made (including cancelled)");
+                    b.Line("Number of donors", objs, x => x.Main.Num_donors,"Number of distinct donors");
+                    b.Line("Number of charities", objs, x => x.Main.Num_charities,"Number of distinct charities");
                 })
             }.Concat(from curF in report.Current.Financials
                      join prevF in report.Previous.Financials on curF.Currency equals prevF.Currency into prevs
@@ -60,15 +60,15 @@ namespace FfAdminWeb.Controllers
                          if (objs.Length == 2)
                              b.Write("Previous");
                          b.Write("Current").RowFeed();
-                         b.Line("Donations amount", objs, x => x.Donation_amount);
-                         b.Line("Cancelled amount", objs, x => x.Cancelled_donation_amount);
-                         b.Line("Unentered donations amount", objs, x => x.Unentered_donation_amount);
-                         b.Line("Invested amount", objs, x => x.Invested_amount);
-                         b.Line("Cash amount", objs, x => x.Cash_amount);
-                         b.Line("Total amount", objs, x => x.Invested_amount + x.Cash_amount + x.Unentered_donation_amount);
-                         b.Line("Allocated amount", objs, x => x.Allocated_amount);
-                         b.Line("Transferred amount", objs, x => x.Transferred_amount);
-                         b.Line("Transfer pending amount", objs, x => x.Allocated_amount - x.Transferred_amount);
+                         b.Line("Donations amount", objs, x => x.Donation_amount,"Total amount of money donated");
+                         b.Line("Cancelled amount", objs, x => x.Cancelled_donation_amount, "Total amount of donated money cancelled");
+                         b.Line("Unentered donations amount", objs, x => x.Unentered_donation_amount,"Donations that have been made, but are not yet included in the investment option");
+                         b.Line("Invested amount", objs, x => x.Invested_amount,"The total current amount of money invested in the investment fund");
+                         b.Line("Cash amount", objs, x => x.Cash_amount, "The total amount of money in the investment option that is not invested in the corresponding fund");
+                         b.Line("Total amount", objs, x => x.Invested_amount + x.Cash_amount + x.Unentered_donation_amount,"Total amount of money in the investment option including not yet entered donations");
+                         b.Line("Allocated amount", objs, x => x.Allocated_amount,"The total amount of money allocated to charities (since start)");
+                         b.Line("Transferred amount", objs, x => x.Transferred_amount, "The total amount of money actually transferred to charities (since start)");
+                         b.Line("Transfer pending amount", objs, x => x.Allocated_amount - x.Transferred_amount, "The total amount of money that still needs to be transferred to charities");
                          b.RowFeed();
                          b.Write("Transfers").Write("Previous").Write(curF.Currency).Write("Current").Write(curF.Currency).RowFeed(); ;
                          
@@ -90,11 +90,13 @@ namespace FfAdminWeb.Controllers
     }
     internal static class AuditReportHelper
     {
-        public static void Line<T>(this DataSheetWriter writer, string header, T[] objects, Func<T, object> getter)
+        public static void Line<T>(this DataSheetWriter writer, string header, T[] objects, Func<T, object> getter, params string[] extra)
         {
             writer.Write(header);
             foreach (var obj in objects)
                 writer.Write(getter(obj));
+            foreach (var x in extra)
+                writer.Write(x);
             writer.RowFeed();
         }
     }
