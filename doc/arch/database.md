@@ -115,7 +115,7 @@ The only exception from this rule is the relationships from `Allocation` and `Op
 > 
 > We will use decimal fractions for our administration, because we don't expect any significant rounding errors by using 20 significant decimals.
 > We might need to renormalize fractions in a fraction set to sum to 1, or we might need to introduce rational fractions when rounding errors are becoming significant.
-> We do not have strategy for determining whether we have significant errors or not.
+> We do not have a strategy for determining whether we have significant errors or not.
 
 ### Donation
 

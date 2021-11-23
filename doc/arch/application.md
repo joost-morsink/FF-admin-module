@@ -4,7 +4,7 @@
 
 The Admin module application supports the execution of the business process.
 The relevant process steps are mapped to application components that need to be developed.
-The terminology in this chapter is website terminology; the application could also be a native application.
+The terminology in this chapter is website terminology; the application is actually a SPA (single page application).
 
 | Process step                                           | Application component                                    |
 | ------------------------------------------------------ | -------------------------------------------------------- |

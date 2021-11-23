@@ -29,6 +29,8 @@ The Future Fund business domain contains of the following events:
   
   * New Donation
   
+  * Cancel donation
+  
   * Price info
 
 * Conversion day events
@@ -84,7 +86,16 @@ We still have to specify and implement events for cases such as charity end-of-l
 Events are specified using a field by field description.
 
 Every event has a timestamp to validate the sequence of events and automatically the scoping of handling the events.
+The order of the events is:
+
+- First, the session timestamp
+
+- Then, the event timestamp
+
+The reasoning behind this is that you can only make decisions based on the knowledge you have.
 All events received 'out of sync' may only be applied after undoing everything already recorded with a higher timestamp and rerunning them in the correct order.
+By ordering them by session timestamp first, this is only needed in case we introduce an 'out of sync' session.
+
 To avoid ambiguity in the timestamps, they will all be serialized as UTC timestamps according to the ISO-8601 format (with a trailing 'Z').
 
 ### Meta and main events
