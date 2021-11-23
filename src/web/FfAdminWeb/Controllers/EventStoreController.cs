@@ -171,16 +171,18 @@ namespace FfAdminWeb.Controllers
             return allFiles.Where(f => !importedFiles.Contains(f));
         }
         [HttpPost("files/import")]
-        public async Task ImportFiles([FromBody] string[] files)
+        public async Task<IActionResult> ImportFiles([FromBody] string[] files)
         {
-            
             foreach (var file in files)
             {
                 var events = await _eventStore.GetEventsFromFile(file);
                 var ts = GetFileTimestamp(file);
-                await _eventRepository.Import(ts, events);
+                var importmsg = await _eventRepository.Import(ts, events);
+                if (importmsg.Status >= 4)
+                    return StatusCode(500, importmsg);
                 await _eventRepository.SetFileImported(file);
             }
+            return Ok();
         }
         private DateTime GetFileTimestamp(string name)
         {

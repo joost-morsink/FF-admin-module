@@ -62,7 +62,8 @@ namespace FfAdmin.AdminModule
                 Host = options.Server,
                 Username = options.User,
                 Password = options.Password,
-                LoadTableComposites = true
+                LoadTableComposites = true,
+                IncludeErrorDetail = true
             };
             var connection = new NpgsqlConnection(connectionString.ConnectionString);
             connection.Open();

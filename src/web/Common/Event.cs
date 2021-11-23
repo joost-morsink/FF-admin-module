@@ -41,6 +41,7 @@ namespace FfAdmin.Common
                     EventType.META_NEW_OPTION => JsonSerializer.Deserialize<NewOption>(json, options)!,
                     EventType.META_UPDATE_FRACTIONS => JsonSerializer.Deserialize<UpdateFractions>(json, options)!,
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
+                    EventType.META_UPDATE_CHARITY => JsonSerializer.Deserialize<UpdateCharity>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
                     EventType.DONA_CANCEL => JsonSerializer.Deserialize<CancelDonation>(json,options)!,
                     EventType.CONV_LIQUIDATE => JsonSerializer.Deserialize<ConvLiquidate>(json, options)!,
@@ -60,7 +61,7 @@ namespace FfAdmin.Common
             Converters = { new JsonStringEnumConverter() },
             WriteIndented = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         public abstract IEnumerable<ValidationMessage> Validate();
         public string ToJsonString(JsonSerializerOptions? options = null)
@@ -126,6 +127,23 @@ namespace FfAdmin.Common
         public override EventType Type => EventType.META_NEW_CHARITY;
         public string Code { get; set; } = "";
         public string Name { get; set; } = "";
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Code))
+                yield return new ValidationMessage(nameof(Code), "Field is required.");
+            if (string.IsNullOrWhiteSpace(Name))
+                yield return new ValidationMessage(nameof(Name), "Field is required.");
+        }
+    }
+    public class UpdateCharity : Event
+    {
+        public override EventType Type => EventType.META_UPDATE_CHARITY;
+        public string Code { get; set; } = "";
+        public string? Name { get; set; }
+        public string? Bank_account_no { get; set; }
+        public string? Bank_name { get; set; }
+        public string? Bank_bic { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Code))

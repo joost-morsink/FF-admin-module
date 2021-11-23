@@ -4,6 +4,7 @@ drop function ff.process_event;
 drop function ff.process_dona_new;
 drop function ff.process_dona_cancel;
 drop function ff.process_meta_new_charity;
+drop function ff.process_meta_update_charity;
 drop function ff.process_meta_new_option;
 drop function ff.process_meta_update_fractions;
 drop function ff.process_price_info;
@@ -53,6 +54,7 @@ BEGIN
 				WHEN 'DONA_NEW' THEN (select ff.process_dona_new(event))
 				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
+				WHEN 'META_UPDATE_CHARITY' THEN (select ff.process_meta_update_charity(event))
 				WHEN 'META_NEW_OPTION' THEN (select ff.process_meta_new_option(event))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select ff.process_meta_update_fractions(event))
 				WHEN 'PRICE_INFO' THEN (select ff.process_price_info(event))
@@ -119,6 +121,24 @@ DEClARE
 BEGIN
 	INSERT INTO ff.charity (charity_ext_id, name)
 		VALUES (event.charity_id, event.name);
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.process_meta_update_charity(event core.event) returns core.message as $$
+DEClARE
+	res core.message;
+BEGIN
+	update ff.charity 
+	    set name = coalesce(event.name, name)
+		, bank_account_no = coalesce(event.bank_account_no, bank_account_no)
+		, bank_name = coalesce(event.bank_name, bank_name)
+		, bank_bic = coalesce(event.bank_bic, bank_bic)
+		where charity_ext_id = event.charity_id;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE

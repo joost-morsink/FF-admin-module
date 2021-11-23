@@ -21,6 +21,8 @@ The Future Fund business domain contains of the following events:
   
   * New Charity
   
+  * Charity Update
+  
   * New Option
   
   * Update Option fractions
@@ -110,6 +112,20 @@ This event creates a new charity that can be chosen by a donor as a beneficiary 
 | Timestamp | DateTime(ISO-8601) | The time of the event   |                  |
 | Code      | AN                 | Identifies the charity  |                  |
 | Name      | AN                 | The name of the charity |                  |
+
+#### Charity update
+
+This event updates information on the charity, like bank information. Only supplied data should be used for update.
+
+| Field           | Type               | Description                                   | Value               |
+| --------------- | ------------------ | --------------------------------------------- | ------------------- |
+| Type            | A                  | Identifies the event                          | META_UPDATE_CHARITY |
+| Timestamp       | DateTime(ISO-8601) | The time of the event                         |                     |
+| Code            | AN                 | Identifies the charity                        |                     |
+| Name            | AN?                | The name of the charity                       |                     |
+| Bank_account_no | AN?                | The charity's bank account number             |                     |
+| Bank_name       | AN?                | The charity's name, as registered by the bank |                     |
+| Bank_bic        | AN?                | The charity's bank identification code        |                     |
 
 #### New Option
 

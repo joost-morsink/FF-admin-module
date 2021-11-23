@@ -4,6 +4,7 @@ drop function core.import_event;
 drop function core.import_dona_new;
 drop function core.import_dona_cancel;
 drop function core.import_meta_new_charity;
+drop function core.import_meta_update_charity;
 drop function core.import_meta_new_option;
 drop function core.import_meta_update_fractions;
 drop function core.import_price_info;
@@ -25,7 +26,7 @@ BEGIN
 		n := n + 1;
 		res := (select core.import_event(file_timestamp, j));
 		if(res.status > 3) THEN
-			return ROW(res.status, n || '.' || res.key, res.message);
+			return ROW(res.status, n || '.' || res.key, res.message)::core.message;
 		END IF;
 	end loop;
 	return res;
@@ -41,6 +42,7 @@ BEGIN
 				WHEN 'DONA_NEW' THEN (select core.import_dona_new(file_timestamp ,eventdata))
 				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(file_timestamp ,eventdata))
 				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(file_timestamp ,eventdata))
+				WHEN 'META_UPDATE_CHARITY' THEN (select core.import_meta_update_charity(file_timestamp ,eventdata))
 				WHEN 'META_NEW_OPTION' THEN (select core.import_meta_new_option(file_timestamp ,eventdata))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select core.import_meta_update_fractions(file_timestamp ,eventdata))
 				WHEN 'PRICE_INFO' THEN (select core.import_price_info(file_timestamp ,eventdata))
@@ -123,10 +125,35 @@ BEGIN
 		, eventdata->>'name'
 		into timestamp, charity_id, name;
 	IF timestamp is null or charity_id is null or name is null THEN
-		return ROW(4,'','Missing data in META_NEW_CHARITY event');
+		return ROW(4,'','Missing data in META_NEW_CHARITY event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, name, charity_id)
 		VALUES ('META_NEW_CHARITY', timestamp, file_timestamp, name, charity_id);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_meta_update_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	charity_id varchar(16);
+	bank_name varchar(256);
+	bank_account_no varchar(64);
+	bank_bic varchar(32);
+	name varchar(256);
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'code'
+		, eventdata->>'name'
+		, eventdata->>'bank_account_no'
+		, eventdata->>'bank_name'
+		, eventdata->>'bank_bic'
+		into timestamp, charity_id, name, bank_account_no, bank_name, bank_bic;
+	IF timestamp is null or charity_id is null THEN
+		return ROW(4,'','Missing data in META_NEW_CHARITY event')::core.message;
+	END IF;
+	INSERT INTO core.event(type, timestamp, file_timestamp, name, charity_id, bank_account_no, bank_name, bank_bic)
+		VALUES ('META_UPDATE_CHARITY', timestamp, file_timestamp, name, charity_id, bank_account_no, bank_name, bank_bic);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
@@ -155,7 +182,7 @@ BEGIN
 	IF timestamp is null or option_id is null or name is null or option_currency is null 
 	or reinvestment_fraction is null or futurefund_fraction is null or charity_fraction is null 
 	or bad_year_fraction is null THEN
-		return ROW(4,'','Missing data in META_NEW_OPTION event');
+		return ROW(4,'','Missing data in META_NEW_OPTION event')::core.message;
 	END IF;
 	INSERT INTO core.event(type,timestamp, file_timestamp, option_id, name, option_currency, reinvestment_fraction, 
 						   futurefund_fraction, charity_fraction, bad_year_fraction)
@@ -185,7 +212,7 @@ BEGIN
 	IF timestamp is null or option_id is null
 	or reinvestment_fraction is null or futurefund_fraction is null or charity_fraction is null 
 	or bad_year_fraction is null THEN
-		return ROW(4,'','Missing data in META_UPDATE_FRACTIONS event');
+		return ROW(4,'','Missing data in META_UPDATE_FRACTIONS event')::core.message;
 	END IF;
 	INSERT INTO core.event(type,timestamp, file_timestamp, option_id, reinvestment_fraction, 
 						   futurefund_fraction, charity_fraction, bad_year_fraction)
@@ -208,7 +235,7 @@ BEGIN
 		, eventdata->>'cash_amount'
 		into timestamp, option_id, invested_amount, cash_amount;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
-		return ROW(4,'','Missing data in PRICE_INFO event');
+		return ROW(4,'','Missing data in PRICE_INFO event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount)
 				VALUES('PRICE_INFO', timestamp, file_timestamp, option_id, invested_amount, cash_amount);
@@ -227,7 +254,7 @@ BEGIN
 		, eventdata->>'invested_amount'
 		into timestamp, option_id, invested_amount;
 	IF timestamp is null or option_id is null or invested_amount is null  THEN
-		return ROW(4,'','Missing data in CONV_ENTER event');
+		return ROW(4,'','Missing data in CONV_ENTER event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount)
 				VALUES('CONV_ENTER', timestamp, file_timestamp, option_id, invested_amount);
@@ -250,7 +277,7 @@ BEGIN
 		, eventdata->>'transaction_reference'
 		into timestamp, option_id, invested_amount, cash_amount;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
-		return ROW(4,'','Missing data in CONV_INVEST event');
+		return ROW(4,'','Missing data in CONV_INVEST event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference)
 				VALUES('CONV_INVEST', timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference);
@@ -273,7 +300,7 @@ BEGIN
 		, eventdata->>'transaction_reference'
 		into timestamp, option_id, invested_amount, cash_amount, transaction_reference;
 	IF timestamp is null or option_id is null or invested_amount is null or cash_amount is null THEN
-		return ROW(4,'','Missing data in CONV_LIQUIDATE event');
+		return ROW(4,'','Missing data in CONV_LIQUIDATE event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference)
 				VALUES('CONV_LIQUIDATE', timestamp, file_timestamp, option_id, invested_amount, cash_amount, transaction_reference);
@@ -292,7 +319,7 @@ BEGIN
 		, eventdata->>'amount'
 		into timestamp, option_id, exit_amount;
 	IF timestamp is null or option_id is null or exit_amount is null THEN
-		return ROW(4,'','Missing data in CONV_EXIT event');
+		return ROW(4,'','Missing data in CONV_EXIT event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, exit_amount)
 					VALUES('CONV_EXIT', timestamp, file_timestamp, option_id, exit_amount);
@@ -322,7 +349,7 @@ BEGIN
 		into timestamp, charity_id, transfer_currency, transfer_amount, exchanged_currency
 						   , exchanged_amount, transaction_reference, exchange_reference;
 	IF timestamp is null or charity_id is null or transfer_currency is null or transfer_amount is null THEN
-		return ROW(4,'','Missing data in CONV_TRANSFER event');
+		return ROW(4,'','Missing data in CONV_TRANSFER event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, charity_id, transfer_currency, transfer_amount, exchanged_transfer_currency
 						  , exchanged_transfer_amount, transaction_reference, exchange_reference)
@@ -341,7 +368,7 @@ BEGIN
 		, eventdata->>'hashcode'
 		into timestamp, hashcode;
 	IF timestamp is null or hashcode is null THEN
-		return ROW(4,'','Missing data in AUDIT event');
+		return ROW(4,'','Missing data in AUDIT event')::core.message;
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, hashcode)
 				VALUES ('AUDIT', timestamp, file_timestamp, hashcode);

@@ -12,6 +12,7 @@
         CONV_ENTER,
         CONV_INVEST,
         AUDIT,
-        DONA_CANCEL
+        DONA_CANCEL,
+        META_UPDATE_CHARITY
     }
 }
