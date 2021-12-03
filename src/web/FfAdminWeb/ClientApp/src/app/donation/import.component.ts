@@ -15,18 +15,29 @@ import { InfoDialog } from '../dialogs/info.dialog';
 export class ImportCsvComponent {
   constructor(private eventStore: EventStore, private dialog: MatDialog) { }
   public file: File;
+  public mollie: File;
   public fileName: string;
+  public mollieFileName: string;
   private fileInput: HTMLInputElement;
+  private mollieInput: HTMLInputElement;
+
   public onFileSelected(e) {
     this.fileInput = e.target;
     this.file = this.fileInput.files[0];
     this.fileName = this.file?.name;
   }
 
+  public onMollieFileSelected(e) {
+    this.mollieInput = e.target;
+    this.mollie = this.mollieInput.files[0];
+    this.mollieFileName = this.mollie?.name;
+  }
+
   public async executeUpload() {
     if (this.file) {
       const formData = new FormData();
       formData.append("file", this.file);
+      formData.append("mollie", this.mollie);
 
       try {
         await this.eventStore.importCsv(formData);

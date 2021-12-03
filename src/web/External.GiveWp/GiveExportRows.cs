@@ -9,13 +9,14 @@ namespace FfAdmin.External.GiveWp
         public static IEnumerable<GiveExportRow> FromCsv(string csv)
             => csv.ParseCsv<GiveExportRow>(CaseInsensitiveEqualityComparer.Instance);
 
-        public static Event[] ToEvents(this IEnumerable<GiveExportRow> rows, IEnumerable<string> charities, IEnumerable<string> options)
+        public static Event[] ToEvents(this IEnumerable<GiveExportRow> rows, IEnumerable<MollieExportRow> mollieRows, IEnumerable<string> charities, IEnumerable<string> options)
         {
             return EnumerateEvents().ToArray();
             IEnumerable<Event> EnumerateEvents()
             {
                 var cs = new HashSet<string>(charities);
                 var os = new HashSet<string>(options);
+                var mollie = mollieRows.ToDictionary(m => m.Id);
                 var messages = rows.Select((row, index) => row.Validate().Select(m => new ValidationMessage($"{index}.{m.Key}", m.Message))).SelectMany(x => x).ToArray();
                 if (messages.Length > 0)
                     throw new ValidationException(messages);
@@ -44,7 +45,9 @@ namespace FfAdmin.External.GiveWp
                         cs.Add(row.Form_id!);
                     }
                     if(row.Donation_status == "Complete")
-                        yield return row.ToNewDonation()!;
+                        yield return row.ToNewDonation(row.Transaction_id == null
+                            ? null
+                            : mollie.GetValueOrDefault(row.Transaction_id))!;
                 }
             }
         }

@@ -23,7 +23,7 @@ namespace FfAdminWeb.Controllers
         private readonly ICharityRepository _charityRepository;
         private readonly IDonationRepository _donationRepository;
         private readonly IOptions<JsonOptions> _jsonOptions;
-
+        
         public EventStoreController(IEventStore eventStore,
                                     IEventRepository eventRepository,
                                     IOptionRepository optionRepository,
@@ -198,23 +198,31 @@ namespace FfAdminWeb.Controllers
             else
                 return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
+        private async Task<string> ReadFormFile(IFormFile formFile)
+        {
+            using var stream = formFile.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+            return content;
+        }
         [HttpPost("donations/give")]
         public async Task<IActionResult> ImportGiveCsv()
         {
-            var file = Request.Form.Files.FirstOrDefault();
-            if (file == null)
+            var file = Request.Form.Files["file"];
+            var mollie = Request.Form.Files["mollie"];
+            if (file == null || mollie == null)
                 return BadRequest(new ValidationMessage[] { new("", "No file uploaded") });
-            using var stream = file.OpenReadStream();
-            using var reader = new StreamReader(stream);
-            var content = await reader.ReadToEndAsync();
-            if (content == null)
+            var content = await ReadFormFile(file);
+            var mollieContent = await ReadFormFile(mollie);
+            if (string.IsNullOrWhiteSpace(content) || string.IsNullOrWhiteSpace(mollieContent))
                 return BadRequest(new ValidationMessage[] { new("", "File is empty") });
             try
             {
                 var rows = GiveExportRows.FromCsv(content);
+                var mollieRows = MollieExportRows.FromCsv(mollieContent);
                 var options = await _optionRepository.GetOptions();
                 var charities = await _charityRepository.GetCharities();
-                var events = rows.ToEvents(charities.Select(c => c.Charity_ext_id), options.Select(o => o.Option_ext_id)).ToArray();
+                var events = rows.ToEvents(mollieRows, charities.Select(c => c.Charity_ext_id), options.Select(o => o.Option_ext_id)).ToArray();
 
                 if (!_eventStore.HasSession)
                     return BadRequest(new ValidationMessage[] {

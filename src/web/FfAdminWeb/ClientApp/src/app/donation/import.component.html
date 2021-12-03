@@ -1,16 +1,24 @@
 <input type="file" class="file-input"
-       (change)="onFileSelected($event)" #fileUpload>
-
+       (change)="onFileSelected($event)" #fileUpload />
+<input type="file" class="file-input"
+        (change)="onMollieFileSelected($event)" #mollieUpload />
 <div class="file-upload">
 
-    {{fileName || "No file uploaded yet."}}
+    <ul>
+        <li>{{fileName || "No GiveWP CSV uploaded yet."}}</li>
+        <li>{{mollieFileName || "No Mollie CSV uploaded yet."}}</li>
+    </ul>
 
     <button mat-mini-fab color="primary" class="upload-btn"
             (click)="fileUpload.click()">
-        <span class="inline-icon material-icons">attach_file</span> Find CSV
+        <span class="inline-icon material-icons">attach_file</span> Find GiveWp CSV
     </button>
-    <button *ngIf="file!=null" mat-mini-fab color="primary" class="upload-btn"
+    <button mat-mini-fab color="primary" class="upload-btn"
+            (click)="mollieUpload.click()">
+        <span class="inline-icon material-icons">attach_file</span> Find Mollie CSV
+    </button>
+    <button *ngIf="file!=null && mollie!=null" mat-mini-fab color="primary" class="upload-btn"
             (click)="executeUpload()">
-        <span class="inline-icon material-icons">file_upload</span> Upload CSV
+        <span class="inline-icon material-icons">file_upload</span> Upload CSVs
     </button>
 </div>
