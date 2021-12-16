@@ -9,6 +9,7 @@ using FfAdmin.Common;
 using FfAdmin.AdminModule;
 using FfAdminWeb.Utils;
 using System.Text.Json.Serialization;
+using FfAdminWeb.Services;
 
 namespace FfAdminWeb
 {
@@ -25,6 +26,7 @@ namespace FfAdminWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IEventStore, EventStore>();
+            services.AddScoped<IEventingSystem, EventingSystem>();
             services.AddAdminModule(opts => Configuration.GetSection("Database").Bind(opts));
             
             services.AddControllersWithViews().AddJsonOptions(o =>

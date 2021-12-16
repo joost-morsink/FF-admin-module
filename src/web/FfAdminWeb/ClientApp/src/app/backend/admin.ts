@@ -19,6 +19,12 @@ export class Admin {
   public async getOpenTransfers(): Promise<IOpenTransfer[]> {
     return this.http.get<IOpenTransfer[]>(this.baseUrl + "admin/charities/opentransfers").toPromise();
   }
+  public async importBankTransfers(camtFile: File): Promise<void> {
+    const formData = new FormData();
+    formData.append("file", camtFile);
+
+    return this.http.post<void>(this.baseUrl + "admin/charities/opentransfers/resolve/camt", formData).toPromise();
+  }
   public async getAuditReports(): Promise<IAuditInfo[]> {
     return this.http.get<IAuditInfo[]>(this.baseUrl + "admin/audit/all").toPromise();
   }

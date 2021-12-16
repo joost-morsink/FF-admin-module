@@ -5,6 +5,7 @@ import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
 import { ErrorDialog } from '../dialogs/error.dialog';
+import { InfoDialog } from "../dialogs/info.dialog";
 type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
 
 @Component({
@@ -109,7 +110,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   @Output() public liquidated: EventEmitter<void> = new EventEmitter();
 
   public exit_amount: number;
-  
+
   public invested: FormControl;
   public timestamp: FormControl;
   public newInvested: FormControl;
@@ -196,13 +197,23 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
   selector: 'ff-transfers-admin',
   templateUrl: './transfers.component.html'
 })
-export class TransfersComponent {
+export class TransfersComponent implements OnInit {
   constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
-    this.fetchOpenTransfers();
+    this.fetchOpenTransfers().then();
   }
   @Output() public done: EventEmitter<void> = new EventEmitter();
   public transfers: IOpenTransfer[];
+  public file: File;
+  public fileName: string;
+  private fileInput: HTMLInputElement;
+  public formGroup: FormGroup;
+  public cutoff: FormControl;
+
   @ViewChildren('transfer') public transferComponents: QueryList<TransferComponent>;
+  public ngOnInit() {
+    this.cutoff = new FormControl("5.00")
+    this.formGroup = new FormGroup({ cutoff: this.cutoff })
+  }
 
   public async fetchOpenTransfers() {
     this.transfers = (await this.admin.getOpenTransfers()).sort((x, y) => x.name < y.name ? -1 : 1);
@@ -215,6 +226,37 @@ export class TransfersComponent {
   public onTransferCompleted(transfer: IOpenTransfer) {
     this.transfers = this.transfers.filter(t => t.charity != transfer.charity || t.currency != transfer.currency);
   }
+  public onFileSelected(e) {
+    this.fileInput = e.target;
+    this.file = this.fileInput.files[0];
+    this.fileName = this.file?.name;
+  }
+  public async executeUpload() {
+    if(this.file) {
+      try {
+        await this.admin.importBankTransfers(this.file);
+        this.fileInput.files = null;
+        this.file = null;
+        this.fileName = null;
+        this.dialog.open(InfoDialog, {
+          data: { title: "Success", message: "Import and processing successful!" }
+        });
+      } catch(ex) {
+        this.dialog.open(ErrorDialog, {
+          data: { errors: ex.error }
+        }).afterClosed();
+      }
+    }
+  }
+  public downloadPain() {
+    const link = document.createElement('a');
+    link.setAttribute('href', `admin/charities/opentransfers/pain?currency=EUR&cutoff=${this.cutoff.value}`);
+    link.setAttribute('style', 'display:none;');
+    link.setAttribute('download', `charity_transfers.xml`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
 }
 
 @Component({
@@ -222,7 +264,7 @@ export class TransfersComponent {
   templateUrl: './transfer.component.html'
 })
 export class TransferComponent extends ConversionBaseComponent implements OnInit {
-  constructor(eventStore: EventStore, dialog: MatDialog) {
+  constructor(eventStore: EventStore, dialog: MatDialog, private admin: Admin) {
     super(eventStore, dialog);
   }
   @Input() public transfer: IOpenTransfer;
@@ -236,6 +278,7 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
   public exchangedCurrency: FormControl;
   public exchangeRef: FormControl;
   public formGroup: FormGroup;
+
 
   public ngOnInit() {
     this.timestamp = new FormControl();

@@ -28,13 +28,5 @@ namespace FfAdminWeb.Utils
         }
        
     }
-    public static class Ext
-    {
-        internal static JsonSerializerOptions Without(this JsonSerializerOptions options, JsonConverter converter)
-        {
-            var res = new JsonSerializerOptions(options);
-            res.Converters.Remove(converter);
-            return res;
-        }
-    }
+
 }

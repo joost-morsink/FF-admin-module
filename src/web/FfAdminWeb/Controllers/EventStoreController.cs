@@ -7,6 +7,8 @@ using FfAdmin.AdminModule;
 using FfAdmin.Common;
 using FfAdmin.EventStore;
 using FfAdmin.External.GiveWp;
+using FfAdminWeb.Services;
+using FfAdminWeb.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -19,13 +21,15 @@ namespace FfAdminWeb.Controllers
     {
         private readonly IEventStore _eventStore;
         private readonly IEventRepository _eventRepository;
+        private readonly IEventingSystem _eventingSystem;
         private readonly IOptionRepository _optionRepository;
         private readonly ICharityRepository _charityRepository;
         private readonly IDonationRepository _donationRepository;
         private readonly IOptions<JsonOptions> _jsonOptions;
-        
+
         public EventStoreController(IEventStore eventStore,
                                     IEventRepository eventRepository,
+                                    IEventingSystem eventingSystem,
                                     IOptionRepository optionRepository,
                                     ICharityRepository charityRepository,
                                     IDonationRepository donationRepository,
@@ -33,6 +37,7 @@ namespace FfAdminWeb.Controllers
         {
             _eventStore = eventStore;
             _eventRepository = eventRepository;
+            _eventingSystem = eventingSystem;
             _optionRepository = optionRepository;
             _charityRepository = charityRepository;
             _donationRepository = donationRepository;
@@ -100,8 +105,7 @@ namespace FfAdminWeb.Controllers
             if (msgs.Length > 0)
                 return BadRequest(msgs);
 
-            _eventStore.WriteEvent(e);
-            await _eventRepository.Import(_eventStore.FileTimestamp!.Value, new[] { e });
+            await _eventingSystem.ImportEvent(e);
 
             return Ok();
         }
@@ -198,13 +202,7 @@ namespace FfAdminWeb.Controllers
             else
                 return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
         }
-        private async Task<string> ReadFormFile(IFormFile formFile)
-        {
-            using var stream = formFile.OpenReadStream();
-            using var reader = new StreamReader(stream);
-            var content = await reader.ReadToEndAsync();
-            return content;
-        }
+
         [HttpPost("donations/give")]
         public async Task<IActionResult> ImportGiveCsv()
         {
@@ -212,8 +210,8 @@ namespace FfAdminWeb.Controllers
             var mollie = Request.Form.Files["mollie"];
             if (file == null || mollie == null)
                 return BadRequest(new ValidationMessage[] { new("", "No file uploaded") });
-            var content = await ReadFormFile(file);
-            var mollieContent = await ReadFormFile(mollie);
+            var content = await file.ReadFormFile();
+            var mollieContent = await mollie.ReadFormFile();
             if (string.IsNullOrWhiteSpace(content) || string.IsNullOrWhiteSpace(mollieContent))
                 return BadRequest(new ValidationMessage[] { new("", "File is empty") });
             try
@@ -228,17 +226,15 @@ namespace FfAdminWeb.Controllers
                     return BadRequest(new ValidationMessage[] {
                     new("main","No session")
                 });
+
                 var msgs = events.SelectMany(e => e.Validate()).ToArray();
 
                 if (msgs.Length > 0)
                     return BadRequest(msgs);
                 var alreadyImported = new HashSet<string>(
                     await _donationRepository.GetAlreadyImported(from e in events.OfType<NewDonation>()
-                                                                 select e.Donation)); 
-                foreach (var e in events.Where(x => !(x is NewDonation nd && alreadyImported.Contains(nd.Donation))))
-                    _eventStore.WriteEvent(e);
-
-                await _eventRepository.Import(_eventStore.FileTimestamp!.Value, events);
+                                                                 select e.Donation));
+                await _eventingSystem.ImportEvents(events.Where(x => !(x is NewDonation nd && alreadyImported.Contains(nd.Donation))));
 
                 return Ok();
             }

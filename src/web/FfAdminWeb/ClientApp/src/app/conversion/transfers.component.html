@@ -1,5 +1,28 @@
 <h2>Transfers</h2>
+<h3>Bank files</h3>
+<form>
+  <mat-form-field>
+    <mat-label>Cutoff</mat-label>
+    <input matNativeControl name="cutoff" [(formControl)]="cutoff" />
+    <mat-error *ngIf="formGroup.get('cutoff').errors"> {{ formGroup.get('cutoff').errors?.message }} </mat-error>
+  </mat-form-field>
+  <button (click)="downloadPain()">
+    <span class="inline-icon material-icons">file_download</span>Download PAIN file
+  </button>
+</form>
+<br/>
+<input type="file" class="file-input"
+       (change)="onFileSelected($event)" #fileUpload />
+{{fileName || "No CAMT file uploaded yet."}}
+<br/>
+<button (click)="fileUpload.click()" class="upload-btn">
+  <span class="inline-icon material-icons">attach_file</span>Find CAMT file
+</button>
+<button (click)="executeUpload()" *ngIf="file!=null">
+  <span class="inline-icon material-icons">file_upload</span>Upload CAMT
+</button>
 
+<h3>Individual transfers</h3>
 <button (click)="done.emit()"><span class="inline-icon material-icons">check</span> Done</button>
 
 <ff-transfer *ngFor="let t of transfers" [transfer]="t" (completed)="onTransferCompleted($event)" #transfer></ff-transfer>
