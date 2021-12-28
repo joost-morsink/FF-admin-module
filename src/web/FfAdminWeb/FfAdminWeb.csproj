@@ -32,6 +32,7 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\External.Banking\External.Banking.csproj" />
     <ProjectReference Include="..\External.GiveWp\External.GiveWp.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>

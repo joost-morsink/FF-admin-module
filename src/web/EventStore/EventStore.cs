@@ -58,7 +58,7 @@ namespace FfAdmin.EventStore
         }
         public IEnumerable<string> AllFiles()
         {
-            var baseDir = _git.Path;
+            string baseDir = _git.Path;
             return from dir in Directory.GetDirectories(baseDir)
                    from path in ProcessDir(Path.GetFileName(dir))
                    select path;

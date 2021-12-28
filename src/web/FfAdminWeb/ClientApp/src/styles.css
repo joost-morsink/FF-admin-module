@@ -38,7 +38,10 @@ div.section {
   margin: 10px;
   width: 100%;
 }
-
+.mat-typography h3 {
+  font: 400 18px/30px Roboto, "Helvetica Neue", sans-serif;
+  font-style: italic;
+}
 div.meta-new-option, div.meta-new-charity, div.meta-update-fractions {
   background-color: lightpink;
 }
