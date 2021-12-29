@@ -44,7 +44,7 @@ namespace FfAdmin.Common
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     EventType.META_UPDATE_CHARITY => JsonSerializer.Deserialize<UpdateCharity>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
-                    EventType.DONA_CANCEL => JsonSerializer.Deserialize<CancelDonation>(json,options)!,
+                    EventType.DONA_CANCEL => JsonSerializer.Deserialize<CancelDonation>(json, options)!,
                     EventType.CONV_LIQUIDATE => JsonSerializer.Deserialize<ConvLiquidate>(json, options)!,
                     EventType.CONV_EXIT => JsonSerializer.Deserialize<ConvExit>(json, options)!,
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
@@ -59,7 +59,10 @@ namespace FfAdmin.Common
         }
         public static JsonSerializerOptions DefaultJsonOptions { get; } = new ()
         {
-            Converters = { new JsonStringEnumConverter() },
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            },
             WriteIndented = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull

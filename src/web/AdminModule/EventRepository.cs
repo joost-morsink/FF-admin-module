@@ -65,7 +65,10 @@ namespace FfAdmin.AdminModule
         public async Task<CoreMessage> Import(DateTime fileTimestamp, IEnumerable<Event> events)
         {
             var str = events.Select(e => e.ToJsonString()).ToArray();
-            var import = await _db.QueryFirst<CoreMessage>("select * from core.import_events(@filetime, @events::jsonb[]);", new { filetime = fileTimestamp, events = str });
+            var import = await _db.QueryFirst<CoreMessage>("select * from core.import_events(@filetime, @events::jsonb[]);", new
+            {
+                filetime = fileTimestamp, events = str
+            });
             import.Key = $"Import.{import.Key}";
 
             return import;
@@ -74,7 +77,10 @@ namespace FfAdmin.AdminModule
         public async Task SetFileImported(string path)
         {
             await _db.Execute(@"insert into core.event_file(path)
-                select @path where not exists (select 1 from core.event_file where path=@path);", new { path });
+                select @path where not exists (select 1 from core.event_file where path=@path);", new
+            {
+                path
+            });
         }
 
         public async Task<CoreMessage> ProcessEvents(DateTime until)
@@ -93,9 +99,7 @@ namespace FfAdmin.AdminModule
             {
                 return new CoreMessage
                 {
-                    Key = "Process",
-                    Status = 4,
-                    Message = ex.Message
+                    Key = "Process", Status = 4, Message = ex.Message
                 };
             }
         }

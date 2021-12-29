@@ -19,16 +19,15 @@ namespace FfAdmin.AdminModule
         }
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        private class CalculateExitRecord {
+        private class CalculateExitRecord
+        {
             public decimal? Value { get; init; }
         }
         public async Task<decimal> CalculateExit(int optionId, decimal currentInvested, DateTimeOffset timestamp)
         {
             var res = await _database.QueryFirst<CalculateExitRecord>("select * from ff.calculate_exit(@opt, @inv, @time) as value", new
             {
-                opt = optionId,
-                inv = currentInvested,
-                time = timestamp.ToUniversalTime().DateTime
+                opt = optionId, inv = currentInvested, time = timestamp.ToUniversalTime().DateTime
             });
             return res.Value ?? 0.00m;
         }

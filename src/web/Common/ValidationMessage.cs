@@ -5,6 +5,7 @@ using System.Linq;
 namespace FfAdmin.Common
 {
     public record ValidationMessage(string Key, string Message);
+
     public class ValidationException : Exception
     {
         public ValidationException(IEnumerable<ValidationMessage> messages) : base("Validation errors occurred")

@@ -27,6 +27,9 @@ namespace FfAdmin.AdminModule
                     from ff.charity
                     natural join ff.calculate_open_transfers();");
         public Task<Charity> GetCharity(int id)
-            => _db.QueryFirst<Charity>("select * from ff.charity where charity_id = @id", new { id });
+            => _db.QueryFirst<Charity>("select * from ff.charity where charity_id = @id", new
+            {
+                id
+            });
     }
 }

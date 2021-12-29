@@ -38,14 +38,19 @@ namespace FfAdminWeb.Controllers
         }
         private IActionResult MakeExcel(IAuditRepository.AuditReport report, string filename = "audit.xlsx")
         {
-            var excel = new[] { DataSheet.Build("Overview", b =>
+            var excel = new[]
+            {
+                DataSheet.Build("Overview", b =>
                 {
                     b.Write("Main audit information").RowFeed().RowFeed();
                     b.Empty().Write("Hash").RowFeed();
                     b.Write("Previous").Write(report.Previous.Main.Hashcode).RowFeed();
                     b.Write("Current").Write(report.Current.Main.Hashcode).RowFeed().RowFeed();
                     b.Empty().Write("Previous").Write("Current").RowFeed();
-                    var objs = new[] { report.Previous, report.Current };
+                    var objs = new[]
+                    {
+                        report.Previous, report.Current
+                    };
                     b.Line("Number of processed events", objs, x => x.Main.Num_processed_events);
                     b.Line("Number of donations", objs, x => x.Main.Num_donations);
                     b.Line("Number of donors", objs, x => x.Main.Num_donors);
@@ -56,7 +61,10 @@ namespace FfAdminWeb.Controllers
                      select DataSheet.Build(curF.Currency, b =>
                      {
                          b.Write($"Audit information for currency {curF.Currency}").RowFeed().RowFeed();
-                         var objs = prevs.Concat(new[] { curF }).ToArray();
+                         var objs = prevs.Concat(new[]
+                         {
+                             curF
+                         }).ToArray();
                          b.Empty();
                          if (objs.Length == 2)
                              b.Write("Previous");

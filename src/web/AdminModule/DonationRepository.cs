@@ -49,7 +49,10 @@ namespace FfAdmin.AdminModule
 
         public Task<string[]> GetAlreadyImported(IEnumerable<string> extIds)
             => _database.Query<string>(@"select extId from unnest(@ids) extId
-                                            join core.event on extId = donation_id", new { ids = extIds.ToArray()});
+                                            join core.event on extId = donation_id", new
+            {
+                ids = extIds.ToArray()
+            });
 
     }
 }

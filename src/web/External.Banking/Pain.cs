@@ -12,7 +12,7 @@ namespace FfAdmin.External.Banking
 
         public static XElement GetPain(this IEnumerable<OpenTransfer> transfers, IEnumerable<Charity> charities)
         {
-        var res = transfers.ToArray();
+            var res = transfers.ToArray();
             foreach (var t in res)
                 t.Amount = Math.Floor(t.Amount * 100) / 100;
 
@@ -45,9 +45,9 @@ namespace FfAdmin.External.Banking
                                 new XElement(Ns + "FinInstnId",
                                     new XElement(Ns + "BIC", "ABNANL2A"))),
                             new XElement(Ns + "ChrgBr", "SLEV"),
-                                from ot in res
-                                join ch in charities on ot.Charity_id equals ch.Charity_id
-                                select MakePaymentInfo(ot, exDate, ch)))));
+                            from ot in res
+                            join ch in charities on ot.Charity_id equals ch.Charity_id
+                            select MakePaymentInfo(ot, exDate, ch)))));
             return xml;
         }
         private static XElement MakePaymentInfo(OpenTransfer t, string exDate, Charity charity)

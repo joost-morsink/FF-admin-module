@@ -20,20 +20,20 @@ namespace FfAdmin.External.Banking
         public static IEnumerable<Entry> GetCamtEntries(this XElement xml)
         {
             return from entry in xml.Elements("BkToCstmrStmt").Elements("Stmt").Elements("Ntry")
-                where entry.Element("CdtDbtInd")?.Value == "DBIT"
-                from tx in entry.Elements("NtryDtls").Elements("TxDtls").Take(1)
-                select new Entry
-                {
-                    Currency = tx.Elements("AmtDtls").Elements("TxAmt").Elements("Amt")
-                        .Select(a => a.Attribute("Ccy")?.Value)
-                        .FirstOrDefault(),
-                    Amount = tx.Elements("AmtDtls").Elements("TxAmt").Elements("Amt").Select(a => a.Value)
-                        .FirstOrDefault().ToDecimal(),
-                    Recipient = tx.Elements("RltdPties").Elements("CdtrAcct").Elements("Id").Elements("IBAN")
-                        .Select(i => i.Value).FirstOrDefault(),
-                    Reference = tx.Elements("RmtInf").Elements("Ustrd").Select(t => t.Value).FirstOrDefault(),
-                    Booking = entry.Elements("BookgDt").Elements("Dt").Select(d => d.Value).FirstOrDefault().ToDate()
-                };
+                   where entry.Element("CdtDbtInd")?.Value == "DBIT"
+                   from tx in entry.Elements("NtryDtls").Elements("TxDtls").Take(1)
+                   select new Entry
+                   {
+                       Currency = tx.Elements("AmtDtls").Elements("TxAmt").Elements("Amt")
+                           .Select(a => a.Attribute("Ccy")?.Value)
+                           .FirstOrDefault(),
+                       Amount = tx.Elements("AmtDtls").Elements("TxAmt").Elements("Amt").Select(a => a.Value)
+                           .FirstOrDefault().ToDecimal(),
+                       Recipient = tx.Elements("RltdPties").Elements("CdtrAcct").Elements("Id").Elements("IBAN")
+                           .Select(i => i.Value).FirstOrDefault(),
+                       Reference = tx.Elements("RmtInf").Elements("Ustrd").Select(t => t.Value).FirstOrDefault(),
+                       Booking = entry.Elements("BookgDt").Elements("Dt").Select(d => d.Value).FirstOrDefault().ToDate()
+                   };
         }
 
         private static decimal? ToDecimal(this string? str)

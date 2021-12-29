@@ -29,7 +29,10 @@ namespace FfAdminWeb.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+                return StatusCode(500, new ValidationMessage[]
+                {
+                    new("Exception", ex.Message)
+                });
             }
         }
         [HttpPost("update")]
@@ -43,7 +46,10 @@ namespace FfAdminWeb.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+                return StatusCode(500, new ValidationMessage[]
+                {
+                    new("Exception", ex.Message)
+                });
             }
         }
         private Task DropDatabase()

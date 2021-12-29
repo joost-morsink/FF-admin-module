@@ -51,7 +51,7 @@ namespace FfAdmin.External.GiveWp
     {
         public static IEnumerable<MollieExportRow> FromCsv(string csv)
             => csv.ParseCsv<MollieExportRow.Dto>(CaseInsensitiveEqualityComparer.Instance)
-            .Select(r => r.Create())
-            .SelectValues();
+                .Select(r => r.Create())
+                .SelectValues();
     }
 }

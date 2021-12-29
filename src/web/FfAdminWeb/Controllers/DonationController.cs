@@ -19,7 +19,7 @@ namespace FfAdminWeb.Controllers
         public async Task<ActionResult<IDonationRepository.DonationAggregation[]>> GetByCurrency()
         {
             var recs = await _donationRepository.GetAggregations();
-            return recs.Select(r=> r.Round(2)).ToArray();
+            return recs.Select(r => r.Round(2)).ToArray();
         }
     }
 }

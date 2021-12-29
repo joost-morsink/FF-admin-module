@@ -89,8 +89,12 @@ namespace FfAdminWeb.Utils
             using var doc = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook, true);
             var wbPart = doc.AddWorkbookPart();
             wbPart.Workbook = new Workbook
-                { MCAttributes = new MarkupCompatibilityAttributes
-                    { Ignorable = "x15 xr xr6 xr10 xr2" } };
+            {
+                MCAttributes = new MarkupCompatibilityAttributes
+                {
+                    Ignorable = "x15 xr xr6 xr10 xr2"
+                }
+            };
             wbPart.Workbook.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
             wbPart.Workbook.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
             wbPart.Workbook.AddNamespaceDeclaration("x15", "http://schemas.microsoft.com/office/spreadsheetml/2010/11/main");
@@ -105,7 +109,10 @@ namespace FfAdminWeb.Utils
             var idx = 0;
             foreach (var sheet in sheeets)
             {
-                sheets.Append(new Sheet { Name = sheet.Name, SheetId = (uint)idx + 1, Id = $"rId{idx}" });
+                sheets.Append(new Sheet
+                {
+                    Name = sheet.Name, SheetId = (uint)idx + 1, Id = $"rId{idx}"
+                });
                 wbPart.AddSheet(sheet, $"rId{idx}");
                 idx++;
             }
@@ -139,8 +146,13 @@ namespace FfAdminWeb.Utils
         private static void CreateFills(this Stylesheet ss)
         {
             ss.Fills = new Fills ();
-            var f = new Fill { PatternFill = new PatternFill
-                { PatternType = PatternValues.None } };
+            var f = new Fill
+            {
+                PatternFill = new PatternFill
+                {
+                    PatternType = PatternValues.None
+                }
+            };
             ss.Fills.Append(f);
             ss.Fills.Count = (uint)ss.Fills.ChildElements.Count;
 
@@ -162,7 +174,10 @@ namespace FfAdminWeb.Utils
 
             foreach (var (number, rowData) in sheet.Rows)
             {
-                var r = new Row { RowIndex = (uint)number };
+                var r = new Row
+                {
+                    RowIndex = (uint)number
+                };
                 foreach (var (key, value) in rowData)
                 {
                     if (!ReferenceEquals(value, null))
@@ -174,7 +189,9 @@ namespace FfAdminWeb.Utils
 
         private static Cell CreateCell(int row, int col, object value)
         {
-            var c = new Cell { CellReference = $"{ColumnName(col)}{row}",
+            var c = new Cell
+            {
+                CellReference = $"{ColumnName(col)}{row}",
                 DataType = value switch
                 {
                     string => CellValues.String,

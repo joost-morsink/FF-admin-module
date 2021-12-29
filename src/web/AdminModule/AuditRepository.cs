@@ -45,8 +45,7 @@ namespace FfAdmin.AdminModule
                 Current = parts[0],
                 Previous = parts.Count == 2 ? parts[1] : new IAuditRepository.AuditReportPart
                 {
-                    Main = new Audit(),
-                    Financials = Array.Empty<AuditFinancial>()
+                    Main = new Audit(), Financials = Array.Empty<AuditFinancial>()
                 }
             };
         public async Task<IAuditRepository.AuditReport> GetRecentReport()
@@ -59,11 +58,15 @@ namespace FfAdmin.AdminModule
         public async Task<IAuditRepository.AuditReport> GetReport(int id)
         {
             var dbres = await _database.Query<IAuditRepository.AuditReportPart>(
-                "select main, financials from audit.select_audit() where (main).audit_id <= @aid order by (main).audit_id desc limit 2", new { aid = id });
+                "select main, financials from audit.select_audit() where (main).audit_id <= @aid order by (main).audit_id desc limit 2", new
+                {
+                    aid = id
+                });
             return Create(dbres);
         }
 
         public Task<IAuditRepository.AuditReportInfo[]> GetReports()
-            => _database.Query<IAuditRepository.AuditReportInfo>("select audit_id as id, timestamp::timestamp with time zone, hashcode from audit.main order by timestamp desc");
+            => _database.Query<IAuditRepository.AuditReportInfo>(
+                "select audit_id as id, timestamp::timestamp with time zone, hashcode from audit.main order by timestamp desc");
     }
 }

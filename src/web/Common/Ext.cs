@@ -15,7 +15,8 @@ namespace FfAdmin.Common
                     yield return x;
         }
         public static XNode RemoveNamespaces(this XNode node)
-            => node switch {
+            => node switch
+            {
                 XElement e => e.RemoveNamespaces(),
                 _ => node
             };

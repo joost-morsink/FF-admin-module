@@ -31,7 +31,10 @@ namespace FfAdminWeb.Services
         public async Task ImportEvent(Event e, bool process)
         {
             _eventStore.WriteEvent(e);
-            await _eventRepository.Import(_eventStore.FileTimestamp!.Value, new[] { e });
+            await _eventRepository.Import(_eventStore.FileTimestamp!.Value, new[]
+            {
+                e
+            });
             if (process)
                 await ProcessEvents(DateTime.UtcNow);
         }

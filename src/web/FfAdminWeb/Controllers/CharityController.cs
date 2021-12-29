@@ -56,10 +56,7 @@ namespace FfAdminWeb.Controllers
             public static OpenTransferGridRow Create(OpenTransfer ot)
                 => new ()
                 {
-                    Charity = ot.Charity_ext_id,
-                    Name = ot.Name,
-                    Currency = ot.Currency,
-                    Amount = ot.Amount
+                    Charity = ot.Charity_ext_id, Name = ot.Name, Currency = ot.Currency, Amount = ot.Amount
                 };
         }
 
@@ -84,10 +81,16 @@ namespace FfAdminWeb.Controllers
             var file = Request.Form.Files.FirstOrDefault();
  #pragma warning restore CA1826
             if (file == null)
-                return BadRequest(new ValidationMessage[] {new("", "No file uploaded")});
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("", "No file uploaded")
+                });
             var content = await file.ReadFormFile();
             if (string.IsNullOrWhiteSpace(content))
-                return BadRequest(new ValidationMessage[] {new("", "File is empty")});
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("", "File is empty")
+                });
             var xml = XElement.Parse(content).RemoveNamespaces();
 
             if (!_eventingSystem.HasSession)
@@ -109,19 +112,19 @@ namespace FfAdminWeb.Controllers
                 (await _repository.GetCharities()).Where(c => !string.IsNullOrWhiteSpace(c.Bank_account_no));
             var entries = xml.GetCamtEntries();
             var payments = from c in charities
-                join e in entries
-                    on c.Bank_account_no equals e.Recipient
-                let amt = e.Amount
-                let dt = e.Booking
-                where amt.HasValue && dt.HasValue
-                select new ConvTransfer
-                {
-                    Charity = c.Charity_ext_id,
-                    Currency = e.Currency ?? "EUR",
-                    Amount = amt.Value,
-                    Transaction_reference = e.Reference ?? "",
-                    Timestamp = dt.Value
-                };
+                           join e in entries
+                               on c.Bank_account_no equals e.Recipient
+                           let amt = e.Amount
+                           let dt = e.Booking
+                           where amt.HasValue && dt.HasValue
+                           select new ConvTransfer
+                           {
+                               Charity = c.Charity_ext_id,
+                               Currency = e.Currency ?? "EUR",
+                               Amount = amt.Value,
+                               Transaction_reference = e.Reference ?? "",
+                               Timestamp = dt.Value
+                           };
             return payments;
         }
 

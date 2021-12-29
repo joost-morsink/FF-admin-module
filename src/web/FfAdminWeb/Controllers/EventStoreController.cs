@@ -60,13 +60,19 @@ namespace FfAdminWeb.Controllers
             {
                 _eventStore.StartSession();
                 if (_eventStore.SessionFile == null)
-                    return StatusCode(500, new ValidationMessage[] { new("", "Failed to start session.") });
+                    return StatusCode(500, new ValidationMessage[]
+                    {
+                        new("", "Failed to start session.")
+                    });
                 _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
                 return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+                return StatusCode(500, new ValidationMessage[]
+                {
+                    new("Exception", ex.Message)
+                });
             }
         }
         public class StopRequest
@@ -83,7 +89,10 @@ namespace FfAdminWeb.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ValidationMessage[] { new("Exception", ex.Message) });
+                return StatusCode(500, new ValidationMessage[]
+                {
+                    new("Exception", ex.Message)
+                });
             }
         }
 
@@ -92,8 +101,9 @@ namespace FfAdminWeb.Controllers
         {
             var msgs = e.Validate().ToArray();
             if (!_eventStore.HasSession)
-                return BadRequest(new ValidationMessage[] {
-                    new("main","No session")
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("main", "No session")
                 });
 
             if (msgs.Length > 0)
@@ -108,23 +118,28 @@ namespace FfAdminWeb.Controllers
         public async Task<IActionResult> Audit()
         {
             if (_eventStore.HasSession)
-                return BadRequest(new ValidationMessage[]{
-                    new("main","Open session")
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("main", "Open session")
                 });
             if ((await _eventRepository.GetStatistics()).Unprocessed > 0)
-                return BadRequest(new ValidationMessage[] {
-                    new("main","Unprocessed events") });
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("main", "Unprocessed events")
+                });
             _eventStore.StartSession();
             await _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
             var e = new FfAdmin.Common.Audit
             {
-                Timestamp = DateTimeOffset.UtcNow,
-                Hashcode = _eventStore.Hashcode()
+                Timestamp = DateTimeOffset.UtcNow, Hashcode = _eventStore.Hashcode()
             };
             _eventStore.WriteEvent(e);
             var timestamp = _eventStore.FileTimestamp!.Value;
             _eventStore.EndSession("Audit event");
-            await _eventRepository.Import(timestamp, new[] { e });
+            await _eventRepository.Import(timestamp, new[]
+            {
+                e
+            });
             await _eventRepository.ProcessEvents(DateTime.UtcNow);
             return Ok();
         }
@@ -135,7 +150,10 @@ namespace FfAdminWeb.Controllers
             var res = await _eventRepository.ProcessEvents(DateTime.UtcNow);
 
             if (res.Status >= 4)
-                return StatusCode(500, new ValidationMessage[] { new ("Process", res.Message) });
+                return StatusCode(500, new ValidationMessage[]
+                {
+                    new ("Process", res.Message)
+                });
             return Ok();
         }
         [HttpGet("statistics/main")]
@@ -203,11 +221,17 @@ namespace FfAdminWeb.Controllers
             var file = Request.Form.Files["file"];
             var mollie = Request.Form.Files["mollie"];
             if (file == null || mollie == null)
-                return BadRequest(new ValidationMessage[] { new("", "No file uploaded") });
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("", "No file uploaded")
+                });
             var content = await file.ReadFormFile();
             var mollieContent = await mollie.ReadFormFile();
             if (string.IsNullOrWhiteSpace(content) || string.IsNullOrWhiteSpace(mollieContent))
-                return BadRequest(new ValidationMessage[] { new("", "File is empty") });
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("", "File is empty")
+                });
             try
             {
                 var rows = GiveExportRows.FromCsv(content);
@@ -217,9 +241,10 @@ namespace FfAdminWeb.Controllers
                 var events = rows.ToEvents(mollieRows, charities.Select(c => c.Charity_ext_id), options.Select(o => o.Option_ext_id)).ToArray();
 
                 if (!_eventStore.HasSession)
-                    return BadRequest(new ValidationMessage[] {
-                    new("main","No session")
-                });
+                    return BadRequest(new ValidationMessage[]
+                    {
+                        new("main", "No session")
+                    });
 
                 var msgs = events.SelectMany(e => e.Validate()).ToArray();
 
@@ -238,7 +263,10 @@ namespace FfAdminWeb.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ValidationMessage[] { new("", ex.Message) });
+                return BadRequest(new ValidationMessage[]
+                {
+                    new("", ex.Message)
+                });
             }
         }
         [HttpGet("remote/status")]

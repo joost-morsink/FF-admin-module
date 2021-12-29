@@ -71,16 +71,12 @@ namespace FfAdmin.EventStore
             if (remote == null)
                 return new RemoteStatus
                 {
-                    Name = current,
-                    HasRemote = false
+                    Name = current, HasRemote = false
                 };
             var rel = BehindAhead(current, remote);
             return new RemoteStatus
             {
-                Name = current,
-                HasRemote = true,
-                Behind = rel?.behind,
-                Ahead = rel?.ahead
+                Name = current, HasRemote = true, Behind = rel?.behind, Ahead = rel?.ahead
             };
         }
         public string GetCurrentSha()
@@ -101,7 +97,10 @@ namespace FfAdmin.EventStore
             psi.ArgumentList.Add(command);
             foreach (var arg in arguments)
                 psi.ArgumentList.Add(arg);
-            var p = new Process { StartInfo = psi };
+            var p = new Process
+            {
+                StartInfo = psi
+            };
             p.Start();
             p.WaitForExit();
             var output = p.StandardOutput.ReadToEnd();

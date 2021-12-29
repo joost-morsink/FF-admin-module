@@ -26,7 +26,7 @@ namespace FfAdmin.External.GiveWp
         public string? Transaction_id { get; set; }
         public DateTimeOffset? GetTimestamp()
         {
-            if(Donation_datetime !=null)
+            if (Donation_datetime != null)
                 return DateTimeOffset.Parse(Donation_datetime).ToUniversalTime();
             if (Donation_date == null || Donation_time == null)
                 return null;
