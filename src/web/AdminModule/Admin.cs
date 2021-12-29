@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Dapper;
 
 namespace FfAdmin.AdminModule
 {
     public interface IAdmin
     {
         Task<decimal> CalculateExit(int optionId, decimal currentInvested, DateTimeOffset timestamp);
-       
+
     }
     public class Admin : IAdmin
     {
@@ -17,8 +17,10 @@ namespace FfAdmin.AdminModule
         {
             _database = database;
         }
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         private class CalculateExitRecord {
-            public decimal? Value { get; set; }
+            public decimal? Value { get; init; }
         }
         public async Task<decimal> CalculateExit(int optionId, decimal currentInvested, DateTimeOffset timestamp)
         {

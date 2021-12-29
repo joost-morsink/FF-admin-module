@@ -1,10 +1,12 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace FfAdmin.AdminModule
 {
     public interface IExportRepository
     {
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
         public class ExportRow
         {
             public string Donation_id { get; set; } = "";
@@ -32,7 +34,7 @@ namespace FfAdmin.AdminModule
         public Task<IExportRepository.ExportRow[]> GetExportRows()
             => _database.Query<IExportRepository.ExportRow>(
                 @"select d.donation_ext_id donation_id
-                    , d.donor_id 
+                    , d.donor_id
                     , o.option_ext_id option_id
                     , c.charity_ext_id charity_id
                     , we.currency

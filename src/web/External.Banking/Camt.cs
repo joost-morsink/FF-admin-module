@@ -10,11 +10,11 @@ namespace FfAdmin.External.Banking
     {
         public class Entry
         {
-            public string? Currency { get; set; }
-            public decimal? Amount { get; set; }
-            public string? Recipient { get; set; }
-            public string? Reference { get; set; }
-            public DateTime? Booking { get; set; }
+            public string? Currency { get; init; }
+            public decimal? Amount { get; init; }
+            public string? Recipient { get; init; }
+            public string? Reference { get; init; }
+            public DateTime? Booking { get; init; }
         }
 
         public static IEnumerable<Entry> GetCamtEntries(this XElement xml)

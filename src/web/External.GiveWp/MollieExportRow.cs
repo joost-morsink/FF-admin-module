@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FfAdmin.Common;
 
 namespace FfAdmin.External.GiveWp
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
     public class MollieExportRow
     {
         public MollieExportRow(string id, string valuta, decimal bedrag, string uitbetalingsvaluta, decimal uitbetalingsbedrag, string uitbetalingsreferentie)

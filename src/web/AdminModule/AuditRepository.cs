@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace FfAdmin.AdminModule
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public interface IAuditRepository
     {
         Task<AuditReportInfo[]> GetReports();
@@ -17,13 +20,13 @@ namespace FfAdmin.AdminModule
         }
         public class AuditReportPart
         {
-            public Audit Main { get; set; }
-            public AuditFinancial[] Financials { get; set; }
+            public Audit Main { get; init; }
+            public AuditFinancial[] Financials { get; init; }
         }
         public class AuditReport
         {
-            public AuditReportPart Current { get; set; }
-            public AuditReportPart Previous { get; set; }
+            public AuditReportPart Current { get; init; }
+            public AuditReportPart Previous { get; init; }
         }
 #nullable restore
     }
@@ -36,14 +39,14 @@ namespace FfAdmin.AdminModule
         {
             _database = database;
         }
-        private IAuditRepository.AuditReport Create(IAuditRepository.AuditReportPart[] parts)
-            => new IAuditRepository.AuditReport
+        private static IAuditRepository.AuditReport Create(IReadOnlyList<IAuditRepository.AuditReportPart> parts)
+            => new ()
             {
                 Current = parts[0],
-                Previous = parts.Length == 2 ? parts[1] : new IAuditRepository.AuditReportPart
+                Previous = parts.Count == 2 ? parts[1] : new IAuditRepository.AuditReportPart
                 {
                     Main = new Audit(),
-                    Financials = new AuditFinancial[0]
+                    Financials = Array.Empty<AuditFinancial>()
                 }
             };
         public async Task<IAuditRepository.AuditReport> GetRecentReport()

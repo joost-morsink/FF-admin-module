@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FfAdmin.Common;
 
 namespace FfAdmin.External.GiveWp
 {
+    [SuppressMessage("ReSharper", "ReturnTypeCanBeEnumerable.Global")]
     public static class GiveExportRows
     {
         public static IEnumerable<GiveExportRow> FromCsv(string csv)
@@ -14,6 +16,7 @@ namespace FfAdmin.External.GiveWp
             return EnumerateEvents().ToArray();
             IEnumerable<Event> EnumerateEvents()
             {
+                rows = rows.ToList();
                 var cs = new HashSet<string>(charities);
                 var os = new HashSet<string>(options);
                 var mollie = mollieRows.ToDictionary(m => m.Id);
@@ -22,7 +25,6 @@ namespace FfAdmin.External.GiveWp
                     throw new ValidationException(messages);
                 foreach (var row in rows.OrderBy(r => r.GetTimestamp()))
                 {
-                    
                     if (!os.Contains(row.Fund_id!))
                     {
                         yield return new NewOption

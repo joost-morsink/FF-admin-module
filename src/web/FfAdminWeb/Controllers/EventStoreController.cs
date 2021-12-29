@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
@@ -9,9 +8,7 @@ using FfAdmin.EventStore;
 using FfAdmin.External.GiveWp;
 using FfAdminWeb.Services;
 using FfAdminWeb.Utils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace FfAdminWeb.Controllers
 {
@@ -25,15 +22,13 @@ namespace FfAdminWeb.Controllers
         private readonly IOptionRepository _optionRepository;
         private readonly ICharityRepository _charityRepository;
         private readonly IDonationRepository _donationRepository;
-        private readonly IOptions<JsonOptions> _jsonOptions;
 
         public EventStoreController(IEventStore eventStore,
                                     IEventRepository eventRepository,
                                     IEventingSystem eventingSystem,
                                     IOptionRepository optionRepository,
                                     ICharityRepository charityRepository,
-                                    IDonationRepository donationRepository,
-                                    IOptions<JsonOptions> jsonOptions)
+                                    IDonationRepository donationRepository)
         {
             _eventStore = eventStore;
             _eventRepository = eventRepository;
@@ -41,7 +36,6 @@ namespace FfAdminWeb.Controllers
             _optionRepository = optionRepository;
             _charityRepository = charityRepository;
             _donationRepository = donationRepository;
-            _jsonOptions = jsonOptions;
         }
         [HttpGet("session/is-available")]
         public bool HasSession()
@@ -141,7 +135,7 @@ namespace FfAdminWeb.Controllers
             var res = await _eventRepository.ProcessEvents(DateTime.UtcNow);
 
             if (res.Status >= 4)
-                return StatusCode(500, new ValidationMessage[] { new ValidationMessage("Process", res.Message) });
+                return StatusCode(500, new ValidationMessage[] { new ("Process", res.Message) });
             return Ok();
         }
         [HttpGet("statistics/main")]
@@ -188,14 +182,14 @@ namespace FfAdminWeb.Controllers
             }
             return Ok();
         }
-        private DateTime GetFileTimestamp(string name)
+        private static DateTime GetFileTimestamp(string name)
         {
             var parts = name.Split('/', '\\');
 
             var year = int.Parse(parts[0]);
             var month = int.Parse(parts[1]);
             var day = int.Parse(parts[2]);
-            if (parts[3].Length == 11 && int.TryParse(parts[3][0..2], out var hour)
+            if (parts[3].Length == 11 && int.TryParse(parts[3][..2], out var hour)
                 && int.TryParse(parts[3][2..4], out var minute)
                 && int.TryParse(parts[3][4..6], out var second))
                 return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc);

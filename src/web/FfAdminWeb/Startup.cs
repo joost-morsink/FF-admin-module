@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FfAdmin.EventStore;
-using FfAdmin.Common;
 using FfAdmin.AdminModule;
 using FfAdminWeb.Utils;
 using System.Text.Json.Serialization;
@@ -28,7 +27,7 @@ namespace FfAdminWeb
             services.AddSingleton<IEventStore, EventStore>();
             services.AddScoped<IEventingSystem, EventingSystem>();
             services.AddAdminModule(opts => Configuration.GetSection("Database").Bind(opts));
-            
+
             services.AddControllersWithViews().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -65,8 +64,8 @@ namespace FfAdminWeb
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                    "default",
+                    "{controller}/{action=Index}/{id?}");
             });
 
             app.UseSpa(spa =>
@@ -78,7 +77,7 @@ namespace FfAdminWeb
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseAngularCliServer("start");
                 }
             });
         }

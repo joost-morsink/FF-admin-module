@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
@@ -21,13 +22,13 @@ namespace FfAdminWeb.Controllers
         public async Task<IActionResult> GetRecent()
         {
             var recent = await _auditRepository.GetRecentReport();
-            return MakeExcel(recent, $"audit_{recent.Current.Main.Timestamp.ToString("yyyyMMdd_HHmmss")}.xlsx");
+            return MakeExcel(recent, $"audit_{recent.Current.Main.Timestamp:yyyyMMdd_HHmmss}.xlsx");
         }
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var rep = await _auditRepository.GetReport(id);
-            return MakeExcel(rep, $"audit_{rep.Current.Main.Timestamp.ToString("yyyyMMdd_HHmmss")}.xlsx");
+            return MakeExcel(rep, $"audit_{rep.Current.Main.Timestamp:yyyyMMdd_HHmmss}.xlsx");
         }
         [HttpGet("all")]
         public async Task<ActionResult<IAuditRepository.AuditReportInfo[]>> GetAll()
@@ -70,8 +71,8 @@ namespace FfAdminWeb.Controllers
                          b.Line("Transferred amount", objs, x => x.Transferred_amount);
                          b.Line("Transfer pending amount", objs, x => x.Allocated_amount - x.Transferred_amount);
                          b.RowFeed();
-                         b.Write("Transfers").Write("Previous").Write(curF.Currency).Write("Current").Write(curF.Currency).RowFeed(); ;
-                         
+                         b.Write("Transfers").Write("Previous").Write(curF.Currency).Write("Current").Write(curF.Currency).RowFeed();
+
                          foreach (var (curT, prevTs) in from curT in curF.Transfers
                                                         join prevT in from prev in prevs
                                                                       from t in prev.Transfers
@@ -79,9 +80,10 @@ namespace FfAdminWeb.Controllers
                                                             on curT.Currency equals prevT.Currency into prevTs
                                                         select (curT, prevTs))
                          {
-                             var transfers = new[] { prevTs.FirstOrDefault(), curT };
-                             b.Write(curT.Currency).Write(prevTs.Select(p => p.Amount).FirstOrDefault()).Write(prevTs.Select(p => p.Original_amount).FirstOrDefault())
-                                .Write(curT.Amount).Write(curT.Original_amount).RowFeed();
+                             var prevTList = prevTs.ToList();
+                             b.Write(curT.Currency).Write(prevTList.Select(p => p.Amount).FirstOrDefault())
+                                 .Write(prevTList.Select(p => p.Original_amount).FirstOrDefault())
+                                 .Write(curT.Amount).Write(curT.Original_amount).RowFeed();
                          }
                      })).ToExcel();
             return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
@@ -90,7 +92,7 @@ namespace FfAdminWeb.Controllers
     }
     internal static class AuditReportHelper
     {
-        public static void Line<T>(this DataSheetWriter writer, string header, T[] objects, Func<T, object> getter)
+        public static void Line<T>(this DataSheetWriter writer, string header, IEnumerable<T> objects, Func<T, object> getter)
         {
             writer.Write(header);
             foreach (var obj in objects)

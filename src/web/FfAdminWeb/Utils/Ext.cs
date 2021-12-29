@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace FfAdminWeb.Utils
         }
         public static async Task<string> ReadFormFile(this IFormFile formFile)
         {
-            using var stream = formFile.OpenReadStream();
+            await using var stream = formFile.OpenReadStream();
             using var reader = new StreamReader(stream);
             var content = await reader.ReadToEndAsync();
             return content;

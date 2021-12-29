@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Dapper;
 
 namespace FfAdmin.AdminModule
 {
@@ -9,8 +8,10 @@ namespace FfAdmin.AdminModule
     {
         Task<Option[]> GetOptions();
         Task<Option> GetOption(int optionId);
-        
+
     }
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
     public class Option
     {
         public int Option_id { get; set; }

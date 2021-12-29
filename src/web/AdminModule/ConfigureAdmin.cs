@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.AdminModule
 {
+    [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
     public static class ConfigureAdmin
     {
         public static IServiceCollection AddAdminModule(this IServiceCollection services, Action<DatabaseOptions>? dbOpts = null)

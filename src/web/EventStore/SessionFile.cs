@@ -14,7 +14,7 @@ namespace FfAdmin.EventStore
             Writer = new StreamWriter(Stream);
             Timestamp = fileTimestamp;
         }
-        private void MakeDir(string dir)
+        private static void MakeDir(string dir)
         {
             var parent = Path.GetDirectoryName(dir);
             if (!string.IsNullOrWhiteSpace(parent) && !Directory.Exists(parent))
@@ -28,6 +28,7 @@ namespace FfAdmin.EventStore
         public DateTime Timestamp { get; }
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             Writer.Flush();
             Stream.Flush();
             Writer.Dispose();

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 
 namespace FfAdmin.AdminModule
 {
     public interface IDonationRepository
     {
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
         public record DonationAggregation
         {
             public string Currency { get; set; } = "";

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -10,6 +8,7 @@ using System.Linq;
 
 namespace FfAdmin.AdminModule
 {
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
     public class DatabaseOptions
     {
         public string Server { get; set; } = "localhost";
@@ -43,20 +42,20 @@ namespace FfAdmin.AdminModule
 
         public async Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action)
         {
-            using var conn = CreateConnection();
+            await using var conn = CreateConnection();
             return await action(conn);
         }
 
         public async Task Run(Func<NpgsqlConnection, Task> action)
         {
-            using var conn = CreateConnection();
+            await using var conn = CreateConnection();
             await action(conn);
         }
 
         private NpgsqlConnection CreateConnection()
         {
             var options = _dbOptions.Value;
-            var connectionString = new NpgsqlConnectionStringBuilder()
+            var connectionString = new NpgsqlConnectionStringBuilder
             {
                 ApplicationName = "FfAdminWeb",
                 Host = options.Server,
@@ -74,6 +73,7 @@ namespace FfAdmin.AdminModule
                 connection.TypeMapper.MapComposite<AuditFinancial>("audit.financial");
                 connection.TypeMapper.MapComposite<AuditTransfers>("audit.transfers");
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch { } // Ignore if not found
             return connection;
         }
@@ -83,7 +83,7 @@ namespace FfAdmin.AdminModule
                 conn.ReloadTypes();
                 return Task.CompletedTask;
             });
-        
+
     }
 
 }

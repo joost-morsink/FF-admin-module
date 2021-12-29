@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,15 +27,15 @@ namespace FfAdminWeb.Controllers
 
         public class CharityGridRow
         {
-            public int Id { get; set; }
-            public string Code { get; set; } = "";
-            public string Name { get; set; } = "";
-            public string? Bank_name { get; set; }
-            public string? Bank_account_no { get; set; }
-            public string? Bank_bic { get; set; }
+            public int Id { get; init; }
+            public string Code { get; init; } = "";
+            public string Name { get; init; } = "";
+            public string? Bank_name { get; init; }
+            public string? Bank_account_no { get; init; }
+            public string? Bank_bic { get; init; }
 
             public static CharityGridRow Create(Charity c)
-                => new CharityGridRow
+                => new ()
                 {
                     Id = c.Charity_id,
                     Code = c.Charity_ext_id,
@@ -50,13 +48,13 @@ namespace FfAdminWeb.Controllers
 
         public class OpenTransferGridRow
         {
-            public string Charity { get; set; } = "";
-            public string Name { get; set; } = "";
-            public string Currency { get; set; } = "";
-            public decimal Amount { get; set; }
+            public string Charity { get; init; } = "";
+            public string Name { get; init; } = "";
+            public string Currency { get; init; } = "";
+            public decimal Amount { get; init; }
 
             public static OpenTransferGridRow Create(OpenTransfer ot)
-                => new OpenTransferGridRow
+                => new ()
                 {
                     Charity = ot.Charity_ext_id,
                     Name = ot.Name,
@@ -82,7 +80,9 @@ namespace FfAdminWeb.Controllers
         [HttpPost("opentransfers/resolve/camt")]
         public async Task<IActionResult> ResolveOpenTransfersInCamt()
         {
+ #pragma warning disable CA1826
             var file = Request.Form.Files.FirstOrDefault();
+ #pragma warning restore CA1826
             if (file == null)
                 return BadRequest(new ValidationMessage[] {new("", "No file uploaded")});
             var content = await file.ReadFormFile();

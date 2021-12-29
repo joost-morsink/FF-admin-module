@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -41,7 +42,7 @@ namespace FfAdmin.EventStore
             var res = ExecuteShell("status", "-sb").Output;
             return (from part in res.Split('\n')
                     where part.TrimStart().StartsWith("##")
-                    let index = part.IndexOf("...")
+                    let index = part.IndexOf("...", StringComparison.Ordinal)
                     where index > 0
                     let remoteAndJunk = part[(index + 3)..].TrimEnd()
                     let space = remoteAndJunk.IndexOf(' ')
@@ -61,7 +62,7 @@ namespace FfAdmin.EventStore
         {
             var current = CurrentBranch();
             var remote = RemoteBranch();
-            return remote == null ? null : BehindAhead(compare: current, to: remote);
+            return remote == null ? null : BehindAhead(current, remote);
         }
         public RemoteStatus GetRemoteStatus()
         {
@@ -73,7 +74,7 @@ namespace FfAdmin.EventStore
                     Name = current,
                     HasRemote = false
                 };
-            var rel = BehindAhead(compare: current, to: remote);
+            var rel = BehindAhead(current, remote);
             return new RemoteStatus
             {
                 Name = current,
@@ -118,6 +119,8 @@ namespace FfAdmin.EventStore
             public string Output { get; }
         }
     }
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
     public class RemoteStatus
     {
         public string Name { get; set; } = "";

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 using FfAdmin.Common;
-using Npgsql;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace FfAdmin.AdminModule
 {
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public interface IEventRepository
     {
         Task<CoreMessage> Import(DateTime fileTimestamp, IEnumerable<Event> e);
@@ -31,12 +31,12 @@ namespace FfAdmin.AdminModule
         {
             public EventType Type { get; set; } = EventType.META_NEW_OPTION;
             public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.MinValue;
-            public string? Option_id { get; set; } 
-            public string? Charity_id { get; set; } 
-            public string? Donation_id { get; set; } 
-            public string? Donor_id { get; set; } 
-            public string? Name { get; set; } 
-            public string? Option_currency { get; set; } 
+            public string? Option_id { get; set; }
+            public string? Charity_id { get; set; }
+            public string? Donation_id { get; set; }
+            public string? Donor_id { get; set; }
+            public string? Name { get; set; }
+            public string? Option_currency { get; set; }
             public decimal? Reinvestment_fraction { get; set; }
             public decimal? FutureFund_fraction { get; set; }
             public decimal? Charity_fraction { get; set; }
@@ -74,7 +74,7 @@ namespace FfAdmin.AdminModule
         public async Task SetFileImported(string path)
         {
             await _db.Execute(@"insert into core.event_file(path)
-                select @path where not exists (select 1 from core.event_file where path=@path);", new { path = path });
+                select @path where not exists (select 1 from core.event_file where path=@path);", new { path });
         }
 
         public async Task<CoreMessage> ProcessEvents(DateTime until)
@@ -116,6 +116,8 @@ update core.event set processed = FALSE;");
             await ResetEvents();
             await _db.Execute("truncate table core.event cascade; truncate table core.event_file cascade;");
         }
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
         private class EventFile
         {
             public string Path { get; set; } = "";
@@ -130,13 +132,5 @@ update core.event set processed = FALSE;");
             var res = await _db.Query<IEventRepository.DbEvent>("select * from core.event where processed = FALSE order by timestamp asc;");
             return res;
         }
-    }
-    public class ImportException : ApplicationException
-    {
-        public ImportException(string message) : base(message) { }
-    }
-    public class ProcessException : ApplicationException
-    {
-        public ProcessException(string message) : base(message) { }
     }
 }

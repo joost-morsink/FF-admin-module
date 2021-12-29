@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 
@@ -18,8 +16,7 @@ namespace FfAdmin.EventStore
 
         }
         private SessionFile? _sessionFile;
-        private Git _git;
-        private static readonly byte[] CRLF = new byte[] { 0x0a, 0x0d };
+        private readonly Git _git;
 
         public bool HasSession => _sessionFile != null;
         public string? SessionFile => _sessionFile?.CurrentFile;
@@ -46,7 +43,7 @@ namespace FfAdmin.EventStore
                     now.Year,
                     now.Month.ToString("D2"),
                     now.Day.ToString("D2"),
-                    $"{now.Hour.ToString("D2")}{now.Minute.ToString("D2")}{now.Second.ToString("D2")}.json"),
+                    $"{now.Hour:D2}{now.Minute:D2}{now.Second:D2}.json"),
                 now - TimeSpan.FromTicks(now.Ticks % TimeSpan.FromSeconds(1).Ticks));
         }
         public void WriteEvent(Event e)
@@ -58,25 +55,24 @@ namespace FfAdmin.EventStore
         }
         public IEnumerable<string> AllFiles()
         {
-            string baseDir = _git.Path;
-            return from dir in Directory.GetDirectories(baseDir)
+            return from dir in Directory.GetDirectories(_git.Path)
                    from path in ProcessDir(Path.GetFileName(dir))
                    select path;
 
             IEnumerable<string> ProcessDir(string prefix)
-                => (from dir in Directory.GetDirectories(Path.Combine(baseDir, prefix))
+                => (from dir in Directory.GetDirectories(Path.Combine(_git.Path, prefix))
                     from path in ProcessDir(Path.Combine(prefix, Path.GetFileName(dir)))
                     select path)
-                    .Concat(from file in Directory.GetFiles(Path.Combine(baseDir, prefix), "*.json")
+                    .Concat(from file in Directory.GetFiles(Path.Combine(_git.Path, prefix), "*.json")
                             select Path.Combine(prefix, Path.GetFileName(file)));
         }
         public async Task<Event[]> GetEventsFromFile(string path)
         {
             var filename = Path.Combine(_git.Path, path);
             if (!File.Exists(filename))
-                return new Event[0];
-            using var stream = File.OpenRead(filename);
-            var res = new List<Event>();
+                return Array.Empty<Event>();
+            await using var stream = File.OpenRead(filename);
+
             return await Event.ReadAll(stream);
         }
         public RemoteStatus GetRemoteStatus()

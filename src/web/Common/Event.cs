@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace FfAdmin.Common
 {
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public abstract class Event
     {
         public abstract EventType Type { get; }
@@ -14,7 +16,6 @@ namespace FfAdmin.Common
         public static async Task<Event[]> ReadAll(Stream stream, JsonSerializerOptions? options = null)
         {
             var opts = options ??= DefaultJsonOptions;
-            JsonDocument? e;
             var res = new List<Event>();
             using var rdr = new StreamReader(stream);
             string? str;
@@ -22,7 +23,7 @@ namespace FfAdmin.Common
             {
                 if (!string.IsNullOrWhiteSpace(str))
                 {
-                    e = JsonSerializer.Deserialize<JsonDocument>(str, opts);
+                    var e = JsonSerializer.Deserialize<JsonDocument>(str, opts);
                     if (e != null)
                         res.Add(ReadFrom(e, options));
                 }
@@ -56,7 +57,7 @@ namespace FfAdmin.Common
             else
                 throw new InvalidDataException("Invalid event type");
         }
-        public static JsonSerializerOptions DefaultJsonOptions { get; } = new JsonSerializerOptions
+        public static JsonSerializerOptions DefaultJsonOptions { get; } = new ()
         {
             Converters = { new JsonStringEnumConverter() },
             WriteIndented = false,
@@ -82,13 +83,13 @@ namespace FfAdmin.Common
         public decimal Bad_year_fraction { get; set; } = 0.01m;
         public override IEnumerable<ValidationMessage> Validate()
         {
-            if (Reinvestment_fraction < 0 || Reinvestment_fraction > 1)
+            if (Reinvestment_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Reinvestment_fraction), "Reinvestment fraction out of range.");
-            if (FutureFund_fraction < 0 || FutureFund_fraction > 1)
+            if (FutureFund_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(FutureFund_fraction), "Future Fund fraction out of range.");
-            if (Charity_fraction < 0 || Charity_fraction > 1)
+            if (Charity_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Charity_fraction), "Charity fraction fraction out of range.");
-            if (Bad_year_fraction < 0 || Bad_year_fraction > 0.1m)
+            if (Bad_year_fraction is < 0 or > 0.1m)
                 yield return new ValidationMessage(nameof(Bad_year_fraction), "Bad year fraction fraction out of range.");
 
             if (string.IsNullOrWhiteSpace(Code))
@@ -107,13 +108,13 @@ namespace FfAdmin.Common
         public decimal Bad_year_fraction { get; set; }
         public override IEnumerable<ValidationMessage> Validate()
         {
-            if (Reinvestment_fraction < 0 || Reinvestment_fraction > 1)
+            if (Reinvestment_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Reinvestment_fraction), "Reinvestment fraction out of range.");
-            if (FutureFund_fraction < 0 || FutureFund_fraction > 1)
+            if (FutureFund_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(FutureFund_fraction), "Future Fund fraction out of range.");
-            if (Charity_fraction < 0 || Charity_fraction > 1)
+            if (Charity_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Charity_fraction), "Charity fraction fraction out of range.");
-            if (Bad_year_fraction < 0 || Bad_year_fraction > 0.1m)
+            if (Bad_year_fraction is < 0 or > 0.1m)
                 yield return new ValidationMessage(nameof(Bad_year_fraction), "Bad year fraction fraction out of range.");
 
             if (string.IsNullOrWhiteSpace(Code))

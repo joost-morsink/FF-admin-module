@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Linq;
 
 namespace FfAdmin.Common
 {
+    [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public static class Ext
     {
         public static IEnumerable<T> SelectValues<T>(this IEnumerable<T?> src)
@@ -18,9 +19,9 @@ namespace FfAdmin.Common
                 XElement e => e.RemoveNamespaces(),
                 _ => node
             };
-                
+
         public static XElement RemoveNamespaces(this XElement node)
-            => new XElement(node.Name.LocalName, node.Attributes(), node.Nodes().Select(x => x.RemoveNamespaces()));
-        
+            => new (node.Name.LocalName, node.Attributes(), node.Nodes().Select(x => x.RemoveNamespaces()));
+
     }
 }

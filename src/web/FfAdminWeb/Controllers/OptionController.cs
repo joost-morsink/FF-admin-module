@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
@@ -31,7 +30,7 @@ namespace FfAdminWeb.Controllers
             public decimal Invested_amount { get; set; }
 
             public static OptionGridRow Create(Option o)
-                => new OptionGridRow
+                => new()
                 {
                     Id = o.Option_id,
                     Code = o.Option_ext_id,
@@ -49,7 +48,7 @@ namespace FfAdminWeb.Controllers
         [HttpGet]
         public async Task<IEnumerable<OptionGridRow>> GetOptions()
             => (await _repository.GetOptions()).Select(OptionGridRow.Create);
-        [HttpGet("{optionId}")]
+        [HttpGet("{optionId:int}")]
         public async Task<OptionGridRow> GetOption(int optionId)
             => OptionGridRow.Create(await _repository.GetOption(optionId));
     }

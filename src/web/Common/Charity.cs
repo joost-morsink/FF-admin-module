@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 namespace FfAdmin.Common
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
     public class Charity
     {
         public int Charity_id { get; set; }

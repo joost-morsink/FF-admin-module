@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
+﻿using System.Threading.Tasks;
 using FfAdmin.Common;
 
 namespace FfAdmin.AdminModule
