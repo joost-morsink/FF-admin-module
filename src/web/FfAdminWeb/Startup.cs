@@ -24,9 +24,7 @@ namespace FfAdminWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IEventStore, EventStore>();
-            services.AddScoped<IEventingSystem, EventingSystem>();
-            services.AddAdminModule(opts => Configuration.GetSection("Database").Bind(opts));
+            services.AddFfAdmin(opts => Configuration.GetSection("Database").Bind(opts));
 
             services.AddControllersWithViews().AddJsonOptions(o =>
             {

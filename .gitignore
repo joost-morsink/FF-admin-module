@@ -7,5 +7,5 @@ images
 bin
 obj
 src/web/FfAdminWeb/data
-src/web/FfAdminWeb/database.sql
+src/web/AdminModule/database.sql
 src/web/.idea

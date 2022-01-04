@@ -11,9 +11,9 @@ namespace FfAdminWeb.Controllers
     [Route("admin/database")]
     public class DatabaseController : Controller
     {
-        private readonly IDatabase _database;
+        private readonly IDatabaseRepository _database;
 
-        public DatabaseController(IDatabase database)
+        public DatabaseController(IDatabaseRepository database)
         {
             _database = database;
         }
@@ -22,9 +22,8 @@ namespace FfAdminWeb.Controllers
         {
             try
             {
-                await DropDatabase();
-                await RunIdempotentDatabaseScript();
-                await Reset();
+                await _database.DropStructure();
+                await _database.UpdateStructure();
                 return Ok();
             }
             catch (Exception ex)
@@ -40,8 +39,7 @@ namespace FfAdminWeb.Controllers
         {
             try
             {
-                await RunIdempotentDatabaseScript();
-                await Reset();
+                await _database.UpdateStructure();
                 return Ok();
             }
             catch (Exception ex)
@@ -52,22 +50,5 @@ namespace FfAdminWeb.Controllers
                 });
             }
         }
-        private Task DropDatabase()
-        {
-            return _database.Execute(@"drop schema if exists audit cascade;
-                                       drop schema if exists ff cascade;
-                                       drop schema if exists core cascade;");
-        }
-        private async Task RunIdempotentDatabaseScript()
-        {
-            await using var str = typeof(DatabaseController).Assembly.GetManifestResourceStream("FfAdminWeb.database.sql");
-            if (str == null)
-                throw new NullReferenceException("Resource stream database.sql could not be found.");
-            using var rdr = new StreamReader(str);
-            var script = await rdr.ReadToEndAsync();
-            await _database.Execute(script);
-        }
-        private Task Reset()
-            => _database.Reset();
     }
 }

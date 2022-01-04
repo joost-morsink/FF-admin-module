@@ -1,6 +1,6 @@
 Push-Location $PSScriptRoot
 try {
-    $dbScript = "./web/FfAdminWeb/database.sql"
+    $dbScript = "./web/AdminModule/database.sql"
     Get-Content ./database/structure.sql | Set-Content -Path $dbScript
     Get-Content ./database/import.sql | Add-Content -Path $dbScript
     Get-Content ./database/calculation.sql | Add-Content -Path $dbScript

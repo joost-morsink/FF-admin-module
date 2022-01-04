@@ -1,8 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using FfAdmin.AdminModule;
+using FfAdmin.EventStore;
+using FfAdminWeb.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdminWeb.Utils
 {
@@ -20,6 +25,14 @@ namespace FfAdminWeb.Utils
             using var reader = new StreamReader(stream);
             var content = await reader.ReadToEndAsync();
             return content;
+        }
+        public static IServiceCollection AddFfAdmin(this IServiceCollection services, Action<DatabaseOptions> options)
+        {
+            services.AddSingleton<IEventStore, EventStore>();
+            services.AddScoped<IEventingSystem, EventingSystem>();
+            services.AddAdminModule(options);
+
+            return services;
         }
     }
 }

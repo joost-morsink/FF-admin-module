@@ -12,6 +12,7 @@ namespace FfAdmin.AdminModule
     public class DatabaseOptions
     {
         public string Server { get; set; } = "localhost";
+        public string? Database { get; set; } 
         public string User { get; set; } = "ff";
         public string Password { get; set; } = "notsecret";
     }
@@ -20,7 +21,9 @@ namespace FfAdmin.AdminModule
         Task Reset();
         Task<R> Run<R>(Func<NpgsqlConnection, Task<R>> action);
         Task Run(Func<NpgsqlConnection, Task> action);
-
+        IDatabaseOverride? Override { get; }
+        Task ApplyOverride(string name);
+        Task RemoveOverride();
     }
     public static class DatabaseExt
     {
@@ -51,6 +54,23 @@ namespace FfAdmin.AdminModule
             await using var conn = CreateConnection();
             await action(conn);
         }
+        public IDatabaseOverride? Override { get; private set; }
+        public async Task ApplyOverride(string name)
+        {
+            if (Override != null)
+                throw new InvalidOperationException();
+            Override = await IDatabaseOverride.Create(this, name);
+            
+        }
+        public async Task RemoveOverride()
+        {
+            var o = Override;
+            if (o != null)
+            {
+                Override = null;
+                await o.DisposeAsync();
+            }
+        }
 
         private NpgsqlConnection CreateConnection()
         {
@@ -59,6 +79,7 @@ namespace FfAdmin.AdminModule
             {
                 ApplicationName = "FfAdminWeb",
                 Host = options.Server,
+                Database = Override?.Name ?? options.Database ?? options.User,
                 Username = options.User,
                 Password = options.Password,
                 LoadTableComposites = true,

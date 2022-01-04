@@ -13,4 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="database.sql" />
+  </ItemGroup>
 </Project>
