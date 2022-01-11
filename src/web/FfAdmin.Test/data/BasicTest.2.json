@@ -1,0 +1,2 @@
+{"type":"CONV_LIQUIDATE","option":"1","invested_amount":125.00,"cash_amount":75.00,"transaction_reference":"","timestamp":"2021-06-02T00:00:00+00:00"}
+{"type":"CONV_EXIT","option":"1","amount":55.00,"timestamp":"2021-06-02T00:01:00+00:00"}

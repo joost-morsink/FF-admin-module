@@ -19,6 +19,8 @@ namespace FfAdmin.AdminModule
             public decimal Worth { get; set; }
             public decimal Allocated { get; set; }
             public decimal Transferred { get; set; }
+            public decimal Ff_allocated { get; set; }
+            public decimal Ff_transferred { get; set; }
         }
         Task<ExportRow[]> GetExportRows();
     }
@@ -43,6 +45,8 @@ namespace FfAdmin.AdminModule
                     , we.worth
                     , we.allocated
                     , we.transferred
+                    , we.ff_allocated
+                    , we.ff_transferred
                 from ff.web_export we
                 join ff.donation d on we.donation_id = d.donation_id
                 join ff.option o on we.option_id = o.option_id

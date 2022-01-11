@@ -1,0 +1,8 @@
+{"type":"META_NEW_CHARITY","code":"FF","name":"Future Fund","timestamp":"2017-01-01T00:00:00+00:00"}
+{"type":"META_NEW_OPTION","code":"1","name":"Default investment fund","currency":"EUR","reinvestment_fraction":0.45,"futureFund_fraction":0.1,"charity_fraction":0.45,"bad_year_fraction":0.01,"timestamp":"2020-03-26T20:59:59+00:00"}
+{"type":"META_NEW_CHARITY","code":"3048","name":"CliniClowns","timestamp":"2020-03-26T20:59:59+00:00"}
+{"type":"DONA_NEW","execute_timestamp":"2020-05-21T21:00:00+00:00","donation":"1","donor":"9","charity":"3048","option":"1","currency":"EUR","amount":30.000000,"exchanged_amount":30.000000,"transaction_reference":"","exchange_reference":"","timestamp":"2020-03-26T21:00:00+00:00"}
+{"type":"DONA_NEW","execute_timestamp":"2020-05-21T21:00:00+00:00","donation":"2","donor":"10","charity":"3048","option":"1","currency":"EUR","amount":20.000000,"exchanged_amount":20.000000,"transaction_reference":"","exchange_reference":"","timestamp":"2020-03-26T21:00:00+00:00"}
+{"type":"META_NEW_CHARITY","code":"3055","name":"Connect2Us","timestamp":"2020-03-26T20:59:59+00:00"}
+{"type":"DONA_NEW","execute_timestamp":"2020-05-21T21:00:00+00:00","donation":"3","donor":"9","charity":"3055","option":"1","currency":"EUR","amount":40.000000,"exchanged_amount":40.000000,"transaction_reference":"","exchange_reference":"","timestamp":"2020-03-26T21:00:00+00:00"}
+{"type":"DONA_NEW","execute_timestamp":"2020-05-21T21:00:00+00:00","donation":"4","donor":"11","charity":"3055","option":"1","currency":"EUR","amount":10.000000,"exchanged_amount":10.000000,"transaction_reference":"","exchange_reference":"","timestamp":"2020-03-26T21:00:00+00:00"}

@@ -18,7 +18,7 @@ namespace FfAdmin.Test
             }
         }
         protected IServiceScope Scope { get; set; } =  NullScope.Instance;
-        protected T Get<T>()
+        public T Get<T>()
             where T : notnull
             => Scope.ServiceProvider.GetRequiredService<T>();
     }

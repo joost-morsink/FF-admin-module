@@ -13,7 +13,9 @@ create view ff.web_export as
 	(min(f.fraction) is not null) as has_entered,
 	coalesce((o.invested_amount+o.cash_amount) * f.fraction, d.exchanged_amount) as worth,
 	coalesce(sum(a.amount * af.fraction),0) as allocated,
-	coalesce(sum(a.amount * af.fraction),0) - coalesce(sum(ota.amount * af.fraction), 0) as transferred
+	coalesce(sum(a.amount * af.fraction),0) - coalesce(sum(ota.amount * af.fraction), 0) as transferred,
+	coalesce(sum(ffa.amount * ffaf.fraction),0) as ff_allocated,
+	coalesce(sum(ffa.amount * ffaf.fraction),0) - coalesce(sum(ffota.amount * ffaf.fraction), 0) as ff_transferred
 	from ff.donation d
 	join ff.option o on d.option_id = o.option_id
 	left join ff.fraction f on d.donation_id = f.donation_id and o.fractionset_id = f.fractionset_id
@@ -22,8 +24,13 @@ create view ff.web_export as
 		on d.charity_id = a.charity_id and d.option_id = a.option_id and af.donation_id = d.donation_id
 	left join ff.calculate_open_transfers_per_allocation() ota
 		on ota.charity_id = d.charity_id and ota.allocation_id = a.allocation_id
-
-		
+	left join ff.allocation ffa
+		join ff.fraction ffaf on ffa.fractionset_id = ffaf.fractionset_id 
+		join ff.charity ffc on ffc.charity_id = ffa.charity_id and ffc.charity_ext_id = 'FF'
+		on d.option_id = ffa.option_id and ffaf.donation_id = d.donation_id
+	left join ff.calculate_open_transfers_per_allocation() ffota
+	    join ff.charity ffd on ffota.charity_id = ffd.charity_id and ffd.charity_ext_id = 'FF'
+		on ffota.allocation_id = ffa.allocation_id
 	group by d.donation_id, d.donor_id, d.option_id, d.charity_id, o.currency, d.exchanged_amount,
 	(o.invested_amount+o.cash_amount) * f.fraction
 	;

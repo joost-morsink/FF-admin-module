@@ -1,0 +1,2 @@
+{"type":"CONV_ENTER","option":"1","invested_amount":0.00,"timestamp":"2020-06-01T00:00:00+00:00"}
+{"type":"CONV_INVEST","option":"1","invested_amount":100.00,"cash_amount":0,"transaction_reference":"","timestamp":"2020-06-02T00:00:00+00:00"}

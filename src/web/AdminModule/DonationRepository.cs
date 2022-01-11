@@ -16,12 +16,23 @@ namespace FfAdmin.AdminModule
             public decimal Worth { get; set; }
             public decimal Allocated { get; set; }
             public decimal Transferred { get; set; }
+            public decimal Ff_allocated { get; set; }
+            public decimal Ff_transferred { get; set; }
+            public decimal GetTotalAllocated()
+                => Allocated + Ff_allocated;
+            public decimal GetTotalTransferred()
+                => Transferred + Ff_transferred;
+            public decimal GetTotalAllocatedAndTransferred()
+                => GetTotalAllocated() + GetTotalTransferred();
+            
             public DonationAggregation Round(int decimals)
             {
                 Amount = decimal.Round(Amount, decimals);
                 Worth = decimal.Round(Worth, decimals);
                 Allocated = decimal.Round(Allocated, decimals);
                 Transferred = decimal.Round(Transferred, decimals);
+                Ff_allocated = decimal.Round(Ff_allocated, decimals);
+                Ff_transferred = decimal.Round(Ff_transferred, decimals);
                 return this;
             }
         }
@@ -44,6 +55,8 @@ namespace FfAdmin.AdminModule
                     , sum(worth) worth
                     , sum(allocated) allocated
                     , sum(transferred) transferred
+                    , sum(ff_allocated) ff_allocated
+                    , sum(ff_transferred) ff_transferred
                     from ff.web_export
                     group by currency");
 

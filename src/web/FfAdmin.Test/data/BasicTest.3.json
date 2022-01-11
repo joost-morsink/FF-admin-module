@@ -1,0 +1,3 @@
+{"type":"CONV_TRANSFER","charity":"FF","currency":"EUR","amount":5.00,"exchanged_currency":"EUR","exchanged_amount":5.00,"timestamp":"2021-06-03T00:00:00+00:00"}
+{"type":"CONV_TRANSFER","charity":"3048","currency":"EUR","amount":10.00,"exchanged_currency":"EUR","exchanged_amount":5.00,"timestamp":"2021-06-03T00:00:00+00:00"}
+{"type":"CONV_TRANSFER","charity":"3055","currency":"EUR","amount":20.00,"exchanged_currency":"EUR","exchanged_amount":5.00,"timestamp":"2021-06-03T00:00:00+00:00"}
