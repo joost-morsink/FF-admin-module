@@ -11,6 +11,8 @@ namespace FfAdminWeb.Services
     public interface IEventingSystem
     {
         bool HasSession { get; }
+        void StartSession();
+        void EndSession(string? comment);
         Task ImportEvent(Event e, bool process = false);
         Task ImportEvents(IEnumerable<Event> es, bool process = false);
         Task<CoreMessage> ProcessEvents(DateTime until);
@@ -27,7 +29,8 @@ namespace FfAdminWeb.Services
         }
 
         public bool HasSession => _eventStore.HasSession;
-
+        public void StartSession() => _eventStore.StartSession();
+        public void EndSession(string? comment) => _eventStore.EndSession(comment);
         public async Task ImportEvent(Event e, bool process)
         {
             _eventStore.WriteEvent(e);

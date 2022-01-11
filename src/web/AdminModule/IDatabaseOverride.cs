@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 namespace FfAdmin.AdminModule
 {
@@ -21,10 +22,15 @@ namespace FfAdmin.AdminModule
                 var current = await _database.QueryFirst<string>("select current_database();");
                 if (current == Name)
                     return;
-                await _database.Execute($"drop database if exists {Name}; create database {Name};");
+                var databases = await _database.Query<string>("select datname from pg_database;");
+                if(!databases.Contains(Name))
+                    await _database.Execute($"create database {Name};");
             }
-            public ValueTask DisposeAsync()
-                => new (_database.Execute($"drop database if exists {Name};"));
+            public async ValueTask DisposeAsync()
+            {
+                if (_database.Override == this)
+                    await _database.RemoveOverride();
+            }
         }
         public static async Task<IDatabaseOverride> Create(IDatabase database, string name)
         {

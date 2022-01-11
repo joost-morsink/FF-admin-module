@@ -34,7 +34,7 @@ namespace FfAdmin.AdminModule
         public static Task Execute(this IDatabase db, string query, object? param = null)
             => db.Run(c => c.ExecuteAsync(query, param));
     }
-    public class Database : IDatabase
+    public class Database : IDatabase, IAsyncDisposable
     {
         private readonly IOptions<DatabaseOptions> _dbOptions;
 
@@ -105,6 +105,7 @@ namespace FfAdmin.AdminModule
                 return Task.CompletedTask;
             });
 
+        public ValueTask DisposeAsync()
+            => Override == null ? new() : new(RemoveOverride());
     }
-
 }
