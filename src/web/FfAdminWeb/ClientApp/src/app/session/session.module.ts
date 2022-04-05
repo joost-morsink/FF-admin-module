@@ -4,20 +4,17 @@ import { FfUiModule } from '../ffUi.module';
 import { SessionButtonComponent, CommitDialog } from './sessionButton.component';
 
 @NgModule({
-  declarations: [
-    SessionButtonComponent,
-    CommitDialog
-  ],
-  entryComponents: [
-    CommitDialog
-  ],
-  imports: [
-    CommonModule,
-    FfUiModule
-  ],
-  exports: [
-    SessionButtonComponent
-  ]
+    declarations: [
+        SessionButtonComponent,
+        CommitDialog
+    ],
+    imports: [
+        CommonModule,
+        FfUiModule
+    ],
+    exports: [
+        SessionButtonComponent
+    ]
 })
 export class SessionModule {
 }

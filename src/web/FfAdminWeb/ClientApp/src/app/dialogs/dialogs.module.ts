@@ -5,18 +5,14 @@ import { ErrorDialog } from './error.dialog';
 import { InfoDialog } from './info.dialog';
 
 @NgModule({
-  declarations: [
-    ErrorDialog,
-    InfoDialog
-  ],
-  entryComponents: [
-    ErrorDialog,
-    InfoDialog
-  ],
-  imports: [
-    CommonModule,
-    FfUiModule
-  ]
+    declarations: [
+        ErrorDialog,
+        InfoDialog
+    ],
+    imports: [
+        CommonModule,
+        FfUiModule
+    ]
 })
 export class DialogsModule {
 }
