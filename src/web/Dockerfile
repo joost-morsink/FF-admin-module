@@ -16,9 +16,12 @@ COPY ./Directory.Build.props ./
 COPY ./FfAdminWeb.sln ./
 COPY ./Common/Common.csproj ./Common/
 COPY ./External.GiveWp/External.GiveWp.csproj ./External.GiveWp/
+COPY ./External.Banking/External.Banking.csproj ./External.Banking/
 COPY ./AdminModule/AdminModule.csproj ./AdminModule/
 COPY ./EventStore/EventStore.csproj ./EventStore/
+COPY ./FfAdmin.Test/FfAdmin.Test.csproj ./FfAdmin.Test/
 COPY ./FfAdminWeb/FfAdminWeb.csproj ./FfAdminWeb/
+
 RUN dotnet restore
 
 COPY ./ ./
