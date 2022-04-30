@@ -48,7 +48,7 @@ namespace FfAdmin.External.GiveWp
                         };
                         cs.Add(row.Form_id!);
                     }
-                    if (row.Donation_status == "Complete")
+                    if (row.Donation_status is "Complete" or "Subscription")
                         yield return row.ToNewDonation(row.Transaction_id == null
                             ? null
                             : mollie.GetValueOrDefault(row.Transaction_id))!;
