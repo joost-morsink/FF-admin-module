@@ -50,6 +50,7 @@ namespace FfAdmin.Common
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
                     EventType.CONV_ENTER => JsonSerializer.Deserialize<ConvEnter>(json, options)!,
                     EventType.CONV_INVEST => JsonSerializer.Deserialize<ConvInvest>(json, options)!,
+                    EventType.CONV_INCREASE_CASH => JsonSerializer.Deserialize<IncreaseCash>(json, options)!,
                     EventType.AUDIT => JsonSerializer.Deserialize<Audit>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
@@ -240,6 +241,20 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
             if (Exchanged_amount <= 0)
                 yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
+        }
+    }
+
+    public class IncreaseCash : Event
+    {
+        public override EventType Type => EventType.CONV_INCREASE_CASH;
+        public string Option { get; set; } = "";
+        public decimal Amount { get; set; }
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new ValidationMessage(nameof(Option), "Field is required");
+            if (Amount < 0)
+                yield return new ValidationMessage(nameof(Amount), "Amount must not be negative");
         }
     }
     public class ConvEnter : Event

@@ -15,6 +15,7 @@ drop function ff.process_conv_liquidate;
 drop function ff.process_conv_exit_charity;
 drop function ff.process_conv_exit;
 drop function ff.process_conv_transfer;
+drop function ff.process_conv_increase_cash;
 drop function ff.process_audit;
 */
 create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
@@ -27,8 +28,8 @@ DECLARE
 	first timestamp;
 	firstfile timestamp;
 BEGIN
-	select max(file_timestamp), max(timestamp) into filemax, themax from core.event where processed=TRUE;
-	select min(file_timestamp), min(timestamp) into firstfile, first from core.event where processed=FALSE;
+	select file_timestamp, timestamp into filemax, themax from core.event where processed=TRUE order by file_timestamp desc, timestamp desc limit 1;
+	select file_timestamp, timestamp into firstfile, first from core.event where processed=FALSE order by file_timestamp asc, timestamp asc limit 1;
 	IF firstfile < filemax or firstfile = filemax and first < themax THEN
 		res := ROW(4,'Timestamp','Events are out of chronological order.');
 		return;
@@ -63,6 +64,7 @@ BEGIN
 				WHEN 'CONV_LIQUIDATE' THEN (select ff.process_conv_liquidate(event))
 				WHEN 'CONV_EXIT' THEN (select ff.process_conv_exit(event))
 				WHEN 'CONV_TRANSFER' THEN (select ff.process_conv_transfer(event))
+	            WHEN 'CONV_INCREASE_CASH' THEN (select ff.process_conv_increase_cash(event))
 				WHEN 'AUDIT' THEN (select ff.process_audit(event))
 				ELSE ROW(4, 'Type', 'Unknown type ' || typ)::core.message END;
 	IF res.status < 4 THEN
@@ -292,6 +294,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create or replace function ff.process_conv_increase_cash(event core.event) returns core.message as $$
+DEClARE
+	res core.message;
+BEGIN
+	update ff.option set cash_amount = cash_amount + event.cash_amount
+		where option_ext_id = event.option_id;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
 create or replace function ff.process_conv_liquidate(event core.event) returns core.message as $$
 DEClARE
 	res core.message;
@@ -386,7 +403,7 @@ BEGIN
 	update ff.option o
 		set cash_amount = o.cash_amount - event.exit_amount
 		, last_exit = event.timestamp
-		, exit_ideal_valuation = ff.calculate_ideal_valuation(opt_id, o.invested_amount)
+		, exit_ideal_valuation = ff.calculate_ideal_valuation(opt_id, 0,o.invested_amount)
 		, exit_actual_valuation = o.invested_amount + o.cash_amount - event.exit_amount
 		where o.option_id=opt_id;
 		

@@ -13,6 +13,7 @@ drop function core.import_conv_invest;
 drop function core.import_conv_liquidate;
 drop function core.import_conv_exit;
 drop function core.import_conv_transfer;
+drop function core.import_conv_increase_cash;
 drop function core.import_audit;
 */
 create or replace function core.import_events(file_timestamp timestamp, events jsonb[]) returns core.message as $$
@@ -51,6 +52,7 @@ BEGIN
 				WHEN 'CONV_LIQUIDATE' THEN (select core.import_conv_liquidate(file_timestamp ,eventdata))
 				WHEN 'CONV_EXIT' THEN (select core.import_conv_exit(file_timestamp ,eventdata))
 				WHEN 'CONV_TRANSFER' THEN (select core.import_conv_transfer(file_timestamp ,eventdata))
+                WHEN 'CONV_INCREASE_CASH' THEN (select core.import_conv_increase_cash(file_timestamp, eventdata))
 				WHEN 'AUDIT' THEN (select core.import_audit(file_timestamp ,eventdata))
 				ELSE ROW(4, 'type', 'Unknown type ' || typ)::core.message END;
 	return res;
@@ -258,6 +260,25 @@ BEGIN
 	END IF;
 	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, invested_amount)
 				VALUES('CONV_ENTER', timestamp, file_timestamp, option_id, invested_amount);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_conv_increase_cash(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	option_id varchar(16);
+	amount numeric(20,4);
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'option'
+		, eventdata->>'amount'
+		into timestamp, option_id, amount;
+	IF timestamp is null or option_id is null or amount is null  THEN
+		return ROW(4,'','Missing data in CONV_INCREASE_CASH event')::core.message;
+	END IF;
+	INSERT INTO core.event(type, timestamp, file_timestamp, option_id, cash_amount)
+				VALUES('CONV_INCREASE_CASH', timestamp, file_timestamp, option_id, amount);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
