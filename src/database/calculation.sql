@@ -7,33 +7,37 @@ drop type if exists ff.open_transfer_per_allocation cascade;
 drop function if exists ff.calculate_open_transfers_per_allocation cascade;
 */
 
-create or replace function ff.calculate_ideal_valuation(opt_id int, current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
+create or replace function ff.calculate_ideal_valuation(opt_id int, extra_cash numeric(20,4), current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
 DECLARE
 	new_amount numeric(20,4);
 BEGIN
-	select sum(exchanged_amount) into new_amount
-		from ff.option o
-		cross join ff.donation d
-		where o.option_id = opt_id
-		and (o.last_exit is null and d.entered is not null or d.entered > o.last_exit);
+	select sum(exchanged_amount)
+	        into new_amount
+            from ff.option o
+            cross join ff.donation d
+            where o.option_id = opt_id
+            and (o.last_exit is null and d.entered is not null or d.entered > o.last_exit);
+
 	new_amount := coalesce(new_amount,0);
-	
-	return (select (current_invested_amount + o.cash_amount - coalesce(o.exit_actual_valuation,0) - new_amount) /* profit */
+	extra_cash := coalesce(extra_cash,0);
+
+	return (select (current_invested_amount + o.cash_amount + extra_cash - coalesce(o.exit_actual_valuation,0) - new_amount) /* profit */
 			* o.reinvestment_fraction
 			+ new_amount
 			+ coalesce(o.exit_ideal_valuation,0)
-			from ff.option o);
+			from ff.option o
+	        where o.option_id = opt_id);
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.calculate_exit(opt_id int, current_invested_amount numeric(20,4), attime timestamp) returns numeric(20,4) as $$
+create or replace function ff.calculate_exit(opt_id int, extra_cash numeric(20,4), current_invested_amount numeric(20,4), attime timestamp) returns numeric(20,4) as $$
 DECLARE
 	current_ideal_valuation numeric(20,4);
 	ideal numeric(20,4);
 	minimal_exit numeric(20,4);
 	
 BEGIN
-	select ff.calculate_ideal_valuation(opt_id, current_invested_amount) into current_ideal_valuation;
+	select ff.calculate_ideal_valuation(opt_id, extra_cash, current_invested_amount) into current_ideal_valuation;
 	current_ideal_valuation := coalesce(current_ideal_valuation,0);
 	
 	select (power(1+o.bad_year_fraction, 
@@ -43,7 +47,7 @@ BEGIN
 		from ff.option o
 			where o.option_id = opt_id;
 	raise info 'minimal_exit = %', minimal_exit;
-	select current_invested_amount + o.cash_amount - current_ideal_valuation
+	select current_invested_amount + o.cash_amount + extra_cash - current_ideal_valuation
 		into ideal
 		from ff.option o
 		where o.option_id=opt_id;

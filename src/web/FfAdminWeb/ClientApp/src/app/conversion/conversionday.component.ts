@@ -111,6 +111,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
 
   public exit_amount: number;
 
+  public compensation: FormControl;
   public invested: FormControl;
   public timestamp: FormControl;
   public newInvested: FormControl;
@@ -119,12 +120,14 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   public formGroup: FormGroup;
 
   public ngOnInit(): void {
+    this.compensation = new FormControl("0.00");
     this.invested = new FormControl(this.option.invested_amount?.toString());
     this.timestamp = new FormControl(new Date().toISOString());
     this.newInvested = new FormControl("0.00");
     this.newCash = new FormControl("0.00");
     this.transactionRef = new FormControl("");
     this.formGroup = new FormGroup({
+      compensation: this.compensation,
       invested: this.invested,
       timestamp: this.timestamp,
       newInvested: this.newInvested,
@@ -133,12 +136,25 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
     });
     this.enabled = true;
   }
-
-  public async recalculate() {
-    this.exit_amount = await this.admin.calculateExit(this.option, parseFloat(this.invested.value), this.timestamp.value);
+  public parseFloat(str:string) : number {
+    return parseFloat(str);
   }
-
+  public async recalculate() {
+    this.exit_amount = await this.admin.calculateExit(this.option, parseFloat(this.compensation.value), parseFloat(this.invested.value), this.timestamp.value);
+  }
+  public async increaseCash() {
+    if(this.compensation.value > 0)
+    {
+      let event = {
+        type: 'CONV_INCREASE_CASH',
+        option: this.option.code,
+        amount: this.compensation.value
+      }
+      await this.importAndProcess(event)
+    }
+  }
   public async liquidate() {
+    await this.increaseCash();
     let event = {
       type: 'CONV_LIQUIDATE',
       timestamp: this.timestamp.value,
@@ -177,7 +193,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
     this.enabled = true;
   }
   public async recalculate() {
-    this.exit_amount = await this.admin.calculateExit(this.option, this.option.invested_amount, this.timestamp.value);
+    this.exit_amount = await this.admin.calculateExit(this.option, 0, this.option.invested_amount, this.timestamp.value);
   }
   public async exit() {
     if (parseFloat(this.exitAmount.value) == 0) {

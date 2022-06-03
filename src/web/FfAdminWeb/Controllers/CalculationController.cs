@@ -20,7 +20,7 @@ namespace FfAdminWeb.Controllers
             _optionRepository = optionRepository;
         }
         [HttpGet("exit")]
-        public async Task<ActionResult<decimal>> CalculateExit(int option, decimal? invested, DateTimeOffset? timestamp)
+        public async Task<ActionResult<decimal>> CalculateExit(int option, decimal? extra_cash, decimal? invested, DateTimeOffset? timestamp)
         {
             if ((await _optionRepository.GetOptions()).All(o => o.Option_id != option))
                 return BadRequest(new ValidationMessage[]
@@ -28,7 +28,7 @@ namespace FfAdminWeb.Controllers
                     new("Option", "Option does not exist")
                 });
 
-            return await _admin.CalculateExit(option, invested ?? 0m, timestamp ?? DateTimeOffset.UtcNow);
+            return await _admin.CalculateExit(option, extra_cash ?? 0m, invested ?? 0m, timestamp ?? DateTimeOffset.UtcNow);
         }
     }
 }

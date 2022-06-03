@@ -2,6 +2,12 @@
 
 <form>
     <mat-form-field>
+      <mat-label>Cost compensation</mat-label>
+      <input matNativeControl name="compensation" [(formControl)]="compensation" />
+      <mat-error *ngIf="formGroup.get('compensation').errors"> {{ formGroup.get('compensation').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br/>
+    <mat-form-field>
         <mat-label>Invested amount</mat-label>
         <input matNativeControl name="invested" [(formControl)]="invested" />
         <mat-error *ngIf="formGroup.get('invested').errors"> {{ formGroup.get('invested').errors?.message }} </mat-error>
@@ -15,10 +21,10 @@
     <br />
     <strong>Exit amount: </strong>{{option.currency}} {{ exit_amount }}
     <br />
-    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount }}
+    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount + parseFloat(compensation.value) }}
     <br />
     <span *ngIf="exit_amount!=null">
-        <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount }}
+        <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount - parseFloat(compensation.value) }}
     </span>
     <br />
     <button [disabled]="!enabled" (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>

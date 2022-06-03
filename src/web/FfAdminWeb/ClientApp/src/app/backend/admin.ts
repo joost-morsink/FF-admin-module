@@ -32,8 +32,8 @@ export class Admin {
     return this.http.get<IDonationsByCurrency[]>(this.baseUrl + "admin/donations/bycurrency").toPromise();
   }
 
-  public async calculateExit(option: IOption, invested: number, timestamp: string) {
-    var res : number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&timestamp=${timestamp}`).toPromise();
+  public async calculateExit(option: IOption, extra_cash: number, invested: number, timestamp: string) {
+    var res : number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&extra_cash=${extra_cash}&timestamp=${timestamp}`).toPromise();
     return res || 0;
   }
   public async recreateDatabase(): Promise<void> {
