@@ -5,6 +5,8 @@ drop type if exists ff.open_transfer cascade;
 drop function if exists ff.calculate_open_transfers cascade;
 drop type if exists ff.open_transfer_per_allocation cascade;
 drop function if exists ff.calculate_open_transfers_per_allocation cascade;
+drop function if exists ff.calculate_allocations_and_transfers_per_donation cascade;
+drop type if exists ff.allocations_and_transfers_per_donation cascade;
 */
 
 create or replace function ff.calculate_ideal_valuation(opt_id int, extra_cash numeric(20,4), current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
@@ -117,6 +119,67 @@ BEGIN
 	where total <= open_transfers[i].amount;
 
 END; $$ LANGUAGE plpgsql;
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'allocations_and_transfers_per_donation' and ns.nspname = 'ff') THEN
+
+		create type ff.allocations_and_transfers_per_donation as (donation_id int, charity_id int, allocated numeric(20,4), transferred numeric(20,4), ff_allocated numeric(20,4), ff_transferred numeric(20,4), currency varchar(4));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.calculate_allocations_and_transfers_per_donation() returns SETOF ff.allocations_and_transfers_per_donation as $$
+DECLARE
+	res ff.allocations_and_transfers_per_donation[];
+BEGIN
+    return query
+    (select d.donation_id, d.charity_id,
+            coalesce(allocated, 0) :: numeric(20,4) as allocated,
+            (coalesce(allocated, 0) - coalesce(not_transferred, 0)) :: numeric(20,4) as transferred,
+            coalesce(ff_allocated, 0) :: numeric(20,4) as ff_allocated,
+            (coalesce(ff_allocated, 0) - coalesce(ff_not_transferred, 0)) :: numeric(20,4) as ff_transferred,
+            sqa.currency
+    from ff.donation d
+    --join ff.charity c on d.charity_id = c.charity_id
+    left join (select af.donation_id, a.charity_id, o.currency,
+                      sum(a.amount * af.fraction) allocated
+                  from ff.allocation a
+                  join ff.fraction af on a.fractionset_id = af.fractionset_id
+                  join ff.option o on a.option_id = o.option_id
+                  group by af.donation_id, a.charity_id, o.currency) sqa
+        on sqa.donation_id= d.donation_id and sqa.charity_id = d.charity_id
+    left join (select
+                     d.donation_id,
+                     sum(ota.amount*f.fraction) as not_transferred
+                     from calculate_open_transfers_per_allocation() ota
+                     join ff.allocation a on ota.allocation_id = a.allocation_id
+                     join ff.fraction f on a.fractionset_id = f.fractionset_id
+                     join ff.donation d on d.donation_id = f.donation_id
+                     group by d.donation_id) sqota
+        on sqota.donation_id = d.donation_id
+    left join (select af.donation_id, o.currency,
+                      sum(a.amount * af.fraction) ff_allocated
+                  from ff.allocation a
+                  join ff.charity c on a.charity_id = c.charity_id and c.charity_ext_id='FF'
+                  join ff.fraction af on a.fractionset_id = af.fractionset_id
+                  join ff.option o on a.option_id = o.option_id
+                  group by af.donation_id, o.currency) sqf
+        on sqf.donation_id= d.donation_id
+    left join (select
+                     d.donation_id,
+                     sum(ota.amount*f.fraction) as ff_not_transferred
+                     from calculate_open_transfers_per_allocation() ota
+                     join ff.allocation a on ota.allocation_id = a.allocation_id
+                     join ff.charity c on a.charity_id = c.charity_id and c.charity_ext_id='FF'
+                     join ff.fraction f on a.fractionset_id = f.fractionset_id
+                     join ff.donation d on d.donation_id = f.donation_id
+                     group by d.donation_id) sqotaf
+        on sqotaf.donation_id = d.donation_id);
+end;
+    $$ LANGUAGE plpgsql;
 /*
 
 do $$
@@ -144,7 +207,12 @@ from ff.option o;
 
 select * from ff.calculate_open_transfers(5)
 
-select * from ff.calculate_open_transfers_per_allocation();
+select * from ff.calculate_open_transfers_per_allocation() where charity_id = 193
 
+select * from ff.transfer;
+select * from ff.allocation where charity_id=193;
+
+select * from ff.charity
+
+select * from ff.calculate_allocations_and_transfers_per_donation();
 */
-
