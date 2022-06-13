@@ -5,11 +5,11 @@ drop function if exists ff.bank_transfers cascade;
 drop function if exists ff.select_audit cascade;
 drop function if exists ff.new_audit cascade;
 drop function if exists ff.audit_for_currency cascade;
-*/
 drop view if exists ff.web_export cascade;
+*/
 
-create view ff.web_export as
-	select d.donation_id, d.donor_id, d.option_id, d.charity_id, o.currency, d.exchanged_amount,
+create or replace view ff.web_export as
+	select d.donation_ext_id donation_id, d.donor_id, o.option_ext_id option_id, c.charity_ext_id charity_id, o.currency, d.exchanged_amount,
 	(min(f.fraction) is not null) as has_entered,
 	coalesce((o.invested_amount+o.cash_amount) * f.fraction, d.exchanged_amount) as worth,
 	atd.allocated,
@@ -18,10 +18,11 @@ create view ff.web_export as
 	atd.ff_transferred
 	from ff.donation d
 	join ff.option o on d.option_id = o.option_id
+	join ff.charity c on d.charity_id = c.charity_id
     join ff.fraction f on o.fractionset_id = f.fractionset_id and d.donation_id = f.donation_id
 	left join ff.calculate_allocations_and_transfers_per_donation() atd
         on d.donation_id = atd.donation_id
-    group by d.donation_id, d.donor_id, d.option_id, d.charity_id, o.currency, d.exchanged_amount,
+    group by d.donation_ext_id, d.donor_id, o.option_ext_id, c.charity_ext_id, o.currency, d.exchanged_amount,
          coalesce((o.invested_amount+o.cash_amount) * f.fraction, d.exchanged_amount),
          atd.allocated, atd.transferred, atd.ff_allocated, atd.ff_transferred
 	;
