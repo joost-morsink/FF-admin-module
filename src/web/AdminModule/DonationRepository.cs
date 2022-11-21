@@ -37,7 +37,15 @@ namespace FfAdmin.AdminModule
             }
         }
         Task<DonationAggregation[]> GetAggregations();
-        Task<string[]> GetAlreadyImported(IEnumerable<string> extIds);
+
+        public record AlreadyImportedDonation
+        {
+            public string DonationId { get; set; } = "";
+            public string CharityId { get; set; } = "";
+        }
+        Task<AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds);
+        
+        
     }
     public class DonationRepository : IDonationRepository
     {
@@ -60,8 +68,8 @@ namespace FfAdmin.AdminModule
                     from ff.web_export
                     group by currency");
 
-        public Task<string[]> GetAlreadyImported(IEnumerable<string> extIds)
-            => _database.Query<string>(@"select extId from unnest(@ids) extId
+        public Task<IDonationRepository.AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds)
+            => _database.Query<IDonationRepository.AlreadyImportedDonation>(@"select donation_id DonationId, charity_id CharityId from unnest(@ids) extId
                                             join core.event on extId = donation_id", new
             {
                 ids = extIds.ToArray()

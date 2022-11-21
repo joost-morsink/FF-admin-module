@@ -3,6 +3,7 @@
     public enum EventType
     {
         DONA_NEW,
+        DONA_UPDATE_CHARITY,
         META_NEW_OPTION,
         META_NEW_CHARITY,
         META_UPDATE_FRACTIONS,

@@ -2,6 +2,7 @@
 drop function core.import_events;
 drop function core.import_event;
 drop function core.import_dona_new;
+drop function core.import_dona_update_charity;
 drop function core.import_dona_cancel;
 drop function core.import_meta_new_charity;
 drop function core.import_meta_update_charity;
@@ -41,6 +42,7 @@ BEGIN
 	typ := (select eventdata->>'type');
 	res := CASE typ
 				WHEN 'DONA_NEW' THEN (select core.import_dona_new(file_timestamp ,eventdata))
+				WHEN 'DONA_UPDATE_CHARITY' THEN (select core.import_dona_update_charity(file_timestamp ,eventdata))
 				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(file_timestamp ,eventdata))
 				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(file_timestamp ,eventdata))
 				WHEN 'META_UPDATE_CHARITY' THEN (select core.import_meta_update_charity(file_timestamp ,eventdata))
@@ -95,6 +97,25 @@ BEGIN
 						   exchanged_donation_amount, transaction_reference, exchange_reference)
 					VALUES ('DONA_NEW', timestamp, file_timestamp, coalesce(execute_timestamp, timestamp), donation_id, donor_id, charity_id, option_id, donation_currency, donation_amount, 
 						   exchanged_donation_amount, transaction_reference, exchange_reference);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_dona_update_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	donation_id varchar(16);
+	charity_id varchar(16);
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'donation'
+		, eventdata->>'charity'
+		into timestamp, donation_id, charity_id;
+	IF timestamp is null or donation_id is null or charity_id is null THEN
+		return ROW(4,'','Missing data in DONA_NEW event')::core.message;
+	END IF;
+	INSERT INTO core.event(type,timestamp, file_timestamp, donation_id, charity_id)
+					VALUES ('DONA_UPDATE_CHARITY', timestamp, file_timestamp, donation_id, charity_id);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

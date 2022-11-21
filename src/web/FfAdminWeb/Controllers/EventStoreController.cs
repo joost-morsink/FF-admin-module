@@ -250,12 +250,33 @@ namespace FfAdminWeb.Controllers
 
                 if (msgs.Length > 0)
                     return BadRequest(msgs);
-                var alreadyImported = new HashSet<string>(
-                    await _donationRepository.GetAlreadyImported(from e in events.OfType<NewDonation>()
-                                                                 select e.Donation));
-                await _eventingSystem.ImportEvents(events.Where(x => !(x is NewDonation nd && alreadyImported.Contains(nd.Donation))));
+
+                var alreadyImported = await _donationRepository.GetAlreadyImported(
+                    from e in events.OfType<NewDonation>()
+                    select e.Donation);
+                var donationCharityMap =alreadyImported.ToDictionary(i => i.DonationId, i => i.CharityId);
+           
+                await _eventingSystem.ImportEvents(events.SelectMany(TransformEvent));
 
                 return Ok();
+
+                IEnumerable<Event> TransformEvent(Event e)
+                {
+                    if (e is NewDonation nd)
+                    {
+                        if (donationCharityMap.TryGetValue(nd.Donation, out var charity)) {
+                            if (charity != nd.Charity)
+                                yield return new UpdateCharityForDonation
+                                {
+                                    Charity = nd.Charity,
+                                    Donation = nd.Donation
+                                };
+                        } else
+                            yield return e;
+                    }
+                    else
+                        yield return e;
+                }
             }
             catch (ValidationException vex)
             {

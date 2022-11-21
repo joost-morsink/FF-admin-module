@@ -2,6 +2,7 @@
 drop function ff.process_events;
 drop function ff.process_event;
 drop function ff.process_dona_new;
+drop function ff.process_dona_update_charity;
 drop function ff.process_dona_cancel;
 drop function ff.process_meta_new_charity;
 drop function ff.process_meta_update_charity;
@@ -53,6 +54,7 @@ BEGIN
 	
 	res := CASE event.type
 				WHEN 'DONA_NEW' THEN (select ff.process_dona_new(event))
+				WHEN 'DONA_UPDATE_CHARITY' THEN (select ff.process_dona_update_charity(event))
 				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
 				WHEN 'META_UPDATE_CHARITY' THEN (select ff.process_meta_update_charity(event))
@@ -94,6 +96,23 @@ BEGIN
 		where o.option_ext_id = event.option_id
 		and c.charity_ext_id = event.charity_id
 		limit 1;
+	IF FOUND THEN
+		return ROW(0,'','OK')::core.message;
+	ELSE
+		return ROW(4,'','Error in event')::core.message;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+create or replace function ff.process_dona_update_charity(event core.event) returns core.message as $$
+DEClARE
+	res core.message;
+BEGIN
+    update ff.donation d
+        set charity_id = c.charity_id
+        from ff.charity c
+        where c.charity_ext_id = event.charity_id
+        and d.donation_ext_id = event.donation_id;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
