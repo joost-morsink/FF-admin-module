@@ -33,6 +33,8 @@ The Future Fund business domain contains of the following events:
   
   * Cancel donation
   
+  * Change charity for donation
+
   * Price info
 
 * Conversion day events
@@ -189,6 +191,18 @@ This event represents revocation of a direct debit, and is only valid if the tim
 | Type      | A                   | Identifies the event                             | DONA_CANCEL |
 | Timestamp | DateTime (ISO-8601) | The timestamp of the event                       |             |
 | Donation  | AN                  | Identifies the donation that should be cancelled |             |
+
+#### Change charity for donation
+
+This event represents the users decision to change the beneficiary charity of the donation's profits.
+
+| Field     | Type                | Description                                      | Value               |
+| --------- | ------------------- | ------------------------------------------------ | ------------------- |
+| Type      | A                   | Identifies the event                             | DONA_UPDATE_CHARITY |
+| Timestamp | DateTime (ISO-8601) | The timestamp of the event                       |                     |
+| Donation  | AN                  | Identifies the donation that should be changed   |                     |
+| Charity   | AN                  | The identifier for the charity                   |                     |
+
 
 #### Price info
 
