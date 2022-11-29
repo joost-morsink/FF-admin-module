@@ -112,6 +112,7 @@ BEGIN
 	)
 	select d.charity_id, d.allocation_id, d.currency, 
 		(case when d.amount <= open_transfers[i].amount - total then d.amount
+		    when total > open_transfers[i].amount then 0
 			else open_transfers[i].amount - total end)::numeric(20,4) as amount
 	from data d
 	join generate_subscripts(open_transfers, 1) i
@@ -143,14 +144,13 @@ BEGIN
             (coalesce(ff_allocated, 0) - coalesce(ff_not_transferred, 0)) :: numeric(20,4) as ff_transferred,
             sqa.currency
     from ff.donation d
-    --join ff.charity c on d.charity_id = c.charity_id
-    left join (select af.donation_id, a.charity_id, o.currency,
+    left join (select af.donation_id, o.currency,
                       sum(a.amount * af.fraction) allocated
                   from ff.allocation a
                   join ff.fraction af on a.fractionset_id = af.fractionset_id
                   join ff.option o on a.option_id = o.option_id
-                  group by af.donation_id, a.charity_id, o.currency) sqa
-        on sqa.donation_id= d.donation_id and sqa.charity_id = d.charity_id
+                  group by af.donation_id, o.currency) sqa
+        on sqa.donation_id= d.donation_id
     left join (select
                      d.donation_id,
                      sum(ota.amount*f.fraction) as not_transferred
