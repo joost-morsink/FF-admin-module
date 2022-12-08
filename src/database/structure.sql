@@ -10,6 +10,7 @@ truncate table ff.fraction cascade;
 truncate table ff.fractionset cascade;
 truncate table ff.option cascade;
 truncate table ff.donation cascade;
+truncate table ff.charity_part;
 truncate table ff.charity cascade;
 truncate table ff.transfer cascade;
 truncate table ff.allocation cascade;
@@ -102,6 +103,14 @@ create table if not exists ff.charity (
 );
 
 create unique index if not exists charity_ext on ff.charity(charity_ext_id);
+
+create table if not exists ff.charity_part (
+    charity_id int not null references charity(charity_id),
+    charity_part_id int not null references charity(charity_id),
+    fraction numeric(20,10) null
+);
+
+create index if not exists charity_part_charity on ff.charity_part(charity_id);
 
 create sequence if not exists ff.option_seq;
 create table if not exists ff.option (

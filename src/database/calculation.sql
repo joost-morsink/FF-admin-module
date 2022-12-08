@@ -7,6 +7,7 @@ drop type if exists ff.open_transfer_per_allocation cascade;
 drop function if exists ff.calculate_open_transfers_per_allocation cascade;
 drop function if exists ff.calculate_allocations_and_transfers_per_donation cascade;
 drop type if exists ff.allocations_and_transfers_per_donation cascade;
+drop view if exists ff.separate_charity_parts cascade;
 */
 
 create or replace function ff.calculate_ideal_valuation(opt_id int, extra_cash numeric(20,4), current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
@@ -106,7 +107,7 @@ DECLARE
 BEGIN
 	open_transfers:=ARRAY(select ff.calculate_open_transfers());
 	return query with data as (
-		select allocation_id, charity_id, o.currency, amount, sum(amount) over(partition by charity_id order by timestamp desc)-amount total 
+		select allocation_id, charity_id, o.currency, amount, sum(amount) over(partition by charity_id order by timestamp, allocation_id desc)-amount total
 		from ff.allocation a
 		join ff.option o on a.option_id = o.option_id
 	)
@@ -180,6 +181,18 @@ BEGIN
         on sqotaf.donation_id = d.donation_id);
 end;
     $$ LANGUAGE plpgsql;
+
+
+create or replace view ff.separate_charity_parts as
+ select c.charity_id as main_charity_id
+     , coalesce(p.charity_part_id ,c.charity_id) as part_charity_id
+     , coalesce(fraction,1) / coalesce(sum(fraction) over (partition by c.charity_id),1) as fraction
+ from ff.charity c
+left join ff.charity_part p
+ join ff.charity pc on p.charity_part_id = pc.charity_id
+ on c.charity_id = p.charity_id;
+
+
 /*
 
 do $$

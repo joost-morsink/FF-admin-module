@@ -372,7 +372,9 @@ BEGIN
 				and o.option_id = opt_id;
 
 	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
-		values (event.timestamp, opt_id, char_id, new_fractionset_id, char_fraction * total_fraction * event.exit_amount, FALSE);
+		select event.timestamp, opt_id, scp.part_charity_id, new_fractionset_id, scp.fraction * char_fraction * total_fraction * event.exit_amount, FALSE
+		    from ff.separate_charity_parts scp
+		        where scp.main_charity_id = char_id;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
