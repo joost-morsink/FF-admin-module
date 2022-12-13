@@ -76,6 +76,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'fraction_spec' and ns.nspname = 'core') THEN
+
+		create type core.fraction_spec as (holder int, fraction numeric(20,10));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 create sequence if not exists ff.fractionset_seq;
 create table if not exists ff.fractionset (
 	fractionset_id int primary key not null default nextval('ff.fractionset_seq'),

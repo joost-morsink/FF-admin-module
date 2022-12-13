@@ -18,6 +18,7 @@ drop function ff.process_conv_exit;
 drop function ff.process_conv_transfer;
 drop function ff.process_conv_increase_cash;
 drop function ff.process_audit;
+drop function ff.update_charity_fractions;
 */
 create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
 DECLARE
@@ -349,6 +350,7 @@ DECLARE
 	new_fractionset_id int;
 	total_fraction numeric(21,20);
 BEGIN
+    -- Calculate fraction charity/option
 	select sum(f.fraction) into total_fraction
 		from ff.option o
 		join ff.fraction f on o.fractionset_id = f.fractionset_id
@@ -361,7 +363,8 @@ BEGIN
 		insert into ff.fractionset(created) values (event.timestamp) returning fractionset_id
 	)
 	select fractionset_id into new_fractionset_id from inserted;
-	
+
+    -- Normalize the fraction set into a new one containing only the current charity donations.
 	insert into ff.fraction (fractionset_id, donation_id, fraction)
 		select new_fractionset_id, d.donation_id, f.fraction / total_fraction
 			from ff.option o
@@ -371,6 +374,7 @@ BEGIN
 			where d.charity_id = char_id
 				and o.option_id = opt_id;
 
+    -- Divide the amount of the allocation over the charity parts
 	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
 		select event.timestamp, opt_id, scp.part_charity_id, new_fractionset_id, scp.fraction * char_fraction * total_fraction * event.exit_amount, FALSE
 		    from ff.separate_charity_parts scp
@@ -460,6 +464,26 @@ BEGIN
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+create or replace function ff.update_charity_fractions(pCharity_id int, pParts core.fraction_spec[]) returns core.message as $$
+BEGIN
+    if not exists (select * from generate_subscripts(pParts,1) as i
+        where pParts[i].holder <> pCharity_id) then
+        delete from ff.charity_part where charity_id = pCharity_id;
+        return ROW(0,'','Parts deleted')::core.message;
+    end if;
+    delete from ff.charity_part dst
+        where charity_id = pCharity_id
+        and charity_part_id not in (select holder from unnest(pParts));
+    update ff.charity_part dst
+        set fraction = src.fraction
+        from (select * from unnest(pParts)) src
+        where dst.charity_id = pCharity_id and dst.charity_part_id = src.holder;
+    insert into ff.charity_part (charity_id, charity_part_id, fraction)
+        select pCharity_id, holder, fraction from unnest(pParts)
+            where holder not in (select charity_part_id from ff.charity_part where charity_id = pCharity_id);
+    return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
 /*
 
 do $$
@@ -487,6 +511,7 @@ select * from ff.fraction where fractionset_id = 4;
 select * from ff.fraction;
 select * from ff.allocation;
 select * from ff.charity;
+select * from ff.charity_part;
 */
 
 
