@@ -59,6 +59,7 @@ BEGIN
 				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
 				WHEN 'META_UPDATE_CHARITY' THEN (select ff.process_meta_update_charity(event))
+	            WHEN 'META_CHARITY_PARTITION' then (select ff.process_meta_charity_partition(event))
 				WHEN 'META_NEW_OPTION' THEN (select ff.process_meta_new_option(event))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select ff.process_meta_update_fractions(event))
 				WHEN 'PRICE_INFO' THEN (select ff.process_price_info(event))
@@ -168,6 +169,20 @@ BEGIN
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+create or replace function ff.process_meta_charity_partition(event core.event) returns core.message as $$
+DECLARE
+    res core.message;
+BEGIN
+    select update_charity_fractions(c.charity_id
+        , ARRAY(select ROW(ci.charity_id, event.partitions[i].fraction)::core.fraction_spec from generate_subscripts(event.partitions,1) i
+            join ff.charity ci on ci.charity_ext_id = event.partitions[i].holder))
+        from ff.charity c
+        where c.charity_ext_id = event.charity_id
+        into res;
+
+    return res;
+end; $$ LANGUAGE plpgsql;
 
 create or replace function ff.process_meta_new_option(event core.event) returns core.message as $$
 DEClARE

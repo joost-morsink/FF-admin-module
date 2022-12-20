@@ -21,6 +21,29 @@ create schema if not exists core;
 create schema if not exists ff;
 create schema if not exists audit;
 
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'fraction_spec' and ns.nspname = 'core') THEN
+
+		create type core.fraction_spec as (holder int, fraction numeric(20,10));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 's_fraction_spec' and ns.nspname = 'core') THEN
+
+		create type core.s_fraction_spec as (holder varchar(16), fraction numeric(20,10));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 create sequence if not exists core.event_seq;
 
 create table if not exists core.event (
@@ -55,6 +78,7 @@ create table if not exists core.event (
 	transfer_amount numeric(20,4) null,
 	exchanged_transfer_currency varchar(4) null,
 	exchanged_transfer_amount numeric(20,4) null,
+	partitions core.s_fraction_spec[] null,
 	processed boolean not null default FALSE
 );
 
@@ -72,17 +96,6 @@ BEGIN
 		where t.typname = 'message' and ns.nspname = 'core') THEN
 
 		create type core.message as (status int, key varchar(64), message varchar(256));
-	END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-do $$
-BEGIN
-	if not exists (select * from pg_catalog.pg_type t
-		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
-		where t.typname = 'fraction_spec' and ns.nspname = 'core') THEN
-
-		create type core.fraction_spec as (holder int, fraction numeric(20,10));
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
