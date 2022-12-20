@@ -15,6 +15,7 @@
         AUDIT,
         DONA_CANCEL,
         META_UPDATE_CHARITY,
-        CONV_INCREASE_CASH
+        CONV_INCREASE_CASH,
+        META_CHARITY_PARTITION
     }
 }
