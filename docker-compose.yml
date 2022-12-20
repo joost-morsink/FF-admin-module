@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   db:
-    image: postgres:14.0
+    image: postgres:14
     restart: unless-stopped
     environment:
       POSTGRES_USER: ff
@@ -12,7 +12,7 @@ services:
     ports:
     - "5432:5432"
   admin:
-    image: dpage/pgadmin4:6.1
+    image: dpage/pgadmin4:6
     restart: unless-stopped
     environment: 
       PGADMIN_DEFAULT_EMAIL: postgres@toekomstfonds.nl
