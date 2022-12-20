@@ -49,39 +49,40 @@ This part can be postponed to a later stage.
 
 ### Event
 
-| Field                       | Type     | Description                                                                                                  | Used in                                                                                                          |
-| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Event_Id                    | N        | Identifies the even within the database, auto increment                                                      | All                                                                                                              |
-| Type                        | AN       | Identifies the event type                                                                                    | All                                                                                                              |
-| Timestamp                   | DT       | The timestamp of the event                                                                                   | All                                                                                                              |
-| File_timestamp              | DT       | The timestamp of the file containing the event                                                               | All                                                                                                              |
-| Execute_timestamp           | DT       | The execution timestamp of the event                                                                         | DONA_NEW                                                                                                         |
-| Name                        | AN       | An external name for an entity, may apply to different kind of entities based on the event type              | META_NEW_CHARITY, META_NEW_OPTION, META_UPDATE_CHARITY                                                           |
-| Option_currency             | AN       | An ISO-4217 currency code for the investment option                                                          | META_NEW_OPTION                                                                                                  |
-| Reinvestment_fraction       | N(10,10) | The fraction of the profits to reinvest                                                                      | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
-| FutureFund_fraction         | N(10,10) | The fraction of the profits to donate to the future fund                                                     | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
-| Charity_fraction            | N(10,10) | The fraction of the profits to donate to the charity                                                         | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
-| Bad_year_fraction           | N(10,10) | The minimal fraction of the total amount of money in the investment option that should always be transferred | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
-| Bank_account_no             | AN       | The bank account for the charity                                                                             | META_UPDATE_CHARITY                                                                                              |
-| Bank_name                   | AN       | The charity's name at the bank                                                                               | META_UPDATE_CHARITY                                                                                              |
-| Bank_bic                    | AN       | The charity's bic                                                                                            | META_UPDATE_CHARITY                                                                                              |
-| Donation_id                 | AN       | The external identifier for the donation                                                                     | DONA_NEW                                                                                                         |
-| Donor_id                    | AN       | The external identifier for the donor                                                                        | DONA_NEW                                                                                                         |
-| Charity_id                  | AN       | The external identifier for the charity                                                                      | DONA_NEW,  CONV_TRANSFER                                                                                         |
-| Option_id                   | AN       | The external identifier for the investment option                                                            | META_NEW_OPTION, META_UPDATE_FRACTIONS, DONA_NEW, PRICE_INFO, CONV_ENTER, CONV_INVEST, CONV_LIQUIDATE, CONV_EXIT |
-| Donation_currency           | AN       | An ISO-4217 currency code for the donation                                                                   | DONA_NEW                                                                                                         |
-| Donation_Amount             | N(16,4)  | The donated amount                                                                                           | DONA_NEW                                                                                                         |
-| Exchanged_donation_amount   | N(16,4)  | The donated amount in the currency of the investment option                                                  | DONA_NEW                                                                                                         |
-| Transaction_reference       | AN       | An external reference for the donation transaction                                                           | DONA_NEW, CONV_INVEST, CONV_LIQUIDATE                                                                            |
-| Exchange_reference          | AN?      | An optional external reference for the exchange transaction                                                  | DONA_NEW, CONV_TRANSFER                                                                                          |
-| Invested_amount             | N(20,4)  | The total invested amount of money in the fund, according to the current investment fund price               | PRICE_INFO, CONV_ENTER, CONV_INVEST, CONV_LIQUIDATE                                                              |
-| Cash_amount                 | N(20,4)  | The total cash amount of money in the investment option                                                      | PRICE_INFO, CONV_INVEST, CONV_LIQUIDATE                                                                          |
-| Exit_amount                 | N(20,4)  | The amount to be donated to charities                                                                        | CONV_EXIT                                                                                                        |
-| Transfer_currency           | AN       | An ISO-4217 currency code for the transfer                                                                   | CONV_TRANSFER                                                                                                    |
-| Transfer_amount             | N(20,4)  | The amount transferred to the charity before exchange                                                        | CONV_TRANSFER                                                                                                    |
-| Exchanged_transfer_amount   | N(20,4)  | The amount transferred to the charity after exchange                                                         | CONV_TRANSFER                                                                                                    |
-| Exchanged_transfer_currency | AN       | An ISO-4217 currency code for the transfer after exchange                                                    | CONV_TRANSFER                                                                                                    |
-| Processed                   | B        | Indicates whether the event has been processed                                                               | N/A                                                                                                              |
+| Field                       | Type            | Description                                                                                                  | Used in                                                                                                          |
+| --------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Event_Id                    | N               | Identifies the even within the database, auto increment                                                      | All                                                                                                              |
+| Type                        | AN              | Identifies the event type                                                                                    | All                                                                                                              |
+| Timestamp                   | DT              | The timestamp of the event                                                                                   | All                                                                                                              |
+| File_timestamp              | DT              | The timestamp of the file containing the event                                                               | All                                                                                                              |
+| Execute_timestamp           | DT              | The execution timestamp of the event                                                                         | DONA_NEW                                                                                                         |
+| Name                        | AN              | An external name for an entity, may apply to different kind of entities based on the event type              | META_NEW_CHARITY, META_NEW_OPTION, META_UPDATE_CHARITY                                                           |
+| Option_currency             | AN              | An ISO-4217 currency code for the investment option                                                          | META_NEW_OPTION                                                                                                  |
+| Reinvestment_fraction       | N(10,10)        | The fraction of the profits to reinvest                                                                      | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
+| FutureFund_fraction         | N(10,10)        | The fraction of the profits to donate to the future fund                                                     | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
+| Charity_fraction            | N(10,10)        | The fraction of the profits to donate to the charity                                                         | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
+| Bad_year_fraction           | N(10,10)        | The minimal fraction of the total amount of money in the investment option that should always be transferred | META_NEW_OPTION, META_UPDATE_FRACTIONS                                                                           |
+| Bank_account_no             | AN              | The bank account for the charity                                                                             | META_UPDATE_CHARITY                                                                                              |
+| Bank_name                   | AN              | The charity's name at the bank                                                                               | META_UPDATE_CHARITY                                                                                              |
+| Bank_bic                    | AN              | The charity's bic                                                                                            | META_UPDATE_CHARITY                                                                                              |
+| Donation_id                 | AN              | The external identifier for the donation                                                                     | DONA_NEW                                                                                                         |
+| Donor_id                    | AN              | The external identifier for the donor                                                                        | DONA_NEW                                                                                                         |
+| Charity_id                  | AN              | The external identifier for the charity                                                                      | DONA_NEW,  CONV_TRANSFER                                                                                         |
+| Option_id                   | AN              | The external identifier for the investment option                                                            | META_NEW_OPTION, META_UPDATE_FRACTIONS, DONA_NEW, PRICE_INFO, CONV_ENTER, CONV_INVEST, CONV_LIQUIDATE, CONV_EXIT |
+| Donation_currency           | AN              | An ISO-4217 currency code for the donation                                                                   | DONA_NEW                                                                                                         |
+| Donation_Amount             | N(16,4)         | The donated amount                                                                                           | DONA_NEW                                                                                                         |
+| Exchanged_donation_amount   | N(16,4)         | The donated amount in the currency of the investment option                                                  | DONA_NEW                                                                                                         |
+| Transaction_reference       | AN              | An external reference for the donation transaction                                                           | DONA_NEW, CONV_INVEST, CONV_LIQUIDATE                                                                            |
+| Exchange_reference          | AN?             | An optional external reference for the exchange transaction                                                  | DONA_NEW, CONV_TRANSFER                                                                                          |
+| Invested_amount             | N(20,4)         | The total invested amount of money in the fund, according to the current investment fund price               | PRICE_INFO, CONV_ENTER, CONV_INVEST, CONV_LIQUIDATE                                                              |
+| Cash_amount                 | N(20,4)         | The total cash amount of money in the investment option                                                      | PRICE_INFO, CONV_INVEST, CONV_LIQUIDATE                                                                          |
+| Exit_amount                 | N(20,4)         | The amount to be donated to charities                                                                        | CONV_EXIT                                                                                                        |
+| Transfer_currency           | AN              | An ISO-4217 currency code for the transfer                                                                   | CONV_TRANSFER                                                                                                    |
+| Transfer_amount             | N(20,4)         | The amount transferred to the charity before exchange                                                        | CONV_TRANSFER                                                                                                    |
+| Exchanged_transfer_amount   | N(20,4)         | The amount transferred to the charity after exchange                                                         | CONV_TRANSFER                                                                                                    |
+| Exchanged_transfer_currency | AN              | An ISO-4217 currency code for the transfer after exchange                                                    | CONV_TRANSFER                                                                                                    |
+| Partitions                  | (AN,N(20,10))\* | A set of partition specifications                                                                            | META_CHARITY_PARTITION                                                                                           |
+| Processed                   | B               | Indicates whether the event has been processed                                                               | N/A                                                                                                              |
 
 ### Rollback
 
@@ -93,7 +94,7 @@ The main model should contain the current state of affairs according to all the 
 This comprises:
 
 * All donations
-* All charities
+* All charities, including theme partitionings
 * All investment options, invested amounts and cash amounts
 * All current ownership fractions of donations in investment options
 * All current allocations for charities
@@ -145,12 +146,22 @@ The table `Charity` contains all charities.
 
 | Field           | Type | Description                                                          |
 | --------------- | ---- | -------------------------------------------------------------------- |
-| Charity_Id      | N    | An internal primary key for the donation                             |
+| Charity_Id      | N    | An internal primary key for the charity                              |
 | Charity_Ext_Id  | AN   | The external id of the charity                                       |
 | Name            | AN   | The name of the charity                                              |
 | Bank_name       | AN   | The name of the charity as registered for the charity's bank account |
 | Bank_account_no | AN   | The bank account number for the charity (IBAN for EU zone)           |
 | Bank_Bic        | AN?  | The BIC for the charity's bank (Optional for EU zone)                |
+
+### Charity Partition
+
+The table `Charity_part` contains all charities.
+
+| Field           | Type     | Description                                              |
+| --------------- | -------- | -------------------------------------------------------- |
+| Charity_Id      | N        | The donation theme's primary key                         |
+| Charity_Part_Id | N        | The primary key of the charity that is part of the theme |
+| Fraction        | N(20,10) | A relative size for this partition                       |
 
 ### Option
 
@@ -233,19 +244,19 @@ In PostgreSql the most obvious choice is to use functions for all types of logic
 
 * Import Event, calls
   
-  * Import specific event (x11)
+  * Import specific event (x number of events)
 
 * Process events, calls
   
   * Process event, calls
     
-    * Process specific event (x11)
+    * Process specific event (x number of events)
 
 * Rollback events, calls
   
   * Rollback event, calls
     
-    * Rollback specific event (x11)
+    * Rollback specific event (x number of events)
 
 * Calculate liquidation
 
@@ -253,15 +264,15 @@ In PostgreSql the most obvious choice is to use functions for all types of logic
 
 * Create export
 
-This total 41 functions, most of which are fairly simple.
-Some of the more complex functions might call even more functions, but that is an implementation detail and out of scope for this document.
+Most of these functions are fairly simple to implement.
 
 ## Processing events
 
 Each and every event that is processed is first entered into the `Event` table. 
 A primary key (auto incerement) is assigned to the event, and the chronology is checked by file_timestamp first, then timestamp.
 
-The metadata events and the '_New donation_' event perform a single insert/update on the database table that corresponds to the event.
+The metadata events and the '_New donation_' event perform a single insert/update on the database table that corresponds to the event. 
+An exception to this is the `META_CHARITY_PARTITION` event which synchronizes a set of records to the specified partitioning.
 
 The `Price info` event sets the `Invested_amount` field of the `Option`.
 
@@ -316,7 +327,7 @@ The current cash amount can be subtracted from this amount to determine how much
 > #### Assumption
 > 
 > Given the situation there is only a single `Enter` between two `Exit` *and* it is positioned right after the `Exit`, we let the `Enter`ed donations take part of the entire timespan between `Exit`s.
-> So no fractional periods habve to be calculated.
+> So no fractional periods have to be calculated.
 > When we choose to deviate from this convention we will have to take a look at it again, and maybe redesign a bit.
 
 > #### Warning
