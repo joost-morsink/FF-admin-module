@@ -409,12 +409,20 @@ DECLARE
 	ff_fraction numeric(21,20);
 
 BEGIN
-	select option_id, futurefund_fraction / (futurefund_fraction + charity_fraction)
+    select option_id, futurefund_fraction / (futurefund_fraction + charity_fraction)
 		into opt_id, ff_fraction
 		from ff.option where option_ext_id = event.option_id;
 
+    IF event.exit_amount = 0 THEN
+        update ff.option o
+		set exit_ideal_valuation = ff.calculate_ideal_valuation(opt_id, 0,o.invested_amount)
+		, exit_actual_valuation = o.invested_amount + o.cash_amount
+		where o.option_id = opt_id;
+        return ROW(0,'','OK')::core.message;
+    end if;
+
     IF (select cash_amount from ff.option where option_id = opt_id) < event.exit_amount THEN
-		return ROW(4,'Amount','Not enough cash in option.');
+		return ROW(4,'Amount','Not enough cash in option.')::core.message;
 	END IF;
 	
 	FOR char_id IN 

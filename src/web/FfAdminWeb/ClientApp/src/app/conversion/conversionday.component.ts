@@ -196,10 +196,6 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
     this.exit_amount = await this.admin.calculateExit(this.option, 0, this.option.invested_amount, this.timestamp.value);
   }
   public async exit() {
-    if (parseFloat(this.exitAmount.value) == 0) {
-      this.exited.emit();
-      return;
-    }
     let event = {
       type: 'CONV_EXIT',
       timestamp: this.timestamp.value,

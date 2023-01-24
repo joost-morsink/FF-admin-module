@@ -246,8 +246,8 @@ namespace FfAdmin.Common
         {
             if (string.IsNullOrWhiteSpace(Option))
                 yield return new ValidationMessage(nameof(Option), "Field is required");
-            if (Amount <= 0)
-                yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
+            if (Amount < 0)
+                yield return new ValidationMessage(nameof(Amount), "Amount must not be negative");
         }
     }
     public class ConvTransfer : Event
