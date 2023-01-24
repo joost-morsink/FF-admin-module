@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -43,6 +44,7 @@ namespace FfAdmin.Common
                     EventType.META_UPDATE_FRACTIONS => JsonSerializer.Deserialize<UpdateFractions>(json, options)!,
                     EventType.META_NEW_CHARITY => JsonSerializer.Deserialize<NewCharity>(json, options)!,
                     EventType.META_UPDATE_CHARITY => JsonSerializer.Deserialize<UpdateCharity>(json, options)!,
+                    EventType.META_CHARITY_PARTITION => JsonSerializer.Deserialize<CharityPartition>(json, options)!,
                     EventType.DONA_NEW => JsonSerializer.Deserialize<NewDonation>(json, options)!,
                     EventType.DONA_UPDATE_CHARITY => JsonSerializer.Deserialize<UpdateCharityForDonation>(json, options)!,
                     EventType.DONA_CANCEL => JsonSerializer.Deserialize<CancelDonation>(json, options)!,
@@ -154,6 +156,19 @@ namespace FfAdmin.Common
         {
             if (string.IsNullOrWhiteSpace(Code))
                 yield return new ValidationMessage(nameof(Code), "Code is required.");
+        }
+    }
+    public class CharityPartition : Event
+    {
+        public override EventType Type => EventType.META_CHARITY_PARTITION;
+        public string Charity { get; set; } = "";
+        public FractionSpec[] Partitions { get; set; } = Array.Empty<FractionSpec>();
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Charity))
+                yield return new ValidationMessage(nameof(Charity), "Charity is required.");
+            foreach (var msg in Partitions.SelectMany(p => p.Validate()))
+                yield return msg;
         }
     }
     public class NewDonation : Event

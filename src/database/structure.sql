@@ -10,6 +10,7 @@ truncate table ff.fraction cascade;
 truncate table ff.fractionset cascade;
 truncate table ff.option cascade;
 truncate table ff.donation cascade;
+truncate table ff.charity_part;
 truncate table ff.charity cascade;
 truncate table ff.transfer cascade;
 truncate table ff.allocation cascade;
@@ -19,6 +20,29 @@ truncate table core.event_file;
 create schema if not exists core;
 create schema if not exists ff;
 create schema if not exists audit;
+
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 'fraction_spec' and ns.nspname = 'core') THEN
+
+		create type core.fraction_spec as (holder int, fraction numeric(20,10));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+do $$
+BEGIN
+	if not exists (select * from pg_catalog.pg_type t
+		join pg_catalog.pg_namespace ns on t.typnamespace = ns.oid
+		where t.typname = 's_fraction_spec' and ns.nspname = 'core') THEN
+
+		create type core.s_fraction_spec as (holder varchar(16), fraction numeric(20,10));
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 create sequence if not exists core.event_seq;
 
@@ -54,6 +78,7 @@ create table if not exists core.event (
 	transfer_amount numeric(20,4) null,
 	exchanged_transfer_currency varchar(4) null,
 	exchanged_transfer_amount numeric(20,4) null,
+	partitions core.s_fraction_spec[] null,
 	processed boolean not null default FALSE
 );
 
@@ -102,6 +127,14 @@ create table if not exists ff.charity (
 );
 
 create unique index if not exists charity_ext on ff.charity(charity_ext_id);
+
+create table if not exists ff.charity_part (
+    charity_id int not null references charity(charity_id),
+    charity_part_id int not null references charity(charity_id),
+    fraction numeric(20,10) null
+);
+
+create index if not exists charity_part_charity on ff.charity_part(charity_id);
 
 create sequence if not exists ff.option_seq;
 create table if not exists ff.option (

@@ -11,3 +11,5 @@ src/web/AdminModule/database.sql
 src/web/.idea
 *.user
 .DS_Store
+
+.fake

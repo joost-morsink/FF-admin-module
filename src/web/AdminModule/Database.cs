@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Dapper;
 using System.Linq;
+using FfAdmin.Common;
 
 namespace FfAdmin.AdminModule
 {
@@ -93,6 +94,7 @@ namespace FfAdmin.AdminModule
                 connection.TypeMapper.MapComposite<Audit>("audit.main");
                 connection.TypeMapper.MapComposite<AuditFinancial>("audit.financial");
                 connection.TypeMapper.MapComposite<AuditTransfers>("audit.transfers");
+                connection.TypeMapper.MapComposite<FractionSpec>("core.s_fraction_spec");
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch { } // Ignore if not found

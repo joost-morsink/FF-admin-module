@@ -23,6 +23,8 @@ The Future Fund business domain contains of the following events:
   
   * Charity Update
   
+  * Charity Partition
+
   * New Option
   
   * Update Option fractions
@@ -128,6 +130,18 @@ This event updates information on the charity, like bank information. Only suppl
 | Bank_account_no | AN?                | The charity's bank account number             |                     |
 | Bank_name       | AN?                | The charity's name, as registered by the bank |                     |
 | Bank_bic        | AN?                | The charity's bank identification code        |                     |
+
+#### Charity Partition
+
+This events makes a charity into a 'donation theme' by specifying the distribution of the theme.
+If the partitions are empty or contain only a self-reference, a donation theme is restored as an actual charity.
+
+| Field           | Type               | Description                                   | Value                  |
+| --------------- | ------------------ | --------------------------------------------- | ---------------------- |
+| Type            | A                  | Identifies the event                          | META_CHARITY_PARTITION |
+| Timestamp       | DateTime(ISO-8601) | The time of the event                         |                        |
+| Code            | AN                 | Identifies the donation theme                 |                        |
+| Partitions      | (AN, N(20,10))     | The partitions of the theme                   |                        |
 
 #### New Option
 

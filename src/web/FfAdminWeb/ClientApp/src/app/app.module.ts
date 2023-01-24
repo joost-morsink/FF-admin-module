@@ -24,6 +24,7 @@ import { ExportComponent } from './export/export.component';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
+import {CharityPartitionComponent} from "./charity/charity_partition.component";
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { HomeComponent } from './home/home.component';
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'charities', component: CharitiesComponent },
+      { path: 'partition/:id', component: CharityPartitionComponent },
       { path: 'options', component: OptionsComponent },
       { path: 'events', component: EventsComponent },
       { path: 'donations', component: DonationsComponent },

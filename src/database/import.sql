@@ -16,7 +16,37 @@ drop function core.import_conv_exit;
 drop function core.import_conv_transfer;
 drop function core.import_conv_increase_cash;
 drop function core.import_audit;
+drop function core.parse_fraction_specs;
+drop function core.parse_fraction_spec;
 */
+
+create or replace function core.parse_fraction_spec(dat jsonb) returns core.s_fraction_spec as $$
+declare
+    holder varchar(16);
+    fraction numeric(20,10);
+begin
+    select dat->>'holder', cast(dat->>'fraction' as numeric(20,10))
+        into holder,fraction;
+    return ROW(holder,fraction)::core.s_fraction_spec;
+end;
+$$ LANGUAGE plpgsql;
+
+create or replace function core.parse_fraction_specs(dat jsonb) returns core.s_fraction_spec[] as $$
+declare
+    holder varchar(16);
+    fraction numeric(20,10);
+    result core.s_fraction_spec[];
+    x jsonb;
+begin
+    result := Array[]::core.s_fraction_spec[];
+    for x in select value from jsonb_array_elements(dat) loop
+        result := result || core.parse_fraction_spec(x);
+    end loop;
+
+    return result;
+end;
+$$ LANGUAGE plpgsql;
+
 create or replace function core.import_events(file_timestamp timestamp, events jsonb[]) returns core.message as $$
 DECLARE
 	i int;
@@ -46,6 +76,7 @@ BEGIN
 				WHEN 'DONA_CANCEL' THEN (select core.import_dona_cancel(file_timestamp ,eventdata))
 				WHEN 'META_NEW_CHARITY' THEN (select core.import_meta_new_charity(file_timestamp ,eventdata))
 				WHEN 'META_UPDATE_CHARITY' THEN (select core.import_meta_update_charity(file_timestamp ,eventdata))
+	            WHEN 'META_CHARITY_PARTITION' THEN (select core.import_meta_charity_partition(file_timestamp, eventdata))
 				WHEN 'META_NEW_OPTION' THEN (select core.import_meta_new_option(file_timestamp ,eventdata))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select core.import_meta_update_fractions(file_timestamp ,eventdata))
 				WHEN 'PRICE_INFO' THEN (select core.import_price_info(file_timestamp ,eventdata))
@@ -112,10 +143,29 @@ BEGIN
 		, eventdata->>'charity'
 		into timestamp, donation_id, charity_id;
 	IF timestamp is null or donation_id is null or charity_id is null THEN
-		return ROW(4,'','Missing data in DONA_NEW event')::core.message;
+		return ROW(4,'','Missing data in DONA_UPDATE_CHARITY event')::core.message;
 	END IF;
 	INSERT INTO core.event(type,timestamp, file_timestamp, donation_id, charity_id)
 					VALUES ('DONA_UPDATE_CHARITY', timestamp, file_timestamp, donation_id, charity_id);
+	return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
+
+create or replace function core.import_meta_charity_partition(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+DECLARE
+	res core.message;
+	timestamp timestamp;
+	charity_id varchar(16);
+    partitions core.s_fraction_spec[];
+BEGIN
+	select eventdata->>'timestamp'
+		, eventdata->>'charity'
+	    , core.parse_fraction_specs(eventdata->'partitions')
+		into timestamp, charity_id, partitions;
+	IF timestamp is null or charity_id is null or partitions is null THEN
+		return ROW(4,'','Missing data in META_CHARITY_PARTITION event')::core.message;
+	END IF;
+	INSERT INTO core.event(type,timestamp, file_timestamp, charity_id, partitions)
+					VALUES ('META_CHARITY_PARTITION', timestamp, file_timestamp, charity_id, partitions);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

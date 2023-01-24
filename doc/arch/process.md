@@ -53,13 +53,9 @@ After the liquidation has been executed on the investment platform, the results 
 
 ### Execute Exit
 
-The `Exit` step allocates money in the right proportions to all the charities that have been selected by the original donations.
+The `Exit` step allocates money in the right proportions to all the charities that have been selected by the original donations, taking into account redistribution of amounts due to donation themes.
 If there are enough liquid assets in the investment option, the total amount of calculated money can be transferred.
-If there aren't, either:
-
-* more stocks need to be liquidated, or
-
-* a fraction should be calculated based on the availability of liquid assets.
+If there aren't, an exit amount is specified on which the calculation can be based.
 
 ### Transfer money to charities and administer results
 

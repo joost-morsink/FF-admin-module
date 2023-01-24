@@ -18,6 +18,7 @@ drop function ff.process_conv_exit;
 drop function ff.process_conv_transfer;
 drop function ff.process_conv_increase_cash;
 drop function ff.process_audit;
+drop function ff.update_charity_fractions;
 */
 create or replace procedure ff.process_events(until timestamp, inout res core.message) as $$
 DECLARE
@@ -58,6 +59,7 @@ BEGIN
 				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
 				WHEN 'META_UPDATE_CHARITY' THEN (select ff.process_meta_update_charity(event))
+	            WHEN 'META_CHARITY_PARTITION' THEN (select ff.process_meta_charity_partition(event))
 				WHEN 'META_NEW_OPTION' THEN (select ff.process_meta_new_option(event))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select ff.process_meta_update_fractions(event))
 				WHEN 'PRICE_INFO' THEN (select ff.process_price_info(event))
@@ -167,6 +169,19 @@ BEGIN
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+create or replace function ff.process_meta_charity_partition(pEvent core.event) returns core.message as $$
+DECLARE
+    res core.message;
+BEGIN
+    res := (select update_charity_fractions(c.charity_id
+        , ARRAY(select ROW(ci.charity_id, pEvent.partitions[i].fraction)::core.fraction_spec from generate_subscripts(pEvent.partitions,1) i
+            join ff.charity ci on ci.charity_ext_id = pEvent.partitions[i].holder))
+        from ff.charity c
+        where c.charity_ext_id = pEvent.charity_id);
+
+    return res;
+end; $$ LANGUAGE plpgsql;
 
 create or replace function ff.process_meta_new_option(event core.event) returns core.message as $$
 DEClARE
@@ -349,6 +364,7 @@ DECLARE
 	new_fractionset_id int;
 	total_fraction numeric(21,20);
 BEGIN
+    -- Calculate fraction charity/option
 	select sum(f.fraction) into total_fraction
 		from ff.option o
 		join ff.fraction f on o.fractionset_id = f.fractionset_id
@@ -361,7 +377,8 @@ BEGIN
 		insert into ff.fractionset(created) values (event.timestamp) returning fractionset_id
 	)
 	select fractionset_id into new_fractionset_id from inserted;
-	
+
+    -- Normalize the fraction set into a new one containing only the current charity donations.
 	insert into ff.fraction (fractionset_id, donation_id, fraction)
 		select new_fractionset_id, d.donation_id, f.fraction / total_fraction
 			from ff.option o
@@ -371,8 +388,11 @@ BEGIN
 			where d.charity_id = char_id
 				and o.option_id = opt_id;
 
+    -- Divide the amount of the allocation over the charity parts
 	insert into ff.allocation (timestamp, option_id, charity_id, fractionset_id, amount, transferred)
-		values (event.timestamp, opt_id, char_id, new_fractionset_id, char_fraction * total_fraction * event.exit_amount, FALSE);
+		select event.timestamp, opt_id, scp.part_charity_id, new_fractionset_id, scp.fraction * char_fraction * total_fraction * event.exit_amount, FALSE
+		    from ff.separate_charity_parts scp
+		        where scp.main_charity_id = char_id;
 	IF FOUND THEN
 		return ROW(0,'','OK')::core.message;
 	ELSE
@@ -458,13 +478,33 @@ BEGIN
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+create or replace function ff.update_charity_fractions(pCharity_id int, pParts core.fraction_spec[]) returns core.message as $$
+BEGIN
+    if not exists (select * from generate_subscripts(pParts,1) as i
+        where pParts[i].holder <> pCharity_id) then
+        delete from ff.charity_part where charity_id = pCharity_id;
+        return ROW(0,'','Parts deleted')::core.message;
+    end if;
+    delete from ff.charity_part dst
+        where charity_id = pCharity_id
+        and charity_part_id not in (select holder from unnest(pParts));
+    update ff.charity_part dst
+        set fraction = src.fraction
+        from (select * from unnest(pParts)) src
+        where dst.charity_id = pCharity_id and dst.charity_part_id = src.holder;
+    insert into ff.charity_part (charity_id, charity_part_id, fraction)
+        select pCharity_id, holder, fraction from unnest(pParts)
+            where holder not in (select charity_part_id from ff.charity_part where charity_id = pCharity_id);
+    return ROW(0,'','OK')::core.message;
+END; $$ LANGUAGE plpgsql;
 /*
 
 do $$
 declare
 	res core.message;
 begin
-	call ff.process_events('2021-12-17T19:00:00Z', res);
+	call ff.process_events('2023-12-20T19:00:00Z', res);
 	IF res.status = 0 THEN
 		raise info 'OK';
 	ELSE
@@ -472,7 +512,8 @@ begin
 	END IF;
 end;
 $$ LANGUAGE plpgsql;
-		
+
+
 select *
 		from ff.option o
 		cross join ff.donation d
@@ -485,6 +526,17 @@ select * from ff.fraction where fractionset_id = 4;
 select * from ff.fraction;
 select * from ff.allocation;
 select * from ff.charity;
+select * from ff.charity_part;
+select * from core.event where processed=false
+select ff.process_meta_charity_partition(e.*::core.event)
+ from core.event e where event_id=321
+select update_charity_fractions(c.charity_id
+        , ARRAY(select ROW(ci.charity_id, e.partitions[i].fraction)::core.fraction_spec from generate_subscripts(e.partitions,1) i
+            join ff.charity ci on ci.charity_ext_id = e.partitions[i].holder))
+        into res
+        from ff.charity c
+        cross join core.event e
+        where e.event_id = 321
+        and c.charity_ext_id = 'THEME-TEST';
+res;
 */
-
-
