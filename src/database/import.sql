@@ -20,7 +20,7 @@ drop function core.parse_fraction_specs;
 drop function core.parse_fraction_spec;
 */
 
-create or replace function core.parse_fraction_spec(dat json) returns core.s_fraction_spec as $$
+create or replace function core.parse_fraction_spec(dat jsonb) returns core.s_fraction_spec as $$
 declare
     holder varchar(16);
     fraction numeric(20,10);
@@ -31,15 +31,15 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function core.parse_fraction_specs(dat json) returns core.s_fraction_spec[] as $$
+create or replace function core.parse_fraction_specs(dat jsonb) returns core.s_fraction_spec[] as $$
 declare
     holder varchar(16);
     fraction numeric(20,10);
     result core.s_fraction_spec[];
-    x json;
+    x jsonb;
 begin
     result := Array[]::core.s_fraction_spec[];
-    for x in select value from json_array_elements(dat) loop
+    for x in select value from jsonb_array_elements(dat) loop
         result := result || core.parse_fraction_spec(x);
     end loop;
 
@@ -159,13 +159,13 @@ DECLARE
 BEGIN
 	select eventdata->>'timestamp'
 		, eventdata->>'charity'
-	    , core.parse_fraction_specs(eventdata->>'partitions')
+	    , core.parse_fraction_specs(eventdata->'partitions')
 		into timestamp, charity_id, partitions;
 	IF timestamp is null or charity_id is null or partitions is null THEN
 		return ROW(4,'','Missing data in META_CHARITY_PARTITION event')::core.message;
 	END IF;
 	INSERT INTO core.event(type,timestamp, file_timestamp, charity_id, partitions)
-					VALUES ('META_CHARITY_PARTITION', timestamp, file_timestamp, donation_id, charity_id, partitions);
+					VALUES ('META_CHARITY_PARTITION', timestamp, file_timestamp, charity_id, partitions);
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 

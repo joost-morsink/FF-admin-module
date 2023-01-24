@@ -59,7 +59,7 @@ BEGIN
 				WHEN 'DONA_CANCEL' THEN (select ff.process_dona_cancel(event))
 				WHEN 'META_NEW_CHARITY' THEN (select ff.process_meta_new_charity(event))
 				WHEN 'META_UPDATE_CHARITY' THEN (select ff.process_meta_update_charity(event))
-	            WHEN 'META_CHARITY_PARTITION' then (select ff.process_meta_charity_partition(event))
+	            WHEN 'META_CHARITY_PARTITION' THEN (select ff.process_meta_charity_partition(event))
 				WHEN 'META_NEW_OPTION' THEN (select ff.process_meta_new_option(event))
 				WHEN 'META_UPDATE_FRACTIONS' THEN (select ff.process_meta_update_fractions(event))
 				WHEN 'PRICE_INFO' THEN (select ff.process_price_info(event))
@@ -170,16 +170,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function ff.process_meta_charity_partition(event core.event) returns core.message as $$
+create or replace function ff.process_meta_charity_partition(pEvent core.event) returns core.message as $$
 DECLARE
     res core.message;
 BEGIN
-    select update_charity_fractions(c.charity_id
-        , ARRAY(select ROW(ci.charity_id, event.partitions[i].fraction)::core.fraction_spec from generate_subscripts(event.partitions,1) i
-            join ff.charity ci on ci.charity_ext_id = event.partitions[i].holder))
+    res := (select update_charity_fractions(c.charity_id
+        , ARRAY(select ROW(ci.charity_id, pEvent.partitions[i].fraction)::core.fraction_spec from generate_subscripts(pEvent.partitions,1) i
+            join ff.charity ci on ci.charity_ext_id = pEvent.partitions[i].holder))
         from ff.charity c
-        where c.charity_ext_id = event.charity_id
-        into res;
+        where c.charity_ext_id = pEvent.charity_id);
 
     return res;
 end; $$ LANGUAGE plpgsql;
@@ -505,7 +504,7 @@ do $$
 declare
 	res core.message;
 begin
-	call ff.process_events('2021-12-17T19:00:00Z', res);
+	call ff.process_events('2023-12-20T19:00:00Z', res);
 	IF res.status = 0 THEN
 		raise info 'OK';
 	ELSE
@@ -513,7 +512,8 @@ begin
 	END IF;
 end;
 $$ LANGUAGE plpgsql;
-		
+
+
 select *
 		from ff.option o
 		cross join ff.donation d
@@ -527,6 +527,16 @@ select * from ff.fraction;
 select * from ff.allocation;
 select * from ff.charity;
 select * from ff.charity_part;
+select * from core.event where processed=false
+select ff.process_meta_charity_partition(e.*::core.event)
+ from core.event e where event_id=321
+select update_charity_fractions(c.charity_id
+        , ARRAY(select ROW(ci.charity_id, e.partitions[i].fraction)::core.fraction_spec from generate_subscripts(e.partitions,1) i
+            join ff.charity ci on ci.charity_ext_id = e.partitions[i].holder))
+        into res
+        from ff.charity c
+        cross join core.event e
+        where e.event_id = 321
+        and c.charity_ext_id = 'THEME-TEST';
+res;
 */
-
-
