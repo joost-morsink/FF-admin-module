@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -34,5 +37,31 @@ namespace FfAdminWeb.Utils
 
             return services;
         }
+
+        public static string ToSql(this IEnumerable<IExportRepository.ExportRow> rows)
+        {
+            var date = SqlString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            return $@"Insert into wp_donation_performance (
+                                     Donation_Id,
+                                     Donor_Id,
+                                     Option_Id,
+                                     Charity_Id,
+                                     Currency,
+                                     Exchanged_Amount,
+                                     Has_Entered,
+                                     Worth_Amount,
+                                     Allocated_Amount,
+                                     Transferred_Amount,
+                                     Create_DateTime) 
+            Values {String.Join("\r\n,", rows.Select(Line))};";
+
+            string Line(IExportRepository.ExportRow row)
+            {
+                return $@"({row.Donation_id},{row.Donor_id},{row.Option_id},{row.Charity_id},{SqlString(row.Currency)},{SqlNumeric(row.Exchanged_amount)},{row.Has_entered},{SqlNumeric(row.Worth)},{SqlNumeric(row.Allocated)},{SqlNumeric(row.Transferred)},{date})";
+            }
+            string SqlString(string s) => $"'{s.Replace("'", "''")}'";
+            string SqlNumeric(decimal d) => decimal.Round(d,4,MidpointRounding.ToZero).ToString(CultureInfo.InvariantCulture);
+        }
+        
     }
 }

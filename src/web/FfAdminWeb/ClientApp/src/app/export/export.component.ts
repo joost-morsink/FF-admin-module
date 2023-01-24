@@ -38,6 +38,10 @@ export class WebExportComponent {
   public downloadCsv() {
     this.download('csv');
   }
+  public downloadSql() {
+    this.download('sql');
+  }
+
   public download(format: string) {
     const link = document.createElement('a');
     link.setAttribute('href', `admin/export/${format}`);

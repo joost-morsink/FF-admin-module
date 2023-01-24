@@ -48,8 +48,8 @@ namespace FfAdmin.AdminModule
                     , we.ff_allocated
                     , we.ff_transferred
                 from ff.web_export we
-                join ff.donation d on we.donation_id = d.donation_id
-                join ff.option o on we.option_id = o.option_id
-                join ff.charity c on we.charity_id = c.charity_id");
+                join ff.donation d on we.donation_id = d.donation_ext_id
+                join ff.option o on we.option_id = o.option_ext_id
+                join ff.charity c on we.charity_id = c.charity_ext_id");
     }
 }
