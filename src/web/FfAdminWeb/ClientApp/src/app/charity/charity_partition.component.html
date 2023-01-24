@@ -1,35 +1,37 @@
-<h1>Charities</h1>
+<h1>Charity partitioning</h1>
 
 <p *ngIf="data==null">Loading...</p>
-<mat-table class="mat-elevation-z8" [dataSource]="data" *ngIf="data != null && view == 'main'">
+<h2 *ngIf="subject!=null">{{subject.name}}</h2>
+<mat-table class="mat-elevation-z8" [dataSource]="data" *ngIf="data != null">
+    <ng-container matColumnDef="checked">
+        <mat-header-cell *matHeaderCellDef>Select</mat-header-cell>
+        <mat-cell *matCellDef="let x">
+          <mat-checkbox [checked]="x.checked" (change)="x.checked = !x.checked">
+          </mat-checkbox>
+        </mat-cell>
+    </ng-container>
     <ng-container matColumnDef="code">
         <mat-header-cell *matHeaderCellDef>Code</mat-header-cell>
-        <mat-cell *matCellDef="let x">{{ x.code }}</mat-cell>
+        <mat-cell *matCellDef="let x">{{ x.item.code }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-        <mat-cell *matCellDef="let x">{{ x.name }}</mat-cell>
+        <mat-cell *matCellDef="let x">{{ x.item.name }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="bank_name">
         <mat-header-cell *matHeaderCellDef>Bank name</mat-header-cell>
-        <mat-cell *matCellDef="let x">{{ x.bank_name }}</mat-cell>
+        <mat-cell *matCellDef="let x">{{ x.item.bank_name }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="bank_account_no">
         <mat-header-cell *matHeaderCellDef>Bank account number</mat-header-cell>
-        <mat-cell *matCellDef="let x">{{ x.bank_account_no }}</mat-cell>
+        <mat-cell *matCellDef="let x">{{ x.item.bank_account_no }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="bank_bic">
         <mat-header-cell *matHeaderCellDef>Bank BIC</mat-header-cell>
-        <mat-cell *matCellDef="let x">{{ x.bank_bic }}</mat-cell>
+        <mat-cell *matCellDef="let x">{{ x.item.bank_bic }} </mat-cell>
     </ng-container>
-  <ng-container matColumnDef="link">
-    <mat-header-cell *matHeaderCellDef>Partition</mat-header-cell>
-    <mat-cell *matCellDef="let x">
-      <a [routerLink]="['/partition',x.id]">
-        <button><span class="inline-icon material-icons">pie_chart</span><span>Partition</span></button>
-      </a>
-    </mat-cell>
-  </ng-container>
+
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
 </mat-table>
+<button (click)="save()">Save</button>

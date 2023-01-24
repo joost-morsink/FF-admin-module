@@ -46,7 +46,7 @@ export interface IOptionUpdate extends ICode, IOptionFractions {
 
 }
 export interface IEventNewOption extends IEvent, ICode, IName, ICurrency, IOptionFractions {
-  
+
 }
 
 export interface IEventNewCharity extends IEvent, ICode, IName {
@@ -56,6 +56,15 @@ export interface IEventNewCharity extends IEvent, ICode, IName {
 export interface IEventLiquidate extends IEvent, IOptionAmounts {
   option: string;
   transaction_reference: string;
+}
+
+export interface IFractionSpec {
+  holder: string;
+  fraction: number;
+}
+export interface IEventCharityPartition extends IEvent {
+  charity: string;
+  partitions: IFractionSpec[];
 }
 export interface IValidationMessage {
   key: string;

@@ -67,6 +67,13 @@ namespace FfAdminWeb.Controllers
             return res.Select(CharityGridRow.Create);
         }
 
+        [HttpGet("{id}/partitions")]
+        public async Task<IEnumerable<FractionSpec>> GetPartitions(int id)
+        {
+            var res = await _repository.GetPartitions(id);
+            return res;    
+        }
+
         [HttpGet("opentransfers")]
         public async Task<IEnumerable<OpenTransferGridRow>> GetOpenTransfers()
         {

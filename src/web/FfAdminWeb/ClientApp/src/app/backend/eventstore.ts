@@ -8,6 +8,7 @@ export class EventStore {
 
   }
   private lastSessionAvailable: boolean;
+
   public wasSessionAvailable(): boolean {
     return this.lastSessionAvailable;
   }
