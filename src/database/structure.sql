@@ -1,9 +1,13 @@
 /*
+drop schema report cascade;
 drop schema audit cascade;
 drop schema ff cascade;
 update core.event set processed = FALSE;
 drop schema core cascade;
 ******************************************
+
+truncate table report.web_export_history_donation;
+truncate table report.web_export_history;
 truncate table audit.main cascade;
 truncate table audit.financial cascade;
 truncate table ff.fraction cascade;
@@ -20,6 +24,7 @@ truncate table core.event_file;
 create schema if not exists core;
 create schema if not exists ff;
 create schema if not exists audit;
+create schema if not exists report;
 
 
 do $$
@@ -237,3 +242,26 @@ create table if not exists audit.financial (
 	transferred_amount numeric(20,4) not null,
 	transfers audit.transfers[] not null,
 	primary key(audit_id, currency));
+
+create sequence if not exists report.web_export_history_seq;
+
+create table if not exists report.web_export_history (
+    web_export_history_id int primary key not null default nextval('report.web_export_history_seq'),
+    timestamp timestamp not null);
+
+create table if not exists report.web_export_history_donation (
+    web_export_history_id int not null references report.web_export_history(web_export_history_id),
+    donation_id varchar(32) not null,
+    donor_id varchar(32) not null,
+    option_id varchar(32) not null,
+    charity_id varchar(32) not null,
+    currency varchar(4) not null,
+    exchanged_amount numeric(16,4) not null,
+    has_entered boolean not null,
+    worth numeric(16,4) not null,
+    allocated numeric(16,4) not null,
+    transferred numeric(16,4) not null,
+    ff_allocated numeric(16,4) not null,
+    ff_transferred numeric(16,4) not null);
+
+create index if not exists web_export_history_donation_donation on report.web_export_history_donation(web_export_history_id);

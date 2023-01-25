@@ -5,6 +5,7 @@ drop function if exists ff.bank_transfers cascade;
 drop function if exists ff.select_audit cascade;
 drop function if exists ff.new_audit cascade;
 drop function if exists ff.audit_for_currency cascade;
+drop function if exists report.record_web_export_history cascade;
 drop view if exists ff.web_export cascade;
 */
 
@@ -124,5 +125,19 @@ end; $$ LANGUAGE plpgsql;
 		
 		select * from fraction where donation_id in (506,508) or fractionset_id in (175)
 */
-	
-	
+
+create or replace function report.record_web_export_history(attime timestamp) returns int as $$
+    declare
+        id int;
+    begin
+        id := nextval('report.web_export_history_seq');
+        delete from report.web_export_history_donation where web_export_history_id in (select web_export_history_id from report.web_export_history where attime - timestamp < '1D');
+        delete from report.web_export_history where attime - timestamp < '1D';
+        insert into report.web_export_history(web_export_history_id, timestamp) values (id, attime);
+        insert into report.web_export_history_donation(web_export_history_id, donation_id, donor_id, option_id, charity_id, currency, exchanged_amount, has_entered, worth, allocated, transferred, ff_allocated, ff_transferred)
+        select id, donation_id, donor_id, option_id, charity_id, currency, exchanged_amount, has_entered, worth, allocated, transferred, ff_allocated, ff_transferred
+        from ff.web_export;
+        return id;
+    end;
+    $$ LANGUAGE plpgsql;
+

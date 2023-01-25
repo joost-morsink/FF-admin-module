@@ -320,9 +320,10 @@ BEGIN
 	update ff.option set invested_amount = event.invested_amount
 						, cash_amount = event.cash_amount
 		where option_ext_id = event.option_id and cash_amount >= event.cash_amount;
-	IF FOUND THEN
+	IF FOUND THEN begin
+	    perform report.record_web_export_history(event.timestamp);
 		return ROW(0,'','OK')::core.message;
-	ELSE
+	end; ELSE
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
 END;
@@ -446,9 +447,10 @@ BEGIN
 		, exit_actual_valuation = o.invested_amount + o.cash_amount - event.exit_amount
 		where o.option_id=opt_id;
 		
-	IF FOUND THEN
+	IF FOUND THEN begin
+	    perform report.record_web_export_history(event.timestamp);
 		return ROW(0,'','OK')::core.message;
-	ELSE
+	end; ELSE
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
 END;
@@ -460,9 +462,10 @@ BEGIN
 		select event.timestamp, charity_id, event.transfer_currency, event.transfer_amount, event.exchanged_transfer_currency, event.exchanged_transfer_amount
 			from ff.charity c
 			where c.charity_ext_id = event.charity_id; 
-	IF FOUND THEN
+	IF FOUND THEN begin
+	    perform report.record_web_export_history(event.timestamp);
 		return ROW(0,'','OK')::core.message;
-	ELSE
+	end; ELSE
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
 END;

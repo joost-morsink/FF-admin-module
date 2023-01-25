@@ -155,7 +155,7 @@ BEGIN
     left join (select
                      d.donation_id,
                      sum(ota.amount*f.fraction) as not_transferred
-                     from calculate_open_transfers_per_allocation() ota
+                     from ff.calculate_open_transfers_per_allocation() ota
                      join ff.allocation a on ota.allocation_id = a.allocation_id
                      join ff.fraction f on a.fractionset_id = f.fractionset_id
                      join ff.donation d on d.donation_id = f.donation_id
@@ -172,7 +172,7 @@ BEGIN
     left join (select
                      d.donation_id,
                      sum(ota.amount*f.fraction) as ff_not_transferred
-                     from calculate_open_transfers_per_allocation() ota
+                     from ff.calculate_open_transfers_per_allocation() ota
                      join ff.allocation a on ota.allocation_id = a.allocation_id
                      join ff.charity c on a.charity_id = c.charity_id and c.charity_ext_id='FF'
                      join ff.fraction f on a.fractionset_id = f.fractionset_id

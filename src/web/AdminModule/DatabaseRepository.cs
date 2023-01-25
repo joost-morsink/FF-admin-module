@@ -21,7 +21,8 @@ namespace FfAdmin.AdminModule
             _database = database;
         }
         public Task DropStructure()
-            => _database.Execute(@"drop schema if exists audit cascade;
+            => _database.Execute(@"drop schema if exists report cascade;
+                                       drop schema if exists audit cascade;
                                        drop schema if exists ff cascade;
                                        drop schema if exists core cascade;");
 
