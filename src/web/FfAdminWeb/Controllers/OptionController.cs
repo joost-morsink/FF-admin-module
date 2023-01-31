@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
@@ -51,5 +52,9 @@ namespace FfAdminWeb.Controllers
         [HttpGet("{optionId:int}")]
         public async Task<OptionGridRow> GetOption(int optionId)
             => OptionGridRow.Create(await _repository.GetOption(optionId));
+        
+        [HttpGet("{optionId:int}/loanable-cash")]
+        public async Task<decimal> GetLoanableCash(int optionId, DateTime at)
+            => await _repository.GetLoanableCash(optionId, at);
     }
 }

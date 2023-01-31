@@ -6,6 +6,7 @@ drop function if exists ff.calculate_open_transfers cascade;
 drop type if exists ff.open_transfer_per_allocation cascade;
 drop function if exists ff.calculate_open_transfers_per_allocation cascade;
 drop function if exists ff.calculate_allocations_and_transfers_per_donation cascade;
+drop function if exists ff.loanable_pre_enter_money;
 drop type if exists ff.allocations_and_transfers_per_donation cascade;
 drop view if exists ff.separate_charity_parts cascade;
 drop view if exists report.reportable_events;
@@ -183,6 +184,16 @@ BEGIN
 end;
     $$ LANGUAGE plpgsql;
 
+create or replace function ff.loanable_pre_enter_money(option int, attime timestamp) returns numeric(20,4) as $$
+    declare
+        result numeric(20,4);
+BEGIN
+    select sum(exchanged_amount)
+        into result
+        from ff.donation
+        where donation_id in (select * from ff.process_select_enter_candidates(option, attime));
+    return coalesce(result, 0.0000);
+END; $$ LANGUAGE plpgsql;
 
 create or replace view ff.separate_charity_parts as
  select c.charity_id as main_charity_id

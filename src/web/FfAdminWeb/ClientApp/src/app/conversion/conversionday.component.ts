@@ -118,6 +118,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   public newCash: FormControl;
   public transactionRef: FormControl;
   public formGroup: FormGroup;
+  public loanable: number;
 
   public ngOnInit(): void {
     this.compensation = new FormControl("0.00");
@@ -140,6 +141,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
     return parseFloat(str);
   }
   public async recalculate() {
+    this.loanable = await this.admin.getLoanableCash(this.option, new Date(this.timestamp.value));
     this.exit_amount = await this.admin.calculateExit(this.option, parseFloat(this.compensation.value), parseFloat(this.invested.value), this.timestamp.value);
   }
   public async increaseCash() {
@@ -182,6 +184,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
   public timestamp: FormControl;
   public exitAmount: FormControl;
   public formGroup: FormGroup;
+  public loanable: number;
 
   public ngOnInit() {
     this.timestamp = new FormControl(new Date().toISOString());
@@ -193,6 +196,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
     this.enabled = true;
   }
   public async recalculate() {
+    this.loanable = await this.admin.getLoanableCash(this.option, new Date(this.timestamp.value));
     this.exit_amount = await this.admin.calculateExit(this.option, 0, this.option.invested_amount, this.timestamp.value);
   }
   public async exit() {

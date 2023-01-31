@@ -49,10 +49,13 @@ export class Admin {
   }
 
   public async calculateExit(option: IOption, extra_cash: number, invested: number, timestamp: string) {
-    var res: number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&extra_cash=${extra_cash}&timestamp=${timestamp}`).toPromise();
+    let res: number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&extra_cash=${extra_cash}&timestamp=${timestamp}`).toPromise();
     return res || 0;
   }
-
+  public async getLoanableCash(option: IOption, at: Date) {
+    let res: number = await this.http.get<number>(this.baseUrl + `admin/options/${option.id}/loanable-cash?at=${at.toISOString()}`).toPromise();
+    return res || 0;
+  }
   public async recreateDatabase(): Promise<void> {
     return this.http.post<void>(this.baseUrl + "admin/database/recreate", {}).toPromise();
   }

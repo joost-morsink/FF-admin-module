@@ -8,10 +8,10 @@
     <br />
     <strong>Exit amount: </strong>{{option.currency}} {{ exit_amount }}
     <br />
-    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount }}
+    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount }} + {{ loanable }} = {{ option.cash_amount + loanable }}
     <br />
     <span *ngIf="exit_amount!=null && exit_amount > option.cash_amount">
-        <strong>Shortage: </strong>{{option.currency}} {{ exit_amount - option.cash_amount }}
+        <strong>Shortage: </strong>{{option.currency}} {{ exit_amount - option.cash_amount - loanable}}
     </span>
     <br />
     <button [disabled]="!enabled" (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>

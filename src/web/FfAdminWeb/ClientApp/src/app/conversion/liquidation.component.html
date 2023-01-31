@@ -21,10 +21,10 @@
     <br />
     <strong>Exit amount: </strong>{{option.currency}} {{ exit_amount }}
     <br />
-    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount + parseFloat(compensation.value) }}
+    <strong>Cash amount: </strong>{{option.currency}} {{ option.cash_amount + parseFloat(compensation.value) }} + {{ loanable }}
     <br />
     <span *ngIf="exit_amount!=null">
-        <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount - parseFloat(compensation.value) }}
+        <strong>Liquidation amount: </strong>{{option.currency}} {{ exit_amount - option.cash_amount - parseFloat(compensation.value) - loanable }}
     </span>
     <br />
     <button [disabled]="!enabled" (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>

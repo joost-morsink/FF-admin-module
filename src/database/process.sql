@@ -414,7 +414,7 @@ BEGIN
 		into opt_id, ff_fraction
 		from ff.option where option_ext_id = event.option_id;
 
-    IF (select cash_amount from ff.option where option_id = opt_id) < event.exit_amount THEN
+    IF (select cash_amount + ff.loanable_pre_enter_money(opt_id, event.timestamp) from ff.option where option_id = opt_id) < event.exit_amount THEN
 		return ROW(4,'Amount','Not enough cash in option.');
 	END IF;
 	

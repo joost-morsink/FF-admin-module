@@ -8,7 +8,7 @@ namespace FfAdmin.AdminModule
     {
         Task<Option[]> GetOptions();
         Task<Option> GetOption(int optionId);
-
+        Task<decimal> GetLoanableCash(int optionId, DateTime at);
     }
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
@@ -45,6 +45,12 @@ namespace FfAdmin.AdminModule
             => _db.QueryFirst<Option>(@"select * from ff.option where option_id = @opt;", new
             {
                 opt = optionId
+            });
+        public Task<decimal> GetLoanableCash(int optionId, DateTime at)
+            => _db.QueryFirst<decimal>(@"select ff.loanable_pre_enter_money(@opt, @at);", new
+            {
+                opt = optionId,
+                at
             });
     }
 }
