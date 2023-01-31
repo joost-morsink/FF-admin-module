@@ -41,12 +41,21 @@ export class WebExportComponent {
   public downloadSql() {
     this.download('sql');
   }
+  public downloadJsonHistory() {
+    this.download('json', true);
+  }
+  public downloadCsvHistory() {
+    this.download('csv', true);
+  }
+  public downloadSqlHistory() {
+    this.download('sql', true);
+  }
 
-  public download(format: string) {
+  public download(format: string, history: boolean = false, from?: Date) {
     const link = document.createElement('a');
-    link.setAttribute('href', `admin/export/${format}`);
+    link.setAttribute('href', history ? `admin/export/history/${format}${from ? `?from=${from.toISOString()}` : ""}` : `admin/export/${format}`);
     link.setAttribute('style', 'display:none;');
-    link.setAttribute('download', `web_export.${format}`);
+    link.setAttribute('download', history ? `web_export_history.${format}` : `web_export.${format}`);
     document.body.appendChild(link);
     link.click();
     link.remove();
