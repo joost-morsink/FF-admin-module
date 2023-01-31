@@ -8,6 +8,7 @@ drop function if exists ff.calculate_open_transfers_per_allocation cascade;
 drop function if exists ff.calculate_allocations_and_transfers_per_donation cascade;
 drop type if exists ff.allocations_and_transfers_per_donation cascade;
 drop view if exists ff.separate_charity_parts cascade;
+drop view if exists report.reportable_events;
 */
 
 create or replace function ff.calculate_ideal_valuation(opt_id int, extra_cash numeric(20,4), current_invested_amount numeric(20,4)) returns numeric(20,4) as $$
@@ -192,8 +193,19 @@ left join ff.charity_part p
  join ff.charity pc on p.charity_part_id = pc.charity_id
  on c.charity_id = p.charity_id;
 
+create or replace view report.reportable_events as
+    select event_id from (
+    select m.event_id, min(s.event_id) is null as is_last
+from core.event m
+left join core.event s
+    on (s.timestamp = m.timestamp and s.event_id > m.event_id or s.timestamp - m.timestamp > '0D' and s.timestamp - m.timestamp < '1D')
+           and s.type in ('CONV_TRANSFER', 'CONV_EXIT', 'CONV_INVEST')
+where m.type in ('CONV_TRANSFER', 'CONV_EXIT', 'CONV_INVEST')
+group by m.event_id) subquery
+    where is_last;
 
 /*
+select * from report.reportable_events
 
 do $$
 declare

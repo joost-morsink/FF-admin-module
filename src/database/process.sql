@@ -321,7 +321,7 @@ BEGIN
 						, cash_amount = event.cash_amount
 		where option_ext_id = event.option_id and cash_amount >= event.cash_amount;
 	IF FOUND THEN begin
-	    perform report.record_web_export_history(event.timestamp);
+	    perform report.record_web_export_history_when_reportable(event.event_id, event.timestamp);
 		return ROW(0,'','OK')::core.message;
 	end; ELSE
 		return ROW(4,'','Error in event')::core.message;
@@ -448,8 +448,8 @@ BEGIN
 		where o.option_id=opt_id;
 		
 	IF FOUND THEN begin
-	    perform report.record_web_export_history(event.timestamp);
-		return ROW(0,'','OK')::core.message;
+	    perform report.record_web_export_history_when_reportable(event.event_id, event.timestamp);
+	    return ROW(0,'','OK')::core.message;
 	end; ELSE
 		return ROW(4,'','Error in event')::core.message;
 	END IF;
@@ -463,7 +463,7 @@ BEGIN
 			from ff.charity c
 			where c.charity_ext_id = event.charity_id; 
 	IF FOUND THEN begin
-	    perform report.record_web_export_history(event.timestamp);
+	    perform report.record_web_export_history_when_reportable(event.event_id, event.timestamp);
 		return ROW(0,'','OK')::core.message;
 	end; ELSE
 		return ROW(4,'','Error in event')::core.message;

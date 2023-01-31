@@ -6,6 +6,7 @@ drop function if exists ff.select_audit cascade;
 drop function if exists ff.new_audit cascade;
 drop function if exists ff.audit_for_currency cascade;
 drop function if exists report.record_web_export_history cascade;
+drop function if exists report.record_web_export_history_when_reportable cascade;
 drop view if exists ff.web_export cascade;
 */
 
@@ -141,3 +142,12 @@ create or replace function report.record_web_export_history(attime timestamp) re
     end;
     $$ LANGUAGE plpgsql;
 
+create or replace function report.record_web_export_history_when_reportable(pEvent_id int, attime timestamp) returns int as $$
+    begin
+        IF pEvent_id in (select event_id from report.reportable_events) THEN
+            return report.record_web_export_history(attime);
+        ELSE
+            return null;
+        END IF;
+    end;
+$$ LANGUAGE plpgsql;
