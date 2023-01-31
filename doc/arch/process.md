@@ -3,29 +3,29 @@
 The Admin module mainly supports the business process of the conversion day.
 The process consists of the following _strictly sequential_ steps:
 
+* Export data (donations) from the online database
+
+* Import this data into the [event storage](#event-storage)
+  
 * Calculate liquidation of investments and transfers to charity
 
 * Execute liquidation and administer results
 
 * Execute `Exit`
 
-* Transfer money to charities and administer results
+* Transfer money to charities and administer results (can be delayed)
 
-* Optional 2nd part of the process:
-  
-  * Export data (donations) from the online database
-  
-  * Import this data into the [event storage](#event-storage)
-  
-  * Execute `Enter`
-  
-  * Execute investment of newly added liquid assets (cash amount) and administer results
+* Execute `Enter`
 
-* Make an export for auditing purposes
+* Execute investment of newly added liquid assets (cash amount) and administer results
 
-* Make an export for the website
+* Optionally:
 
-* Import the admin module export into the website
+  * Make an export for auditing purposes
+
+  * Make an export for the website
+
+  * Import the admin module export into the website
 
 ## Steps
 
@@ -55,6 +55,7 @@ After the liquidation has been executed on the investment platform, the results 
 
 The `Exit` step allocates money in the right proportions to all the charities that have been selected by the original donations, taking into account redistribution of amounts due to donation themes.
 If there are enough liquid assets in the investment option, the total amount of calculated money can be transferred.
+These liquid assets may include 'loaned' money from donations that haven't been entered yet into the fund, but are eligible to enter.
 If there aren't, an exit amount is specified on which the calculation can be based.
 
 ### Transfer money to charities and administer results
