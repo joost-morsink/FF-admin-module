@@ -28,6 +28,7 @@
     </span>
     <br />
     <button [disabled]="!enabled" (click)="recalculate()"><span class="inline-icon material-icons">functions</span> Recalculate</button>
+    <button [disabled]="!enabled" (click)="zeroLiquidation()"><span class="inline-icon material-icons">exposure_zero</span> Zero liquidation</button>
     <br/>
     <mat-form-field>
         <mat-label>New invested amount ({{option.currency}})</mat-label>

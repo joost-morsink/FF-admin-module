@@ -167,6 +167,10 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
     }
     await this.importAndProcess(event, this.liquidated);
   }
+  public zeroLiquidation() {
+    this.newInvested.setValue(this.invested.value);
+    this.newCash.setValue(this.option.cash_amount);
+  }
 }
 
 @Component({
@@ -198,6 +202,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
   public async recalculate() {
     this.loanable = await this.admin.getLoanableCash(this.option, new Date(this.timestamp.value));
     this.exit_amount = await this.admin.calculateExit(this.option, 0, this.option.invested_amount, this.timestamp.value);
+    this.exitAmount.setValue(this.exit_amount.toFixed(2));
   }
   public async exit() {
     if (parseFloat(this.exitAmount.value) == 0) {
