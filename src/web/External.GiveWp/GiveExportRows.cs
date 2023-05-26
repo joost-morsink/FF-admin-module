@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FfAdmin.Common;
@@ -9,7 +10,8 @@ namespace FfAdmin.External.GiveWp
     public static class GiveExportRows
     {
         public static IEnumerable<GiveExportRow> FromCsv(string csv)
-            => csv.ParseCsv<GiveExportRow>(CaseInsensitiveEqualityComparer.Instance);
+            => csv.ParseCsv<GiveExportRow>(CaseInsensitiveEqualityComparer.Instance, 
+                data => data.TryGetValue("donation_status", out var donStatus) && !donStatus.Equals("pending", StringComparison.OrdinalIgnoreCase));
 
         public static Event[] ToEvents(this IEnumerable<GiveExportRow> rows,
                                        IEnumerable<MollieExportRow> mollieRows,

@@ -35,8 +35,10 @@ namespace FfAdmin.Common
             else
                 return Enumerable.Empty<Dictionary<string, string>>();
         }
-        public static IEnumerable<T> ParseCsv<T>(this string str, IEqualityComparer<string>? equalityComparer = null)
-            => str.ParseCsv(equalityComparer).Select(x => DataConverter.Convert(x).To<T>());
+        public static IEnumerable<T> ParseCsv<T>(this string str, IEqualityComparer<string>? equalityComparer = null, Func<Dictionary<string,string>, bool>? filter = null)
+            => str.ParseCsv(equalityComparer)
+                .Where(d => filter is null || filter(d))
+                .Select(x => DataConverter.Convert(x).To<T>());
 
         private static readonly DataConverter DataConverter = new (
                 IdentityConverter.Instance,
