@@ -60,4 +60,23 @@ public class BasicModelTests
             OptionId = "1", CharityId = "1", Amount = 10m
         });
     }
+
+    [TestMethod]
+    public void CursorTest()
+    {
+        var stream = EventStream.Empty(Processors.Create(
+            new OptionsEventProcessor(),
+            new CharitiesEventProcessor(),
+            new DonationsEventProcessor())).AddEvents(TestEvents);
+        var context = stream.GetHistoricContext(2).Previous;
+        var options = context.GetContext<Options>();
+        options.Should().NotBeNull();
+        options!.Values.Should().ContainKey("1");
+        var charities = context.GetContext<Charities>();
+        charities.Should().NotBeNull();
+        charities!.Values.Should().BeEmpty();
+        var donations = context.GetContext<Donations>();
+        donations.Should().NotBeNull();
+        donations!.Values.Should().BeEmpty();
+    }
 }
