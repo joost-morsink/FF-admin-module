@@ -1,0 +1,47 @@
+﻿[
+  {
+    Valuations: {
+      1: {
+        IdealValue: 16.18750,
+        RealValue: 16.19,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  {
+    Valuations: {
+      1: {
+        IdealValue: 36.18750,
+        RealValue: 36.19,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  {
+    Valuations: {
+      1: {
+        IdealValue: 36.18750,
+        RealValue: 36.19,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  {
+    Valuations: {
+      1: {
+        IdealValue: 35.71250,
+        RealValue: 35.19,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  {
+    Valuations: {
+      1: {
+        IdealValue: 35.71250,
+        RealValue: 35.02,
+        Timestamp: DateTimeOffset_2
+      }
+    }
+  }
+]

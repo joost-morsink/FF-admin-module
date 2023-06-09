@@ -1,0 +1,31 @@
+﻿{
+  Values: {
+    1: {
+      Bank: {
+        Account: ,
+        Bic: ,
+        Name: 
+      },
+      Id: 1,
+      Name: WWF
+    },
+    2: {
+      Bank: {
+        Account: ,
+        Bic: ,
+        Name: 
+      },
+      Id: 2,
+      Name: Amnesty
+    },
+    FF: {
+      Bank: {
+        Account: ,
+        Bic: ,
+        Name: 
+      },
+      Id: FF,
+      Name: Give for Good
+    }
+  }
+}

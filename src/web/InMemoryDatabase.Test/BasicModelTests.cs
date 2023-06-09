@@ -1,7 +1,11 @@
+using System.Linq;
+using System.Threading.Tasks;
+using VerifyMSTest;
+
 namespace InMemoryDatabase.Test;
 
 [TestClass]
-public class BasicModelTests
+public class BasicModelTests : VerifyBase
 {
     private static DateTimeOffset _current = new DateTimeOffset(2023, 6, 6, 0, 0, 0, TimeSpan.Zero);
 
@@ -10,7 +14,7 @@ public class BasicModelTests
 
     public static DateTimeOffset Days(int days) => _current = _current.AddDays(days).Date;
 
-    public readonly Event[] TestEvents =
+    public static readonly Event[] TestEvents =
     {
         new NewOption
         {
@@ -24,6 +28,7 @@ public class BasicModelTests
         },
         new NewCharity {Code = "FF", Name = "Give for Good", Timestamp = GetCurrent()},
         new NewCharity {Code = "1", Name = "WWF", Timestamp = GetCurrent()},
+        new NewCharity {Code = "2", Name = "Amnesty", Timestamp = GetCurrent()},
         new NewDonation
         {
             Timestamp = GetCurrent(),
@@ -35,17 +40,73 @@ public class BasicModelTests
             Charity = "1",
             Option = "1",
             Execute_timestamp = GetCurrent(TimeSpan.Zero)
-        }
+        },
+        new NewDonation
+        {
+            Timestamp = GetCurrent(),
+            Donation = "2",
+            Donor = "1",
+            Amount = 10m,
+            Exchanged_amount = 5m,
+            Currency = "HEUR",
+            Charity = "2",
+            Option = "1",
+            Execute_timestamp = GetCurrent(TimeSpan.Zero)
+        },
+        new NewDonation
+        {
+            Timestamp = GetCurrent(),
+            Donation = "3",
+            Donor = "1",
+            Amount = 10m,
+            Exchanged_amount = 10m,
+            Currency = "EUR",
+            Charity = "2",
+            Option = "1",
+            Execute_timestamp = GetCurrent(TimeSpan.Zero).AddDays(1)
+        },
+        // 7
+        new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 0, Option = "1"},
+        new ConvInvest {Timestamp = GetCurrent(), Cash_amount = 2.25m, Invested_amount = 12.50m, Option = "1"},
+        new NewDonation
+        {
+            Timestamp = GetCurrent(),
+            Donation = "4",
+            Donor = "1",
+            Amount = 10m,
+            Exchanged_amount = 10m,
+            Currency = "EUR",
+            Charity = "1",
+            Option = "1",
+            Execute_timestamp = GetCurrent(TimeSpan.Zero)
+        },
+        new ConvLiquidate
+        {
+            Timestamp = GetCurrent(TimeSpan.FromDays(180)),
+            Cash_amount = 2.25m,
+            Invested_amount = 15.25m,
+            Option = "1"
+        },
+        new ConvExit {Timestamp = GetCurrent(), Amount = decimal.Floor(2.50m * 52.5m) / 100m, Option = "1"},
+        // 12
+        new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 15.25m, Option = "1"},
+        new ConvInvest { Timestamp = GetCurrent(), Invested_amount = 35.25m, Cash_amount = 0.94m, Option = "1" },
+        new ConvLiquidate { Timestamp = GetCurrent(TimeSpan.FromDays(180)), Invested_amount = 34.25m, Cash_amount = 0.94m, Option = "1" },
+        new ConvExit { Timestamp = GetCurrent(), Amount = 0.17m, Option="1"}
     };
 
+    private static readonly EventStream Stream = EventStream.Empty(Processors.Create(
+        new OptionsEventProcessor(),
+        new CharitiesEventProcessor(),
+        new DonationsEventProcessor(),
+        new OptionWorthsEventProcessor(),
+        new IdealValuationsEventProcessor(),
+        new MinimalExitsEventProcessor())).AddEvents(TestEvents);
+
     [TestMethod]
-    public void TestMethod1()
+    public void RepoTest()
     {
-        var stream = EventStream.Empty(Processors.Create(
-            new OptionsEventProcessor(),
-            new CharitiesEventProcessor(),
-            new DonationsEventProcessor())).AddEvents(TestEvents);
-        var context = stream.GetLast();
+        var context = Stream.GetLast();
         var options = context.GetContext<Options>();
         options.Should().NotBeNull();
         options!.Values.Should().ContainKey("1");
@@ -64,11 +125,7 @@ public class BasicModelTests
     [TestMethod]
     public void CursorTest()
     {
-        var stream = EventStream.Empty(Processors.Create(
-            new OptionsEventProcessor(),
-            new CharitiesEventProcessor(),
-            new DonationsEventProcessor())).AddEvents(TestEvents);
-        var context = stream.GetHistoricContext(2).Previous;
+        var context = Stream.GetHistoricContext(2).Previous;
         var options = context.GetContext<Options>();
         options.Should().NotBeNull();
         options!.Values.Should().ContainKey("1");
@@ -79,4 +136,107 @@ public class BasicModelTests
         donations.Should().NotBeNull();
         donations!.Values.Should().BeEmpty();
     }
+
+    [TestMethod]
+    public void UnenteredTest()
+    {
+        var context = Stream.GetAtPosition(7);
+        var options = context.GetContext<Options>();
+        options.Should().NotBeNull();
+        var worths = context.GetContext<OptionWorths>();
+        worths.Should().NotBeNull();
+        var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
+        option.Should().BeEquivalentTo(new {Cash = 0m, Invested = 0m});
+        option.UnenteredDonations.Should().HaveCount(3);
+    }
+
+    [TestMethod]
+    public void EnterTest()
+    {
+        var context = Stream.GetAtPosition(8);
+        var options = context.GetContext<Options>();
+        options.Should().NotBeNull();
+        var worths = context.GetContext<OptionWorths>();
+        worths.Should().NotBeNull();
+        var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
+        option.Should().BeEquivalentTo(new {Cash = 15m, Invested = 0m});
+        option.UnenteredDonations.Should().HaveCount(1);
+    }
+
+    [TestMethod]
+    public async Task OptionsTest()
+    {
+        var context = Stream.GetLast();
+        await Verify(context.GetContext<Options>());
+    }
+
+    [TestMethod]
+    public async Task CharitiesTest()
+    {
+        var context = Stream.GetLast();
+        await Verify(context.GetContext<Charities>());
+    }
+
+    [TestMethod]
+    public async Task DonationsTest()
+    {
+        var context = Stream.GetLast();
+        await Verify(context.GetContext<Donations>());
+    }
+
+    [TestMethod]
+    public async Task OptionWorthsTest()
+    {
+        var contexts = Stream.GetValues<OptionWorths>(7, 8, 9, 12).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task IdealOptionValuationsGoodYearTest()
+    {
+        var contexts = Stream.GetValues<IdealOptionValuations>(7, 8, 9, 11, 12).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task IdealOptionValuationsBadYearTest()
+    {
+        var contexts = Stream.GetValues<IdealOptionValuations>(12, 13, 14, 15, 16).ToListOrderedByKey();
+        
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task MinimalExitsTest()
+    {
+        var contexts = Stream.GetValues<MinimalExits>(10, 11, 14, 15).ToListOrderedByKey();
+        
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public void BulkTest()
+    {
+        var stream = EventStream.Empty(Processors.Create(new DonationsEventProcessor()))
+            .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
+            {
+                Timestamp = GetCurrent(),
+                Donation = x.ToString(),
+                Donor = "1",
+                Amount = 10m,
+                Exchanged_amount = 10m,
+                Currency = "EUR",
+                Charity = "1",
+                Option = "1",
+                Execute_timestamp = GetCurrent(TimeSpan.Zero)
+            }));
+        for (int i = 0; i < 1000; i += 905) // 906 throws a stackoverflow
+            stream.GetAtPosition(i).GetContext<Donations>();
+        var context = stream.GetLast();
+        var donations = context.GetContext<Donations>();
+        donations.Should().NotBeNull();
+    }
 }
+

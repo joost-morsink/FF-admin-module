@@ -13,3 +13,4 @@ src/web/.idea
 .DS_Store
 
 .fake
+*.received.txt

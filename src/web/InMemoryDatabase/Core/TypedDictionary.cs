@@ -14,7 +14,7 @@ public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<obj
     public TypedDictionary Set<T>(Func<T> valueFactory)
         where T : class
         => new(Values.SetItem(typeof(T), new Lazy<object>(valueFactory)));
-    
+
     public T? Get<T>()
         where T : class
         => Values.TryGetValue(typeof(T), out var value) ? (T)value.Value : default;
@@ -25,9 +25,13 @@ public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<obj
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
-    T? IContext.GetContext<T>()
+    T? IContext.GetContextOrNull<T>()
         where T : class
         => Get<T>();
+
+    T IContext.GetContext<T>()
+        where T : class
+        => Get<T>() ?? throw new InvalidOperationException($"Context of type {typeof(T)} not found");
 
     object? IContext.GetContext(Type type)
         => Values.TryGetValue(type, out var value) ? value.Value : null;

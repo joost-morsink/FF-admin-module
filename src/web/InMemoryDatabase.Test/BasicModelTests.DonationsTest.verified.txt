@@ -1,0 +1,36 @@
+﻿{
+  Values: {
+    1: {
+      Amount: 10.0,
+      CharityId: 1,
+      ExecuteTimestamp: DateTimeOffset_1,
+      Id: 1,
+      OptionId: 1,
+      Timestamp: DateTimeOffset_1
+    },
+    2: {
+      Amount: 5.0,
+      CharityId: 2,
+      ExecuteTimestamp: DateTimeOffset_2,
+      Id: 2,
+      OptionId: 1,
+      Timestamp: DateTimeOffset_2
+    },
+    3: {
+      Amount: 10.0,
+      CharityId: 2,
+      ExecuteTimestamp: DateTimeOffset_3,
+      Id: 3,
+      OptionId: 1,
+      Timestamp: DateTimeOffset_4
+    },
+    4: {
+      Amount: 10.0,
+      CharityId: 1,
+      ExecuteTimestamp: DateTimeOffset_5,
+      Id: 4,
+      OptionId: 1,
+      Timestamp: DateTimeOffset_5
+    }
+  }
+}

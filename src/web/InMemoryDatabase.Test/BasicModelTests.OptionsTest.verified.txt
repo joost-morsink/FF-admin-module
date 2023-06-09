@@ -1,0 +1,12 @@
+﻿{
+  Values: {
+    1: {
+      BadYearFraction: 0.01,
+      CharityFraction: 0.475,
+      G4gFraction: 0.05,
+      Id: 1,
+      Name: Default option,
+      ReinvestmentFraction: 0.475
+    }
+  }
+}
