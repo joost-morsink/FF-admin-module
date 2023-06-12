@@ -4,5 +4,6 @@ public interface IEventProcessor
 {
     object Start { get; }
     object Process(object model, IHistoricContext historicContext, Event e);
-    IApplyToTypedDictionary GetTypedDictionaryApplicator();
+    Type ModelType { get; }
+    Delegate PositionalModelCreator(EventStream stream);
 }

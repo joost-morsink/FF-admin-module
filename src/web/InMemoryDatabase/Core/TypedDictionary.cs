@@ -1,25 +1,30 @@
 namespace FfAdmin.InMemoryDatabase;
 
-public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<object>>>, IContext
+public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<object?>>>, IContext
 {
-    public static TypedDictionary Empty { get; } = new(ImmutableDictionary<Type, Lazy<object>>.Empty);
+    public static TypedDictionary Empty { get; } = new(ImmutableDictionary<Type, Lazy<object?>>.Empty);
 
-    private TypedDictionary(ImmutableDictionary<Type, Lazy<object>> values)
+    private TypedDictionary(ImmutableDictionary<Type, Lazy<object?>> values)
     {
         Values = values;
     }
 
-    public ImmutableDictionary<Type, Lazy<object>> Values { get; }
+    public ImmutableDictionary<Type, Lazy<object?>> Values { get; }
 
-    public TypedDictionary Set<T>(Func<T> valueFactory)
+    public TypedDictionary Set<T>(Func<T?> valueFactory)
         where T : class
-        => new(Values.SetItem(typeof(T), new Lazy<object>(valueFactory)));
+        => new(Values.SetItem(typeof(T), new Lazy<object?>(valueFactory)));
+    public TypedDictionary Set(Type type, Func<object?> valueFactory)
+        => new(Values.SetItem(type, new Lazy<object?>(valueFactory)));
 
     public T? Get<T>()
         where T : class
-        => Values.TryGetValue(typeof(T), out var value) ? (T)value.Value : default;
+        => Values.TryGetValue(typeof(T), out var value) ? (T?)value.Value : default;
 
-    public IEnumerator<KeyValuePair<Type, Lazy<object>>> GetEnumerator()
+    public object? Get(Type type)
+        => Values.TryGetValue(type, out var value) ? value.Value : default;
+    
+    public IEnumerator<KeyValuePair<Type, Lazy<object?>>> GetEnumerator()
         => Values.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -38,3 +43,5 @@ public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<obj
 
     IEnumerable<Type> IContext.AvailableContexts => Values.Keys;
 }
+
+

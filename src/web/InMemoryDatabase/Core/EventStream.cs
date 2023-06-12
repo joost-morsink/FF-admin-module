@@ -2,55 +2,70 @@ namespace FfAdmin.InMemoryDatabase;
 
 public class EventStream
 {
-    public static EventStream Empty(Processors processors) 
-        => new(processors, ImmutableList<Event>.Empty, ImmutableSortedDictionary<int, IContext>.Empty);
+    public static EventStream Empty(Processors processors)
+        => new(processors, ImmutableList<Event>.Empty);
 
-    private EventStream(Processors processors, ImmutableList<Event> events, ImmutableSortedDictionary<int, IContext> cache)
+    private EventStream(Processors processors, ImmutableList<Event> events)
     {
         _processors = processors;
         Events = events;
-        _cache = cache;
+        _cache = _processors.Items
+            .ToImmutableDictionary(t => t.ModelType,
+                t => (IHistoryCache)Activator.CreateInstance(typeof(HistoryCache<>).MakeGenericType(t.ModelType),
+                    new object[] {t.PositionalModelCreator(this)})!);
     }
 
+    private readonly ImmutableDictionary<Type, IHistoryCache> _cache;
     public ImmutableList<Event> Events { get; }
-    private ImmutableSortedDictionary<int, IContext> _cache;
     private readonly Processors _processors;
 
     public EventStream AddEvents(IEnumerable<Event> events)
-        => new(_processors, Events.AddRange(events), _cache);
+        => new(_processors, Events.AddRange(events));
 
     private IContext CreateContextForPosition(int position)
     {
-        if (position == 0)
-            return _processors.Applicators.Aggregate(TypedDictionary.Empty, (acc, proc) => proc.Start(acc));
-        else
-        {
-            var previousContext = _cache.TryGetValue(position - 1, out var cached)
-                ? cached
-                : GetAtPosition(position - 1);
-            var context = TypedDictionary.Empty;
-
-            // ReSharper disable once AccessToModifiedClosure
-            context = _processors.Applicators.Aggregate(context,
-                (acc, proc) => proc.Process(acc, GetHistoricContext(position), Events[position - 1]));
-            return context;
-        }
+        var context = new ContextImpl(this, position);
+        return context;
     }
 
     public IContext GetAtPosition(int index)
     {
-        if (index < 0)
-            return GetAtPosition(0);
-        if (_cache.TryGetValue(index, out var cached))
-            return cached;
-        _cache = _cache.Add(index, CreateContextForPosition(index));
-        return _cache[index];
+        return CreateContextForPosition(index);
     }
 
     public IContext GetLast() => GetAtPosition(Events.Count);
 
     public IHistoricContext GetHistoricContext(int position) => new HistoricContextImpl(this, position);
     public IHistoricContext GetLastHistoricContext() => GetHistoricContext(Events.Count);
+
+    private class ContextImpl : IContext
+    {
+        public ContextImpl(EventStream parent, int position)
+        {
+            _parent = parent;
+            _position = position;
+        }
+
+        private readonly EventStream _parent;
+        private readonly int _position;
+
+        public T? GetContextOrNull<T>() where T : class
+            => _parent._cache.TryGetValue(typeof(T), out var cache)
+                ? ((HistoryCache<T>)cache).GetAtPosition(_position)
+                : null;
+
+        public T GetContext<T>() where T : class
+            => GetContextOrNull<T>() ?? throw new InvalidOperationException($"Context of type {typeof(T)} not found");
+
+        public object? GetContext(Type type)
+            => _parent._cache.TryGetValue(type, out var cache)
+                ? cache.GetAtPosition(_position)
+                : null;
+
+        public IEnumerable<Type> AvailableContexts
+            => _parent._cache.Keys;
+    }
+
     private class HistoricContextImpl : IHistoricContext
     {
         public HistoricContextImpl(EventStream stream, int position)
@@ -58,6 +73,7 @@ public class EventStream
             _stream = stream;
             _position = position;
         }
+
         private readonly EventStream _stream;
         private readonly int _position;
         public IContext GetByAge(int age) => _stream.GetAtPosition(_position - age);
