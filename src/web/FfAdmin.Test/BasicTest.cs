@@ -78,7 +78,7 @@ namespace FfAdmin.Test
             var donations = await Get<IDonationRepository>().GetAggregations();
             donations.Should().ContainSingle(x => x.Currency == "EUR")
                 .Which.Should().Match((IDonationRepository.DonationAggregation d) =>
-                    d.GetTotalAllocated() == 55m && d.Amount == 100m && d.GetTotalTransferred() == 0m && d.Worth == 145m);
+                    d.Allocated == 55m && d.Amount == 100m && d.Transferred == 0m && d.Worth == 145m);
         }
         [Test, Order(5)]
         public async Task CharityFractionTest()

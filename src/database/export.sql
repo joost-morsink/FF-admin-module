@@ -21,7 +21,7 @@ create or replace view ff.web_export as
 	from ff.donation d
 	join ff.option o on d.option_id = o.option_id
 	join ff.charity c on d.charity_id = c.charity_id
-    join ff.fraction f on o.fractionset_id = f.fractionset_id and d.donation_id = f.donation_id
+    left join ff.fraction f on o.fractionset_id = f.fractionset_id and d.donation_id = f.donation_id
 	left join ff.calculate_allocations_and_transfers_per_donation() atd
         on d.donation_id = atd.donation_id
     group by d.donation_ext_id, d.donor_id, o.option_ext_id, c.charity_ext_id, o.currency, d.exchanged_amount,
