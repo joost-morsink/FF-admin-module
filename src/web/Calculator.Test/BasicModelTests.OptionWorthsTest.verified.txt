@@ -2,7 +2,6 @@
   {
     Worths: {
       1: {
-        DonationFractions: {},
         Id: 1,
         Timestamp: DateTimeOffset_1,
         UnenteredDonations: [
@@ -39,11 +38,8 @@
       1: {
         Cash: 15.0,
         DonationFractions: {
-          Divisor: 15.0,
-          Fractions: {
-            1: 10.0,
-            2: 5.0
-          }
+          1: 0.6666666666666666666666666667,
+          2: 0.3333333333333333333333333333
         },
         Id: 1,
         Timestamp: DateTimeOffset_6,
@@ -66,11 +62,8 @@
       1: {
         Cash: 2.25,
         DonationFractions: {
-          Divisor: 15.0,
-          Fractions: {
-            1: 10.0,
-            2: 5.0
-          }
+          1: 0.6666666666666666666666666667,
+          2: 0.3333333333333333333333333333
         },
         Id: 1,
         Invested: 12.50,
@@ -94,11 +87,8 @@
       1: {
         Cash: 0.94,
         DonationFractions: {
-          Divisor: 15.0,
-          Fractions: {
-            1: 10.0,
-            2: 5.0
-          }
+          1: 0.6666666666666666666666666667,
+          2: 0.3333333333333333333333333333
         },
         Id: 1,
         Invested: 15.25,

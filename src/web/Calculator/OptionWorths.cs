@@ -43,7 +43,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 var donations = option.UnenteredDonations.ToLookup(ue => ue.ExecuteTimestamp <= e.Timestamp);
                 var newCash = donations[true].Sum(ue => ue.Amount);
 
-                var fractions = model.Worths[e.Option].DonationFractions.Normalize();
+                var fractions = model.Worths[e.Option].DonationFractions;
                 fractions = fractions.AddRange(from don in donations[true]
                     select (don.Id, don.Amount / (oldWorth == 0 ? 1 : oldWorth)));
 
