@@ -7,6 +7,9 @@ public record Charities(ImmutableDictionary<string, Charity> Values) : IModel<Ch
     public static Charities Empty { get; } = new(ImmutableDictionary<string, Charity>.Empty);
     public static IEventProcessor<Charities> Processor { get; } = new Impl();
 
+    public bool Contains(string id)
+        => Values.ContainsKey(id);
+
     private class Impl : EventProcessor<Charities>
     {
         public override Charities Start { get; } = Charities.Empty;

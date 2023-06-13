@@ -98,12 +98,14 @@ public class BasicModelTests : VerifyBase
     };
 
     private static readonly EventStream Stream = EventStream.Empty(
+            Index.Processor,
             Options.Processor,
             Charities.Processor,
             Donations.Processor,
             OptionWorths.Processor,
             IdealOptionValuations.Processor,
-            MinimalExits.Processor)
+            MinimalExits.Processor,
+            ValidationErrorIndices.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -219,6 +221,12 @@ public class BasicModelTests : VerifyBase
         await Verify(contexts);
     }
 
+    [TestMethod]
+    public void ValidationErrorIndicesTest()
+    {
+        var context = Stream.GetAtPosition(15).GetContext<ValidationErrorIndices>();
+        context.IsValid.Should().BeTrue();
+    }
     [TestMethod]
     public void BulkTest()
     {

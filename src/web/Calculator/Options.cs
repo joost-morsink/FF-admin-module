@@ -6,6 +6,10 @@ public record Options(ImmutableDictionary<string, Option> Values) : IModel<Optio
 {
     public static Options Empty { get; } = new(ImmutableDictionary<string, Option>.Empty);
     public static IEventProcessor<Options> Processor { get; } = new Impl();
+    
+    public bool Contains(string id)
+        => Values.ContainsKey(id);
+
     private class Impl : EventProcessor<Options>
     {
         public override Options Start { get; } = Options.Empty;

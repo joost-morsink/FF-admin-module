@@ -6,6 +6,10 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
 {
     public static Donations Empty { get; } = new(ImmutableDictionary<string, Donation>.Empty);
     public static IEventProcessor<Donations> Processor { get; } = new Impl();
+
+    public bool Contains(string id)
+        => Values.ContainsKey(id);
+    
     private class Impl : EventProcessor<Donations>
     {
         public override Donations Start { get; } = Donations.Empty;
