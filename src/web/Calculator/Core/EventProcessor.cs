@@ -1,6 +1,6 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator.Core;
 
-public abstract class EventProcessor<T> : IEventProcessor
+public abstract class EventProcessor<T> : IEventProcessor<T>
     where T : class
 {
     object IEventProcessor.Start => Start;

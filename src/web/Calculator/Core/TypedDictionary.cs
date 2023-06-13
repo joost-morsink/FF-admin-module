@@ -1,4 +1,4 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator.Core;
 
 public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<object?>>>, IContext
 {

@@ -1,4 +1,4 @@
-namespace InMemoryDatabase.Test;
+namespace FfAdmin.Calculator.Test;
 
 [TestClass]
 public class HistoryCacheTest

@@ -1,15 +1,16 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator.Core;
 
 public class EventStream
 {
-    public static EventStream Empty(Processors processors)
+    public static EventStream Empty(IEnumerable<IEventProcessor> processors)
         => new(processors, ImmutableList<Event>.Empty);
-
-    private EventStream(Processors processors, ImmutableList<Event> events)
+    public static EventStream Empty(params IEventProcessor[] processors)
+        => Empty((IEnumerable<IEventProcessor>)processors);
+    private EventStream(IEnumerable<IEventProcessor> processors, ImmutableList<Event> events)
     {
-        _processors = processors;
+        _processors = processors.ToImmutableArray();
         Events = events;
-        _cache = _processors.Items
+        _cache = _processors
             .ToImmutableDictionary(t => t.ModelType,
                 t => (IHistoryCache)Activator.CreateInstance(typeof(HistoryCache<>).MakeGenericType(t.ModelType),
                     new object[] {t.PositionalModelCreator(this)})!);
@@ -17,7 +18,7 @@ public class EventStream
 
     private readonly ImmutableDictionary<Type, IHistoryCache> _cache;
     public ImmutableList<Event> Events { get; }
-    private readonly Processors _processors;
+    private readonly ImmutableArray<IEventProcessor> _processors;
 
     public EventStream AddEvents(IEnumerable<Event> events)
         => new(_processors, Events.AddRange(events));

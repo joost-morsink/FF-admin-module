@@ -1,4 +1,4 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator;
 
 public class FractionSet
 {

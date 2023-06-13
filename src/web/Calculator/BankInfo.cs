@@ -1,4 +1,4 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator;
 
 public record BankInfo(string Name, string Account, string Bic)
 {

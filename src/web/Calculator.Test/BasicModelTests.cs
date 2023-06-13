@@ -1,8 +1,4 @@
-using System.Linq;
-using System.Threading.Tasks;
-using VerifyMSTest;
-
-namespace InMemoryDatabase.Test;
+namespace FfAdmin.Calculator.Test;
 
 [TestClass]
 public class BasicModelTests : VerifyBase
@@ -90,18 +86,25 @@ public class BasicModelTests : VerifyBase
         new ConvExit {Timestamp = GetCurrent(), Amount = decimal.Floor(2.50m * 52.5m) / 100m, Option = "1"},
         // 12
         new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 15.25m, Option = "1"},
-        new ConvInvest { Timestamp = GetCurrent(), Invested_amount = 35.25m, Cash_amount = 0.94m, Option = "1" },
-        new ConvLiquidate { Timestamp = GetCurrent(TimeSpan.FromDays(180)), Invested_amount = 34.25m, Cash_amount = 0.94m, Option = "1" },
-        new ConvExit { Timestamp = GetCurrent(), Amount = 0.17m, Option="1"}
+        new ConvInvest {Timestamp = GetCurrent(), Invested_amount = 35.25m, Cash_amount = 0.94m, Option = "1"},
+        new ConvLiquidate
+        {
+            Timestamp = GetCurrent(TimeSpan.FromDays(180)),
+            Invested_amount = 34.25m,
+            Cash_amount = 0.94m,
+            Option = "1"
+        },
+        new ConvExit {Timestamp = GetCurrent(), Amount = 0.17m, Option = "1"}
     };
 
-    private static readonly EventStream Stream = EventStream.Empty(Processors.Create(
-        new OptionsEventProcessor(),
-        new CharitiesEventProcessor(),
-        new DonationsEventProcessor(),
-        new OptionWorthsEventProcessor(),
-        new IdealValuationsEventProcessor(),
-        new MinimalExitsEventProcessor())).AddEvents(TestEvents);
+    private static readonly EventStream Stream = EventStream.Empty(
+            Options.Processor,
+            Charities.Processor,
+            Donations.Processor,
+            OptionWorths.Processor,
+            IdealOptionValuations.Processor,
+            MinimalExits.Processor)
+        .AddEvents(TestEvents);
 
     [TestMethod]
     public void RepoTest()
@@ -204,7 +207,7 @@ public class BasicModelTests : VerifyBase
     public async Task IdealOptionValuationsBadYearTest()
     {
         var contexts = Stream.GetValues<IdealOptionValuations>(12, 13, 14, 15, 16).ToListOrderedByKey();
-        
+
         await Verify(contexts);
     }
 
@@ -212,14 +215,14 @@ public class BasicModelTests : VerifyBase
     public async Task MinimalExitsTest()
     {
         var contexts = Stream.GetValues<MinimalExits>(10, 11, 14, 15).ToListOrderedByKey();
-        
+
         await Verify(contexts);
     }
 
     [TestMethod]
     public void BulkTest()
     {
-        var stream = EventStream.Empty(Processors.Create(new DonationsEventProcessor()))
+        var stream = EventStream.Empty(Donations.Processor)
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
             {
                 Timestamp = GetCurrent(),
@@ -232,11 +235,10 @@ public class BasicModelTests : VerifyBase
                 Option = "1",
                 Execute_timestamp = GetCurrent(TimeSpan.Zero)
             }));
-        for (int i = 0; i < 1000; i += 905) // 906 throws a stackoverflow
+        for (int i = 0; i < 1000; i += 906) // 906 threw a stackoverflow, fixed now
             stream.GetAtPosition(i).GetContext<Donations>();
         var context = stream.GetLast();
         var donations = context.GetContext<Donations>();
         donations.Should().NotBeNull();
     }
 }
-

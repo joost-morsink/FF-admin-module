@@ -24,9 +24,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External.Banking", "Externa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FfAdmin.Test", "FfAdmin.Test\FfAdmin.Test.csproj", "{ABF77DB7-DC41-4C38-BF60-5159988DCAFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryDatabase", "InMemoryDatabase\InMemoryDatabase.csproj", "{AADA99AB-B0D0-4828-BE87-6BB80D7FDE63}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator", "Calculator\Calculator.csproj", "{AADA99AB-B0D0-4828-BE87-6BB80D7FDE63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryDatabase.Test", "InMemoryDatabase.Test\InMemoryDatabase.Test.csproj", "{44DE2A51-872A-430C-ADEB-5287768E1439}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Test", "Calculator.Test\Calculator.Test.csproj", "{44DE2A51-872A-430C-ADEB-5287768E1439}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

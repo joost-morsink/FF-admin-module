@@ -1,6 +1,4 @@
-using System.Security.Authentication.ExtendedProtection;
-
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator.Core;
 
 public class HistoryCache<T> : IHistoryCache
     where T : class

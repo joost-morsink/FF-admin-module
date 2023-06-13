@@ -1,4 +1,4 @@
-namespace FfAdmin.InMemoryDatabase;
+namespace FfAdmin.Calculator.Core;
 
 public class Processors
 {

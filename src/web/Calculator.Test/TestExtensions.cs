@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
 using System.Linq;
+using FfAdmin.Calculator.Core;
 
-namespace InMemoryDatabase.Test;
+namespace FfAdmin.Calculator.Test;
 
 public static class TestExtensions
 {
