@@ -105,7 +105,7 @@ public class BasicModelTests : VerifyBase
             OptionWorths.Processor,
             IdealOptionValuations.Processor,
             MinimalExits.Processor,
-            ValidationErrorIndices.Processor)
+            ValidationErrors.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -224,7 +224,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public void ValidationErrorIndicesTest()
     {
-        var context = Stream.GetAtPosition(15).GetContext<ValidationErrorIndices>();
+        var context = Stream.GetAtPosition(15).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
     }
     [TestMethod]
