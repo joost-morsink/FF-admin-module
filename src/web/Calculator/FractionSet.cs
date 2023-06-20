@@ -83,4 +83,29 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
         => GetEnumerator();
 
     public int Count => Fractions.Count;
+
+    public FractionSet Aggregate(Func<string, string> group)
+    {
+        var q = Fractions.GroupBy(f => group(f.Key), f => f.Value)
+            .ToImmutableDictionary(g => g.Key, g => g.Sum());
+        return new(q, Divisor);
+    }
+
+    public ImmutableDictionary<string, FractionSet> Group(Func<string, string> group)
+    {
+        var q = Fractions.GroupBy(f => group(f.Key))
+            .Select(g => (g.Key, Dictionary: g
+                .ToImmutableDictionary(
+                    f => f.Key,
+                    f => f.Value)))
+            .ToImmutableDictionary(
+                d => d.Key,
+                d => new FractionSet(d.Dictionary, d.Dictionary.Values.Sum()));
+        return q;
+    }
+    public FractionSet Filter(Func<string, bool> filter)
+    {
+        var q = Fractions.Where(f => filter(f.Key)).ToImmutableDictionary();
+        return new(q, q.Values.Sum());
+    }
 }

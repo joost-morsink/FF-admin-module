@@ -1,6 +1,6 @@
 namespace FfAdmin.Calculator.Core;
 
-public class HistoryCache<T> : IHistoryCache
+public class HistoryCache<T> : IHistoryCache<T>
     where T : class
 {
     private int THRESHOLD = 5;
@@ -24,9 +24,6 @@ public class HistoryCache<T> : IHistoryCache
         Force(loc, position);
         return _entries[position];
     }
-
-    object IHistoryCache.GetAtPosition(int position)
-        => GetAtPosition(position);
 
     private void Force(int loc, int position)
     {

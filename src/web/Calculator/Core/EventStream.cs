@@ -12,8 +12,11 @@ public class EventStream
         Events = events;
         _cache = _processors
             .ToImmutableDictionary(t => t.ModelType,
-                t => (IHistoryCache)Activator.CreateInstance(typeof(HistoryCache<>).MakeGenericType(t.ModelType),
-                    new object[] {t.PositionalModelCreator(this)})!);
+                t => t.IsRecursive 
+                    ? (IHistoryCache)Activator.CreateInstance(typeof(HistoryCache<>).MakeGenericType(t.ModelType),
+                    new object[] {t.PositionalModelCreator(this)})!
+                    : (IHistoryCache)Activator.CreateInstance(typeof(NonRecursiveHistoryCache<>).MakeGenericType(t.ModelType),
+                        new [] {t.PositionalModelCreator(this)})!);
     }
 
     private readonly ImmutableDictionary<Type, IHistoryCache> _cache;
@@ -52,7 +55,7 @@ public class EventStream
 
         public T? GetContextOrNull<T>() where T : class
             => _parent._cache.TryGetValue(typeof(T), out var cache)
-                ? ((HistoryCache<T>)cache).GetAtPosition(_position)
+                ? ((IHistoryCache<T>)cache).GetAtPosition(_position)
                 : null;
 
         public T GetContext<T>() where T : class

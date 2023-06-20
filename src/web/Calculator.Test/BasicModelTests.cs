@@ -94,7 +94,28 @@ public class BasicModelTests : VerifyBase
             Cash_amount = 0.94m,
             Option = "1"
         },
-        new ConvExit {Timestamp = GetCurrent(), Amount = 0.17m, Option = "1"}
+        new ConvExit {Timestamp = GetCurrent(), Amount = 0.17m, Option = "1"},
+        // 16
+        new ConvTransfer
+        {
+            Timestamp = GetCurrent(),
+            Amount = 0.97m,
+            Charity = "1",
+            Exchanged_amount = 0.97m,
+            Currency = "EUR",
+            Exchanged_currency = "EUR"
+        },
+        new ConvTransfer
+        {
+            Timestamp = GetCurrent(),
+            Amount = 0.51m,
+            Charity = "2",
+            Exchanged_amount = 0.51m,
+            Currency = "EUR",
+            Exchanged_currency = "EUR"
+        }
+        
+        // 18
     };
 
     private static readonly EventStream Stream = EventStream.Empty(
@@ -105,7 +126,10 @@ public class BasicModelTests : VerifyBase
             OptionWorths.Processor,
             IdealOptionValuations.Processor,
             MinimalExits.Processor,
-            ValidationErrors.Processor)
+            ValidationErrors.Processor,
+            AmountsToTransfer.Processor,
+            CurrentCharityFractionSets.Processor,
+            DonationRecords.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -226,6 +250,53 @@ public class BasicModelTests : VerifyBase
     {
         var context = Stream.GetAtPosition(15).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task AmountsToTransferTest()
+    {
+        var contexts = Stream.GetValues<AmountsToTransfer>(12, 16, 18).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task CurrentCharityFractionSetsTest()
+    {
+        var contexts = Stream.GetValues<CurrentCharityFractionSets>(8, 13).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task DonationRecordsTest()
+    {
+        var contexts = Stream.GetValues<DonationRecords>(17).ToListOrderedByKey();
+        
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public void DonationRecordsTotalWorthTest()
+    {
+        for(int i=0; i<17; i++)
+        {
+            var context = Stream.GetAtPosition(i);
+            var donations = context.GetContext<Donations>().Values;
+            var worths = context.GetContext<OptionWorths>().Worths;
+            var records = context.GetContext<DonationRecords>().Values;
+            var q =
+                from dr in records
+                let dw = dr.Value[^1].Worth
+                group dw by donations[dr.Key].OptionId
+                into g
+                select new {OptionId = g.Key, TotalWorth = g.Sum()}
+                into dw
+                join w in worths on dw.OptionId equals w.Key
+                select Math.Abs(dw.TotalWorth - w.Value.TotalWorth - w.Value.UnenteredDonations.Sum(x => x.Amount));
+            if(q.Any())
+                q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, 0.000000000001m));
+        }
     }
     [TestMethod]
     public void BulkTest()
