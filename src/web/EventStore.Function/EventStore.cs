@@ -1,6 +1,7 @@
+using System.Text.Json;
+using FfAdmin.Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Data.SqlClient;
 
 namespace FfAdmin.EventStore.Function;
 
@@ -8,83 +9,131 @@ public class EventStore
 {
     private readonly IEventStore _eventStore;
 
-     public EventStore(IEventStore eventStore)
-     {
-         _eventStore = eventStore;
-     }
-    private class EventDto
+    public EventStore(IEventStore eventStore)
     {
-        public string Branch { get; set; } = "";
-        public int Sequence  { get; set; }
-        public string Content { get; set; } = "";
+        _eventStore = eventStore;
     }
 
     [Function("GetAllBranches")]
     public async Task<HttpResponseData> GetAllBranches(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches")]
+        HttpRequestData req,
         FunctionContext executionContext)
     {
         var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type","text/plain; charset=utf-8");
-        try
-        {
-            await Task.Yield();
-            var branches = await _eventStore.GetBranchNames();
-            await response.WriteAsJsonAsync(branches);
-            return response;
-        }
-        catch (Exception e)
-        {
-            response.WriteString(e.ToString());
-            return response;
-        }
-    }
-    [Function("EventStore")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "test")] HttpRequestData req,
-        FunctionContext executionContext)
-    {
-        var logger = executionContext.GetLogger("EventStore");
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-        try
-        {
-            using var sqlConnection =
-                new SqlConnection(
-                    "Server=tcp:g4g.database.windows.net,1433;Initial Catalog=EventStore;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\"");
-            await sqlConnection.OpenAsync();
-            var result = await
-                sqlConnection.QueryAsync<EventDto>(
-                    "select * from [ConsolidatedEvents] where [Branch] = 'Main' order by [Sequence]");
-
-
-            response.WriteString(string.Join(Environment.NewLine,
-                result.Select(e => $"{e.Branch};{e.Sequence};{e.Content}")));
-
-            return response;
-        }
-        catch (Exception e)
-        {
-            response.WriteString(e.ToString());
-            return response;
-        }
-    }
-}
-
-
-public class Health
-{
-    public static string Message { get; set; } = "App is up!";
-
-    [Function("Health")]
-    public HttpResponseData Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")] HttpRequestData req,
-        FunctionContext executionContext)
-    {
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-        response.WriteString(Message);
-        
+        var branches = await _eventStore.GetBranchNames();
+        await response.WriteAsJsonAsync(branches);
         return response;
     }
 
+    private record NewBranchRequest(string? Source);
+
+    [Function("NewBranch")]
+    public async Task<HttpResponseData> NewBranch(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "branches/{branchName}/new")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext)
+    {
+        var response = request.CreateResponse(HttpStatusCode.Created);
+        var body = await request.ReadFromJsonAsync<NewBranchRequest>();
+        if (string.IsNullOrWhiteSpace(body?.Source))
+            await _eventStore.CreateEmptyBranch(branchName);
+        else
+            await _eventStore.CreateNewBranchFrom(branchName, body.Source);
+
+        return response;
+    }
+
+    [Function("RemoveBranch")]
+    public async Task<HttpResponseData> RemoveBranch(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "branches/{branchName}")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext)
+    {
+        var response = request.CreateResponse(HttpStatusCode.NoContent);
+        await _eventStore.RemoveBranch(branchName);
+        return response;
+    }
+
+    [Function("GetEvents")]
+    public async Task<HttpResponseData> GetEvents(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{branchName}/events")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext functionContext,
+        int? skip, int? limit)
+    {
+        if (!await _eventStore.BranchExists(branchName))
+            return request.CreateResponse(HttpStatusCode.NotFound);
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        var events = await _eventStore.GetEvents(branchName, skip ?? 0, limit);
+        response.Headers.Add("Content-type", "application/json");
+        await response.WriteStringAsync($"[{string.Join(",\r\n", events.Select(e => e.ToJsonString()))}]");
+        return response;
+    }
+
+    [Function("AddEvents")]
+    public async Task<HttpResponseData> AddEvents(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "branches/{branchName}/events")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext functionContext)
+    {
+        if (!await _eventStore.BranchExists(branchName))
+            return request.CreateResponse(HttpStatusCode.NotFound);
+
+        var docs = await JsonSerializer.DeserializeAsync<JsonDocument[]>(request.Body);
+        if (docs is null)
+            return request.CreateResponse(HttpStatusCode.BadRequest);
+
+        var events = docs.Select(d => Event.ReadFrom(d)).ToArray();
+        await _eventStore.AddEvents(branchName, events);
+
+        var response = request.CreateResponse(HttpStatusCode.Created);
+        return response;
+    }
+
+    private record RebaseRequest(string On);
+
+    [Function("Rebase")]
+    public async Task<HttpResponseData> Rebase(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "branches/{branchName}/rebase")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext functionContext)
+    {
+        if (!await _eventStore.BranchExists(branchName))
+            return request.CreateResponse(HttpStatusCode.NotFound);
+
+        var on = (await request.ReadFromJsonAsync<RebaseRequest>())?.On;
+        if (on is null || !await _eventStore.BranchExists(on))
+            return request.CreateResponse(HttpStatusCode.BadRequest);
+
+        await _eventStore.Rebase(branchName, on);
+
+        return request.CreateResponse(HttpStatusCode.OK);
+    }
+
+    private record FastForwardRequest(string To);
+
+    [Function("FastForward")]
+    public async Task<HttpResponseData> FastForward(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "branches/{branchName}/fast-forward")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext functionContext)
+    {
+        if (!await _eventStore.BranchExists(branchName))
+            return request.CreateResponse(HttpStatusCode.NotFound);
+
+        var to = (await request.ReadFromJsonAsync<FastForwardRequest>())?.To;
+        if (to is null || !await _eventStore.BranchExists(to))
+            return request.CreateResponse(HttpStatusCode.BadRequest);
+
+        await _eventStore.FastForward(branchName, to);
+
+        return request.CreateResponse(HttpStatusCode.OK);
+    }
 }
