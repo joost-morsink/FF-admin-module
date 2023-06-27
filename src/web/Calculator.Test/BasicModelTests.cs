@@ -114,7 +114,7 @@ public class BasicModelTests : VerifyBase
             Currency = "EUR",
             Exchanged_currency = "EUR"
         }
-        
+
         // 18
     };
 
@@ -129,7 +129,8 @@ public class BasicModelTests : VerifyBase
             ValidationErrors.Processor,
             AmountsToTransfer.Processor,
             CurrentCharityFractionSets.Processor,
-            DonationRecords.Processor)
+            DonationRecords.Processor,
+            HistoryHash.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -272,14 +273,14 @@ public class BasicModelTests : VerifyBase
     public async Task DonationRecordsTest()
     {
         var contexts = Stream.GetValues<DonationRecords>(17).ToListOrderedByKey();
-        
+
         await Verify(contexts);
     }
 
     [TestMethod]
     public void DonationRecordsTotalWorthTest()
     {
-        for(int i=0; i<17; i++)
+        for (int i = 0; i < 17; i++)
         {
             var context = Stream.GetAtPosition(i);
             var donations = context.GetContext<Donations>().Values;
@@ -294,10 +295,19 @@ public class BasicModelTests : VerifyBase
                 into dw
                 join w in worths on dw.OptionId equals w.Key
                 select Math.Abs(dw.TotalWorth - w.Value.TotalWorth - w.Value.UnenteredDonations.Sum(x => x.Amount));
-            if(q.Any())
+            if (q.Any())
                 q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, 0.000000000001m));
         }
     }
+
+    [TestMethod]
+    public async Task HashTest()
+    {
+        var contexts = Stream.GetValues<HistoryHash>(Enumerable.Range(0,18).ToArray()).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
     [TestMethod]
     public void BulkTest()
     {
