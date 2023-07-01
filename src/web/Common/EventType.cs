@@ -2,6 +2,7 @@
 {
     public enum EventType
     {
+        NONE,
         DONA_NEW,
         DONA_UPDATE_CHARITY,
         META_NEW_OPTION,

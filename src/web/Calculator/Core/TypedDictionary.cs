@@ -1,47 +1,60 @@
 namespace FfAdmin.Calculator.Core;
 
-public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, Lazy<object?>>>, IContext
+public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, object?>>
 {
-    public static TypedDictionary Empty { get; } = new(ImmutableDictionary<Type, Lazy<object?>>.Empty);
+    public static TypedDictionary Empty { get; } = new(ImmutableDictionary<Type, object?>.Empty);
 
-    private TypedDictionary(ImmutableDictionary<Type, Lazy<object?>> values)
+    private TypedDictionary(ImmutableDictionary<Type, object?> values)
     {
         Values = values;
     }
 
-    public ImmutableDictionary<Type, Lazy<object?>> Values { get; }
+    public ImmutableDictionary<Type, object?> Values { get; }
 
-    public TypedDictionary Set<T>(Func<T?> valueFactory)
+    public TypedDictionary Set<T>(T? value)
         where T : class
-        => new(Values.SetItem(typeof(T), new Lazy<object?>(valueFactory)));
-    public TypedDictionary Set(Type type, Func<object?> valueFactory)
-        => new(Values.SetItem(type, new Lazy<object?>(valueFactory)));
+        => new(Values.SetItem(typeof(T), value));
+
+    public TypedDictionary Set(Type type, object? value)
+        => new(Values.SetItem(type, value));
 
     public T? Get<T>()
         where T : class
-        => Values.TryGetValue(typeof(T), out var value) ? (T?)value.Value : default;
+        => Values.TryGetValue(typeof(T), out var value) ? (T?)value : default;
 
     public object? Get(Type type)
-        => Values.TryGetValue(type, out var value) ? value.Value : default;
-    
-    public IEnumerator<KeyValuePair<Type, Lazy<object?>>> GetEnumerator()
+        => Values.TryGetValue(type, out var value) ? value : default;
+
+    public IEnumerator<KeyValuePair<Type, object?>> GetEnumerator()
         => Values.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
-
-    T? IContext.GetContextOrNull<T>()
+    
+    public (TypedDictionary,T?) GetOrAdd<T>(Func<T?> creator)
         where T : class
-        => Get<T>();
+    {
+        if (Values.TryGetValue(typeof(T), out var value))
+            return (this,(T?)value);
+        var res = creator();
+        
+        return (Set(res),res);
+    }
 
-    T IContext.GetContext<T>()
+    public (TypedDictionary,object?) GetOrAdd(Type type, Func<object?> creator)
+    {
+        if (Values.TryGetValue(type, out var value))
+            return (this,value);
+        var res = creator();
+
+        return (Set(type, res), res);
+    }
+
+    public bool Contains<T>()
         where T : class
-        => Get<T>() ?? throw new InvalidOperationException($"Context of type {typeof(T)} not found");
+        => Contains(typeof(T));
 
-    object? IContext.GetContext(Type type)
-        => Values.TryGetValue(type, out var value) ? value.Value : null;
+    public bool Contains(Type type)
+        => Values.ContainsKey(type);
 
-    IEnumerable<Type> IContext.AvailableContexts => Values.Keys;
 }
-
-

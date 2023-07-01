@@ -40,7 +40,7 @@ public class Calculator
     {
         var events = await _eventStore.GetEvents(branchName, 0,null);
         var str = EventStream.Empty(HistoryHash.Processor).AddEvents(events.ToImmutableList());
-        var context = at.HasValue ? str.GetAtPosition(at.Value) : str.GetLast();
+        var context = at.HasValue ? await str.GetAtPosition(at.Value) : await str.GetLast();
         var hash = context.GetContext<HistoryHash>().Hash;
 
         var response = request.CreateResponse(HttpStatusCode.OK);

@@ -8,7 +8,6 @@ public record AmountsToTransfer(ImmutableDictionary<string, Real> Values) : IMod
     private class Impl : EventProcessor<AmountsToTransfer>
     {
         public override AmountsToTransfer Start => Empty;
-
         protected override AmountsToTransfer ConvTransfer(AmountsToTransfer model, IContext context, ConvTransfer e)
         {
             var newValues = model.Values.SetItem(e.Charity, model.Values[e.Charity] - (Real)e.Amount);

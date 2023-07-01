@@ -17,71 +17,71 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
                 ? model
                 : new(model.Errors.Add(new(context.GetContext<Index>().Value, message)));
 
-        protected override ValidationErrors NewDonation(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors NewDonation(ValidationErrors model, IContext previousContext, IContext context,
             NewDonation e)
             => Check(
-                () => !context.Previous.IsDonationKnown(e.Donation) && context.Previous.IsOptionKnown(e.Option) &&
-                      context.Previous.IsCharityKnown(e.Charity),
+                () => !previousContext.IsDonationKnown(e.Donation) && previousContext.IsOptionKnown(e.Option) &&
+                      previousContext.IsCharityKnown(e.Charity),
                 "New donation must be to a known option and charity and must not be a duplicate",
-                model, context.Previous);
+                model, previousContext);
 
-        protected override ValidationErrors NewOption(ValidationErrors model, IHistoricContext context, NewOption e)
-            => Check(() => !context.Previous.IsOptionKnown(e.Code),
-                "New option must not be a duplicate", model, context.Previous);
+        protected override ValidationErrors NewOption(ValidationErrors model, IContext previousContext, IContext context, NewOption e)
+            => Check(() => !previousContext.IsOptionKnown(e.Code),
+                "New option must not be a duplicate", model, previousContext);
 
-        protected override ValidationErrors UpdateCharity(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors UpdateCharity(ValidationErrors model, IContext previousContext, IContext context,
             UpdateCharity e)
-            => Check(() => context.Previous.IsCharityKnown(e.Code), 
-                "Charity must be known to be updated", model, context.Previous);
+            => Check(() => previousContext.IsCharityKnown(e.Code), 
+                "Charity must be known to be updated", model, previousContext);
 
-        protected override ValidationErrors UpdateFractions(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors UpdateFractions(ValidationErrors model, IContext previousContext, IContext context,
             UpdateFractions e)
-            => Check(() => context.Previous.IsOptionKnown(e.Code),
-                "Option must be known to be updated", model, context.Previous);
+            => Check(() => previousContext.IsOptionKnown(e.Code),
+                "Option must be known to be updated", model, previousContext);
 
         protected override ValidationErrors UpdateCharityForDonation(ValidationErrors model,
-            IHistoricContext context, UpdateCharityForDonation e)
-            => Check(() => context.Previous.IsDonationKnown(e.Donation) && context.Previous.IsCharityKnown(e.Charity),
-                "Donation and charity must be known to be updated", model, context.Previous);
+            IContext previousContext, IContext context, UpdateCharityForDonation e)
+            => Check(() => previousContext.IsDonationKnown(e.Donation) && previousContext.IsCharityKnown(e.Charity),
+                "Donation and charity must be known to be updated", model, previousContext);
 
-        protected override ValidationErrors CharityPartition(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors CharityPartition(ValidationErrors model, IContext previousContext, IContext context,
             CharityPartition e)
-            => Check(() => context.Previous.IsCharityKnown(e.Charity) &&
-                           context.Previous.AreCharitiesKnown(e.Partitions.Select(p => p.Holder)), 
-                "Charity and all holders must be known to perform partitioning", model, context.Previous);
+            => Check(() => previousContext.IsCharityKnown(e.Charity) &&
+                           previousContext.AreCharitiesKnown(e.Partitions.Select(p => p.Holder)), 
+                "Charity and all holders must be known to perform partitioning", model, previousContext);
 
-        protected override ValidationErrors CancelDonation(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors CancelDonation(ValidationErrors model, IContext previousContext, IContext context,
             CancelDonation e)
-            => Check(() => context.Previous.IsDonationKnown(e.Donation),
-                "Donation must be known to be cancelled", model, context.Previous);
+            => Check(() => previousContext.IsDonationKnown(e.Donation),
+                "Donation must be known to be cancelled", model, previousContext);
 
-        protected override ValidationErrors ConvLiquidate(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors ConvLiquidate(ValidationErrors model, IContext previousContext, IContext context,
             ConvLiquidate e)
-            => Check(() => context.Previous.IsOptionKnown(e.Option),
-                "Option must be known to execute liquidate", model, context.Previous);
+            => Check(() => previousContext.IsOptionKnown(e.Option),
+                "Option must be known to execute liquidate", model, previousContext);
                 
-        protected override ValidationErrors ConvExit(ValidationErrors model, IHistoricContext context, ConvExit e)
-            => Check(() => context.Previous.IsOptionKnown(e.Option),
-                "Option must be known to execute exit", model, context.Previous);
+        protected override ValidationErrors ConvExit(ValidationErrors model, IContext previousContext, IContext context, ConvExit e)
+            => Check(() => previousContext.IsOptionKnown(e.Option),
+                "Option must be known to execute exit", model, previousContext);
 
-        protected override ValidationErrors ConvEnter(ValidationErrors model, IHistoricContext context, ConvEnter e)
-            => Check(() => context.Previous.IsOptionKnown(e.Option), 
-                "Option must be known to execute enter", model, context.Previous);
+        protected override ValidationErrors ConvEnter(ValidationErrors model, IContext previousContext, IContext context, ConvEnter e)
+            => Check(() => previousContext.IsOptionKnown(e.Option), 
+                "Option must be known to execute enter", model, previousContext);
 
-        protected override ValidationErrors ConvInvest(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors ConvInvest(ValidationErrors model, IContext previousContext, IContext context,
             ConvInvest e)
-            => Check(() => context.Previous.IsOptionKnown(e.Option),
-                "Option must be known to execute invest", model, context.Previous);
+            => Check(() => previousContext.IsOptionKnown(e.Option),
+                "Option must be known to execute invest", model, previousContext);
 
-        protected override ValidationErrors ConvTransfer(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors ConvTransfer(ValidationErrors model, IContext previousContext, IContext context,
             ConvTransfer e)
-            => Check(() => context.Previous.IsCharityKnown(e.Charity), 
-                "Charity must be known to transfer money", model, context.Previous);
+            => Check(() => previousContext.IsCharityKnown(e.Charity), 
+                "Charity must be known to transfer money", model, previousContext);
 
-        protected override ValidationErrors IncreaseCash(ValidationErrors model, IHistoricContext context,
+        protected override ValidationErrors IncreaseCash(ValidationErrors model, IContext previousContext, IContext context,
             IncreaseCash e)
-            => Check(() => context.Previous.IsOptionKnown(e.Option),
-                "Option must be known to increase cash", model, context.Previous);
+            => Check(() => previousContext.IsOptionKnown(e.Option),
+                "Option must be known to increase cash", model, previousContext);
     }
 }
 public record ValidationError(int Position, string Message);

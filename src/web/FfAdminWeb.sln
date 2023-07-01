@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.ApiClient", "Eve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.Function", "Calculator.Function\Calculator.Function.csproj", "{CE93AC68-C965-4D2F-A009-7BA24A8A7426}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelCache.Function", "ModelCache.Function\ModelCache.Function.csproj", "{24888A08-4BEE-4950-B808-3FCD0F6BB7BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,10 @@ Global
 		{CE93AC68-C965-4D2F-A009-7BA24A8A7426}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE93AC68-C965-4D2F-A009-7BA24A8A7426}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE93AC68-C965-4D2F-A009-7BA24A8A7426}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24888A08-4BEE-4950-B808-3FCD0F6BB7BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24888A08-4BEE-4950-B808-3FCD0F6BB7BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24888A08-4BEE-4950-B808-3FCD0F6BB7BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24888A08-4BEE-4950-B808-3FCD0F6BB7BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

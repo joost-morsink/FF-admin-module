@@ -5,134 +5,123 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
 {
     object IEventProcessor.Start => Start;
 
-    object IEventProcessor.Process(object model, IHistoricContext historicContext, Event e)
-        => Process(historicContext, e);
+    object IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
+        => Process(previousContext, context, e);
 
     public abstract T Start { get; }
     public Type ModelType => typeof(T);
+    public virtual IEnumerable<Type> Dependencies => Enumerable.Empty<Type>();
 
-    public virtual T Process(IHistoricContext historicContext, Event e)
+    public virtual T Process(IContext previousContext, IContext context, Event e)
         => e switch
         {
-            NewOption no => NewOption(historicContext, no),
-            UpdateFractions uf => UpdateFractions(historicContext, uf),
-            NewCharity nc => NewCharity(historicContext, nc),
-            UpdateCharity uc => UpdateCharity(historicContext, uc),
-            CharityPartition cp => CharityPartition(historicContext, cp),
-            NewDonation nd => NewDonation(historicContext, nd),
-            UpdateCharityForDonation ucd => UpdateCharityForDonation(historicContext, ucd),
-            CancelDonation cd => CancelDonation(historicContext, cd),
-            ConvLiquidate cl => ConvLiquidate(historicContext, cl),
-            ConvExit ce => ConvExit(historicContext, ce),
-            ConvTransfer ct => ConvTransfer(historicContext, ct),
-            ConvEnter ce => ConvEnter(historicContext, ce),
-            ConvInvest ci => ConvInvest(historicContext, ci),
-            IncreaseCash ic => IncreaseCash(historicContext, ic),
-            Audit a => Audit(historicContext, a),
-            _ => Default(historicContext.Current, e)
+            NewOption no => NewOption(previousContext, context, no),
+            UpdateFractions uf => UpdateFractions(previousContext, context, uf),
+            NewCharity nc => NewCharity(previousContext, context, nc),
+            UpdateCharity uc => UpdateCharity(previousContext, context, uc),
+            CharityPartition cp => CharityPartition(previousContext, context, cp),
+            NewDonation nd => NewDonation(previousContext, context, nd),
+            UpdateCharityForDonation ucd => UpdateCharityForDonation(previousContext, context, ucd),
+            CancelDonation cd => CancelDonation(previousContext, context, cd),
+            ConvLiquidate cl => ConvLiquidate(previousContext, context, cl),
+            ConvExit ce => ConvExit(previousContext, context, ce),
+            ConvTransfer ct => ConvTransfer(previousContext, context, ct),
+            ConvEnter ce => ConvEnter(previousContext, context, ce),
+            ConvInvest ci => ConvInvest(previousContext, context, ci),
+            IncreaseCash ic => IncreaseCash(previousContext, context, ic),
+            Audit a => Audit(previousContext, context, a),
+            _ => Default(context, e)
         };
-
-    public virtual Func<int, T> PositionalModelCreator(EventStream stream)
-        => position =>
-        {
-            if (position == 0)
-                return Start;
-            var historicContext = stream.GetHistoricContext(position);
-            return Process(historicContext, stream.Events[position - 1]);
-        };
-
-    Delegate IEventProcessor.PositionalModelCreator(EventStream stream)
-        => PositionalModelCreator(stream);
 
     protected virtual T NewOption(IContext context, NewOption e)
         => Default(context, e);
 
-    protected virtual T NewOption(IHistoricContext historicContext, NewOption e)
-        => NewOption(historicContext.Current, e);
+    protected virtual T NewOption(IContext previousContext, IContext context, NewOption e)
+        => NewOption(context, e);
 
     protected virtual T UpdateFractions(IContext context, UpdateFractions e)
         => Default(context, e);
 
-    protected virtual T UpdateFractions(IHistoricContext historicContext, UpdateFractions e)
-        => UpdateFractions( historicContext.Current, e);
+    protected virtual T UpdateFractions(IContext previousContext, IContext context, UpdateFractions e)
+        => UpdateFractions( context, e);
 
     protected virtual T NewCharity(IContext context, NewCharity e)
         => Default(context, e);
 
-    protected virtual T NewCharity(IHistoricContext historicContext, NewCharity e)
-        => NewCharity(historicContext.Current, e);
+    protected virtual T NewCharity(IContext previousContext, IContext context, NewCharity e)
+        => NewCharity(context, e);
 
     protected virtual T UpdateCharity(IContext context, UpdateCharity e)
         => Default(context, e);
 
-    protected virtual T UpdateCharity( IHistoricContext historicContext, UpdateCharity e)
-        => UpdateCharity(historicContext.Current, e);
+    protected virtual T UpdateCharity( IContext previousContext, IContext context, UpdateCharity e)
+        => UpdateCharity(context, e);
 
     protected virtual T CharityPartition(IContext context, CharityPartition e)
         => Default(context, e);
 
-    protected virtual T CharityPartition(IHistoricContext historicContext, CharityPartition e)
-        => CharityPartition(historicContext.Current, e);
+    protected virtual T CharityPartition(IContext previousContext, IContext context, CharityPartition e)
+        => CharityPartition(context, e);
 
     protected virtual T NewDonation(IContext context, NewDonation e)
         => Default( context, e);
 
-    protected virtual T NewDonation(IHistoricContext historicContext, NewDonation e)
-        => NewDonation(historicContext.Current, e);
+    protected virtual T NewDonation(IContext previousContext, IContext context, NewDonation e)
+        => NewDonation(context, e);
 
     protected virtual T UpdateCharityForDonation( IContext context, UpdateCharityForDonation e)
         => Default( context, e);
 
-    protected virtual T UpdateCharityForDonation(IHistoricContext historicContext, UpdateCharityForDonation e)
-        => UpdateCharityForDonation( historicContext.Current, e);
+    protected virtual T UpdateCharityForDonation(IContext previousContext, IContext context, UpdateCharityForDonation e)
+        => UpdateCharityForDonation( context, e);
 
     protected virtual T CancelDonation(IContext context, CancelDonation e)
         => Default(context, e);
 
-    protected virtual T CancelDonation( IHistoricContext historicContext, CancelDonation e)
-        => CancelDonation( historicContext.Current, e);
+    protected virtual T CancelDonation( IContext previousContext, IContext context, CancelDonation e)
+        => CancelDonation( context, e);
 
     protected virtual T ConvLiquidate(IContext context, ConvLiquidate e)
         => Default(context, e);
 
-    protected virtual T ConvLiquidate( IHistoricContext historicContext, ConvLiquidate e)
-        => ConvLiquidate( historicContext.Current, e);
+    protected virtual T ConvLiquidate( IContext previousContext, IContext context, ConvLiquidate e)
+        => ConvLiquidate( context, e);
 
     protected virtual T ConvExit( IContext context, ConvExit e)
         => Default(context, e);
 
-    protected virtual T ConvExit( IHistoricContext historicContext, ConvExit e)
-        => ConvExit(historicContext.Current, e);
+    protected virtual T ConvExit( IContext previousContext, IContext context, ConvExit e)
+        => ConvExit(context, e);
 
     protected virtual T ConvTransfer( IContext context, ConvTransfer e)
         => Default( context, e);
 
-    protected virtual T ConvTransfer( IHistoricContext historicContext, ConvTransfer e)
-        => ConvTransfer(historicContext.Current, e);
+    protected virtual T ConvTransfer( IContext previousContext, IContext context, ConvTransfer e)
+        => ConvTransfer(context, e);
 
     protected virtual T ConvEnter(IContext context, ConvEnter e)
         => Default( context, e);
 
-    protected virtual T ConvEnter(IHistoricContext historicContext, ConvEnter e)
-        => ConvEnter(historicContext.Current, e);
+    protected virtual T ConvEnter(IContext previousContext, IContext context, ConvEnter e)
+        => ConvEnter(context, e);
 
     protected virtual T ConvInvest(IContext context, ConvInvest e)
         => Default( context, e);
 
-    protected virtual T ConvInvest(IHistoricContext historicContext, ConvInvest e)
-        => ConvInvest( historicContext.Current, e);
+    protected virtual T ConvInvest(IContext previousContext, IContext context, ConvInvest e)
+        => ConvInvest( context, e);
 
     protected virtual T IncreaseCash(IContext context, IncreaseCash e)
         => Default(context, e);
 
-    protected virtual T IncreaseCash(IHistoricContext historicContext, IncreaseCash e)
-        => IncreaseCash( historicContext.Current, e);
+    protected virtual T IncreaseCash(IContext previousContext, IContext context, IncreaseCash e)
+        => IncreaseCash( context, e);
 
     protected virtual T Audit( IContext context, Audit e)
         => Default(context, e);
 
-    protected virtual T Audit(IHistoricContext historicContext, Audit e)
-        => Audit(historicContext.Current, e);
+    protected virtual T Audit(IContext previousContext, IContext context, Audit e)
+        => Audit(context, e);
 
     protected virtual T Default(IContext context, Event e)
         => Start;

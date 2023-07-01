@@ -9,9 +9,13 @@ public interface IContext
         where T : class;
     object? GetContext(Type type);
     IEnumerable<Type> AvailableContexts { get; }
-    void EvaluateAll()
-    {
-        foreach (var context in AvailableContexts)
-            GetContext(context);
-    }
+    IContext Previous { get; }
+    Event Event { get; }
+}
+
+public interface ICalculatingContext : IContext
+{
+    ICalculatingContext AddEvent(Event @event);
+    bool IsEvaluated<T>();
+    bool IsEvaluated(Type type);
 }

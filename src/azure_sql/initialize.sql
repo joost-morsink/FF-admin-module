@@ -1,9 +1,20 @@
 /*
+ drop procedure [CreateNewBranch]
+ drop procedure [CreateBranchFrom]
+ drop procedure [RemoveBranch]
+ drop procedure [AddEvent]
+ drop procedure [Rebase]
+ drop procedure [FastForward]
  drop view [ConsolidatedEvents]
  drop table [Event]
  drop table [Range]
  drop table [Branch]
  */
+if not exists (select 1 from sys.database_principals where name='branching' and Type = 'R') begin
+     create role branching;
+end
+go
+
 
  if object_id('Branch') is null begin
     create table [Branch] (
@@ -50,6 +61,8 @@ create or alter view [ConsolidatedEvents] as
         join [Range] as r on e.Sequence >= r.Min and (r.Max is null or e.Sequence < r.Max) and e.Branch = r.SubBranch
         join [Branch] as mb on r.Branch = mb.Id;
 go
+grant select on [ConsolidatedEvents] to branching
+go
 
 create or alter procedure [CreateEmptyBranch](@branchName varchar(64)) as begin
     declare @id int;
@@ -58,6 +71,8 @@ create or alter procedure [CreateEmptyBranch](@branchName varchar(64)) as begin
     insert into [Range] ([Branch], [SubBranch], [Min], [Max])
         values (@id, @id, 0, null);
 end;
+go
+grant execute on [CreateEmptyBranch] to branching
 go
 
 create or alter procedure [CreateBranchFrom](@newBranchName varchar(64), @sourceBranchName varchar(64)) as begin
@@ -79,6 +94,8 @@ create or alter procedure [CreateBranchFrom](@newBranchName varchar(64), @source
         (@id, @id, @maxSequence, null);
 end;
 go
+grant execute on [CreateBranchFrom] to branching
+go
 
 create or alter procedure [RemoveBranch](@branchName varchar(64)) as begin
     delete r from [Range] r
@@ -89,6 +106,8 @@ create or alter procedure [RemoveBranch](@branchName varchar(64)) as begin
     delete from [Branch] where [Name] = @branchName;
 end;
 go
+grant execute on [RemoveBranch] to branching
+go
 
 create or alter procedure [AddEvent](@branchName varchar(64), @content varchar(4000)) as begin
     declare @maxSeq int;
@@ -97,6 +116,8 @@ create or alter procedure [AddEvent](@branchName varchar(64), @content varchar(4
     insert into [Event] ([Branch], [Sequence], [Content])
         select [Id], @maxSeq+1, @content from [Branch] where [Name] = @branchName
 end;
+go
+grant execute on [AddEvent] to branching
 go
 
 create or alter procedure [Rebase](@branchName varchar(64), @onBranchName varchar(64)) as begin
@@ -125,6 +146,9 @@ create or alter procedure [Rebase](@branchName varchar(64), @onBranchName varcha
              where b.[Name] = @branchName;
 end;
 go
+grant execute on [Rebase] to branching
+go
+
 
 create or alter procedure [FastForward](@branchName varchar(64), @toBranchName varchar(64)) as begin
     declare @maxSeq int;
@@ -143,4 +167,6 @@ create or alter procedure [FastForward](@branchName varchar(64), @toBranchName v
     insert into [Range]([Branch], [SubBranch], [Min], [Max])
         select [Id], [Id], @maxSeq+1, null from [Branch] where [Name] = @branchName;
 end;
+go
+grant execute on [FastForward] to branching
 go

@@ -10,7 +10,7 @@ public record DonationRecords(ImmutableDictionary<string, ImmutableList<Donation
     private class Impl : EventProcessor<DonationRecords>
     {
         public override DonationRecords Start => Empty;
-        protected override DonationRecords NewDonation(DonationRecords model, IHistoricContext historicContext, NewDonation e)
+        protected override DonationRecords NewDonation(DonationRecords model, IContext context, NewDonation e)
         {
             var rec = new DonationRecord(e.Timestamp, e.Exchanged_amount, null);
             var newValues = model.Values.Add(e.Donation, rec);

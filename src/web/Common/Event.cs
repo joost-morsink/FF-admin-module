@@ -78,6 +78,16 @@ namespace FfAdmin.Common
             return JsonSerializer.Serialize(this, GetType(), options ?? DefaultJsonOptions);
         }
     }
+
+    public class NoneEvent : Event
+    {
+        public static Event Instance { get; } = new NoneEvent();
+        public override EventType Type => EventType.NONE;
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            yield break;
+        }
+    }
     public class NewOption : Event
     {
         public override EventType Type => EventType.META_NEW_OPTION;

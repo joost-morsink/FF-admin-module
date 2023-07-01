@@ -4,13 +4,6 @@ namespace FfAdmin.Calculator;
 
 internal static class Validator
 {
-
-    internal static bool IsCharityKnown(this EventStream stream, string charity)
-    {
-        var context = stream.GetLast();
-        return IsCharityKnown(context, charity);
-    }
-
     internal static bool IsCharityKnown(this IContext context, string charity)
     {
         var charities = context.GetContext<Charities>();
@@ -22,25 +15,13 @@ internal static class Validator
         var ctx = context.GetContext<Charities>();
         return charities.All(ctx.Contains);
     }
-
-    internal static bool IsOptionKnown(this EventStream stream, string option)
-    {
-        var context = stream.GetLast();
-        return context.IsOptionKnown(option);
-    }
-
+    
     internal static bool IsOptionKnown(this IContext context, string option)
     {
         var options = context.GetContext<Options>();
         return options.Contains(option);
     }
-
-    internal static bool IsDonationKnown(this EventStream stream, string donation)
-    {
-        var context = stream.GetLast();
-        return context.IsDonationKnown(donation);
-    }
-
+    
     internal static bool IsDonationKnown(this IContext context, string donation)
     {
         var donations = context.GetContext<Donations>();

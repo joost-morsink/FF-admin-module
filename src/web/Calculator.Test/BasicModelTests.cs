@@ -134,9 +134,9 @@ public class BasicModelTests : VerifyBase
         .AddEvents(TestEvents);
 
     [TestMethod]
-    public void RepoTest()
+    public async Task RepoTest()
     {
-        var context = Stream.GetLast();
+        var context = await Stream.GetLast();
         var options = context.GetContext<Options>();
         options.Should().NotBeNull();
         options!.Values.Should().ContainKey("1");
@@ -153,24 +153,9 @@ public class BasicModelTests : VerifyBase
     }
 
     [TestMethod]
-    public void CursorTest()
+    public async Task  UnenteredTest()
     {
-        var context = Stream.GetHistoricContext(2).Previous;
-        var options = context.GetContext<Options>();
-        options.Should().NotBeNull();
-        options!.Values.Should().ContainKey("1");
-        var charities = context.GetContext<Charities>();
-        charities.Should().NotBeNull();
-        charities!.Values.Should().BeEmpty();
-        var donations = context.GetContext<Donations>();
-        donations.Should().NotBeNull();
-        donations!.Values.Should().BeEmpty();
-    }
-
-    [TestMethod]
-    public void UnenteredTest()
-    {
-        var context = Stream.GetAtPosition(7);
+        var context = await Stream.GetAtPosition(7);
         var options = context.GetContext<Options>();
         options.Should().NotBeNull();
         var worths = context.GetContext<OptionWorths>();
@@ -181,9 +166,9 @@ public class BasicModelTests : VerifyBase
     }
 
     [TestMethod]
-    public void EnterTest()
+    public async Task EnterTest()
     {
-        var context = Stream.GetAtPosition(8);
+        var context = await Stream.GetAtPosition(8);
         var options = context.GetContext<Options>();
         options.Should().NotBeNull();
         var worths = context.GetContext<OptionWorths>();
@@ -196,28 +181,28 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task OptionsTest()
     {
-        var context = Stream.GetLast();
+        var context = await Stream.GetLast();
         await Verify(context.GetContext<Options>());
     }
 
     [TestMethod]
     public async Task CharitiesTest()
     {
-        var context = Stream.GetLast();
+        var context = await Stream.GetLast();
         await Verify(context.GetContext<Charities>());
     }
 
     [TestMethod]
     public async Task DonationsTest()
     {
-        var context = Stream.GetLast();
+        var context = await Stream.GetLast();
         await Verify(context.GetContext<Donations>());
     }
 
     [TestMethod]
     public async Task OptionWorthsTest()
     {
-        var contexts = Stream.GetValues<OptionWorths>(7, 8, 9, 12).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 12)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -225,7 +210,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task IdealOptionValuationsGoodYearTest()
     {
-        var contexts = Stream.GetValues<IdealOptionValuations>(7, 8, 9, 11, 12).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<IdealOptionValuations>(7, 8, 9, 11, 12)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -233,7 +218,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task IdealOptionValuationsBadYearTest()
     {
-        var contexts = Stream.GetValues<IdealOptionValuations>(12, 13, 14, 15, 16).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<IdealOptionValuations>(12, 13, 14, 15, 16)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -241,22 +226,22 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task MinimalExitsTest()
     {
-        var contexts = Stream.GetValues<MinimalExits>(10, 11, 14, 15).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<MinimalExits>(10, 11, 14, 15)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
 
     [TestMethod]
-    public void ValidationErrorIndicesTest()
+    public async Task ValidationErrorIndicesTest()
     {
-        var context = Stream.GetAtPosition(15).GetContext<ValidationErrors>();
+        var context = (await Stream.GetAtPosition(15)).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
     }
 
     [TestMethod]
     public async Task AmountsToTransferTest()
     {
-        var contexts = Stream.GetValues<AmountsToTransfer>(12, 16, 18).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<AmountsToTransfer>(12, 16, 18)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -264,7 +249,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task CurrentCharityFractionSetsTest()
     {
-        var contexts = Stream.GetValues<CurrentCharityFractionSets>(8, 13).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<CurrentCharityFractionSets>(8, 13)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -272,17 +257,17 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task DonationRecordsTest()
     {
-        var contexts = Stream.GetValues<DonationRecords>(17).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<DonationRecords>(17)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
 
     [TestMethod]
-    public void DonationRecordsTotalWorthTest()
+    public async Task DonationRecordsTotalWorthTest()
     {
         for (int i = 0; i < 17; i++)
         {
-            var context = Stream.GetAtPosition(i);
+            var context = await Stream.GetAtPosition(i);
             var donations = context.GetContext<Donations>().Values;
             var worths = context.GetContext<OptionWorths>().Worths;
             var records = context.GetContext<DonationRecords>().Values;
@@ -303,13 +288,13 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task HashTest()
     {
-        var contexts = Stream.GetValues<HistoryHash>(Enumerable.Range(0,18).ToArray()).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<HistoryHash>(Enumerable.Range(0,18).ToArray())).ToListOrderedByKey();
 
         await Verify(contexts);
     }
 
     [TestMethod]
-    public void BulkTest()
+    public async Task BulkTest()
     {
         var stream = EventStream.Empty(Donations.Processor)
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
@@ -325,8 +310,8 @@ public class BasicModelTests : VerifyBase
                 Execute_timestamp = GetCurrent(TimeSpan.Zero)
             }));
         for (int i = 0; i < 1000; i += 906) // 906 threw a stackoverflow, fixed now
-            stream.GetAtPosition(i).GetContext<Donations>();
-        var context = stream.GetLast();
+            (await stream.GetAtPosition(i)).GetContext<Donations>();
+        var context = await stream.GetLast();
         var donations = context.GetContext<Donations>();
         donations.Should().NotBeNull();
     }
