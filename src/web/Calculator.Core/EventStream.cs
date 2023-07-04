@@ -40,7 +40,7 @@ public class EventStream
         if (e is null)
             return await GetAtPosition(await Events.Count());
         
-        return new ContextImpl(_processors, new Lazy<IContext>(() => GetAtPosition(position - 1).Result), e);
+        return new ContextImpl(this, new Lazy<IContext>(() => GetAtPosition(position - 1).Result), e);
     }
 
     public Task<IContext> GetAtPosition(int index)
@@ -53,13 +53,15 @@ public class EventStream
     private class ContextImpl : ICalculatingContext
     {
         private readonly ImmutableArray<IEventProcessor> _processors;
+        private readonly EventStream _parent;
         private readonly Lazy<IContext> _previous;
         private readonly Event _event;
         private TypedDictionary _values;
 
-        public ContextImpl(ImmutableArray<IEventProcessor> processors, Lazy<IContext> previous, Event @event)
+        public ContextImpl(EventStream parent, Lazy<IContext> previous, Event @event)
         {
-            _processors = processors;
+            _processors = parent._processors;
+            _parent = parent;
             _previous = previous;
             _event = @event;
             _values = TypedDictionary.Empty;
@@ -114,7 +116,7 @@ public class EventStream
         public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
 
         public ICalculatingContext AddEvent(Event @event)
-            => new ContextImpl(_processors, new Lazy<IContext>(() => this), @event);
+            => new ContextImpl(_parent, new Lazy<IContext>(() => this), @event);
 
         public bool IsEvaluated<T>()
             => _values.Contains(typeof(T));

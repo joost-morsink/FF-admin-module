@@ -2,7 +2,7 @@ using FfAdmin.Calculator.Core;
 
 namespace FfAdmin.Calculator;
 
-public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> Valuations)
+public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> Valuations) : IModel<IdealOptionValuations>
 {
     public static IdealOptionValuations Empty { get; } = new(ImmutableDictionary<string, IdealValuation>.Empty);
 
