@@ -7,16 +7,15 @@ namespace FfAdmin.EventStore.ApiClient;
 
 public static class Ext
 {
-    public static IServiceCollection AddEventStoreClient(this IServiceCollection services)
+    public static OptionsBuilder<EventStoreApiClientOptions> AddEventStoreClient(this IServiceCollection services)
     {
         return services
-            .AddOptions<EventStoreApiClientOptions>().Services
             .AddHttpClient<EventStoreApiClient>((provider,client) => client.BaseAddress = provider.GetRequiredService<IOptions<EventStoreApiClientOptions>>().Value.BaseUri).Services
-            .AddScoped<IEventStore>(sp => sp.GetRequiredService<EventStoreApiClient>());
+            .AddScoped<IEventStore>(sp => sp.GetRequiredService<EventStoreApiClient>())
+            .AddOptions<EventStoreApiClientOptions>();
     }
     public static IServiceCollection AddEventStoreClient(this IServiceCollection services, string baseAddress)
     {
-        return services.AddEventStoreClient()
-            .Configure<EventStoreApiClientOptions>(options => options.BaseUri = new Uri(baseAddress));
+        return services.AddEventStoreClient().Configure(options => options.BaseUri = new Uri(baseAddress)).Services;
     }
 }

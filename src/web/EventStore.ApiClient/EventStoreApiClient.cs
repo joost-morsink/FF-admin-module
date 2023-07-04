@@ -52,6 +52,14 @@ public class EventStoreApiClient : IEventStore
         return events.Select(d => Event.ReadFrom(d)).ToArray();
     }
 
+    public async Task<int> GetCount(string branchName)
+    {
+        var response = await _client.GetAsync($"/api/branches/{branchName}/events/count");
+        response.EnsureSuccessStatusCode();
+        var count = await response.Content.ReadFromJsonAsync<int>();
+        return count;
+    }
+    
     public Task AddEvents(string branchName, Event[] events)
     {
         throw new NotImplementedException();

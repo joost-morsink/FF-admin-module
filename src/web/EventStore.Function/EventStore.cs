@@ -73,6 +73,20 @@ public class EventStore
         await response.WriteStringAsync($"[{string.Join(",\r\n", events.Select(e => e.ToJsonString()))}]");
         return response;
     }
+    [Function("GetCount")]
+    public async Task<HttpResponseData> GetCount(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{branchName}/events/count")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext functionContext)
+    {
+        if (!await _eventStore.BranchExists(branchName))
+            return request.CreateResponse(HttpStatusCode.NotFound);
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        var events = await _eventStore.GetCount(branchName);
+        await response.WriteAsJsonAsync(events);
+        return response;
+    }
 
     [Function("AddEvents")]
     public async Task<HttpResponseData> AddEvents(

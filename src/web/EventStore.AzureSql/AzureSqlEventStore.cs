@@ -63,6 +63,13 @@ public class AzureSqlEventStore : IEventStore
             .ToArray();
     }
 
+    public async Task<int> GetCount(string branchName)
+    {
+        await using var connection = await _database.OpenConnection();
+        var result = await connection.QueryFirstAsync<int?>("select max([Sequence]) from [ConsolidatedEvents] where [Branch] = @branchName", new {branchName});
+        return result.HasValue ? result.Value + 1 : 0;
+    }
+    
     public async Task AddEvents(string branchName, Event[] events)
     {
         await using var connection = await _database.OpenConnection();

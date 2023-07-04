@@ -3,32 +3,33 @@ namespace FfAdmin.Calculator.Core;
 public class EventStream
 {
     public static EventStream Empty(IEnumerable<IEventProcessor> processors)
-        => new(processors, IEventRepository.Empty);
+        => new(processors, new InMemoryModelCacheFactory(), IEventRepository.Empty);
 
     public static EventStream Empty(params IEventProcessor[] processors)
         => Empty((IEnumerable<IEventProcessor>)processors);
 
-    private EventStream(IEnumerable<IEventProcessor> processors, IEventRepository events)
+    public EventStream(IEnumerable<IEventProcessor> processors, IModelCacheFactory modelCacheFactory, IEventRepository events)
     {
         _processors = processors.ToImmutableArray();
         _cache = _processors.ToImmutableDictionary(p => p.ModelType,
-            p =>
-            {
-                var res = (IModelCache)Activator.CreateInstance(
-                    typeof(InMemoryModelCache<>).MakeGenericType(p.ModelType))!;
-                res.SetAtPosition(0, p.Start);
-                return res;
-            });
+            p => modelCacheFactory.Create(p.ModelType, p.Start));
             
         Events = events;
     }
 
+    private EventStream(ImmutableArray<IEventProcessor> processors, ImmutableDictionary<Type, IModelCache> cache,
+        IEventRepository events)
+    {
+        _processors = processors;
+        _cache = cache.ToImmutableDictionary(x => x.Key, x =>x.Value.Clone());
+        Events = events;
+    }
     public IEventRepository Events { get; }
     private readonly ImmutableArray<IEventProcessor> _processors;
     private readonly ImmutableDictionary<Type, IModelCache> _cache;
 
     public EventStream AddEvents(IEnumerable<Event> events)
-        => new(_processors, Events.AddEvents(events));
+        => new(_processors, _cache, Events.AddEvents(events));
 
     private async Task<IContext> CreateContextForPosition(int position)
     {

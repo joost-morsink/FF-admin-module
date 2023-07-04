@@ -10,12 +10,19 @@ namespace FfAdmin.Calculator.Function;
 public class Calculator
 {
     private readonly IEventStore _eventStore;
+    private readonly IModelCacheFactory _modelCacheFactory;
 
-    public Calculator(IEventStore eventStore)
+    public Calculator(IEventStore eventStore, IModelCacheFactory modelCacheFactory)
     {
         _eventStore = eventStore;
+        _modelCacheFactory = modelCacheFactory;
     }
 
+    private EventStream CreateEventStream(string branchName)
+    {
+        return new EventStream(new IEventProcessor[] {HistoryHash.Processor}, _modelCacheFactory,
+            new EventStoreRepository(_eventStore, branchName));
+    }
     [Function("GetBranches")]
     public async Task<HttpResponseData> GetBranches(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches")] HttpRequestData req,
@@ -38,8 +45,7 @@ public class Calculator
         FunctionContext executionContext,
         int? at)
     {
-        var events = await _eventStore.GetEvents(branchName, 0,null);
-        var str = EventStream.Empty(HistoryHash.Processor).AddEvents(events.ToImmutableList());
+        var str = CreateEventStream(branchName);
         var context = at.HasValue ? await str.GetAtPosition(at.Value) : await str.GetLast();
         var hash = context.GetContext<HistoryHash>().Hash;
 
