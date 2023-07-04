@@ -20,6 +20,7 @@ var host = new HostBuilder()
             .AddModelProcessor<DonationRecords>()
             .AddModelProcessor<Charities>()
             .AddModelProcessor<Options>()
+            .AddModelProcessor<CharityBalance>()
             .AddModelProcessor<ValidationErrors>()
         
             .AddModelProcessor<OptionWorths>()

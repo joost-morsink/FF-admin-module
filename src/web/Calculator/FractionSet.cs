@@ -108,4 +108,10 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
         var q = Fractions.Where(f => filter(f.Key)).ToImmutableDictionary();
         return new(q, q.Values.Sum());
     }
+
+    public static implicit operator FractionSet(ImmutableDictionary<string, Real> dict)
+    {
+        var sum = dict.Values.Sum();
+        return new(dict, sum);
+    }
 }

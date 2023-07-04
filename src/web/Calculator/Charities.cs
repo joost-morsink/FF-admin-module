@@ -36,5 +36,5 @@ public record Charities(ImmutableDictionary<string, Charity> Values) : IModel<Ch
 
 }
 
-public record Charity(string Id, string Name, BankInfo Bank, ImmutableDictionary<string, Real>? Fractions);
+public record Charity(string Id, string Name, BankInfo Bank, FractionSet? Fractions);
 

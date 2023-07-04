@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Net;
 using FfAdmin.Calculator.Core;
 using FfAdmin.EventStore.Abstractions;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
@@ -78,6 +79,24 @@ public class Calculator
         var response = request.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(errors);
         return response;
+    }
+
+    [Function("AmountsToTransfer")]
+    public async Task<HttpResponseData> GetAmountsToTransfer(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/amounts-to-transfer")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        int? at)
+    {
+        var str = CreateEventStream(branchName);
+        var context = at.HasValue ? await str.GetAtPosition(at.Value) : await str.GetLast();
+        var data = context.GetContext<AmountsToTransfer>();
+
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(data.Values.Where(kvp => Math.Abs(kvp.Value) > 0.01m));
+        return response;
+        
     }
 }
  
