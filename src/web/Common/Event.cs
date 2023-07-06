@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -32,10 +33,13 @@ namespace FfAdmin.Common
             return res.ToArray();
         }
         public static Event ReadFrom(JsonDocument doc, JsonSerializerOptions? options = null)
+            => ReadFrom(doc.RootElement, options);
+
+        public static Event ReadFrom(JsonElement element, JsonSerializerOptions? options = null)
         {
             options ??= DefaultJsonOptions;
-            var type = doc.RootElement.GetProperty("type").GetString();
-            var json = doc.RootElement.ToString() ?? "{}";
+            var type = element.GetProperty("type").GetString();
+            var json = element.ToString() ?? "{}";
             if (Enum.TryParse<EventType>(type, out var eventType))
             {
                 return eventType switch

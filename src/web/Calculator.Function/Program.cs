@@ -12,6 +12,7 @@ var host = new HostBuilder()
             .AddMemoryCache()
             .AddEventStoreClient("https://g4g-event-store.azurewebsites.net")
             .AddOptions<PagingEventRepositoryOptions>().Services
+            .AddScoped<CalculatorDependencies>()
             .AddScoped<IModelCacheFactory, ModelCacheFactory>()
             .AddModelProcessor<HistoryHash>()
             .AddModelProcessor<FfAdmin.Calculator.Index>()

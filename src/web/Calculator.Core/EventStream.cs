@@ -31,6 +31,8 @@ public class EventStream
     public EventStream AddEvents(IEnumerable<Event> events)
         => new(_processors, _cache, Events.AddEvents(events));
 
+    public EventStream Prefix(int count)
+        => new(_processors, _cache, Events.Prefixed(count));
     private async Task<IContext> CreateContextForPosition(int position)
     {
         if (position <= 0)
