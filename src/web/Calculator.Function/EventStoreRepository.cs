@@ -17,6 +17,9 @@ public class EventStoreRepository : IEventRepository
         _initialCount = Count();
     }
 
+    public async ValueTask<int> StoredCount()
+        => await _eventStore.GetCount(_branchName);
+    
     public async ValueTask<int> Count()
         => await _eventStore.GetCount(_branchName);
 

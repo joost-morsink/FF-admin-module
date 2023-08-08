@@ -5,6 +5,8 @@ namespace FfAdmin.ModelCache.Abstractions;
 
 public static class Exts
 {
+    public static string ToHexString(this ReadOnlySpan<byte> bytes)
+        => Convert.ToHexString(bytes);
     public static string ToHexString(this byte[] bytes)
         => Convert.ToHexString(bytes);
     public static string ToBase64String(this byte[] bytes)

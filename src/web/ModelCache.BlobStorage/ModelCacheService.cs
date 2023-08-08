@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
 
 namespace FfAdmin.ModelCache.BlobStorage;
@@ -29,10 +30,10 @@ public class ModelCacheService : IModelCacheService
     private BlobClient HashBlobClient(string branchName)
         => GetBlobClient(HashBlobName(branchName));
 
-    private static string DataBlobName(byte[] hash, string type)
-        => $"data/{hash.ToHexString()}/{type}";
+    private static string DataBlobName(HashValue hash, string type)
+        => $"data/{hash.AsSpan().ToHexString()}/{type}";
     
-    private BlobClient DataBlobClient(byte[] hash, string type)
+    private BlobClient DataBlobClient(HashValue hash, string type)
         => GetBlobClient(DataBlobName(hash, type));
 
     private BlobClient GetBlobClient(string path)
@@ -75,13 +76,13 @@ public class ModelCacheService : IModelCacheService
         return Write(blobClient, content);
     }
 
-    public Task<byte[]?> GetData(byte[] hash, string type)
+    public Task<byte[]?> GetData(HashValue hash, string type)
     {
         var blobClient = DataBlobClient(hash, type);
         return Read(blobClient);
     }
 
-    public Task PutData(byte[] hash, string type, byte[] data)
+    public Task PutData(HashValue hash, string type, byte[] data)
     {
         var blobClient = DataBlobClient(hash, type);
         return Write(blobClient, data);

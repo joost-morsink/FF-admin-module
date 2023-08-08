@@ -3,36 +3,34 @@ namespace FfAdmin.Calculator.Core;
 public class EventStream
 {
     public static EventStream Empty(IEnumerable<IEventProcessor> processors)
-        => new(processors, new InMemoryModelCacheFactory(), IEventRepository.Empty);
+        => new(processors, IEventRepository.Empty, IModelCache.Empty);
 
     public static EventStream Empty(params IEventProcessor[] processors)
         => Empty((IEnumerable<IEventProcessor>)processors);
 
-    public EventStream(IEnumerable<IEventProcessor> processors, IModelCacheFactory modelCacheFactory, IEventRepository events)
+    public EventStream(IEnumerable<IEventProcessor> processors, IEventRepository events, IModelCache modelCache)
     {
         _processors = processors.ToImmutableArray();
-        _cache = _processors.ToImmutableDictionary(p => p.ModelType,
-            p => modelCacheFactory.Create(p.ModelType, p.Start));
-            
+        _modelCache = modelCache;
         Events = events;
     }
 
-    private EventStream(ImmutableArray<IEventProcessor> processors, ImmutableDictionary<Type, IModelCache> cache,
-        IEventRepository events)
+    private EventStream(ImmutableArray<IEventProcessor> processors,
+        IEventRepository events, IModelCache modelCache)
     {
         _processors = processors;
-        _cache = cache.ToImmutableDictionary(x => x.Key, x =>x.Value.Clone());
+        _modelCache = modelCache;
         Events = events;
     }
     public IEventRepository Events { get; }
     private readonly ImmutableArray<IEventProcessor> _processors;
-    private readonly ImmutableDictionary<Type, IModelCache> _cache;
+    private readonly IModelCache _modelCache;
 
     public EventStream AddEvents(IEnumerable<Event> events)
-        => new(_processors, _cache, Events.AddEvents(events));
+        => new(_processors, Events.AddEvents(events), _modelCache);
 
     public EventStream Prefix(int count)
-        => new(_processors, _cache, Events.Prefixed(count));
+        => new(_processors, Events.Prefixed(count), _modelCache);
     private async Task<IContext> CreateContextForPosition(int position)
     {
         if (position <= 0)

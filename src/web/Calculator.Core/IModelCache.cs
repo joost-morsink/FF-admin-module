@@ -2,26 +2,34 @@ namespace FfAdmin.Calculator.Core;
 
 public interface IModelCache
 {
-    Task<object?> GetAtPosition(int position);
-    Task SetAtPosition(int position, object value);
-    Task<int[]> GetAvailablePositions();
-    Task<int> GetBasePosition(int position);
-    IModelCache Clone();
-}
+    Task<int[]> GetIndexes();
+    Task<int?> GetIndexLowerThanOrEqual(int index);
+    Task<int?> GetIndexGreaterThanOrEqual(int index);
+    Task<object?> Get(int index, Type type);
+    async Task<T?> Get<T>(int index) 
+        where T : class
+        => (T?) await Get(index, typeof(T));
+    Task Put(int index, Type type, object model);
+    Task Put<T>(int index, T model) 
+        where T : class
+        => Put(index, typeof(T), model);
 
-public interface IModelCache<T> : IModelCache
-    where T : class
-{
-    new Task<T?> GetAtPosition(int position);
-    Task SetAtPosition(int position, T value);
+    public static IModelCache Empty { get; } = new EmptyImpl();
+    private class EmptyImpl : IModelCache
+    {
+        public Task<int[]> GetIndexes()
+            => Task.FromResult(Array.Empty<int>());
 
-    async Task<object?> IModelCache.GetAtPosition(int position)
-        => await GetAtPosition(position);
+        public Task<int?> GetIndexLowerThanOrEqual(int index)
+            => Task.FromResult(default(int?));
 
-    Task IModelCache.SetAtPosition(int position, object value)
-        => SetAtPosition(position, (T)value);
+        public Task<int?> GetIndexGreaterThanOrEqual(int index)
+            => Task.FromResult(default(int?));
 
-    new IModelCache<T> Clone();
-    IModelCache IModelCache.Clone() 
-        => Clone();
+        public Task<object?> Get(int index, Type type)
+            => Task.FromResult<object?>(null);
+
+        public Task Put(int index, Type type, object model)
+            => Task.CompletedTask;
+    }
 }

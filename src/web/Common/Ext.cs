@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Linq;
@@ -24,5 +25,10 @@ namespace FfAdmin.Common
         public static XElement RemoveNamespaces(this XElement node)
             => new (node.Name.LocalName, node.Attributes(), node.Nodes().Select(x => x.RemoveNamespaces()));
 
+        public static SortedImmutableDictionary<K, V> ToSortedImmutableDictionary<T, K, V>(this IEnumerable<T> src,
+            Func<T, K> keySelector, Func<T, V> valueSelector)
+            where K : notnull
+            => src.Aggregate(SortedImmutableDictionary<K, V>.Empty,
+                (result, t) => result.Add(keySelector(t), valueSelector(t)));
     }
 }

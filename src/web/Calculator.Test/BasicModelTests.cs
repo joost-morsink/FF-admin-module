@@ -130,7 +130,8 @@ public class BasicModelTests : VerifyBase
             AmountsToTransfer.Processor,
             CurrentCharityFractionSets.Processor,
             DonationRecords.Processor,
-            HistoryHash.Processor)
+            HistoryHash.Processor,
+            CharityBalance.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -153,7 +154,7 @@ public class BasicModelTests : VerifyBase
     }
 
     [TestMethod]
-    public async Task  UnenteredTest()
+    public async Task UnenteredTest()
     {
         var context = await Stream.GetAtPosition(7);
         var options = context.GetContext<Options>();
@@ -288,7 +289,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task HashTest()
     {
-        var contexts = (await Stream.GetValues<HistoryHash>(Enumerable.Range(0,18).ToArray())).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<HistoryHash>(Enumerable.Range(0, 18).ToArray())).ToListOrderedByKey();
 
         await Verify(contexts);
     }

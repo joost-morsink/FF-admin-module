@@ -3,6 +3,7 @@ using FfAdmin.Calculator.Core;
 using FfAdmin.Calculator.Function;
 using Microsoft.Extensions.Hosting;
 using FfAdmin.EventStore.ApiClient;
+using FfAdmin.ModelCache.ApiClient;
 using Microsoft.Extensions.DependencyInjection;
 
 var host = new HostBuilder()
@@ -11,6 +12,7 @@ var host = new HostBuilder()
         services
             .AddMemoryCache()
             .AddEventStoreClient("https://g4g-event-store.azurewebsites.net")
+            .AddModelCacheClient("https://g4g-model-cache.azurewebsites.net")
             .AddOptions<PagingEventRepositoryOptions>().Services
             .AddScoped<CalculatorDependencies>()
             .AddScoped<IModelCacheFactory, ModelCacheFactory>()

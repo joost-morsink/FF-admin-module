@@ -3,6 +3,7 @@ using System.Text.Json;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
+using FfAdmin.ModelCache.ApiClient;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -12,29 +13,28 @@ namespace FfAdmin.Calculator.Function;
 public abstract class BaseCalculator
 {
     protected readonly IEventStore _eventStore;
-    protected readonly IModelCacheFactory _modelCacheFactory;
     protected readonly IEnumerable<IEventProcessor> _processors;
     protected readonly IMemoryCache _memoryCache;
     protected readonly IOptions<PagingEventRepositoryOptions> _pagingOptions;
+    private readonly IModelCacheFactory _modelCacheFactory;
 
     public BaseCalculator(CalculatorDependencies dependencies)
     {
         _eventStore = dependencies.EventStore;
-        _modelCacheFactory = dependencies.ModelCacheFactory;
         _processors = dependencies.Processors;
         _memoryCache = dependencies.MemoryCache;
         _pagingOptions = dependencies.PagingOptions;
+        _modelCacheFactory = dependencies.ModelCacheFactory;
     }
 
     protected EventStream CreateEventStream(string branchName)
     {
-        return new EventStream(_processors, _modelCacheFactory,
+        return new EventStream(_processors,
             new PagingEventRepository(new EventStoreRepository(_eventStore, branchName),
-                branchName, _memoryCache, _pagingOptions));
+                branchName, _memoryCache, _pagingOptions),
+            _modelCacheFactory.CreateForBranch(branchName));
     }
-
-
-
+    
     protected IEnumerable<Event> ParseEvents(string? json)
     {
         if (json is null)

@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
 
 namespace FfAdmin.ModelCache.ApiClient;
@@ -35,20 +36,18 @@ public class ModelCacheApiClient : IModelCacheService
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task<byte[]?> GetData(byte[] hash, string type)
+    public async Task<byte[]?> GetData(HashValue hash, string type)
     {
-        var response = await _client.GetAsync($"/api/data/{hash.ToHexString()}/{type}");
+        var response = await _client.GetAsync($"/api/data/{hash.AsSpan().ToHexString()}/{type}");
         if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsByteArrayAsync();
     }
 
-    public async Task PutData(byte[] hash, string type, byte[] data)
+    public async Task PutData(HashValue hash, string type, byte[] data)
     {
-        var response = await _client.PutAsync($"/api/data/{hash.ToHexString()}/{type}", new ByteArrayContent(data));
+        var response = await _client.PutAsync($"/api/data/{hash.AsSpan().ToHexString()}/{type}", new ByteArrayContent(data));
         response.EnsureSuccessStatusCode();
     }
 }
-
-

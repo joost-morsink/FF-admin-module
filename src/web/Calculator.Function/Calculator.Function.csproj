@@ -30,5 +30,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Calculator\Calculator.csproj" />
       <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
+      <ProjectReference Include="..\ModelCache.ApiClient\ModelCache.ApiClient.csproj" />
     </ItemGroup>
 </Project>

@@ -41,6 +41,10 @@ public class PagingEventRepository : IEventRepository
                 _cache.Remove($"{_key}.{page}");
         }
     }
+    
+    public ValueTask<int> StoredCount()
+        => _initialCount;
+    
     public ValueTask<int> Count()
         => _initialCount;
 

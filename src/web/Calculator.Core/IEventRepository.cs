@@ -2,6 +2,7 @@ namespace FfAdmin.Calculator.Core;
 
 public interface IEventRepository
 {
+    ValueTask<int> StoredCount();
     ValueTask<int> Count();
     ValueTask<Event[]> GetEvents(int start, int? count);
     async ValueTask<Event?> GetEvent(int position)
@@ -14,6 +15,8 @@ public interface IEventRepository
     {
         public static EmptyImpl Instance { get; } = new();
 
+        public ValueTask<int> StoredCount()
+            => new (0);
         public ValueTask<int> Count()
             => new (0);
 
@@ -46,6 +49,9 @@ public static class EventRepositoryExtensions
             _events = events.ToImmutableList();
         }
 
+        public async ValueTask<int> StoredCount()
+            => await _baseRepository.StoredCount();
+        
         public async ValueTask<int> Count()
             => await _baseRepository.Count() + _events.Count;
 
@@ -87,6 +93,8 @@ public static class EventRepositoryExtensions
             _count = count;
         }
 
+        public async ValueTask<int> StoredCount()
+            => Math.Min(_count, await _baseRepository.StoredCount());
         public async ValueTask<int> Count()
             => Math.Min(_count, await _baseRepository.Count());
 
