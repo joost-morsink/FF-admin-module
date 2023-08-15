@@ -14,6 +14,8 @@ public interface IModelCache
         where T : class
         => Put(index, typeof(T), model);
 
+    IModelCache GetPrefix(int count) => Prefixed.From(this, count);
+
     public static IModelCache Empty { get; } = new EmptyImpl();
     private class EmptyImpl : IModelCache
     {
@@ -31,5 +33,41 @@ public interface IModelCache
 
         public Task Put(int index, Type type, object model)
             => Task.CompletedTask;
+    }
+
+    private class Prefixed : IModelCache
+    {
+        public static Prefixed From(IModelCache cache, int count)
+        {
+            if (cache is Prefixed p && p._count >= count)
+                return new(p._inner, count);
+            return new(cache, count);
+        }
+        private readonly IModelCache _inner;
+        private readonly int _count;
+
+        public Prefixed(IModelCache inner, int count)
+        {
+            _inner = inner;
+            _count = count;
+        }
+
+        public async Task<int[]> GetIndexes()
+            => (await _inner.GetIndexes()).TakeWhile(x => x < _count).ToArray();
+
+        public Task<int?> GetIndexLowerThanOrEqual(int index)
+            => _inner.GetIndexLowerThanOrEqual(Math.Min(index, _count - 1));
+
+        public Task<int?> GetIndexGreaterThanOrEqual(int index)
+            => _inner.GetIndexGreaterThanOrEqual(Math.Min(index, _count - 1));
+
+        public async Task<object?> Get(int index, Type type)
+            => index >= _count ? null : await _inner.Get(index, type);
+
+        public async Task Put(int index, Type type, object model)
+        {
+            if (index < _count)
+                await _inner.Put(index, type, model);
+        }
     }
 }

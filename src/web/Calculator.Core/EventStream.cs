@@ -1,6 +1,9 @@
+using System.Collections.Concurrent;
+using System.Threading;
+
 namespace FfAdmin.Calculator.Core;
 
-public class EventStream
+public partial class EventStream
 {
     public static EventStream Empty(IEnumerable<IEventProcessor> processors)
         => new(processors, IEventRepository.Empty, IModelCache.Empty);
@@ -9,10 +12,8 @@ public class EventStream
         => Empty((IEnumerable<IEventProcessor>)processors);
 
     public EventStream(IEnumerable<IEventProcessor> processors, IEventRepository events, IModelCache modelCache)
+        : this(processors.ToImmutableArray(), events, modelCache)
     {
-        _processors = processors.ToImmutableArray();
-        _modelCache = modelCache;
-        Events = events;
     }
 
     private EventStream(ImmutableArray<IEventProcessor> processors,
@@ -21,133 +22,89 @@ public class EventStream
         _processors = processors;
         _modelCache = modelCache;
         Events = events;
+        _contexts = new();
     }
+
     public IEventRepository Events { get; }
     private readonly ImmutableArray<IEventProcessor> _processors;
     private readonly IModelCache _modelCache;
+    private readonly ConcurrentDictionary<int, IContext> _contexts;
+
+    private IContext GetContextAtPosition(int index)
+        => _contexts.TryGetValue(index, out var context)
+            ? context
+            : throw new MissingDataException(index, typeof(object));
 
     public EventStream AddEvents(IEnumerable<Event> events)
         => new(_processors, Events.AddEvents(events), _modelCache);
 
     public EventStream Prefix(int count)
-        => new(_processors, Events.Prefixed(count), _modelCache);
+        => new(_processors, Events.Prefixed(count), _modelCache.GetPrefix(count));
+
     private async Task<IContext> CreateContextForPosition(int position)
     {
         if (position <= 0)
             return new ZeroContext(_processors);
-        
+
         var e = await Events.GetEvent(position - 1);
         if (e is null)
             return await GetAtPosition(await Events.Count());
-        
-        return new ContextImpl(this, new Lazy<IContext>(() => GetAtPosition(position - 1).Result), e);
+        var res = new ContextImpl(this, () => GetContextAtPosition(position - 1), e, position);
+
+        if ((await _cacheInfo.Value.Positions).Contains(position))
+            foreach (var (modelType, model) in (await Task.WhenAll(_processors.Select(async p =>
+                         (p.ModelType, await _modelCache.Get(position, p.ModelType)))))
+                     .Where(x => x.Item2 is not null))
+                res.SetContext(modelType, model!);
+        return res;
     }
 
-    public Task<IContext> GetAtPosition(int index)
+    private async Task LoadContexts(int from, int to)
     {
-        return CreateContextForPosition(index);
+        for (int i = from; i <= to; i++)
+        {
+            if (!_contexts.ContainsKey(i))
+            {
+                _contexts.TryAdd(i, await CreateContextForPosition(i));
+            }
+        }
+    }
+
+    public record struct CacheInfo(Task<int[]> Positions, ValueTask<int> Count);
+
+    private static readonly AsyncLocal<CacheInfo> _cacheInfo = new();
+
+    public async Task<IContext> GetAtPosition(int index)
+    {
+        _cacheInfo.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+        var lowerbound = await _modelCache.GetIndexLowerThanOrEqual(index) ?? 0;
+        await LoadContexts(lowerbound, index);
+        return _contexts[index];
+    }
+
+    public async Task<T> Get<T>(int index)
+        where T : class
+    {
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be non-negative");
+        int cont = index;
+        while (true)
+        {
+            try
+            {
+                var context = await GetAtPosition(index);
+                return context.GetContext<T>();
+            }
+            catch (MissingDataException mde)
+            {
+                if (mde.Index >= cont)
+                    throw;
+                var newLowerBound = await _modelCache.GetIndexLowerThanOrEqual(mde.Index - 1);
+                cont = newLowerBound ?? 0;
+                await LoadContexts(await _modelCache.GetIndexLowerThanOrEqual(mde.Index - 1) ?? 0, mde.Index);
+            }
+        }
     }
 
     public async Task<IContext> GetLast() => await GetAtPosition(await Events.Count());
-
-    private class ContextImpl : ICalculatingContext
-    {
-        private readonly ImmutableArray<IEventProcessor> _processors;
-        private readonly EventStream _parent;
-        private readonly Lazy<IContext> _previous;
-        private readonly Event _event;
-        private TypedDictionary _values;
-
-        public ContextImpl(EventStream parent, Lazy<IContext> previous, Event @event)
-        {
-            _processors = parent._processors;
-            _parent = parent;
-            _previous = previous;
-            _event = @event;
-            _values = TypedDictionary.Empty;
-        }
-
-        private T Calculate<T>()
-            where T : class
-            => (T)Calculate(typeof(T));
-        
-        private object Calculate(Type type)
-        {
-            ICalculatingContext current = this;
-            foreach (var proc in _processors.Where(p => p.ModelType == type))
-            {
-                var todo = new Stack<ICalculatingContext>();
-                while (!current.IsEvaluated(type))
-                {
-                    if(current != this)
-                        todo.Push(current);
-                    if (current.Previous is not ICalculatingContext cc)
-                    {
-                        var prev = current.Previous.GetContext(type);
-                        if (prev is null)
-                            throw new InvalidOperationException($"Cannot find previous model for {type}");
-                        break;
-                    }
-
-                    current = cc;
-                }
-                while(todo.TryPop(out current!))
-                    current.GetContext(type);
-                return proc.Process(
-                    Previous.GetContext(type) ?? throw new ArgumentException($"Cannot find previous model for {type}"),
-                    Previous, this, Event);
-            }
-
-            throw new ArgumentException($"Cannot find processor for model type {type}.");
-        }
-
-        public T? GetContextOrNull<T>() where T : class
-            => (T?)GetContext(typeof(T));
-        
-        public T GetContext<T>() where T : class
-            => GetContextOrNull<T>() ?? throw new ArgumentException("EventProcessor for {typeof(T)} not found");
-
-        public object? GetContext(Type type)
-        {
-            (_values, var res) = _values.GetOrAdd(type, () => Calculate(type));
-            return res;
-        }
-
-        public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
-
-        public ICalculatingContext AddEvent(Event @event)
-            => new ContextImpl(_parent, new Lazy<IContext>(() => this), @event);
-
-        public bool IsEvaluated<T>()
-            => _values.Contains(typeof(T));
-
-        public bool IsEvaluated(Type type)
-            => _values.Contains(type);
-
-        public IContext Previous => _previous.Value;
-        public Event Event => _event;
-    }
-
-    private class ZeroContext : IContext
-    {
-        private ImmutableArray<IEventProcessor> _processors;
-
-        public ZeroContext(ImmutableArray<IEventProcessor> processors)
-        {
-            _processors = processors;
-        }
-
-        public T? GetContextOrNull<T>() where T : class
-            => _processors.OfType<IEventProcessor<T>>().Select(p => p.Start).FirstOrDefault();
-
-        public T GetContext<T>() where T : class
-            => GetContextOrNull<T>() ?? throw new ArgumentException("EventProcessor for {typeof(T)} not found");
-
-        public object? GetContext(Type type)
-            => _processors.Where(p => p.ModelType == type).Select(p => p.Start).FirstOrDefault();
-
-        public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
-        public IContext Previous => this;
-        public Event Event => NoneEvent.Instance;
-    }
 }

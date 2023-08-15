@@ -3,7 +3,6 @@ using System.Text.Json;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
-using FfAdmin.ModelCache.ApiClient;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -99,8 +98,9 @@ public abstract class BaseCalculator
             str = str.Prefix(baseSequence.Value);
         if (events is not null)
             str = str.AddEvents(events);
-        var context = baseSequence.HasValue ? await str.GetAtPosition(baseSequence.Value) : await str.GetLast();
-        var model = context.GetContext<T>();
+        
+        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
+        var model = await str.Get<T>(index);
 
         var result = projection is null ? model : projection(model);
         if (result is null)
