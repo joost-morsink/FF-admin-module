@@ -3,7 +3,6 @@ using System.Text.Json;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
-using Pidgin;
 
 namespace FfAdmin.Calculator.Function;
 
@@ -41,15 +40,46 @@ public class ModelCache : IModelCache
     public async Task<int?> GetIndexGreaterThanOrEqual(int index)
         => (await Forward()).FirstKeyGreaterThanOrEqual(index);
 
-    public async Task<object?> Get(int index, Type type)
+    public async Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index)
     {
         var indexes = await Forward();
-        if (!indexes.TryGetValue(index, out var hash))
+        if(!indexes.TryGetValue(index, out var hash))
+            return Array.Empty<(Type, object)>();
+        var availableData = await _service.GetTypesForHash(hash);
+        var result = (await Task.WhenAll(
+            from type in types
+            join data in availableData on type.Name equals data
+            select InnerGet(type))).Prepend((typeof(HistoryHash), new HistoryHash(hash.AsSpan().ToArray())));
+        
+        return result.ToArray();
+        
+        async Task<(Type, object)> InnerGet(Type type)
+        {
+            var data = await _service.GetData(hash, type.Name);
+            if (data is null)
+                throw new InvalidOperationException("Data not found");
+            return (type, FromJson(type, data));
+        }
+    }
+    public async Task<object?> Get(int index, Type type)
+    {
+        if (type == typeof(HistoryHash))
+        {
+            var indexes = await _service.GetHashesForBranch(_branch);
+            if (indexes.Hashes.TryGetValue(index, out var hash))
+                return new HistoryHash(hash);
             return null;
-        var data = await _service.GetData(hash, type.Name);
-        if (data is null)
-            return null;
-        return FromJson(type, data);
+        }
+        else
+        {
+            var indexes = await Forward();
+            if (!indexes.TryGetValue(index, out var hash))
+                return null;
+            var data = await _service.GetData(hash, type.Name);
+            if (data is null)
+                return null;
+            return FromJson(type, data);
+        }
     }
 
     public async Task Put(int index, Type type, object model)

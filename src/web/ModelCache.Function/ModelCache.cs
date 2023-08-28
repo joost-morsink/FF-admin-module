@@ -56,7 +56,19 @@ public class ModelCache
         var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
     }
-    
+
+    [Function("GetAvailableData")]
+    public async Task<HttpResponseData> GetAvailableData(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "data/{hash}")]
+        HttpRequestData request,
+        string hash,
+        FunctionContext executionContext)
+    {
+        var result = await _service.GetTypesForHash(hash.ToByteArray());
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(result);
+        return response;
+    }
     [Function("GetData")]
     public async Task<HttpResponseData> GetData(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "data/{hash}/{type}")]

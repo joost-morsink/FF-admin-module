@@ -119,6 +119,7 @@ public class BasicModelTests : VerifyBase
     };
 
     private static readonly EventStream Stream = EventStream.Empty(
+            IModelCacheStrategy.Default,
             Index.Processor,
             Options.Processor,
             Charities.Processor,
@@ -306,7 +307,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task BulkTest()
     {
-        var stream = EventStream.Empty(Donations.Processor)
+        var stream = EventStream.Empty(IModelCacheStrategy.Default, Donations.Processor)
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
             {
                 Timestamp = GetCurrent(),

@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace FfAdmin.Calculator;
 
+[JsonConverter(typeof(FractionSetJsonConverter))]
 public class FractionSet : IReadOnlyDictionary<string, Real>
 {
     internal ImmutableDictionary<string, Real> Fractions { get; }

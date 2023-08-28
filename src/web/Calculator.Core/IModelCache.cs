@@ -5,6 +5,7 @@ public interface IModelCache
     Task<int[]> GetIndexes();
     Task<int?> GetIndexLowerThanOrEqual(int index);
     Task<int?> GetIndexGreaterThanOrEqual(int index);
+    Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index);
     Task<object?> Get(int index, Type type);
     async Task<T?> Get<T>(int index) 
         where T : class
@@ -27,6 +28,9 @@ public interface IModelCache
 
         public Task<int?> GetIndexGreaterThanOrEqual(int index)
             => Task.FromResult(default(int?));
+
+        public Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index)
+            => Task.FromResult(Array.Empty<(Type, object)>());
 
         public Task<object?> Get(int index, Type type)
             => Task.FromResult<object?>(null);
@@ -60,6 +64,9 @@ public interface IModelCache
 
         public Task<int?> GetIndexGreaterThanOrEqual(int index)
             => _inner.GetIndexGreaterThanOrEqual(Math.Min(index, _count - 1));
+
+        public Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index)
+            => _inner.GetAvailableData(types, index);
 
         public async Task<object?> Get(int index, Type type)
             => index >= _count ? null : await _inner.Get(index, type);

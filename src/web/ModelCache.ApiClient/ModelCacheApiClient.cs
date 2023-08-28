@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -36,6 +37,14 @@ public class ModelCacheApiClient : IModelCacheService
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<string[]> GetTypesForHash(HashValue hash)
+    {
+        var response = await _client.GetAsync($"/api/data/{hash.AsSpan().ToHexString()}");
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return Array.Empty<string>();
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<string[]>() ?? Array.Empty<string>();
+    }
     public async Task<byte[]?> GetData(HashValue hash, string type)
     {
         var response = await _client.GetAsync($"/api/data/{hash.AsSpan().ToHexString()}/{type}");

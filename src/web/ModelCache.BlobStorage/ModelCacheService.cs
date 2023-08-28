@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Storage.Blobs;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
@@ -38,16 +40,25 @@ public class ModelCacheService : IModelCacheService
 
     private BlobClient GetBlobClient(string path)
         => _storageClient.Client.GetBlobClient(path);
-    
+
+    private BlobContainerClient GetContainerClient()
+        => _storageClient.Client;
     private static async Task<byte[]?> Read(BlobClient blobClient)
     {
-        var blob = await blobClient.DownloadAsync();
-        if (!blob.HasValue)
+        try
+        {
+            var blob = await blobClient.DownloadAsync();
+            if (!blob.HasValue)
+                return null;
+            await using var unzip = new GZipStream(blob.Value.Content, CompressionMode.Decompress);
+            using var ms = new MemoryStream();
+            await unzip.CopyToAsync(ms);
+            return ms.ToArray();
+        }
+        catch (RequestFailedException) 
+        {
             return null;
-        await using var unzip = new GZipStream(blob.Value.Content, CompressionMode.Decompress);
-        using var ms = new MemoryStream();
-        await unzip.CopyToAsync(ms);
-        return ms.ToArray();
+        }
     }
 
     private static async Task Write(BlobClient blobClient, byte[] data)
@@ -74,6 +85,16 @@ public class ModelCacheService : IModelCacheService
         var blobClient = HashBlobClient(branchName);
         var content = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data));
         return Write(blobClient, content);
+    }
+
+    public async Task<string[]> GetTypesForHash(HashValue hash)
+    {
+        var client = GetContainerClient();
+        var pageable = client.GetBlobsByHierarchyAsync(prefix: $"data/{hash.AsSpan().ToHexString()}");
+        var result = new List<string>();
+        await foreach(var item in pageable)
+            result.Add(item.Blob.Name.Substring(item.Blob.Name.LastIndexOf('/') + 1));
+        return result.ToArray();
     }
 
     public Task<byte[]?> GetData(HashValue hash, string type)

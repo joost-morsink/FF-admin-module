@@ -26,12 +26,12 @@ public abstract class BaseCalculator
         _modelCacheFactory = dependencies.ModelCacheFactory;
     }
 
-    protected EventStream CreateEventStream(string branchName)
+    protected EventStream CreateEventStream(string branchName, IModelCacheStrategy modelCacheStrategy)
     {
         return new EventStream(_processors,
             new PagingEventRepository(new EventStoreRepository(_eventStore, branchName),
                 branchName, _memoryCache, _pagingOptions),
-            _modelCacheFactory.CreateForBranch(branchName));
+            _modelCacheFactory.CreateForBranch(branchName), modelCacheStrategy);
     }
     
     protected IEnumerable<Event> ParseEvents(string? json)
@@ -93,13 +93,14 @@ public abstract class BaseCalculator
         Action<HttpResponseData>? onResponse = null)
         where T : class
     {
-        var str = CreateEventStream(branchName);
+        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
         if (baseSequence.HasValue)
             str = str.Prefix(baseSequence.Value);
         if (events is not null)
             str = str.AddEvents(events);
         
         var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
+        await str.Get<HistoryHash>(index);
         var model = await str.Get<T>(index);
 
         var result = projection is null ? model : projection(model);

@@ -5,22 +5,24 @@ namespace FfAdmin.Calculator.Core;
 
 public partial class EventStream
 {
-    public static EventStream Empty(IEnumerable<IEventProcessor> processors)
-        => new(processors, IEventRepository.Empty, IModelCache.Empty);
+    public static EventStream Empty(IEnumerable<IEventProcessor> processors, IModelCacheStrategy modelCacheStrategy)
+        => new(processors, IEventRepository.Empty, IModelCache.Empty, modelCacheStrategy);
 
-    public static EventStream Empty(params IEventProcessor[] processors)
-        => Empty((IEnumerable<IEventProcessor>)processors);
+    public static EventStream Empty(IModelCacheStrategy modelCacheStrategy, params IEventProcessor[] processors)
+        => Empty(processors, modelCacheStrategy);
 
-    public EventStream(IEnumerable<IEventProcessor> processors, IEventRepository events, IModelCache modelCache)
-        : this(processors.ToImmutableArray(), events, modelCache)
+    public EventStream(IEnumerable<IEventProcessor> processors, IEventRepository events, IModelCache modelCache,
+        IModelCacheStrategy modelCacheStrategy)
+        : this(processors.ToImmutableArray(), events, modelCache, modelCacheStrategy)
     {
     }
 
     private EventStream(ImmutableArray<IEventProcessor> processors,
-        IEventRepository events, IModelCache modelCache)
+        IEventRepository events, IModelCache modelCache, IModelCacheStrategy modelCacheStrategy)
     {
         _processors = processors;
         _modelCache = modelCache;
+        _modelCacheStrategy = modelCacheStrategy;
         Events = events;
         _contexts = new();
     }
@@ -28,6 +30,7 @@ public partial class EventStream
     public IEventRepository Events { get; }
     private readonly ImmutableArray<IEventProcessor> _processors;
     private readonly IModelCache _modelCache;
+    private readonly IModelCacheStrategy _modelCacheStrategy;
     private readonly ConcurrentDictionary<int, IContext> _contexts;
 
     private IContext GetContextAtPosition(int index)
@@ -36,10 +39,10 @@ public partial class EventStream
             : throw new MissingDataException(index, typeof(object));
 
     public EventStream AddEvents(IEnumerable<Event> events)
-        => new(_processors, Events.AddEvents(events), _modelCache);
+        => new(_processors, Events.AddEvents(events), _modelCache, _modelCacheStrategy);
 
     public EventStream Prefix(int count)
-        => new(_processors, Events.Prefixed(count), _modelCache.GetPrefix(count));
+        => new(_processors, Events.Prefixed(count), _modelCache.GetPrefix(count), _modelCacheStrategy);
 
     private async Task<IContext> CreateContextForPosition(int position)
     {
@@ -51,11 +54,12 @@ public partial class EventStream
             return await GetAtPosition(await Events.Count());
         var res = new ContextImpl(this, () => GetContextAtPosition(position - 1), e, position);
 
-        if ((await _cacheInfo.Value.Positions).Contains(position))
-            foreach (var (modelType, model) in (await Task.WhenAll(_processors.Select(async p =>
-                         (p.ModelType, await _modelCache.Get(position, p.ModelType)))))
-                     .Where(x => x.Item2 is not null))
-                res.SetContext(modelType, model!);
+        if ((await _calculationPositions.Value.Positions).Contains(position))
+            foreach (var (modelType, model) in await _modelCache.GetAvailableData(_processors.Select(x => x.ModelType),
+                         position))
+                res.SetContext(modelType, model);
+
+
         return res;
     }
 
@@ -70,21 +74,60 @@ public partial class EventStream
         }
     }
 
-    public record struct CacheInfo(Task<int[]> Positions, ValueTask<int> Count);
-
-    private static readonly AsyncLocal<CacheInfo> _cacheInfo = new();
-
     public async Task<IContext> GetAtPosition(int index)
     {
-        _cacheInfo.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
         var lowerbound = await _modelCache.GetIndexLowerThanOrEqual(index) ?? 0;
         await LoadContexts(lowerbound, index);
         return _contexts[index];
     }
 
+    private record struct CalculationValues(Task<int[]> Positions, ValueTask<int> Count);
+
+    private static readonly AsyncLocal<CalculationValues> _calculationPositions = new();
+    private static ConcurrentQueue<(int, Type, object)> _calculationQueue = new();
+    private static readonly SemaphoreSlim _calculationSemaphore = new(1);
+    private void OnCalculated(int index, Type type, object model)
+    {
+        _calculationQueue.Enqueue((index, type, model));
+        ProcessCalculationQueue().Ignore();
+    }
+
+    private async Task ProcessCalculationQueue()
+    {
+        await _calculationSemaphore.WaitAsync();
+        try
+        {
+            while (_calculationQueue.TryDequeue(out var item))
+            {
+                _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+                var (index, type, model) = item;
+                var positions = await _calculationPositions.Value.Positions;
+                if (_modelCacheStrategy.ShouldCache(positions,
+                        await _calculationPositions.Value.Count, index))
+                {
+                    await _modelCache.Put(index, type, model);
+                }
+            }
+        }
+        finally
+        {
+            _calculationSemaphore.Release();
+        }
+    }
+
+    // var positions = await _calculationPositions.Value.Positions;
+    //     if (_modelCacheStrategy.ShouldCache(positions,
+    //             await _calculationPositions.Value.Count, index))
+    //     {
+    //         await _modelCache.Put(index, type, model);
+    //     }
+
     public async Task<T> Get<T>(int index)
         where T : class
     {
+        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+
         if (index < 0)
             throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be non-negative");
         int cont = index;

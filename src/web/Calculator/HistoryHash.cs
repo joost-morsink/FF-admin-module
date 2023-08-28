@@ -10,7 +10,7 @@ public record HistoryHash : IModel<HistoryHash>
     {
         
     }
-    private HistoryHash(byte[] hash)
+    public HistoryHash(byte[] hash)
     {
         if(hash is null)
             throw new ArgumentNullException(nameof(hash));

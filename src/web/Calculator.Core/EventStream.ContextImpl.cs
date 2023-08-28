@@ -23,7 +23,7 @@ public partial class EventStream
 
         private object Calculate(Type type)
         {
-            ICalculatingContext current = this;
+            ICalculatingContext? current = this;
             foreach (var proc in _processors.Where(p => p.ModelType == type))
             {
                 var todo = new Stack<ICalculatingContext>();
@@ -42,7 +42,7 @@ public partial class EventStream
                     current = cc;
                 }
 
-                while (todo.TryPop(out current!))
+                while (todo.TryPop(out current))
                     current.GetContext(type);
                 return proc.Process(
                     Previous.GetContext(type) ?? throw new MissingDataException(_index, type),
@@ -60,7 +60,12 @@ public partial class EventStream
 
         public object? GetContext(Type type)
         {
-            (_values, var res) = _values.GetOrAdd(type, () => Calculate(type));
+            (_values, var res) = _values.GetOrAdd(type, () =>
+            {
+                var res = Calculate(type);
+                _parent.OnCalculated(_index, type, res);
+                return res;
+            });
             return res;
         }
 
