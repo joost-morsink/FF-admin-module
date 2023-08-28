@@ -63,7 +63,7 @@ public class BasicModelTests : VerifyBase
         },
         // 7
         new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 0, Option = "1"},
-        new ConvInvest {Timestamp = GetCurrent(), Cash_amount = 2.25m, Invested_amount = 12.50m, Option = "1"},
+        new ConvInvest {Timestamp = GetCurrent(), Cash_amount = 2.25m, Invested_amount = 12.50m, Option = "1"}, // Loss of 0.25
         new NewDonation
         {
             Timestamp = GetCurrent(),
@@ -76,7 +76,7 @@ public class BasicModelTests : VerifyBase
             Option = "1",
             Execute_timestamp = GetCurrent(TimeSpan.Zero)
         },
-        new ConvLiquidate
+        new ConvLiquidate // Gain of 2.75
         {
             Timestamp = GetCurrent(TimeSpan.FromDays(180)),
             Cash_amount = 2.25m,
@@ -87,7 +87,7 @@ public class BasicModelTests : VerifyBase
         // 12
         new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 15.25m, Option = "1"},
         new ConvInvest {Timestamp = GetCurrent(), Invested_amount = 35.25m, Cash_amount = 0.94m, Option = "1"},
-        new ConvLiquidate
+        new ConvLiquidate // Loss of 1.00
         {
             Timestamp = GetCurrent(TimeSpan.FromDays(180)),
             Invested_amount = 34.25m,
@@ -131,7 +131,8 @@ public class BasicModelTests : VerifyBase
             CurrentCharityFractionSets.Processor,
             DonationRecords.Processor,
             HistoryHash.Processor,
-            CharityBalance.Processor)
+            CharityBalance.Processor,
+            CumulativeInterest.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -205,6 +206,14 @@ public class BasicModelTests : VerifyBase
     {
         var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 12)).ToListOrderedByKey();
 
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task CumulativeInterestTest()
+    {
+        var contexts = (await Stream.GetValues<CumulativeInterest>(0, 1, 2, 7, 8, 9, 11, 12, 13, 14, 15, 18))
+            .ToListOrderedByKey();
         await Verify(contexts);
     }
 
