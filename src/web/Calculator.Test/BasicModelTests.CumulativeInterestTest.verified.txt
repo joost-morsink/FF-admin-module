@@ -1,1 +1,91 @@
-﻿
+﻿[
+  {},
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_1,
+        Value: 1.0
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_1,
+        Value: 1.0
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_1,
+        Value: 1.0
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_1,
+        Value: 1.0
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_2,
+        Value: 0.9833333333333333333333333333
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_3,
+        Value: 1.1666666666666666666666666666
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_4,
+        Value: 1.1666666666666666666666666666
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_5,
+        Value: 1.1666666666666666666666666666
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_6,
+        Value: 1.1666666666666666666666666666
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_7,
+        Value: 1.1344294003868471953578336557
+      }
+    }
+  },
+  {
+    Options: {
+      1: {
+        Timestamp: DateTimeOffset_8,
+        Value: 1.1344294003868471953578336557
+      }
+    }
+  }
+]
