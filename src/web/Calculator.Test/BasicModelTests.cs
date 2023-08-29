@@ -125,6 +125,7 @@ public class BasicModelTests : VerifyBase
             Charities.Processor,
             Donations.Processor,
             OptionWorths.Processor,
+            OptionWorthHistory.Processor,
             IdealOptionValuations.Processor,
             MinimalExits.Processor,
             ValidationErrors.Processor,
@@ -207,6 +208,14 @@ public class BasicModelTests : VerifyBase
     {
         var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 12)).ToListOrderedByKey();
 
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task OptionWorthHistoryTest()
+    {
+        var contexts = (await Stream.GetValues<OptionWorthHistory>(0,18)).ToListOrderedByKey();
+        
         await Verify(contexts);
     }
 

@@ -14,7 +14,9 @@ var host = new HostBuilder()
             .AddEventStoreClient("https://g4g-event-store.azurewebsites.net")
             .AddModelCacheClient("https://g4g-model-cache.azurewebsites.net")
             .AddOptions<PagingEventRepositoryOptions>().Services
-            .Configure<ModelCacheOptions>(o => o.PutEnabled=false)
+            .AddOptions<ModelCacheOptions>()
+            //.Configure(o => o.PutEnabled = false)
+            .Services
             .AddScoped<CalculatorDependencies>()
             .AddScoped<IModelCacheFactory, ModelCacheFactory>()
             .AddModelProcessor<HistoryHash>()
@@ -28,12 +30,14 @@ var host = new HostBuilder()
             .AddModelProcessor<ValidationErrors>()
         
             .AddModelProcessor<OptionWorths>()
+            .AddModelProcessor<OptionWorthHistory>()
             .AddModelProcessor<MinimalExits>()
             .AddModelProcessor<CurrentCharityFractionSets>()
             .AddModelProcessor<IdealOptionValuations>()
             .AddModelProcessor<AmountsToTransfer>()
             
             .AddModelProcessor<CumulativeInterest>()
+            
         )
     .Build();
 

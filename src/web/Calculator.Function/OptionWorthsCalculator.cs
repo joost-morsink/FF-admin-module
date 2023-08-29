@@ -25,3 +25,25 @@ public class OptionWorthsCalculator : BaseCalculator
         int? @base)
         => HandlePost<OptionWorths>(request, branchName, @base, data => data.Worths);
 }
+public class OptionWorthHistoryCalculator : BaseCalculator
+{
+    public OptionWorthHistoryCalculator(CalculatorDependencies dependencies) : base(dependencies) { }
+    
+    [Function("OptionWorthHistory")]
+    public Task<HttpResponseData> GetOptionWorthHistory(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/option-worth-history")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        int? at)
+        => Handle<OptionWorthHistory>(request, branchName, at, data => data.Options);
+    
+    [Function("OptionWorthHistoryTheory")]
+    public Task<HttpResponseData> PostOptionWorthHistory(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{branchName}/option-worth-history")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        int? @base)
+        => HandlePost<OptionWorthHistory>(request, branchName, @base, data => data.Options);
+}

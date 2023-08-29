@@ -1,5 +1,8 @@
-﻿namespace FfAdmin.Common
+﻿using System.Text.Json.Serialization;
+
+namespace FfAdmin.Common
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum EventType
     {
         NONE,
