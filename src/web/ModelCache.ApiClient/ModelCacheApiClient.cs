@@ -16,7 +16,13 @@ public class ModelCacheApiClient : IModelCacheService
     {
         _client = client;
     }
-
+    
+    public async Task ClearCache()
+    {
+        var response = await _client.DeleteAsync("/api/branches");
+        response.EnsureSuccessStatusCode();
+    }
+    
     public async Task RemoveBranch(string branchName)
     {
         var response = await _client.DeleteAsync($"/api/branches/{branchName}");
@@ -45,6 +51,7 @@ public class ModelCacheApiClient : IModelCacheService
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<string[]>() ?? Array.Empty<string>();
     }
+    
     public async Task<byte[]?> GetData(HashValue hash, string type)
     {
         var response = await _client.GetAsync($"/api/data/{hash.AsSpan().ToHexString()}/{type}");

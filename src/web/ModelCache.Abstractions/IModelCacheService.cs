@@ -5,6 +5,7 @@ namespace FfAdmin.ModelCache.Abstractions;
 
 public interface IModelCacheService
 {
+    Task ClearCache();
     Task RemoveBranch(string branchName);
     Task<HashesForBranch> GetHashesForBranch(string branchName);
     Task PutHashesForBranch(string branchName, HashesForBranch data);

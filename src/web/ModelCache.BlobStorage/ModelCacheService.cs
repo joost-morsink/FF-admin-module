@@ -20,6 +20,14 @@ public class ModelCacheService : IModelCacheService
         _storageClient = storageClient;
     }
 
+    public async Task ClearCache()
+    {
+        var client = GetContainerClient();
+        var pageable = client.GetBlobsAsync();
+        await foreach(var item in pageable)
+            await client.DeleteBlobAsync(item.Name);
+    }
+
     public async Task RemoveBranch(string branchName)
     {
         var blobClient = HashBlobClient(branchName);

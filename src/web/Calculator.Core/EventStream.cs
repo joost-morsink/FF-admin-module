@@ -116,13 +116,6 @@ public partial class EventStream
         }
     }
 
-    // var positions = await _calculationPositions.Value.Positions;
-    //     if (_modelCacheStrategy.ShouldCache(positions,
-    //             await _calculationPositions.Value.Count, index))
-    //     {
-    //         await _modelCache.Put(index, type, model);
-    //     }
-
     public async Task<T> Get<T>(int index)
         where T : class
     {

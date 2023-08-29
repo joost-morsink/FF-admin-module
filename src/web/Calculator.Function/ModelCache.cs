@@ -10,6 +10,7 @@ public class ModelCache : IModelCache
 {
     private readonly IModelCacheService _service;
     private readonly string _branch;
+    private readonly ModelCacheOptions _options;
     private Task<(SortedImmutableDictionary<int, HashValue>, ImmutableDictionary<HashValue,int>)> _hashes;
 
     private async Task<SortedImmutableDictionary<int, HashValue>> Forward()
@@ -18,10 +19,11 @@ public class ModelCache : IModelCache
     private async Task<ImmutableDictionary<HashValue, int>> Reverse()
         => (await _hashes).Item2;
     
-    public ModelCache(IModelCacheService service, string branch)
+    public ModelCache(IModelCacheService service, string branch, ModelCacheOptions options)
     {
         _service = service;
         _branch = branch;
+        _options = options;
         _hashes = GetHashes();
     }
     private async Task<(SortedImmutableDictionary<int, HashValue>, ImmutableDictionary<HashValue, int>)> GetHashes()
@@ -42,6 +44,8 @@ public class ModelCache : IModelCache
 
     public async Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index)
     {
+        if (!_options.GetEnabled)
+            return Array.Empty<(Type, object)>();
         var indexes = await Forward();
         if(!indexes.TryGetValue(index, out var hash))
             return Array.Empty<(Type, object)>();
@@ -63,6 +67,8 @@ public class ModelCache : IModelCache
     }
     public async Task<object?> Get(int index, Type type)
     {
+        if(!_options.GetEnabled)
+            return null;
         if (type == typeof(HistoryHash))
         {
             var indexes = await _service.GetHashesForBranch(_branch);
@@ -84,6 +90,8 @@ public class ModelCache : IModelCache
 
     public async Task Put(int index, Type type, object model)
     {
+        if(!_options.PutEnabled)
+            return;
         if (type == typeof(HistoryHash))
         {
             var indexes = await _service.GetHashesForBranch(_branch);

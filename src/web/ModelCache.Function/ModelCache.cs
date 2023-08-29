@@ -44,7 +44,16 @@ public class ModelCache
         var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
     }
-    
+    [Function("ClearCache")]
+    public async Task<HttpResponseData> ClearCache(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "branches")]
+        HttpRequestData request,
+        FunctionContext executionContext)
+    {
+        await _service.ClearCache();
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        return response;
+    }
     [Function("RemoveBranch")]
     public async Task<HttpResponseData> RemoveBranch(
         [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "branches/{branchName}")]
