@@ -30,6 +30,7 @@ public abstract class EventProcessor<T> : IEventProcessor<T>
             ConvInvest ci => ConvInvest(model, previousContext, context, ci),
             IncreaseCash ic => IncreaseCash(model, previousContext, context, ic),
             Audit a => Audit(model, previousContext, context, a),
+            PriceInfo pi => PriceInfo(model, previousContext, context, pi),
             _ => model
         };
 
@@ -123,6 +124,12 @@ public abstract class EventProcessor<T> : IEventProcessor<T>
 
     protected virtual T Audit(T model, IContext previousContext, IContext context, Audit e)
         => Audit(model, context, e);
+
+    protected virtual T PriceInfo(T model, IContext previousContext, IContext context, PriceInfo e)
+        => PriceInfo(model, context, e);
+
+    protected virtual T PriceInfo(T model, IContext context, PriceInfo e)
+        => Default(model, context, e);
 
     protected virtual T Default(T model, IContext context, Event e)
         => model;

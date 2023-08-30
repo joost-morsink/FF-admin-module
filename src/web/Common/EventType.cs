@@ -20,6 +20,7 @@ namespace FfAdmin.Common
         DONA_CANCEL,
         META_UPDATE_CHARITY,
         CONV_INCREASE_CASH,
-        META_CHARITY_PARTITION
+        META_CHARITY_PARTITION,
+        PRICE_INFO
     }
 }

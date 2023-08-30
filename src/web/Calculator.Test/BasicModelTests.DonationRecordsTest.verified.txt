@@ -16,6 +16,10 @@
         },
         {
           Timestamp: DateTimeOffset_4,
+          Worth: 10.166666666666666666666666667
+        },
+        {
+          Timestamp: DateTimeOffset_5,
           Worth: 11.666666666666666666666666667
         },
         {
@@ -23,10 +27,6 @@
             Amount: 0.8733333333333333333333333334,
             Charity: 1
           },
-          Timestamp: DateTimeOffset_5,
-          Worth: 10.793333333333333333333333334
-        },
-        {
           Timestamp: DateTimeOffset_6,
           Worth: 10.793333333333333333333333334
         },
@@ -36,6 +36,10 @@
         },
         {
           Timestamp: DateTimeOffset_8,
+          Worth: 10.793333333333333333333333334
+        },
+        {
+          Timestamp: DateTimeOffset_9,
           Worth: 10.495092567007460624481901078
         },
         {
@@ -43,13 +47,13 @@
             Amount: 0.0507009302753983605047434835,
             Charity: 1
           },
-          Timestamp: DateTimeOffset_9,
+          Timestamp: DateTimeOffset_10,
           Worth: 10.444391636732062263977157595
         }
       ],
       2: [
         {
-          Timestamp: DateTimeOffset_10,
+          Timestamp: DateTimeOffset_11,
           Worth: 5.0
         },
         {
@@ -62,6 +66,10 @@
         },
         {
           Timestamp: DateTimeOffset_4,
+          Worth: 5.0833333333333333333333333328
+        },
+        {
+          Timestamp: DateTimeOffset_5,
           Worth: 5.8333333333333333333333333328
         },
         {
@@ -69,12 +77,8 @@
             Amount: 0.4366666666666666666666666666,
             Charity: 2
           },
-          Timestamp: DateTimeOffset_5,
-          Worth: 5.3966666666666666666666666661
-        },
-        {
           Timestamp: DateTimeOffset_6,
-          Worth: 5.3966666666666666666666666651
+          Worth: 5.3966666666666666666666666661
         },
         {
           Timestamp: DateTimeOffset_7,
@@ -82,6 +86,10 @@
         },
         {
           Timestamp: DateTimeOffset_8,
+          Worth: 5.3966666666666666666666666651
+        },
+        {
+          Timestamp: DateTimeOffset_9,
           Worth: 5.2475462835037303122409505373
         },
         {
@@ -89,18 +97,14 @@
             Amount: 0.0253504651376991802523717417,
             Charity: 2
           },
-          Timestamp: DateTimeOffset_9,
+          Timestamp: DateTimeOffset_10,
           Worth: 5.2221958183660311319885787956
         }
       ],
       3: [
         {
-          Timestamp: DateTimeOffset_11,
+          Timestamp: DateTimeOffset_12,
           Worth: 10.0
-        },
-        {
-          Timestamp: DateTimeOffset_6,
-          Worth: 9.999999999999999999999999999
         },
         {
           Timestamp: DateTimeOffset_7,
@@ -108,6 +112,10 @@
         },
         {
           Timestamp: DateTimeOffset_8,
+          Worth: 9.999999999999999999999999999
+        },
+        {
+          Timestamp: DateTimeOffset_9,
           Worth: 9.723680574744404531638574191
         },
         {
@@ -115,18 +123,14 @@
             Amount: 0.0469743022934512296214423874,
             Charity: 2
           },
-          Timestamp: DateTimeOffset_9,
+          Timestamp: DateTimeOffset_10,
           Worth: 9.676706272450953302017131803
         }
       ],
       4: [
         {
-          Timestamp: DateTimeOffset_12,
+          Timestamp: DateTimeOffset_13,
           Worth: 10.0
-        },
-        {
-          Timestamp: DateTimeOffset_6,
-          Worth: 9.999999999999999999999999999
         },
         {
           Timestamp: DateTimeOffset_7,
@@ -134,6 +138,10 @@
         },
         {
           Timestamp: DateTimeOffset_8,
+          Worth: 9.999999999999999999999999999
+        },
+        {
+          Timestamp: DateTimeOffset_9,
           Worth: 9.723680574744404531638574191
         },
         {
@@ -141,7 +149,7 @@
             Amount: 0.0469743022934512296214423874,
             Charity: 1
           },
-          Timestamp: DateTimeOffset_9,
+          Timestamp: DateTimeOffset_10,
           Worth: 9.676706272450953302017131803
         }
       ]

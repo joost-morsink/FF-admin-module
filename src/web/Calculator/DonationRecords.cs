@@ -47,6 +47,9 @@ public record DonationRecords(ImmutableDictionary<string, ImmutableList<Donation
 
         protected override DonationRecords ConvLiquidate(DonationRecords model, IContext context, ConvLiquidate e)
             => Rebalance(model, context, e.Timestamp, e.Option);
+
+        protected override DonationRecords PriceInfo(DonationRecords model, IContext context, PriceInfo e)
+            => Rebalance(model, context, e.Timestamp, e.Option);
     }
 }
 

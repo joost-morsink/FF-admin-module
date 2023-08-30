@@ -42,11 +42,11 @@
           Timestamp: DateTimeOffset_3
         },
         {
-          EventType: CONV_LIQUIDATE,
+          EventType: PRICE_INFO,
           New: {
             Cash: 2.25,
-            CumulativeInterest: 1.1666666666666666666666666666,
-            Invested: 15.25,
+            CumulativeInterest: 1.0166666666666666666666666667,
+            Invested: 13.0,
             Unentered: 20.0
           },
           Old: {
@@ -58,77 +58,93 @@
           Timestamp: DateTimeOffset_4
         },
         {
-          EventType: CONV_EXIT,
+          EventType: CONV_LIQUIDATE,
           New: {
-            Cash: 0.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
+            Cash: 2.25,
+            CumulativeInterest: 1.1666666666666666666666666667,
             Invested: 15.25,
             Unentered: 20.0
           },
           Old: {
             Cash: 2.25,
-            CumulativeInterest: 1.1666666666666666666666666666,
-            Invested: 15.25,
+            CumulativeInterest: 1.0166666666666666666666666667,
+            Invested: 13.0,
             Unentered: 20.0
           },
           Timestamp: DateTimeOffset_5
         },
         {
-          EventType: CONV_ENTER,
+          EventType: CONV_EXIT,
           New: {
-            Cash: 20.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
-            Invested: 15.25
+            Cash: 0.94,
+            CumulativeInterest: 1.1666666666666666666666666667,
+            Invested: 15.25,
+            Unentered: 20.0
           },
           Old: {
-            Cash: 0.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
+            Cash: 2.25,
+            CumulativeInterest: 1.1666666666666666666666666667,
             Invested: 15.25,
             Unentered: 20.0
           },
           Timestamp: DateTimeOffset_6
         },
         {
+          EventType: CONV_ENTER,
+          New: {
+            Cash: 20.94,
+            CumulativeInterest: 1.1666666666666666666666666667,
+            Invested: 15.25
+          },
+          Old: {
+            Cash: 0.94,
+            CumulativeInterest: 1.1666666666666666666666666667,
+            Invested: 15.25,
+            Unentered: 20.0
+          },
+          Timestamp: DateTimeOffset_7
+        },
+        {
           EventType: CONV_INVEST,
           New: {
             Cash: 0.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
+            CumulativeInterest: 1.1666666666666666666666666667,
             Invested: 35.25
           },
           Old: {
             Cash: 20.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
+            CumulativeInterest: 1.1666666666666666666666666667,
             Invested: 15.25
           },
-          Timestamp: DateTimeOffset_7
+          Timestamp: DateTimeOffset_8
         },
         {
           EventType: CONV_LIQUIDATE,
           New: {
             Cash: 0.94,
-            CumulativeInterest: 1.1344294003868471953578336557,
+            CumulativeInterest: 1.1344294003868471953578336558,
             Invested: 34.25
           },
           Old: {
             Cash: 0.94,
-            CumulativeInterest: 1.1666666666666666666666666666,
+            CumulativeInterest: 1.1666666666666666666666666667,
             Invested: 35.25
           },
-          Timestamp: DateTimeOffset_8
+          Timestamp: DateTimeOffset_9
         },
         {
           EventType: CONV_EXIT,
           New: {
             Cash: 0.77,
-            CumulativeInterest: 1.1344294003868471953578336557,
+            CumulativeInterest: 1.1344294003868471953578336558,
             Invested: 34.25
           },
           Old: {
             Cash: 0.94,
-            CumulativeInterest: 1.1344294003868471953578336557,
+            CumulativeInterest: 1.1344294003868471953578336558,
             Invested: 34.25
           },
-          Timestamp: DateTimeOffset_9
+          Timestamp: DateTimeOffset_10
         }
       ]
     }

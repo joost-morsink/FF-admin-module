@@ -68,6 +68,10 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
         protected override OptionWorths ConvExit(OptionWorths model, IContext context, ConvExit e)
             => model.Mutate(e.Option, option =>
                 option with {Timestamp = e.Timestamp, Cash = option.Cash - e.Amount});
+
+        protected override OptionWorths PriceInfo(OptionWorths model, IContext context, PriceInfo e)
+            => model.Mutate(e.Option, option =>
+                option with {Timestamp = e.Timestamp, Invested = e.Invested_amount});
     }
 }
 

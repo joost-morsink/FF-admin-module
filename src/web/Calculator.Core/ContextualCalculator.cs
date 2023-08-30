@@ -30,6 +30,7 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
             ConvInvest ci => ConvInvest(previousContext, context, ci),
             IncreaseCash ic => IncreaseCash(previousContext, context, ic),
             Audit a => Audit(previousContext, context, a),
+            PriceInfo pi => PriceInfo(previousContext, context, pi),
             _ => Default(context, e)
         };
 
@@ -123,6 +124,12 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
     protected virtual T Audit(IContext previousContext, IContext context, Audit e)
         => Audit(context, e);
 
+    protected virtual T PriceInfo(IContext context, PriceInfo e)
+        => Default(context, e);
+
+    protected virtual T PriceInfo(IContext previousContext, IContext context, PriceInfo e)
+        => PriceInfo(context, e);
+    
     protected virtual T Default(IContext context, Event e)
         => Start;
 }

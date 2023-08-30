@@ -43,6 +43,11 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
             return model.Options.SetItem(option, new (model.Options[option].Value * (1 + addedInterest), timestamp));
         }
 
+        protected override CumulativeInterest PriceInfo(CumulativeInterest model, IContext previousContext, IContext context, PriceInfo e)
+        {
+            return CumulativeInterestBetweenContexts(model, previousContext, context, e.Option, e.Timestamp, 0);
+        }
+
         protected override CumulativeInterest ConvLiquidate(CumulativeInterest model, IContext previousContext,
             IContext context, ConvLiquidate e)
         {

@@ -68,6 +68,21 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 }, e.Timestamp);
         }
 
+        protected override IdealOptionValuations PriceInfo(IdealOptionValuations model, IContext previousContext, IContext context, PriceInfo e)
+        {
+            var addedWorth = context.GetContext<OptionWorths>().Worths[e.Option].TotalWorth 
+                             - previousContext.GetContext<OptionWorths>().Worths[e.Option].TotalWorth;
+            var reinvestmentFraction = context.GetContext<Options>()
+                .Values[e.Option].ReinvestmentFraction;
+
+            return model.Mutate(e.Option,
+                option => option with
+                {
+                    RealValue = option.RealValue + addedWorth,
+                    IdealValue = option.IdealValue + addedWorth * reinvestmentFraction
+                }, e.Timestamp);
+        }
+
         // On ConvExit, the cash is subtracted from the real value, but not the ideal value. Ideally to equalize the real and ideal values.
         protected override IdealOptionValuations ConvExit(IdealOptionValuations model, IContext currentContext,
             ConvExit e)

@@ -59,6 +59,7 @@ namespace FfAdmin.Common
                     EventType.CONV_INVEST => JsonSerializer.Deserialize<ConvInvest>(json, options)!,
                     EventType.CONV_INCREASE_CASH => JsonSerializer.Deserialize<IncreaseCash>(json, options)!,
                     EventType.AUDIT => JsonSerializer.Deserialize<Audit>(json, options)!,
+                    EventType.PRICE_INFO => JsonSerializer.Deserialize<PriceInfo>(json, options)!,
                     _ => throw new InvalidDataException("Invalid event type")
                 };
             }
@@ -338,6 +339,21 @@ namespace FfAdmin.Common
         {
             if (string.IsNullOrWhiteSpace(Hashcode))
                 yield return new ValidationMessage(nameof(Hashcode), "Field is required");
+        }
+    }
+
+    public class PriceInfo : Event
+    {
+        public override EventType Type => EventType.PRICE_INFO;
+        public string Option { get; set; } = "";
+        public decimal Invested_amount { get; set; }
+
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new(nameof(Option), "Field is required");
+            if (Invested_amount < 0m)
+                yield return new(nameof(Invested_amount), "Invested amount cannot be negative");
         }
     }
 }

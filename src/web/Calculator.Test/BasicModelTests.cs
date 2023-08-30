@@ -76,9 +76,15 @@ public class BasicModelTests : VerifyBase
             Option = "1",
             Execute_timestamp = GetCurrent(TimeSpan.Zero)
         },
+        new PriceInfo
+        {
+            Timestamp = GetCurrent(TimeSpan.FromDays(90)),
+            Option= "1",
+            Invested_amount = 13m
+        },
         new ConvLiquidate // Gain of 2.75
         {
-            Timestamp = GetCurrent(TimeSpan.FromDays(180)),
+            Timestamp = GetCurrent(TimeSpan.FromDays(90)),
             Cash_amount = 2.25m,
             Invested_amount = 15.25m,
             Option = "1"
@@ -206,7 +212,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task OptionWorthsTest()
     {
-        var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 12)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 13)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -214,7 +220,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task OptionWorthHistoryTest()
     {
-        var contexts = (await Stream.GetValues<OptionWorthHistory>(0,18)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<OptionWorthHistory>(0, 19)).ToListOrderedByKey();
         
         await Verify(contexts);
     }
@@ -222,7 +228,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task CumulativeInterestTest()
     {
-        var contexts = (await Stream.GetValues<CumulativeInterest>(0, 1, 2, 7, 8, 9, 11, 12, 13, 14, 15, 18))
+        var contexts = (await Stream.GetValues<CumulativeInterest>(0, 1, 2, 7, 8, 9, 12, 13, 14, 15, 16, 19))
             .ToListOrderedByKey();
         await Verify(contexts);
     }
@@ -230,7 +236,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task IdealOptionValuationsGoodYearTest()
     {
-        var contexts = (await Stream.GetValues<IdealOptionValuations>(7, 8, 9, 11, 12)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<IdealOptionValuations>(7, 8, 9, 12, 13)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -238,7 +244,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task IdealOptionValuationsBadYearTest()
     {
-        var contexts = (await Stream.GetValues<IdealOptionValuations>(12, 13, 14, 15, 16)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<IdealOptionValuations>(13, 14, 15, 16, 17)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -246,7 +252,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task MinimalExitsTest()
     {
-        var contexts = (await Stream.GetValues<MinimalExits>(10, 11, 14, 15)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<MinimalExits>(10, 12, 15, 16)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -254,14 +260,14 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task ValidationErrorIndicesTest()
     {
-        var context = (await Stream.GetAtPosition(15)).GetContext<ValidationErrors>();
+        var context = (await Stream.GetAtPosition(16)).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
     }
 
     [TestMethod]
     public async Task AmountsToTransferTest()
     {
-        var contexts = (await Stream.GetValues<AmountsToTransfer>(12, 16, 18)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<AmountsToTransfer>(13, 17, 19)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -269,7 +275,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task CurrentCharityFractionSetsTest()
     {
-        var contexts = (await Stream.GetValues<CurrentCharityFractionSets>(8, 13)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<CurrentCharityFractionSets>(8, 14)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -277,7 +283,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task DonationRecordsTest()
     {
-        var contexts = (await Stream.GetValues<DonationRecords>(17)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<DonationRecords>(18)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -285,7 +291,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task DonationRecordsTotalWorthTest()
     {
-        for (int i = 0; i < 17; i++)
+        for (int i = 0; i < 18; i++)
         {
             var context = await Stream.GetAtPosition(i);
             var donations = context.GetContext<Donations>().Values;
@@ -308,7 +314,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task HashTest()
     {
-        var contexts = (await Stream.GetValues<HistoryHash>(Enumerable.Range(0, 18).ToArray())).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<HistoryHash>(Enumerable.Range(0, 19).ToArray())).ToListOrderedByKey();
 
         await Verify(contexts);
     }

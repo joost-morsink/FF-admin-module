@@ -44,7 +44,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_3,
-        Value: 1.1666666666666666666666666666
+        Value: 1.1666666666666666666666666667
       }
     }
   },
@@ -52,7 +52,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_4,
-        Value: 1.1666666666666666666666666666
+        Value: 1.1666666666666666666666666667
       }
     }
   },
@@ -60,7 +60,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_5,
-        Value: 1.1666666666666666666666666666
+        Value: 1.1666666666666666666666666667
       }
     }
   },
@@ -68,7 +68,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_6,
-        Value: 1.1666666666666666666666666666
+        Value: 1.1666666666666666666666666667
       }
     }
   },
@@ -76,7 +76,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_7,
-        Value: 1.1344294003868471953578336557
+        Value: 1.1344294003868471953578336558
       }
     }
   },
@@ -84,7 +84,7 @@
     Options: {
       1: {
         Timestamp: DateTimeOffset_8,
-        Value: 1.1344294003868471953578336557
+        Value: 1.1344294003868471953578336558
       }
     }
   }

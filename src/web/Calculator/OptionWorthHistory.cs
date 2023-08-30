@@ -33,12 +33,18 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             IContext context, ConvInvest e)
             => AddRecord(model, e.Option, e, previousContext, context);
 
-        protected override OptionWorthHistory ConvLiquidate(OptionWorthHistory model, IContext previousContext, IContext context, ConvLiquidate e)
+        protected override OptionWorthHistory ConvLiquidate(OptionWorthHistory model, IContext previousContext,
+            IContext context, ConvLiquidate e)
             => AddRecord(model, e.Option, e, previousContext, context);
 
-        protected override OptionWorthHistory ConvExit(OptionWorthHistory model, IContext previousContext, IContext context, ConvExit e)
+        protected override OptionWorthHistory ConvExit(OptionWorthHistory model, IContext previousContext,
+            IContext context, ConvExit e)
             => AddRecord(model, e.Option, e, previousContext, context);
-        
+
+        protected override OptionWorthHistory PriceInfo(OptionWorthHistory model, IContext previousContext,
+            IContext context, PriceInfo e)
+            => AddRecord(model, e.Option, e, previousContext, context);
+
         private OptionWorth GetWorth(IContext context, string option)
             => context.GetContext<OptionWorths>().Worths[option];
         private CumulativeInterest.DataPoint GetCumulativeInterest(IContext context, string option)
