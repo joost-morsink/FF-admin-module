@@ -29,19 +29,22 @@ public class EventStoreApiClient : IEventStore
     public async Task<bool> BranchExists(string branchName)
         => (await GetBranchNames()).Contains(branchName);
 
-    public Task CreateEmptyBranch(string branchName)
+    public async Task CreateEmptyBranch(string branchName)
     {
-        throw new NotImplementedException();
+        var response = await _client.PostAsJsonAsync($"/api/branches/{branchName}/new", new object());
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task CreateNewBranchFrom(string newBranchName, string sourceBranchName)
+    public async Task CreateNewBranchFrom(string newBranchName, string sourceBranchName)
     {
-        throw new NotImplementedException();
+        var response = await _client.PostAsJsonAsync($"/api/branches/{newBranchName}/new", new { Source = sourceBranchName });
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task RemoveBranch(string branchName)
+    public async Task RemoveBranch(string branchName)
     {
-        throw new NotImplementedException();
+        var response = await _client.DeleteAsync($"/api/branches/{branchName}");
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task<Event[]> GetEvents(string branchName, int start, int? count)
@@ -60,18 +63,22 @@ public class EventStoreApiClient : IEventStore
         return count;
     }
     
-    public Task AddEvents(string branchName, Event[] events)
+    public async Task AddEvents(string branchName, Event[] events)
     {
-        throw new NotImplementedException();
+        var documents = $"[{string.Join(",",events.Select(e => e.ToJsonString()))}]";
+        var response = await _client.PostAsync($"/api/branches/{branchName}/events", new StringContent(documents));
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task Rebase(string branchName, string onBranchName)
+    public async  Task Rebase(string branchName, string onBranchName)
     {
-        throw new NotImplementedException();
+       var response = await _client.PostAsJsonAsync($"/api/branches/{branchName}/rebase", new { On = onBranchName });
+       response.EnsureSuccessStatusCode();
     }
 
-    public Task FastForward(string branchName, string toBranchName)
+    public async Task FastForward(string branchName, string toBranchName)
     {
-        throw new NotImplementedException();
+        var response = await _client.PostAsJsonAsync($"/api/branches/{branchName}/fastforward", new { To = toBranchName });
+        response.EnsureSuccessStatusCode();
     }
 }
