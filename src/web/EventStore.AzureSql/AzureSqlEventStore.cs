@@ -4,16 +4,19 @@ using System.Threading.Tasks;
 using Dapper;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
+using FfAdmin.ServiceBus;
 
 namespace FfAdmin.EventStore.AzureSql;
 
 public class AzureSqlEventStore : IEventStore
 {
     private readonly IEventStoreDatabase _database;
+    private readonly IServiceBusQueueSender<CleanBranch> _cleanBranchSender;
 
-    public AzureSqlEventStore(IEventStoreDatabase database)
+    public AzureSqlEventStore(IEventStoreDatabase database, IServiceBusQueueSender<CleanBranch> cleanBranchSender)
     {
         _database = database;
+        _cleanBranchSender = cleanBranchSender;
     }
     public async Task<string[]> GetBranchNames()
     {
@@ -47,7 +50,7 @@ public class AzureSqlEventStore : IEventStore
     {
         await using var connection = await _database.OpenConnection();
         await connection.ExecuteAsync("exec [RemoveBranch] @branchName", new {branchName});
-        
+        await _cleanBranchSender.Send(new(branchName, 0));
     }
 
     private record GetEventResult(int Sequence, string Content);
@@ -83,7 +86,9 @@ public class AzureSqlEventStore : IEventStore
     public async Task Rebase(string branchName, string onBranchName)
     {
         await using var connection = await _database.OpenConnection();
+        
         await connection.ExecuteAsync("exec [Rebase] @branchName, @onBranchName", new {branchName, onBranchName});
+        await _cleanBranchSender.Send(new(branchName, 0));
     }
 
     public async Task FastForward(string branchName, string toBranchName)
@@ -92,3 +97,4 @@ public class AzureSqlEventStore : IEventStore
         await connection.ExecuteAsync("exec [FastForward] @branchName, @toBranchName", new {branchName, toBranchName});
     }
 }
+

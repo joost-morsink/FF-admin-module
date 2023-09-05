@@ -1,10 +1,14 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
+using FfAdmin.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace FfAdmin.ModelCache.Function;
 
@@ -107,5 +111,19 @@ public class ModelCache
         await _service.PutData(hash.ToByteArray(), type, data);
         var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
+    }
+
+    [Function("CleanBranch")]
+    public async Task CleanBranch(
+        [ServiceBusTrigger("cache-clean-branch", Connection = "ServiceBus")] string item,
+        Int32 deliveryCount,
+        DateTime enqueuedTimeUtc,
+        string messageId,
+        ILogger log)
+    {
+        var data = JsonSerializer.Deserialize<CleanBranch>(item);
+        if (data is null)
+            throw new InvalidOperationException("Could not deserialize CleanBranch message");
+        await _service.RemoveBranch(data.BranchName);
     }
 }

@@ -13,6 +13,7 @@ public interface IEventStore
     Task RemoveBranch(string branchName);
     
     Task<Event[]> GetEvents(string branchName, int start, int? count);
+    
     Task<int> GetCount(string branchName);
 
     Task AddEvents(string branchName, Event[] events);

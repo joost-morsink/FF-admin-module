@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelCache.ApiClient", "Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "Helper\Helper.csproj", "{69DF0F66-673F-4C43-964C-906EF7D45151}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBus", "ServiceBus\ServiceBus.csproj", "{698372F4-1374-416C-A87D-110142915C2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +144,10 @@ Global
 		{69DF0F66-673F-4C43-964C-906EF7D45151}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69DF0F66-673F-4C43-964C-906EF7D45151}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69DF0F66-673F-4C43-964C-906EF7D45151}.Release|Any CPU.Build.0 = Release|Any CPU
+		{698372F4-1374-416C-A87D-110142915C2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{698372F4-1374-416C-A87D-110142915C2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{698372F4-1374-416C-A87D-110142915C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{698372F4-1374-416C-A87D-110142915C2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
