@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -115,5 +116,43 @@ public class ModelCacheService : IModelCacheService
     {
         var blobClient = DataBlobClient(hash, type);
         return Write(blobClient, data);
+    }
+
+    private async Task<HashSet<HashValue>> GetAllHashes()
+    {
+        var client = GetContainerClient();
+        var pageable = client.GetBlobsByHierarchyAsync(prefix: "hashes/");
+        var usedHashes = new HashSet<HashValue>();
+        await foreach (var item in pageable)
+        {
+            var branchName = item.Blob.Name.Substring(item.Blob.Name.LastIndexOf('/') + 1);
+            var hashes = await GetHashesForBranch(branchName);
+            foreach (var bytes in hashes.Hashes.Values)
+                usedHashes.Add(bytes);
+        }
+
+        return usedHashes;
+    }
+
+    public async Task<bool> RunGarbageCollection()
+    {
+        var start = DateTime.UtcNow;
+        var usedHashes = await GetAllHashes();
+        var client = GetContainerClient();
+        var pageable = client.GetBlobsByHierarchyAsync(prefix: "data/");
+        
+        await foreach (var item in pageable)
+        {
+            var parts = item.Blob.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 3 && !usedHashes.Contains(parts[1].ToByteArray()))
+            {
+                var blobClient = GetBlobClient(item.Blob.Name);
+                await blobClient.DeleteIfExistsAsync();
+            }
+            if(DateTime.UtcNow - start > TimeSpan.FromSeconds(30))
+                return false;
+        }
+        
+        return true;
     }
 }

@@ -12,4 +12,5 @@ public interface IModelCacheService
     Task<string[]> GetTypesForHash(HashValue hash);
     Task<byte[]?> GetData(HashValue hash, string type);
     Task PutData(HashValue hash, string type, byte[] data);
+    Task<bool> RunGarbageCollection();
 }

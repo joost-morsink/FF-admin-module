@@ -112,6 +112,18 @@ public class ModelCache
         var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
     }
+    
+    [Function("RunGarbageCollection")]
+    public async Task<HttpResponseData> RunGarbageCollection(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "gc")]
+        HttpRequestData request,
+        FunctionContext executionContext)
+    {
+        var result = await _service.RunGarbageCollection();
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(result);
+        return response;
+    }
 
     [Function("CleanBranch")]
     public async Task CleanBranch(

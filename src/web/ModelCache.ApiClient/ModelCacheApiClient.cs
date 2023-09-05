@@ -66,4 +66,12 @@ public class ModelCacheApiClient : IModelCacheService
         var response = await _client.PutAsync($"/api/data/{hash.AsSpan().ToHexString()}/{type}", new ByteArrayContent(data));
         response.EnsureSuccessStatusCode();
     }
+    
+    public async Task<bool> RunGarbageCollection()
+    {
+        var response = await _client.PostAsync("/api/gc", new ByteArrayContent(Array.Empty<byte>()));
+        response.EnsureSuccessStatusCode();
+        var completed = await response.Content.ReadFromJsonAsync<bool>();
+        return completed;
+    }
 }
