@@ -1,6 +1,6 @@
 ((Invoke-WebRequest http://localhost:7071/api/Main/option-worth-history).Content 
     | ConvertFrom-Json)."1" 
-    | ForEach-Object { [pscustomobject] 
+    | ForEach-Object { 
         @{
             EventType=$_.EventType
             Timestamp=$_.Timestamp.ToString("yyyy-MM-dd HH:mm:ssK")
@@ -13,4 +13,6 @@
             NewUnentered=$_.New.Unentered
             NewCumulativeInterest=$_.New.CumulativeInterest } 
         } 
-    | convertto-csv
+   | ForEach-Object { [PSCustomObject] $_ }
+   | Select-Object EventType, TimeStamp, OldCash, OldInvested, OldUnentered, OldCumulativeInterest, NewCash, NewInvested, NewUnentered, NewCumulativeInterest
+   | ConvertTo-Csv
