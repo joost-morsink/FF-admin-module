@@ -1,14 +1,12 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
 using FfAdmin.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
 
 namespace FfAdmin.ModelCache.Function;
 

@@ -11,8 +11,8 @@ var host = new HostBuilder()
     .ConfigureServices(services => 
         services
             .AddMemoryCache()
-            .AddEventStoreClient("https://g4g-event-store.azurewebsites.net")
-            .AddModelCacheClient("https://g4g-model-cache.azurewebsites.net")
+            .AddEventStoreClient().BindConfiguration("EventStoreApi").Services
+            .AddModelCacheClient().BindConfiguration("ModelCacheApi").Services
             .AddOptions<PagingEventRepositoryOptions>().Services
             .AddOptions<ModelCacheOptions>()
             //.Configure(o => o.PutEnabled = false)

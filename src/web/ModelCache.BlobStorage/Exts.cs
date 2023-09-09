@@ -8,7 +8,7 @@ public static class Exts
 {
     public static IServiceCollection AddBlobStorageModelCacheService(this IServiceCollection services)
     {
-        services.AddScoped<StorageClient>();
+        services.AddSingleton<StorageClient>();
         services.AddScoped<IModelCacheService, ModelCacheService>();
         return services;
     }

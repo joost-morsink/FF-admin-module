@@ -98,9 +98,10 @@ public partial class EventStream
         await _calculationSemaphore.WaitAsync();
         try
         {
+            _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+
             while (_calculationQueue.TryDequeue(out var item))
             {
-                _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
                 var (index, type, model) = item;
                 var positions = await _calculationPositions.Value.Positions;
                 if (_modelCacheStrategy.ShouldCache(positions,

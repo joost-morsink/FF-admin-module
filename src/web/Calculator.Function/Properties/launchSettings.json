@@ -2,7 +2,7 @@
   "profiles": {
     "Calculator.Function": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7268",
+      "commandLineArgs": "--port 7070",
       "launchBrowser": false
     }
   }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
@@ -16,7 +19,20 @@ public class ModelCacheApiClient : IModelCacheService
     {
         _client = client;
     }
-    
+
+    private async Task<HttpResponseMessage> PutAsJsonAsync<T>(string address, T item)
+    {
+        var content = JsonSerializer.Serialize(item);
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Put, 
+            RequestUri = _client.BaseAddress is null ? new Uri(address) : new Uri(_client.BaseAddress, address), 
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
+        var response = await _client.SendAsync(request);
+        return response;
+    }
+
     public async Task ClearCache()
     {
         var response = await _client.DeleteAsync("/api/branches");
@@ -39,7 +55,7 @@ public class ModelCacheApiClient : IModelCacheService
 
     public async Task PutHashesForBranch(string branchName, HashesForBranch data)
     {
-        var response = await _client.PutAsJsonAsync($"/api/branches/{branchName}/hashes", data);
+        var response = await PutAsJsonAsync($"/api/branches/{branchName}/hashes", data);
         response.EnsureSuccessStatusCode();
     }
 
