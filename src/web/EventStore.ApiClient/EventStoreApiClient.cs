@@ -17,7 +17,7 @@ public class EventStoreApiClient : IEventStore
     {
         _client = client;
     }
-
+    
     public async Task<string[]> GetBranchNames()
     {
         var response = await _client.GetAsync("/api/branches");
@@ -70,7 +70,7 @@ public class EventStoreApiClient : IEventStore
         response.EnsureSuccessStatusCode();
     }
 
-    public async  Task Rebase(string branchName, string onBranchName)
+    public async Task Rebase(string branchName, string onBranchName)
     {
        var response = await _client.PostAsJsonAsync($"/api/branches/{branchName}/rebase", new { On = onBranchName });
        response.EnsureSuccessStatusCode();

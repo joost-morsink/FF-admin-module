@@ -12,8 +12,14 @@ public static class Ext
     public static OptionsBuilder<ModelCacheApiClientOptions> AddModelCacheClient(this IServiceCollection services)
     {
         return services
-            .AddHttpClient<ModelCacheApiClient>((provider,client) => client.BaseAddress = provider.GetRequiredService<IOptions<ModelCacheApiClientOptions>>().Value.BaseUri).Services
+            .AddHttpClient<ModelCacheApiClient>((provider,client) =>
+            {
+                var options = provider.GetRequiredService<IOptions<ModelCacheApiClientOptions>>().Value;
+                client.BaseAddress = options.BaseUri;
+            }).AddHttpMessageHandler<AddModelCacheTokenDelegatingHandler>().Services
+            .AddScoped<AddModelCacheTokenDelegatingHandler>()
             .AddScoped<IModelCacheService>(sp => sp.GetRequiredService<ModelCacheApiClient>())
+            .AddScoped<IModelCacheTokenProvider, ModelCacheTokenProvider>()
             .AddOptions<ModelCacheApiClientOptions>();
     }
     public static IServiceCollection AddModelCacheClient(this IServiceCollection services, string baseAddress)
@@ -31,5 +37,3 @@ public static class Ext
         await service.PutData(hash, typeof(T).Name, JsonSerializer.SerializeToUtf8Bytes(data));
     }
 }
-
-
