@@ -9,7 +9,7 @@ public interface IModelCacheStrategy
     private class DefaultImpl : IModelCacheStrategy
     {
         public bool ShouldCache(int[] positions, int count, int position)
-            => position % 100 == 0;
+            => position % 100 == 0 || position == count;
 
         public int[] Optimize(int[] positions, int count)
             => positions.Length == 0
