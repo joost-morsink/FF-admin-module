@@ -12,7 +12,7 @@ var host = new HostBuilder()
         services
             .AddMemoryCache()
             .AddEventStoreClient().BindConfiguration("EventStoreApi").Services
-            .AddModelCacheClient().BindConfiguration("ModelCacheApi").Services
+            .AddModelCacheClient(true).BindConfiguration("ModelCacheApi").Services
             .AddOptions<PagingEventRepositoryOptions>().Services
             .AddOptions<ModelCacheOptions>()
             //.Configure(o => o.PutEnabled = false)

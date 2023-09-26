@@ -1,7 +1,9 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using FfAdmin.ModelCache.Abstractions;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -9,22 +11,28 @@ namespace FfAdmin.ModelCache.ApiClient;
 
 public static class Ext
 {
-    public static OptionsBuilder<ModelCacheApiClientOptions> AddModelCacheClient(this IServiceCollection services)
+    public static OptionsBuilder<ModelCacheApiClientOptions> AddModelCacheClient(this IServiceCollection services, bool cached)
     {
-        return services
-            .AddHttpClient<ModelCacheApiClient>((provider,client) =>
+        services
+            .AddHttpClient<ModelCacheApiClient>((provider, client) =>
             {
                 var options = provider.GetRequiredService<IOptions<ModelCacheApiClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
             }).AddHttpMessageHandler<AddModelCacheTokenDelegatingHandler>().Services
             .AddScoped<AddModelCacheTokenDelegatingHandler>()
-            .AddScoped<IModelCacheService>(sp => sp.GetRequiredService<ModelCacheApiClient>())
-            .AddScoped<IModelCacheTokenProvider, ModelCacheTokenProvider>()
-            .AddOptions<ModelCacheApiClientOptions>();
+            .AddScoped<IModelCacheService>(sp =>
+            {
+                var client = sp.GetRequiredService<ModelCacheApiClient>();
+                if (cached)
+                    return new CachingModelCacheService(client, sp.GetRequiredService<IMemoryCache>());
+                return client;
+            })
+            .AddScoped<IModelCacheTokenProvider, ModelCacheTokenProvider>();
+        return services.AddOptions<ModelCacheApiClientOptions>();
     }
-    public static IServiceCollection AddModelCacheClient(this IServiceCollection services, string baseAddress)
+    public static IServiceCollection AddModelCacheClient(this IServiceCollection services, bool cached, string baseAddress)
     {
-        return services.AddModelCacheClient().Configure(options => options.BaseUri = new Uri(baseAddress)).Services;
+        return services.AddModelCacheClient(cached).Configure(options => options.BaseUri = new Uri(baseAddress)).Services;
     }
     
     public static async Task<T?> GetData<T>(this IModelCacheService service, byte[] hash)
