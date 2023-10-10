@@ -3,7 +3,7 @@ import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/interfaces';
 import { } from '@angular/material';
-import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ErrorDialog } from '../dialogs/error.dialog';
 
@@ -40,15 +40,15 @@ export class AddOptionComponent {
   public adding: boolean = false;
 
   private newOption() {
-    this.timestamp = new FormControl("");
-    this.code = new FormControl("");
-    this.name = new FormControl("");
-    this.currency = new FormControl("");
-    this.reinvestment_fraction = new FormControl("0.45");
-    this.futureFund_fraction = new FormControl("0.1");
-    this.charity_fraction = new FormControl("0.45");
-    this.bad_year_fraction = new FormControl("0.01");
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl("");
+    this.code = new UntypedFormControl("");
+    this.name = new UntypedFormControl("");
+    this.currency = new UntypedFormControl("");
+    this.reinvestment_fraction = new UntypedFormControl("0.45");
+    this.futureFund_fraction = new UntypedFormControl("0.1");
+    this.charity_fraction = new UntypedFormControl("0.45");
+    this.bad_year_fraction = new UntypedFormControl("0.01");
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       code: this.code,
       name: this.name,
@@ -60,15 +60,15 @@ export class AddOptionComponent {
     });
     this.eventStore.getStatistics().then(stats => this.timestamp.setValue(stats.firstUnprocessed || stats.lastProcessed));
   }
-  public formGroup: FormGroup;
-  public timestamp: FormControl;
-  public code: FormControl;
-  public name: FormControl;
-  public currency: FormControl;
-  public reinvestment_fraction: FormControl;
-  public futureFund_fraction: FormControl;
-  public charity_fraction: FormControl;
-  public bad_year_fraction: FormControl;
+  public formGroup: UntypedFormGroup;
+  public timestamp: UntypedFormControl;
+  public code: UntypedFormControl;
+  public name: UntypedFormControl;
+  public currency: UntypedFormControl;
+  public reinvestment_fraction: UntypedFormControl;
+  public futureFund_fraction: UntypedFormControl;
+  public charity_fraction: UntypedFormControl;
+  public bad_year_fraction: UntypedFormControl;
 
   public clickAddForm() {
     this.showAddForm = true;
@@ -97,7 +97,7 @@ export class AddOptionComponent {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
 
         if (key in this) {
-          let control: FormControl = this[key];
+          let control: UntypedFormControl = this[key];
           let ve: ValidationErrors = {};
           ve["message"] = err.message;
 
@@ -129,12 +129,12 @@ export class UpdateOptionDialog {
   public updating: boolean = false;
 
   private initialize(option: IOption) {
-    this.timestamp = new FormControl("");
-    this.reinvestment_fraction = new FormControl(option.reinvestment_fraction);
-    this.futureFund_fraction = new FormControl(option.futureFund_fraction);
-    this.charity_fraction = new FormControl(option.charity_fraction);
-    this.bad_year_fraction = new FormControl(option.bad_year_fraction);
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl("");
+    this.reinvestment_fraction = new UntypedFormControl(option.reinvestment_fraction);
+    this.futureFund_fraction = new UntypedFormControl(option.futureFund_fraction);
+    this.charity_fraction = new UntypedFormControl(option.charity_fraction);
+    this.bad_year_fraction = new UntypedFormControl(option.bad_year_fraction);
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       reinvestment_fraction: this.reinvestment_fraction,
       futureFund_fraction: this.futureFund_fraction,
@@ -143,15 +143,15 @@ export class UpdateOptionDialog {
     });
     this.timestamp.setValue(new Date().toISOString());
   }
-  public formGroup: FormGroup;
-  public timestamp: FormControl;
-  public code: FormControl;
-  public name: FormControl;
-  public currency: FormControl;
-  public reinvestment_fraction: FormControl;
-  public futureFund_fraction: FormControl;
-  public charity_fraction: FormControl;
-  public bad_year_fraction: FormControl;
+  public formGroup: UntypedFormGroup;
+  public timestamp: UntypedFormControl;
+  public code: UntypedFormControl;
+  public name: UntypedFormControl;
+  public currency: UntypedFormControl;
+  public reinvestment_fraction: UntypedFormControl;
+  public futureFund_fraction: UntypedFormControl;
+  public charity_fraction: UntypedFormControl;
+  public bad_year_fraction: UntypedFormControl;
 
   public async updateOption(): Promise<void> {
     this.updating = true;
@@ -172,7 +172,7 @@ export class UpdateOptionDialog {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
 
         if (key in this) {
-          let control: FormControl = this[key];
+          let control: UntypedFormControl = this[key];
           let ve: ValidationErrors = {};
           ve["message"] = err.message;
 

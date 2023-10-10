@@ -9,6 +9,9 @@ code {
   color: #e01a76;
 }
 
+.mat-mdc-form-field{
+  width: 500px;
+}
 .btn-primary {
   color: #fff;
   background-color: #1b6ec2;
@@ -21,10 +24,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .inline-icon {
   vertical-align: bottom;
   font-size: 24px !important;
-}
-
-div.mat-form-field-infix {
-  width: 300px;
 }
 
 div.event-tile {

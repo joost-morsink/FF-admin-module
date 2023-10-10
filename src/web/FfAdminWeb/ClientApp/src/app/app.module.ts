@@ -44,7 +44,7 @@ import {CharityPartitionComponent} from "./charity/charity_partition.component";
       { path: 'conversion', component: ConversionDayComponent },
       { path: 'database', component: DatabaseComponent },
       { path: 'export', component: ExportComponent }
-    ], { relativeLinkResolution: 'legacy' }),
+    ], {}),
     FfBackendModule,
     FfUiModule,
     DialogsModule,

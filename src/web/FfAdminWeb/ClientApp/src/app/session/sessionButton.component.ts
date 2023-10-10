@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { EventStore } from '../backend/eventstore';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
@@ -61,9 +61,9 @@ export class SessionButtonComponent {
 })
 export class CommitDialog {
   constructor() {
-    this.message = new FormControl();
+    this.message = new UntypedFormControl();
   }
-  public message: FormControl;
+  public message: UntypedFormControl;
   public getMessage(): string {
     return this.message.value;
   }

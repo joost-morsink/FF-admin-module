@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnInit, Injectable, ViewChildren, QueryList } from '@angular/core';
-import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
@@ -83,7 +83,7 @@ export abstract class ConversionBaseComponent {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
 
         if (key in this) {
-          let control: FormControl = this[key];
+          let control: UntypedFormControl = this[key];
           let ve: ValidationErrors = {};
           ve["message"] = err.message;
 
@@ -111,23 +111,23 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
 
   public exit_amount: number;
 
-  public compensation: FormControl;
-  public invested: FormControl;
-  public timestamp: FormControl;
-  public newInvested: FormControl;
-  public newCash: FormControl;
-  public transactionRef: FormControl;
-  public formGroup: FormGroup;
+  public compensation: UntypedFormControl;
+  public invested: UntypedFormControl;
+  public timestamp: UntypedFormControl;
+  public newInvested: UntypedFormControl;
+  public newCash: UntypedFormControl;
+  public transactionRef: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
   public loanable: number;
 
   public ngOnInit(): void {
-    this.compensation = new FormControl("0.00");
-    this.invested = new FormControl(this.option.invested_amount?.toString());
-    this.timestamp = new FormControl(new Date().toISOString());
-    this.newInvested = new FormControl("0.00");
-    this.newCash = new FormControl("0.00");
-    this.transactionRef = new FormControl("");
-    this.formGroup = new FormGroup({
+    this.compensation = new UntypedFormControl("0.00");
+    this.invested = new UntypedFormControl(this.option.invested_amount?.toString());
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.newInvested = new UntypedFormControl("0.00");
+    this.newCash = new UntypedFormControl("0.00");
+    this.transactionRef = new UntypedFormControl("");
+    this.formGroup = new UntypedFormGroup({
       compensation: this.compensation,
       invested: this.invested,
       timestamp: this.timestamp,
@@ -185,15 +185,15 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
   @Output() public exited: EventEmitter<void> = new EventEmitter();
 
   public exit_amount: number;
-  public timestamp: FormControl;
-  public exitAmount: FormControl;
-  public formGroup: FormGroup;
+  public timestamp: UntypedFormControl;
+  public exitAmount: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
   public loanable: number;
 
   public ngOnInit() {
-    this.timestamp = new FormControl(new Date().toISOString());
-    this.exitAmount = new FormControl("0.00");
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.exitAmount = new UntypedFormControl("0.00");
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       exitAmount: this.exitAmount
     });
@@ -231,13 +231,13 @@ export class TransfersComponent implements OnInit {
   public file: File;
   public fileName: string;
   private fileInput: HTMLInputElement;
-  public formGroup: FormGroup;
-  public cutoff: FormControl;
+  public formGroup: UntypedFormGroup;
+  public cutoff: UntypedFormControl;
 
   @ViewChildren('transfer') public transferComponents: QueryList<TransferComponent>;
   public ngOnInit() {
-    this.cutoff = new FormControl("5.00")
-    this.formGroup = new FormGroup({ cutoff: this.cutoff })
+    this.cutoff = new UntypedFormControl("5.00")
+    this.formGroup = new UntypedFormGroup({ cutoff: this.cutoff })
   }
 
   public async fetchOpenTransfers() {
@@ -295,24 +295,24 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
   @Input() public transfer: IOpenTransfer;
   @Output() public completed: EventEmitter<IOpenTransfer> = new EventEmitter();
 
-  public timestamp: FormControl;
-  public amount: FormControl;
-  public transactionRef: FormControl;
+  public timestamp: UntypedFormControl;
+  public amount: UntypedFormControl;
+  public transactionRef: UntypedFormControl;
   public hasExchange: boolean;
-  public exchangedAmount: FormControl;
-  public exchangedCurrency: FormControl;
-  public exchangeRef: FormControl;
-  public formGroup: FormGroup;
+  public exchangedAmount: UntypedFormControl;
+  public exchangedCurrency: UntypedFormControl;
+  public exchangeRef: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
 
 
   public ngOnInit() {
-    this.timestamp = new FormControl();
-    this.amount = new FormControl("0.00");
-    this.transactionRef = new FormControl("");
-    this.exchangedCurrency = new FormControl("EUR");
-    this.exchangedAmount = new FormControl("0.00");
-    this.exchangeRef = new FormControl("");
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl();
+    this.amount = new UntypedFormControl("0.00");
+    this.transactionRef = new UntypedFormControl("");
+    this.exchangedCurrency = new UntypedFormControl("EUR");
+    this.exchangedAmount = new UntypedFormControl("0.00");
+    this.exchangeRef = new UntypedFormControl("");
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       amount: this.amount,
       transactionRef: this.transactionRef,
@@ -356,14 +356,14 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
   @Input() public option: IOption;
   @Output() public entered: EventEmitter<void> = new EventEmitter();
 
-  public timestamp: FormControl;
-  public investedAmount: FormControl;
-  public formGroup: FormGroup;
+  public timestamp: UntypedFormControl;
+  public investedAmount: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
 
   public ngOnInit() {
-    this.timestamp = new FormControl(new Date().toISOString());
-    this.investedAmount = new FormControl("0.00");
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.investedAmount = new UntypedFormControl("0.00");
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       investedAmount: this.investedAmount
     });
@@ -391,18 +391,18 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
   @Input() public option: IOption;
   @Output() public invested: EventEmitter<void> = new EventEmitter();
 
-  public timestamp: FormControl;
-  public newInvested: FormControl;
-  public newCash: FormControl;
-  public transactionRef: FormControl;
-  public formGroup: FormGroup;
+  public timestamp: UntypedFormControl;
+  public newInvested: UntypedFormControl;
+  public newCash: UntypedFormControl;
+  public transactionRef: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
 
   public ngOnInit(): void {
-    this.timestamp = new FormControl(new Date().toISOString());
-    this.newInvested = new FormControl(this.option.invested_amount);
-    this.newCash = new FormControl(this.option.cash_amount);
-    this.transactionRef = new FormControl("");
-    this.formGroup = new FormGroup({
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.newInvested = new UntypedFormControl(this.option.invested_amount);
+    this.newCash = new UntypedFormControl(this.option.cash_amount);
+    this.transactionRef = new UntypedFormControl("");
+    this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
       newInvested: this.newInvested,
       newCash: this.newCash,
