@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
 using FfAdmin.Common;
-using FfAdminWeb.Services;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -36,7 +35,7 @@ namespace FfAdmin.Test
 
             msg.Status.Should().Be(0);
             options = await Get<IOptionRepository>().GetOptions();
-            options.Should().HaveCount(1).And.Subject.ElementAt(0).Option_ext_id.Should().Be("DEF");
+            options.Should().HaveCount(1).And.Subject.ElementAt(0).Id.Should().Be("DEF");
         }
     }
 }

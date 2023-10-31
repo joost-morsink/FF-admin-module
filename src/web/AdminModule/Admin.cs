@@ -6,7 +6,7 @@ namespace FfAdmin.AdminModule
 {
     public interface IAdmin
     {
-        Task<decimal> CalculateExit(int optionId, decimal extracash, decimal currentInvested, DateTimeOffset timestamp);
+        Task<decimal> CalculateExit(string optionId, decimal extracash, decimal currentInvested, DateTimeOffset timestamp);
 
     }
     public class Admin : IAdmin
@@ -23,7 +23,7 @@ namespace FfAdmin.AdminModule
         {
             public decimal? Value { get; init; }
         }
-        public async Task<decimal> CalculateExit(int optionId, decimal extracash, decimal currentInvested, DateTimeOffset timestamp)
+        public async Task<decimal> CalculateExit(string optionId, decimal extracash, decimal currentInvested, DateTimeOffset timestamp)
         {
             var res = await _database.QueryFirst<CalculateExitRecord>("select * from ff.calculate_exit(@opt, @cash, @inv, @time) as value", new
             {

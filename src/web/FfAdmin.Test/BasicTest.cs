@@ -1,11 +1,7 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using FfAdmin.AdminModule;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestPlatform.TestExecutor;
 using NUnit.Framework;
 namespace FfAdmin.Test
 {

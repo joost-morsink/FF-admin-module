@@ -18,8 +18,17 @@ namespace FfAdmin.AdminModule
             services.AddScoped<IExportRepository, ExportRepository>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
             services.AddScoped<IDatabase, Database>();
+            services.AddContext<Branch>();
             if (dbOpts != null)
                 services.AddOptions<DatabaseOptions>().Configure(dbOpts);
+            return services;
+        }
+
+        public static IServiceCollection AddContext<T>(this IServiceCollection services)
+        {
+            services.AddScoped<Context<T>>();
+            services.AddScoped<IContext<T>>(x => x.GetRequiredService<Context<T>>());
+            services.AddScoped<IMutableContext<T>>(x => x.GetRequiredService<Context<T>>());
             return services;
         }
     }

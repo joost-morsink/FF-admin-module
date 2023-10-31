@@ -4,6 +4,8 @@ namespace FfAdmin.Calculator;
 
 public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IModel<OptionWorths>
 {
+    public static implicit operator OptionWorths(ImmutableDictionary<string, OptionWorth> dict)
+        => new(dict);
     public static OptionWorths Empty { get; } =
         new(ImmutableDictionary<string, OptionWorth>.Empty);
 

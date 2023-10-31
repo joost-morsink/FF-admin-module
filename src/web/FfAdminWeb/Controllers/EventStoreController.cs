@@ -238,7 +238,7 @@ namespace FfAdminWeb.Controllers
                 var mollieRows = MollieExportRows.FromCsv(mollieContent);
                 var options = await _optionRepository.GetOptions();
                 var charities = await _charityRepository.GetCharities();
-                var events = rows.ToEvents(mollieRows, charities.Select(c => c.Charity_ext_id), options.Select(o => o.Option_ext_id)).ToArray();
+                var events = rows.ToEvents(mollieRows, charities.Select(c => c.Charity_ext_id), options.Select(o => o.Id)).ToArray();
 
                 if (!_eventStore.HasSession)
                     return BadRequest(new ValidationMessage[]

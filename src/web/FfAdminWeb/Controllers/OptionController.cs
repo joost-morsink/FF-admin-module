@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
+using FfAdmin.Calculator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FfAdminWeb.Controllers
@@ -19,8 +20,7 @@ namespace FfAdminWeb.Controllers
         }
         public class OptionGridRow
         {
-            public int Id { get; set; }
-            public string? Code { get; set; }
+            public string Id { get; set; } = "";
             public string? Name { get; set; }
             public string? Currency { get; set; }
             public decimal Reinvestment_fraction { get; set; }
@@ -30,31 +30,41 @@ namespace FfAdminWeb.Controllers
             public decimal Cash_amount { get; set; }
             public decimal Invested_amount { get; set; }
 
-            public static OptionGridRow Create(Option o)
+            public static OptionGridRow Create(Option o, OptionWorth w)
                 => new()
                 {
-                    Id = o.Option_id,
-                    Code = o.Option_ext_id,
+                    Id = o.Id,
                     Name = o.Name,
                     Currency = o.Currency,
-                    Reinvestment_fraction = o.Reinvestment_fraction,
-                    FutureFund_fraction = o.FutureFund_fraction,
-                    Charity_fraction = o.Charity_fraction,
-                    Bad_year_fraction = o.Bad_year_fraction,
-                    Cash_amount = o.Cash_amount,
-                    Invested_amount = o.Invested_amount
+                    Reinvestment_fraction = o.ReinvestmentFraction,
+                    FutureFund_fraction = o.G4gFraction,
+                    Charity_fraction = o.CharityFraction,
+                    Bad_year_fraction = o.BadYearFraction,
+                    Cash_amount = w.Cash,
+                    Invested_amount = w.Invested
                 };
         }
 
         [HttpGet]
         public async Task<IEnumerable<OptionGridRow>> GetOptions()
-            => (await _repository.GetOptions()).Select(OptionGridRow.Create);
-        [HttpGet("{optionId:int}")]
-        public async Task<OptionGridRow> GetOption(int optionId)
-            => OptionGridRow.Create(await _repository.GetOption(optionId));
-        
-        [HttpGet("{optionId:int}/loanable-cash")]
-        public async Task<decimal> GetLoanableCash(int optionId, DateTime at)
+        {
+            return from o in await _repository.GetOptions()
+                    join w in await _repository.GetOptionWorths() on o.Id equals w.Id
+                    select OptionGridRow.Create(o, w);
+        }
+
+        [HttpGet("{optionId}")]
+        public async Task<ActionResult<OptionGridRow>> GetOption(string optionId)
+        {
+            var o = await _repository.GetOption(optionId);
+            var w = await _repository.GetOptionWorth(optionId);
+            if (o is null || w is null)
+                return new NotFoundResult();
+            return OptionGridRow.Create(o, w);
+        }
+
+        [HttpGet("{optionId}/loanable-cash")]
+        public async Task<decimal> GetLoanableCash(string optionId, DateTime at)
             => await _repository.GetLoanableCash(optionId, at);
     }
 }

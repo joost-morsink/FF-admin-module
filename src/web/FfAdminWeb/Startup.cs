@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FfAdmin.EventStore;
-using FfAdmin.AdminModule;
 using FfAdminWeb.Utils;
 using System.Text.Json.Serialization;
-using FfAdminWeb.Services;
+using Calculator.ApiClient;
+using FfAdmin.EventStore.ApiClient;
+using FfAdminWeb.Middleware;
 
 namespace FfAdminWeb
 {
@@ -25,7 +25,9 @@ namespace FfAdminWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddFfAdmin(opts => Configuration.GetSection("Database").Bind(opts));
-
+            services.AddEventStoreClient().BindConfiguration("ApiClient:EventStore");
+            services.AddCalculatorClient().BindConfiguration("ApiClient:Calculator");
+            
             services.AddControllersWithViews().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -58,6 +60,7 @@ namespace FfAdminWeb
             }
 
             app.UseRouting();
+            app.UseMiddleware<CurrentBranchMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

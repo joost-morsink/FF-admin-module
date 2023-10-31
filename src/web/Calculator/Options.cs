@@ -4,6 +4,8 @@ namespace FfAdmin.Calculator;
 
 public record Options(ImmutableDictionary<string, Option> Values) : IModel<Options>
 {
+    public static implicit operator Options(ImmutableDictionary<string, Option> dict)
+        => new(dict);
     public static Options Empty { get; } = new(ImmutableDictionary<string, Option>.Empty);
     public static IEventProcessor<Options> Processor { get; } = new Impl();
     

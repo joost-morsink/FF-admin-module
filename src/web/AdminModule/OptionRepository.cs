@@ -1,52 +1,47 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
+using Calculator.ApiClient;
+using FfAdmin.Calculator;
 
 namespace FfAdmin.AdminModule
 {
     public interface IOptionRepository
     {
         Task<Option[]> GetOptions();
-        Task<Option> GetOption(int optionId);
-        Task<decimal> GetLoanableCash(int optionId, DateTime at);
-    }
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
-    public class Option
-    {
-        public int Option_id { get; set; }
-        public string Option_ext_id { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string Currency { get; set; } = "";
-        public decimal Reinvestment_fraction { get; set; }
-        public decimal FutureFund_fraction { get; set; }
-        public decimal Charity_fraction { get; set; }
-        public decimal Bad_year_fraction { get; set; }
+        Task<Option?> GetOption(string optionId);
 
-        public decimal Invested_amount { get; set; }
-        public decimal Cash_amount { get; set; }
-
-        public DateTime Last_exit { get; set; }
-        public decimal Exit_actual_valuation { get; set; }
-        public decimal Exit_ideal_valuation { get; set; }
+        Task<OptionWorth[]> GetOptionWorths();
+        Task<OptionWorth?> GetOptionWorth(string optionId);
+        
+        Task<decimal> GetLoanableCash(string optionId, DateTime at);
     }
+
     public class OptionRepository : IOptionRepository
     {
         private readonly IDatabase _db;
+        private readonly ICalculatorClient _calculator;
+        private readonly IContext<Branch> _branch;
 
-        public OptionRepository(IDatabase db)
+        public OptionRepository(IDatabase db, ICalculatorClient calculatorClient, IContext<Branch> branch)
         {
             _db = db;
+            _calculator = calculatorClient;
+            _branch = branch;
         }
 
-        public Task<Option[]> GetOptions()
-            => _db.Query<Option>(@"select * from ff.option;");
-        public Task<Option> GetOption(int optionId)
-            => _db.QueryFirst<Option>(@"select * from ff.option where option_id = @opt;", new
-            {
-                opt = optionId
-            });
-        public Task<decimal> GetLoanableCash(int optionId, DateTime at)
+        public async Task<Option[]> GetOptions()
+            => (await _calculator.GetOptions(_branch.Value)).Values.Values.ToArray();
+        public async Task<Option?> GetOption(string optionId)
+            => (await _calculator.GetOptions(_branch.Value)).Values.GetValueOrDefault(optionId);
+        
+        public async Task<OptionWorth[]> GetOptionWorths()
+            => (await _calculator.GetOptionWorths(_branch.Value)).Worths.Values.ToArray();
+        public async Task<OptionWorth?> GetOptionWorth(string optionId)
+            => (await _calculator.GetOptionWorths(_branch.Value)).Worths.GetValueOrDefault(optionId);
+        
+        public Task<decimal> GetLoanableCash(string optionId, DateTime at)
             => _db.QueryFirst<decimal>(@"select ff.loanable_pre_enter_money(@opt, @at);", new
             {
                 opt = optionId,
