@@ -3,6 +3,7 @@
     1: {
       BadYearFraction: 0.01,
       CharityFraction: 0.475,
+      Currency: EUR,
       G4gFraction: 0.05,
       Id: 1,
       Name: Default option,

@@ -16,6 +16,7 @@ public class BasicModelTests : VerifyBase
         {
             Code = "1",
             Name = "Default option",
+            Currency = "EUR",
             Timestamp = GetCurrent(),
             Charity_fraction = 0.475m,
             Reinvestment_fraction = 0.475m,

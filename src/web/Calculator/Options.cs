@@ -16,7 +16,7 @@ public record Options(ImmutableDictionary<string, Option> Values) : IModel<Optio
 
         protected override Options NewOption(Options model, IContext context, NewOption e)
             => new(model.Values.Add(e.Code,
-                new Option(e.Code, e.Name, (Real)e.Charity_fraction, (Real)e.Reinvestment_fraction,
+                new Option(e.Code, e.Name, e.Currency, (Real)e.Charity_fraction, (Real)e.Reinvestment_fraction,
                     (Real)e.FutureFund_fraction, (Real)e.Bad_year_fraction)));
 
         protected override Options UpdateFractions(Options model, IContext context, UpdateFractions e)
@@ -31,6 +31,6 @@ public record Options(ImmutableDictionary<string, Option> Values) : IModel<Optio
     }
 
 }
-public record Option(string Id, string Name, Real CharityFraction, Real ReinvestmentFraction, Real G4gFraction,
+public record Option(string Id, string Name, string Currency, Real CharityFraction, Real ReinvestmentFraction, Real G4gFraction,
     Real BadYearFraction);
 
