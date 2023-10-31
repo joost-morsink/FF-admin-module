@@ -1,41 +1,54 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Calculator.ApiClient;
+using FfAdmin.Calculator;
 using FfAdmin.Common;
+using Charity = FfAdmin.Calculator.Charity;
 
 namespace FfAdmin.AdminModule
 {
     public interface ICharityRepository
     {
         Task<Charity[]> GetCharities();
-        Task<FractionSpec[]> GetPartitions(int id);
-        Task<Charity> GetCharity(int id);
-        Task<OpenTransfer[]> GetOpenTransfers();
+        Task<FractionSet> GetPartitions(string id);
+        Task<Charity?> GetCharity(string id);
+        Task<Common.OpenTransfer[]> GetOpenTransfers();
     }
 
     public class CharityRepository : ICharityRepository
     {
         private readonly IDatabase _db;
+        private readonly ICalculatorClient _calculator;
+        private readonly IContext<Branch> _branch;
 
-        public CharityRepository(IDatabase db)
+        public CharityRepository(IDatabase db, ICalculatorClient calculatorClient, IContext<Branch> branch)
         {
             _db = db;
+            _calculator = calculatorClient;
+            _branch = branch;
         }
 
-        public Task<Charity[]> GetCharities()
-            => _db.Query<Charity>("select * from ff.charity");
+        public async Task<Charity[]> GetCharities()
+            => (await _calculator.GetCharities(_branch.Value)).Values.Values.ToArray();
 
-        public Task<FractionSpec[]> GetPartitions(int id)
-            => _db.Query<FractionSpec>(
-                @"select c.charity_ext_id holder, cp.fraction fraction 
-                    from ff.charity_part cp 
-                        join ff.charity c on cp.charity_part_id = c.charity_id
-                    where cp.charity_id = @id", new {id});
+        public async Task<FractionSet> GetPartitions(string id)
+            => (await _calculator.GetCharities(_branch.Value)).Values.GetValueOrDefault(id)?.Fractions ??
+               FractionSet.Empty.Add(id, 1);
 
-        public Task<OpenTransfer[]> GetOpenTransfers()
-            => _db.Query<OpenTransfer>(@"select charity_id, charity_ext_id, name, currency, amount
-                    from ff.charity
-                    natural join ff.calculate_open_transfers();");
+        public async Task<OpenTransfer[]> GetOpenTransfers()
+        {
+            return (from charity in (await _calculator.GetCharities(_branch.Value)).Values.Values
+                join att in (await _calculator.GetAmountsToTransfer(_branch.Value)).Values
+                    on charity.Id equals att.Key
+                from amt in att.Value.Amounts
+                select new OpenTransfer
+                {
+                    Charity_id = att.Key, Currency = amt.Key, Name = charity.Name, Amount = amt.Value
+                }).ToArray();
+        }
 
-        public Task<Charity> GetCharity(int id)
-            => _db.QueryFirst<Charity>("select * from ff.charity where charity_id = @id", new {id});
+        public async Task<Charity?> GetCharity(string id)
+            => (await _calculator.GetCharities(_branch.Value)).Values.GetValueOrDefault(id);
     }
 }

@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FfAdmin.Calculator;
 using FfAdmin.Common;
+using Charity = FfAdmin.Calculator.Charity;
 
 namespace Calculator.ApiClient;
 
@@ -40,12 +41,12 @@ public class CalculatorClient : ICalculatorClient
         return result;
     }
 
-    public Task<AmountsToTransfer> GetAmountsToTransfer(string branch, int? at = null,
+    public async Task<AmountsToTransfer> GetAmountsToTransfer(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
-        => GenericGet<AmountsToTransfer>("amounts-to-transfer", branch, at, theory);
+        => await GenericGet<ImmutableDictionary<string, MoneyBag>>("amounts-to-transfer", branch, at, theory);
 
-    public Task<Charities> GetCharities(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => GenericGet<Charities>("charities", branch, at, theory);
+    public async Task<Charities> GetCharities(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableDictionary<string, Charity>>("charities", branch, at, theory);
 
     public Task<CharityBalance> GetCharityBalance(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => GenericGet<CharityBalance>("charity-balance", branch, at, theory);

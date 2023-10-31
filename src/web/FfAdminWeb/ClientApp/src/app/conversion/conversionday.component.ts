@@ -21,7 +21,7 @@ export class ConversionDayComponent {
     this.step = option.process;
   }
   public async refreshOption() {
-    this.option = await this.admin.getOption(this.option.id);
+    this.option = await this.admin.getOption(this.option.code);
   }
   public async onLiquidated(dummy: any) {
     await this.refreshOption()

@@ -4,7 +4,6 @@ export interface IEvent {
   timestamp?: Date;
 }
 export interface ICode {
-  id?: number;
   code: string;
 }
 export interface IName {

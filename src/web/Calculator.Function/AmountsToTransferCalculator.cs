@@ -6,7 +6,7 @@ namespace FfAdmin.Calculator.Function;
 public class AmountsToTransferCalculator : BaseCalculator
 {
     public AmountsToTransferCalculator(CalculatorDependencies dependencies) : base(dependencies) { }
-    
+
     [Function("AmountsToTransfer")]
     public Task<HttpResponseData> GetAmountsToTransfer(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/amounts-to-transfer")]
@@ -15,7 +15,7 @@ public class AmountsToTransferCalculator : BaseCalculator
         FunctionContext executionContext,
         int? at)
         => Handle<AmountsToTransfer>(request, branchName, at,
-            data => data.Values.Where(kvp => Math.Abs(kvp.Value) > 0.01m));
+            data => data.Values.Select(mb => mb.Value.Trim(0.01m).Amounts));
     
     [Function("AmountsToTransferTheory")]
     public Task<HttpResponseData> PostAmountsToTransfer(
@@ -25,5 +25,5 @@ public class AmountsToTransferCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => HandlePost<AmountsToTransfer>(request, branchName, @base,
-            data => data.Values.Where(kvp => Math.Abs(kvp.Value) > 0.01m));
+            data => data.Values.Select(mb => mb.Value.Trim(0.01m).Amounts));
 }

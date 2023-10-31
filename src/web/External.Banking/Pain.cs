@@ -46,7 +46,7 @@ namespace FfAdmin.External.Banking
                                     new XElement(Ns + "BIC", "ABNANL2A"))),
                             new XElement(Ns + "ChrgBr", "SLEV"),
                             from ot in res
-                            join ch in charities on ot.Charity_id equals ch.Charity_id
+                            join ch in charities on ot.Charity_id equals ch.Charity_id.ToString()
                             select MakePaymentInfo(ot, exDate, ch)))));
             return xml;
         }

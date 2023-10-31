@@ -61,11 +61,11 @@ namespace FfAdmin.Test
             var openTransfers = await Get<ICharityRepository>().GetOpenTransfers();
 
             openTransfers.Should().HaveCount(3);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "FF")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "FF")
                 .Which.Amount.Should().Be(10m);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "3048")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "3048")
                 .Which.Amount.Should().Be(22.5m);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "3055")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "3055")
                 .Which.Amount.Should().Be(22.5m);
         }
         [Test,Order(4)]
@@ -113,11 +113,11 @@ namespace FfAdmin.Test
             var openTransfers = await Get<ICharityRepository>().GetOpenTransfers();
 
             openTransfers.Should().HaveCount(3);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "FF")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "FF")
                 .Which.Amount.Should().Be(5m);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "3048")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "3048")
                 .Which.Amount.Should().Be(12.5m);
-            openTransfers.Should().ContainSingle(ot => ot.Charity_ext_id == "3055")
+            openTransfers.Should().ContainSingle(ot => ot.Charity_id == "3055")
                 .Which.Amount.Should().Be(2.5m);
             
         }

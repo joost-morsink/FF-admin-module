@@ -95,7 +95,7 @@ internal static class ValidationErrorsExt
             ? model
             : new(model.Errors.Add(new(context.GetContext<Index>().Value, message)));
     public static ValidationErrors CheckCharityBalance(this ValidationErrors model, IContext context) 
-        => model.Check(() => Math.Abs(context.GetContext<CharityBalance>().Amount - context.GetContext<AmountsToTransfer>().Values.Values.Sum()) < (Real)0.0001, 
+        => model.Check(() => Math.Abs(context.GetContext<CharityBalance>().Amount - context.GetContext<AmountsToTransfer>().Values.Values.SelectMany(mb => mb.Amounts.Values).Sum()) < (Real)0.0001, 
             "Charity balance must be valid", context);
 }
 public record ValidationError(int Position, string Message);

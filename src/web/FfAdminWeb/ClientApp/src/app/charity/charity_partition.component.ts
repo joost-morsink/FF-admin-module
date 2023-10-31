@@ -19,7 +19,7 @@ export class CharityPartitionComponent {
     let opts = await this.admin.getCharities();
     let current = await this.admin.getCharityPartitions(this.route.snapshot.params.id);
     this.data = opts.map(o => { return { checked: current.find(fs => fs.holder == o.code) != null, item: o }; });
-    this.subject = opts.find(o => o.id == this.route.snapshot.params.id);
+    this.subject = opts.find(o => o.code == this.route.snapshot.params.id);
   }
   public subject: ICharity = null;
   public data: {checked:boolean, item:ICharity}[] = null;

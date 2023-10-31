@@ -27,22 +27,20 @@ namespace FfAdminWeb.Controllers
 
         public class CharityGridRow
         {
-            public int Id { get; init; }
             public string Code { get; init; } = "";
             public string Name { get; init; } = "";
             public string? Bank_name { get; init; }
             public string? Bank_account_no { get; init; }
             public string? Bank_bic { get; init; }
 
-            public static CharityGridRow Create(Charity c)
+            public static CharityGridRow Create(FfAdmin.Calculator.Charity c)
                 => new ()
                 {
-                    Id = c.Charity_id,
-                    Code = c.Charity_ext_id,
+                    Code = c.Id,
                     Name = c.Name,
-                    Bank_name = c.Bank_name,
-                    Bank_account_no = c.Bank_account_no,
-                    Bank_bic = c.Bank_bic
+                    Bank_name = c.Bank.Name,
+                    Bank_account_no = c.Bank.Account,
+                    Bank_bic = c.Bank.Bic
                 };
         }
 
@@ -56,7 +54,7 @@ namespace FfAdminWeb.Controllers
             public static OpenTransferGridRow Create(OpenTransfer ot)
                 => new ()
                 {
-                    Charity = ot.Charity_ext_id, Name = ot.Name, Currency = ot.Currency, Amount = ot.Amount
+                    Charity = ot.Charity_id, Name = ot.Name, Currency = ot.Currency, Amount = ot.Amount
                 };
         }
 
@@ -68,10 +66,14 @@ namespace FfAdminWeb.Controllers
         }
 
         [HttpGet("{id}/partitions")]
-        public async Task<IEnumerable<FractionSpec>> GetPartitions(int id)
+        public async Task<IEnumerable<FractionSpec>> GetPartitions(string id)
         {
             var res = await _repository.GetPartitions(id);
-            return res;    
+            return res.Select(kvp => new FractionSpec
+            {
+                Holder = kvp.Key,
+                Fraction = kvp.Value
+            });    
         }
 
         [HttpGet("opentransfers")]
@@ -116,18 +118,18 @@ namespace FfAdminWeb.Controllers
         private async Task<IEnumerable<ConvTransfer>> GetConvTransfers(XElement xml)
         {
             var charities =
-                (await _repository.GetCharities()).Where(c => !string.IsNullOrWhiteSpace(c.Bank_account_no));
+                (await _repository.GetCharities()).Where(c => !string.IsNullOrWhiteSpace(c.Bank.Account));
             var entries = xml.GetCamtEntries();
             var payments = from c in charities
                            join e in entries
-                               on c.Bank_account_no equals e.Recipient
+                               on c.Bank.Account equals e.Recipient
                            let amt = e.Amount
                            let dt = e.Booking
                            where amt.HasValue && dt.HasValue
                            select new ConvTransfer
                            {
-                               Charity = c.Charity_ext_id,
-                               Currency = e.Currency ?? "EUR",
+                               Charity = c.Id,
+                               Currency = e.Currency ?? "NO CURRENCY",
                                Amount = amt.Value,
                                Transaction_reference = e.Reference ?? "",
                                Timestamp = dt.Value
@@ -140,9 +142,9 @@ namespace FfAdminWeb.Controllers
         {
             var res = (await _repository.GetOpenTransfers()).Where(t => t.Amount >= cutoff && t.Currency == currency);
             var charities = await _repository.GetCharities();
-            var xml = res.GetPain(charities);
+            //var xml = res.GetPain(charities);
 
-            return File(Encoding.UTF8.GetBytes(xml.ToString()), "application/xml");
+            return File(Encoding.UTF8.GetBytes("<NotImplementedYet/>"), "application/xml");
         }
     }
 }

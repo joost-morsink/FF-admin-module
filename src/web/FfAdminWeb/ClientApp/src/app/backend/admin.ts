@@ -19,14 +19,14 @@ export class Admin {
     return this.http.get<IOption[]>(this.baseUrl + "admin/options").toPromise();
   }
 
-  public async getOption(optionId: number): Promise<IOption> {
+  public async getOption(optionId: string): Promise<IOption> {
     return this.http.get<IOption>(this.baseUrl + `admin/options/${optionId}`).toPromise();
   }
 
   public async getCharities(): Promise<ICharity[]> {
     return this.http.get<ICharity[]>(this.baseUrl + "admin/charities").toPromise();
   }
-  public async getCharityPartitions(charityId: number): Promise<IFractionSpec[]> {
+  public async getCharityPartitions(charityId: string): Promise<IFractionSpec[]> {
     return this.http.get<IFractionSpec[]>(this.baseUrl + `admin/charities/${charityId}/partitions`).toPromise();
   }
   public async getOpenTransfers(): Promise<IOpenTransfer[]> {
@@ -49,11 +49,11 @@ export class Admin {
   }
 
   public async calculateExit(option: IOption, extra_cash: number, invested: number, timestamp: string) {
-    let res: number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.id}&invested=${invested}&extra_cash=${extra_cash}&timestamp=${timestamp}`).toPromise();
+    let res: number = await this.http.get<number>(this.baseUrl + `admin/calculation/exit?option=${option.code}&invested=${invested}&extra_cash=${extra_cash}&timestamp=${timestamp}`).toPromise();
     return res || 0;
   }
   public async getLoanableCash(option: IOption, at: Date) {
-    let res: number = await this.http.get<number>(this.baseUrl + `admin/options/${option.id}/loanable-cash?at=${at.toISOString()}`).toPromise();
+    let res: number = await this.http.get<number>(this.baseUrl + `admin/options/${option.code}/loanable-cash?at=${at.toISOString()}`).toPromise();
     return res || 0;
   }
   public async recreateDatabase(): Promise<void> {

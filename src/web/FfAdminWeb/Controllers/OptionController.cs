@@ -20,7 +20,7 @@ namespace FfAdminWeb.Controllers
         }
         public class OptionGridRow
         {
-            public string Id { get; set; } = "";
+            public string Code { get; set; } = "";
             public string? Name { get; set; }
             public string? Currency { get; set; }
             public decimal Reinvestment_fraction { get; set; }
@@ -33,7 +33,7 @@ namespace FfAdminWeb.Controllers
             public static OptionGridRow Create(Option o, OptionWorth w)
                 => new()
                 {
-                    Id = o.Id,
+                    Code = o.Id,
                     Name = o.Name,
                     Currency = o.Currency,
                     Reinvestment_fraction = o.ReinvestmentFraction,
