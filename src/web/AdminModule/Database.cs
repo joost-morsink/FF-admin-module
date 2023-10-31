@@ -86,19 +86,19 @@ namespace FfAdmin.AdminModule
                 LoadTableComposites = true,
                 IncludeErrorDetail = true
             };
-            var connection = new NpgsqlConnection(connectionString.ConnectionString);
-            connection.Open();
+            
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString.ConnectionString);
             try
             {
-                connection.TypeMapper.MapComposite<CoreMessage>("core.message");
-                connection.TypeMapper.MapComposite<Audit>("audit.main");
-                connection.TypeMapper.MapComposite<AuditFinancial>("audit.financial");
-                connection.TypeMapper.MapComposite<AuditTransfers>("audit.transfers");
-                connection.TypeMapper.MapComposite<FractionSpec>("core.s_fraction_spec");
+                dataSourceBuilder.MapComposite<CoreMessage>("core.message");
+                dataSourceBuilder.MapComposite<Audit>("audit.main");
+                dataSourceBuilder.MapComposite<AuditFinancial>("audit.financial");
+                dataSourceBuilder.MapComposite<AuditTransfers>("audit.transfers");
+                dataSourceBuilder.MapComposite<FractionSpec>("core.s_fraction_spec");
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch { } // Ignore if not found
-            return connection;
+            return dataSourceBuilder.Build().OpenConnection();
         }
         public Task Reset()
             => Run(conn =>

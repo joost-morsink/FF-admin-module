@@ -47,7 +47,7 @@ begin
 end;
 $$ LANGUAGE plpgsql;
 
-create or replace function core.import_events(file_timestamp timestamp, events jsonb[]) returns core.message as $$
+create or replace function core.import_events(file_timestamp timestamp with time zone, events jsonb[]) returns core.message as $$
 DECLARE
 	i int;
 	n int;
@@ -64,7 +64,7 @@ BEGIN
 	return res;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_event(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_event(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	typ varchar(32);
 	res core.message;
@@ -92,11 +92,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function core.import_dona_new(file_timestamp timestamp,eventdata jsonb) returns core.message as $$
+create or replace function core.import_dona_new(file_timestamp timestamp with time zone,eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
-	execute_timestamp timestamp;
+	timestamp timestamp with time zone;
+	execute_timestamp timestamp with time zone;
 	donation_id varchar(16);
 	donor_id varchar(16);
 	charity_id varchar(16);
@@ -131,10 +131,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_dona_update_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_dona_update_charity(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	donation_id varchar(16);
 	charity_id varchar(16);
 BEGIN
@@ -150,10 +150,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_charity_partition(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_charity_partition(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	charity_id varchar(16);
     partitions core.s_fraction_spec[];
 BEGIN
@@ -169,10 +169,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_dona_cancel(file_timestamp timestamp,eventdata jsonb) returns core.message as $$
+create or replace function core.import_dona_cancel(file_timestamp timestamp with time zone,eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	donation_id varchar(16);
 BEGIN
 	select eventdata->>'timestamp'
@@ -186,10 +186,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_new_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_new_charity(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	charity_id varchar(16);
 	name varchar(256);
 BEGIN
@@ -205,10 +205,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_update_charity(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_update_charity(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	charity_id varchar(16);
 	bank_name varchar(256);
 	bank_account_no varchar(64);
@@ -230,10 +230,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_new_option(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_new_option(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	name varchar(256);
 	option_currency varchar(4);
@@ -264,10 +264,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_meta_update_fractions(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_meta_update_fractions(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	reinvestment_fraction numeric(10,10);
 	futurefund_fraction numeric(10,10);
@@ -294,10 +294,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_price_info(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_price_info(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	invested_amount numeric(20,4);
 	cash_amount numeric(20,4);
@@ -315,10 +315,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_enter(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_enter(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	invested_amount numeric(20,4);
 BEGIN
@@ -334,10 +334,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_increase_cash(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_increase_cash(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	amount numeric(20,4);
 BEGIN
@@ -353,10 +353,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_invest(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_invest(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	invested_amount numeric(20,4);
 	cash_amount numeric(20,4);
@@ -376,10 +376,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_liquidate(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_liquidate(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	invested_amount numeric(20,4);
 	cash_amount numeric(20,4);
@@ -399,10 +399,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_exit(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_exit(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	option_id varchar(16);
 	exit_amount numeric(20,4);
 BEGIN
@@ -418,10 +418,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_conv_transfer(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_conv_transfer(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	charity_id varchar(16);
 	transfer_currency varchar(4);
 	transfer_amount numeric(20,4);
@@ -450,10 +450,10 @@ BEGIN
 	return ROW(0,'','OK')::core.message;
 END; $$ LANGUAGE plpgsql;
 
-create or replace function core.import_audit(file_timestamp timestamp, eventdata jsonb) returns core.message as $$
+create or replace function core.import_audit(file_timestamp timestamp with time zone, eventdata jsonb) returns core.message as $$
 DECLARE
 	res core.message;
-	timestamp timestamp;
+	timestamp timestamp with time zone;
 	hashcode varchar(128);
 BEGIN
 	select eventdata->>'timestamp'
