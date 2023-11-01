@@ -15,7 +15,10 @@ public class AmountsToTransferCalculator : BaseCalculator
         FunctionContext executionContext,
         int? at)
         => Handle<AmountsToTransfer>(request, branchName, at,
-            data => data.Values.Select(mb => mb.Value.Trim(0.01m).Amounts));
+            data => data.Values
+                .Select(kvp => (kvp.Key, kvp.Value.Trim(0.01m)))
+                .Where(kvp => !kvp.Item2.IsEmpty())
+                .ToImmutableDictionary());
     
     [Function("AmountsToTransferTheory")]
     public Task<HttpResponseData> PostAmountsToTransfer(
@@ -25,5 +28,8 @@ public class AmountsToTransferCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => HandlePost<AmountsToTransfer>(request, branchName, @base,
-            data => data.Values.Select(mb => mb.Value.Trim(0.01m).Amounts));
+            data => data.Values
+                .Select(kvp => (kvp.Key, kvp.Value.Trim(0.01m)))
+                .Where(kvp => !kvp.Item2.IsEmpty())
+                .ToImmutableDictionary());
 }
