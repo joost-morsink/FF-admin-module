@@ -1,72 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
+using Calculator.ApiClient;
+using FfAdmin.Calculator;
+using FfAdmin.Common;
+using FfAdmin.EventStore.Abstractions;
 
 namespace FfAdmin.AdminModule
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public interface IAuditRepository
     {
-        Task<AuditReportInfo[]> GetReports();
+        Task<AuditMoment[]> GetReports();
         Task<AuditReport> GetReport(int id);
         Task<AuditReport> GetRecentReport();
-#nullable disable
-        public class AuditReportInfo
-        {
-            public int Id { get; set; }
-            public DateTimeOffset Timestamp { get; set; }
-            public string Hashcode { get; set; }
-        }
-        public class AuditReportPart
-        {
-            public Audit Main { get; init; }
-            public AuditFinancial[] Financials { get; init; }
-        }
+        Task AddAuditMoment(DateTimeOffset timestamp = default);
         public class AuditReport
         {
-            public AuditReportPart Current { get; init; }
-            public AuditReportPart Previous { get; init; }
+            public required AuditMoment Moment { get; init; }
         }
-#nullable restore
     }
 
     public class AuditRepository : IAuditRepository
     {
-        private readonly IDatabase _database;
+        private readonly ICalculatorClient _calculator;
+        private readonly IEventStore _eventStore;
+        private readonly IContext<Branch> _branch;
 
-        public AuditRepository(IDatabase database)
+        public AuditRepository(ICalculatorClient calculator, IEventStore eventStore, IContext<Branch> branch)
         {
-            _database = database;
+            _calculator = calculator;
+            _eventStore = eventStore;
+            _branch = branch;
         }
-        private static IAuditRepository.AuditReport Create(IReadOnlyList<IAuditRepository.AuditReportPart> parts)
-            => new ()
-            {
-                Current = parts[0],
-                Previous = parts.Count == 2 ? parts[1] : new IAuditRepository.AuditReportPart
-                {
-                    Main = new Audit(), Financials = Array.Empty<AuditFinancial>()
-                }
-            };
+
         public async Task<IAuditRepository.AuditReport> GetRecentReport()
         {
-            var dbres = await _database.Query<IAuditRepository.AuditReportPart>(
-                "select main, financials from audit.select_audit() order by (main).audit_id desc limit 2");
-            return Create(dbres);
+            var last = (await _calculator.GetAuditHistory(_branch.Value)).Moments.Last();
+            return new() {Moment = last};
         }
 
         public async Task<IAuditRepository.AuditReport> GetReport(int id)
         {
-            var dbres = await _database.Query<IAuditRepository.AuditReportPart>(
-                "select main, financials from audit.select_audit() where (main).audit_id <= @aid order by (main).audit_id desc limit 2", new
-                {
-                    aid = id
-                });
-            return Create(dbres);
+            var moments = (await _calculator.GetAuditHistory(_branch.Value)).Moments;
+            return new() {Moment = moments[id]};
         }
 
-        public Task<IAuditRepository.AuditReportInfo[]> GetReports()
-            => _database.Query<IAuditRepository.AuditReportInfo>(
-                "select audit_id as id, timestamp::timestamp with time zone, hashcode from audit.main order by timestamp desc");
+        public async Task AddAuditMoment(DateTimeOffset timestamp)
+        {
+            if (timestamp == default)
+                timestamp = DateTimeOffset.UtcNow;
+
+            var count = await _eventStore.GetCount(_branch.Value);
+
+            var (auditHistory, hash) = await (_calculator.GetAuditHistory(_branch.Value, count),
+                _calculator.GetHistoryHash(_branch.Value, count));
+
+            var last = auditHistory.Moments.LastOrDefault();
+            var @event = new Common.Audit
+            {
+                Timestamp = timestamp,
+                EventCount = count,
+                Hashcode = Convert.ToBase64String(hash.Hash),
+                PreviousCount = last?.EventCount,
+                PreviousHashCode = last?.HashCode
+            };
+            await _eventStore.AddEvents(_branch.Value, new Event[] {@event});
+        }
+
+        public async Task<AuditMoment[]> GetReports()
+        {
+            return (await _calculator.GetAuditHistory(_branch.Value)).Moments.ToArray();
+        }
     }
 }

@@ -87,4 +87,7 @@ public class CalculatorClient : ICalculatorClient
     public async Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
         => await GenericGet<ImmutableDictionary<string, DonationStatistic>>("donation-statistics", branch, at, theory);
+
+    public async Task<AuditHistory> GetAuditHistory(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableList<AuditMoment>>("audit-history", branch, at, theory);
 }

@@ -14,6 +14,7 @@ namespace FfAdmin.Common
     {
         public abstract EventType Type { get; }
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+
         public static async Task<Event[]> ReadAll(Stream stream, JsonSerializerOptions? options = null)
         {
             var opts = options ??= DefaultJsonOptions;
@@ -29,8 +30,10 @@ namespace FfAdmin.Common
                         res.Add(ReadFrom(e, options));
                 }
             }
+
             return res.ToArray();
         }
+
         public static Event ReadFrom(JsonDocument doc, JsonSerializerOptions? options = null)
             => ReadFrom(doc.RootElement, options);
 
@@ -65,17 +68,17 @@ namespace FfAdmin.Common
             else
                 throw new InvalidDataException("Invalid event type");
         }
-        public static JsonSerializerOptions DefaultJsonOptions { get; } = new ()
+
+        public static JsonSerializerOptions DefaultJsonOptions { get; } = new()
         {
-            Converters =
-            {
-                new JsonStringEnumConverter()
-            },
+            Converters = {new JsonStringEnumConverter()},
             WriteIndented = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
+
         public abstract IEnumerable<ValidationMessage> Validate();
+
         public string ToJsonString(JsonSerializerOptions? options = null)
         {
             Timestamp = Timestamp.ToUniversalTime();
@@ -87,11 +90,13 @@ namespace FfAdmin.Common
     {
         public static Event Instance { get; } = new NoneEvent();
         public override EventType Type => EventType.NONE;
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             yield break;
         }
     }
+
     public class NewOption : Event
     {
         public override EventType Type => EventType.META_NEW_OPTION;
@@ -102,16 +107,19 @@ namespace FfAdmin.Common
         public decimal FutureFund_fraction { get; set; } = 0.1m;
         public decimal Charity_fraction { get; set; } = 0.45m;
         public decimal Bad_year_fraction { get; set; } = 0.01m;
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (Reinvestment_fraction is < 0 or > 1)
-                yield return new ValidationMessage(nameof(Reinvestment_fraction), "Reinvestment fraction out of range.");
+                yield return new ValidationMessage(nameof(Reinvestment_fraction),
+                    "Reinvestment fraction out of range.");
             if (FutureFund_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(FutureFund_fraction), "Future Fund fraction out of range.");
             if (Charity_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Charity_fraction), "Charity fraction fraction out of range.");
             if (Bad_year_fraction is < 0 or > 0.1m)
-                yield return new ValidationMessage(nameof(Bad_year_fraction), "Bad year fraction fraction out of range.");
+                yield return new ValidationMessage(nameof(Bad_year_fraction),
+                    "Bad year fraction fraction out of range.");
 
             if (string.IsNullOrWhiteSpace(Code))
                 yield return new ValidationMessage(nameof(Code), "Code is required.");
@@ -119,6 +127,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Reinvestment_fraction), "Fractions should add up to 1");
         }
     }
+
     public class UpdateFractions : Event
     {
         public override EventType Type => EventType.META_UPDATE_FRACTIONS;
@@ -127,16 +136,19 @@ namespace FfAdmin.Common
         public decimal FutureFund_fraction { get; set; }
         public decimal Charity_fraction { get; set; }
         public decimal Bad_year_fraction { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (Reinvestment_fraction is < 0 or > 1)
-                yield return new ValidationMessage(nameof(Reinvestment_fraction), "Reinvestment fraction out of range.");
+                yield return new ValidationMessage(nameof(Reinvestment_fraction),
+                    "Reinvestment fraction out of range.");
             if (FutureFund_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(FutureFund_fraction), "Future Fund fraction out of range.");
             if (Charity_fraction is < 0 or > 1)
                 yield return new ValidationMessage(nameof(Charity_fraction), "Charity fraction fraction out of range.");
             if (Bad_year_fraction is < 0 or > 0.1m)
-                yield return new ValidationMessage(nameof(Bad_year_fraction), "Bad year fraction fraction out of range.");
+                yield return new ValidationMessage(nameof(Bad_year_fraction),
+                    "Bad year fraction fraction out of range.");
 
             if (string.IsNullOrWhiteSpace(Code))
                 yield return new ValidationMessage(nameof(Code), "Code is required.");
@@ -144,11 +156,13 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Reinvestment_fraction), "Fractions should add up to 1");
         }
     }
+
     public class NewCharity : Event
     {
         public override EventType Type => EventType.META_NEW_CHARITY;
         public string Code { get; set; } = "";
         public string Name { get; set; } = "";
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Code))
@@ -157,6 +171,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Name), "Field is required.");
         }
     }
+
     public class UpdateCharity : Event
     {
         public override EventType Type => EventType.META_UPDATE_CHARITY;
@@ -172,11 +187,13 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Code), "Code is required.");
         }
     }
+
     public class CharityPartition : Event
     {
         public override EventType Type => EventType.META_CHARITY_PARTITION;
         public string Charity { get; set; } = "";
         public FractionSpec[] Partitions { get; set; } = Array.Empty<FractionSpec>();
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Charity))
@@ -185,6 +202,7 @@ namespace FfAdmin.Common
                 yield return msg;
         }
     }
+
     public class NewDonation : Event
     {
         public override EventType Type => EventType.DONA_NEW;
@@ -198,6 +216,7 @@ namespace FfAdmin.Common
         public decimal Exchanged_amount { get; set; }
         public string Transaction_reference { get; set; } = "";
         public string? Exchange_reference { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Donation))
@@ -214,11 +233,13 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Amount), "Donation should have positive Amount");
         }
     }
+
     public class UpdateCharityForDonation : Event
     {
         public override EventType Type => EventType.DONA_UPDATE_CHARITY;
         public string Donation { get; set; } = "";
         public string Charity { get; set; } = "";
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Donation))
@@ -227,6 +248,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Charity), "Field is required");
         }
     }
+
     public class CancelDonation : Event
     {
         public override EventType Type => EventType.DONA_CANCEL;
@@ -238,6 +260,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Donation), "Field is required");
         }
     }
+
     public class ConvLiquidate : Event
     {
         public override EventType Type => EventType.CONV_LIQUIDATE;
@@ -245,17 +268,20 @@ namespace FfAdmin.Common
         public decimal Invested_amount { get; set; }
         public decimal Cash_amount { get; set; }
         public string Transaction_reference { get; set; } = "";
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Option))
                 yield return new ValidationMessage(nameof(Option), "Field is required");
         }
     }
+
     public class ConvExit : Event
     {
         public override EventType Type => EventType.CONV_EXIT;
         public string Option { get; set; } = "";
         public decimal Amount { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Option))
@@ -264,6 +290,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Amount), "Amount must be positive");
         }
     }
+
     public class ConvTransfer : Event
     {
         public override EventType Type => EventType.CONV_TRANSFER;
@@ -274,6 +301,7 @@ namespace FfAdmin.Common
         public decimal? Exchanged_amount { get; set; }
         public string Transaction_reference { get; set; } = "";
         public string Exchange_reference { get; set; } = "";
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Charity))
@@ -292,6 +320,7 @@ namespace FfAdmin.Common
         public override EventType Type => EventType.CONV_INCREASE_CASH;
         public string Option { get; set; } = "";
         public decimal Amount { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Option))
@@ -300,11 +329,13 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Amount), "Amount must not be negative");
         }
     }
+
     public class ConvEnter : Event
     {
         public override EventType Type => EventType.CONV_ENTER;
         public string Option { get; set; } = "";
         public decimal Invested_amount { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Option))
@@ -313,6 +344,7 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Invested_amount), "Amount must not be negative");
         }
     }
+
     public class ConvInvest : Event
     {
         public override EventType Type => EventType.CONV_INVEST;
@@ -320,6 +352,7 @@ namespace FfAdmin.Common
         public decimal Invested_amount { get; set; }
         public decimal Cash_amount { get; set; }
         public string Transaction_reference { get; set; } = "";
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Option))
@@ -330,14 +363,26 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Cash_amount), "Amount must not be negative");
         }
     }
+
     public class Audit : Event
     {
         public override EventType Type => EventType.AUDIT;
+
+        public string? PreviousHashCode { get; set; }
+        public int? PreviousCount { get; set; }
         public string Hashcode { get; set; } = "";
+        public int EventCount { get; set; }
+
         public override IEnumerable<ValidationMessage> Validate()
         {
             if (string.IsNullOrWhiteSpace(Hashcode))
                 yield return new ValidationMessage(nameof(Hashcode), "Field is required");
+            if (!string.IsNullOrWhiteSpace(PreviousHashCode) && !PreviousCount.HasValue)
+                yield return new ValidationMessage(nameof(PreviousCount),
+                    "PreviousCount is required when PreviousHashCode is not empty.");
+            if (PreviousCount.HasValue && PreviousCount.Value >= EventCount)
+                yield return new ValidationMessage(nameof(PreviousCount),
+                    "PreviousCount must be less than EventCount.");
         }
     }
 

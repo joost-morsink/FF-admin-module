@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -35,4 +36,12 @@ public static class Ext
     public static void Ignore(this Task t)
     {
     }
+    public static async Task<(T,U)> Parallel<T,U>(this (Task<T>, Task<U>) tasks)
+        => (await tasks.Item1, await tasks.Item2);
+    public static async Task<(T,U,V)> Parallel<T,U,V>(this (Task<T>, Task<U>, Task<V>) tasks)
+        => (await tasks.Item1, await tasks.Item2, await tasks.Item3);
+    public static TaskAwaiter<(T,U)> GetAwaiter<T,U>(this (Task<T>, Task<U>) tasks)
+        => tasks.Parallel().GetAwaiter();
+    public static TaskAwaiter<(T,U,V)> GetAwaiter<T,U,V>(this (Task<T>, Task<U>, Task<V>) tasks)
+        => tasks.Parallel().GetAwaiter();
 }

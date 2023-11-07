@@ -15,38 +15,45 @@ namespace FfAdminWeb.Controllers
     [Route("eventstore")]
     public class EventStoreController : Controller
     {
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore _oldEventStore;
+        private readonly FfAdmin.EventStore.Abstractions.IEventStore _eventStore;
         private readonly IEventRepository _eventRepository;
         private readonly IOptionRepository _optionRepository;
         private readonly ICharityRepository _charityRepository;
         private readonly IDonationRepository _donationRepository;
+        private readonly IAuditRepository _auditRepository;
 
-        public EventStoreController(IEventStore eventStore,
+        public EventStoreController(IEventStore oldEventStore,
+                                    FfAdmin.EventStore.Abstractions.IEventStore eventStore,
                                     IEventRepository eventRepository,
                                     IOptionRepository optionRepository,
                                     ICharityRepository charityRepository,
-                                    IDonationRepository donationRepository)
+                                    IDonationRepository donationRepository,
+                                    IAuditRepository auditRepository
+                                    )
         {
+            _oldEventStore = oldEventStore;
             _eventStore = eventStore;
             _eventRepository = eventRepository;
             _optionRepository = optionRepository;
             _charityRepository = charityRepository;
             _donationRepository = donationRepository;
+            _auditRepository = auditRepository;
         }
         [HttpGet("session/is-available")]
         public bool HasSession()
         {
-            return _eventStore.HasSession;
+            return _oldEventStore.HasSession;
         }
         [HttpPut("session/is-available")]
         public void SetSession([FromBody] bool available)
         {
-            if (available != _eventStore.HasSession)
+            if (available != _oldEventStore.HasSession)
             {
                 if (available)
-                    _eventStore.StartSession();
+                    _oldEventStore.StartSession();
                 else
-                    _eventStore.EndSession(null);
+                    _oldEventStore.EndSession(null);
             }
         }
         [HttpPost("session/start")]
@@ -54,13 +61,13 @@ namespace FfAdminWeb.Controllers
         {
             try
             {
-                _eventStore.StartSession();
-                if (_eventStore.SessionFile == null)
+                _oldEventStore.StartSession();
+                if (_oldEventStore.SessionFile == null)
                     return StatusCode(500, new ValidationMessage[]
                     {
                         new("", "Failed to start session.")
                     });
-                _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
+                _eventRepository.SetFileImported(_oldEventStore.SessionFile ?? throw new Exception());
                 return Ok();
             }
             catch (Exception ex)
@@ -80,7 +87,7 @@ namespace FfAdminWeb.Controllers
         {
             try
             {
-                _eventStore.EndSession(body.Message);
+                _oldEventStore.EndSession(body.Message);
                 return Ok();
             }
             catch (Exception ex)
@@ -107,30 +114,7 @@ namespace FfAdminWeb.Controllers
         [HttpPost("audit")]
         public async Task<IActionResult> Audit()
         {
-            if (_eventStore.HasSession)
-                return BadRequest(new ValidationMessage[]
-                {
-                    new("main", "Open session")
-                });
-            if ((await _eventRepository.GetStatistics()).Unprocessed > 0)
-                return BadRequest(new ValidationMessage[]
-                {
-                    new("main", "Unprocessed events")
-                });
-            _eventStore.StartSession();
-            await _eventRepository.SetFileImported(_eventStore.SessionFile ?? throw new Exception());
-            var e = new FfAdmin.Common.Audit
-            {
-                Timestamp = DateTimeOffset.UtcNow, Hashcode = _eventStore.Hashcode()
-            };
-            _eventStore.WriteEvent(e);
-            var timestamp = _eventStore.FileTimestamp!.Value;
-            _eventStore.EndSession("Audit event");
-            await _eventRepository.Import(timestamp, new[]
-            {
-                e
-            });
-            await _eventRepository.ProcessEvents(DateTime.UtcNow);
+            await _auditRepository.AddAuditMoment();
             return Ok();
         }
 
@@ -172,7 +156,7 @@ namespace FfAdminWeb.Controllers
         [HttpGet("files/unimported")]
         public async Task<IEnumerable<string>> UnimportedFiles()
         {
-            var allFiles = _eventStore.AllFiles();
+            var allFiles = _oldEventStore.AllFiles();
             var importedFiles = new HashSet<string>(await _eventRepository.GetProcessedFiles());
             return allFiles.Where(f => !importedFiles.Contains(f));
         }
@@ -181,7 +165,7 @@ namespace FfAdminWeb.Controllers
         {
             foreach (var file in files)
             {
-                var events = await _eventStore.GetEventsFromFile(file);
+                var events = await _oldEventStore.GetEventsFromFile(file);
                 var ts = GetFileTimestamp(file);
                 var importmsg = await _eventRepository.Import(ts, events);
                 if (importmsg.Status >= 4)
@@ -230,7 +214,7 @@ namespace FfAdminWeb.Controllers
                 var charities = await _charityRepository.GetCharities();
                 var events = rows.ToEvents(mollieRows, charities.Select(c => c.Id), options.Select(o => o.Id)).ToArray();
 
-                if (!_eventStore.HasSession)
+                if (!_oldEventStore.HasSession)
                     return BadRequest(new ValidationMessage[]
                     {
                         new("main", "No session")
@@ -283,18 +267,18 @@ namespace FfAdminWeb.Controllers
         [HttpGet("remote/status")]
         public RemoteStatus GetRemoteStatus()
         {
-            return _eventStore.GetRemoteStatus();
+            return _oldEventStore.GetRemoteStatus();
         }
         [HttpPost("remote/push")]
         public async Task<IActionResult> Push()
         {
-            await _eventStore.Push();
+            await _oldEventStore.Push();
             return Ok();
         }
         [HttpPost("remote/pull")]
         public async Task<IActionResult> Pull()
         {
-            await _eventStore.Pull();
+            await _oldEventStore.Pull();
             return Ok();
         }
     }

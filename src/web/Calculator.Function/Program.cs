@@ -38,6 +38,7 @@ var host = new HostBuilder()
             
             .AddModelProcessor<CumulativeInterest>()
             .AddModelProcessor<DonationStatistics>()
+            .AddModelProcessor<AuditHistory>()
             
         )
     .Build();

@@ -21,4 +21,5 @@ public interface ICalculatorClient
     Task<OptionWorths> GetOptionWorths(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<ValidationErrors> GetValidationErrors(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null, IEnumerable<Event>? theory = null);
+    Task<AuditHistory> GetAuditHistory(string branch, int? at = null, IEnumerable<Event>? theory = null);
 }
