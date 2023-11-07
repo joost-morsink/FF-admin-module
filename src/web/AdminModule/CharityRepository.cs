@@ -18,13 +18,11 @@ namespace FfAdmin.AdminModule
 
     public class CharityRepository : ICharityRepository
     {
-        private readonly IDatabase _db;
         private readonly ICalculatorClient _calculator;
         private readonly IContext<Branch> _branch;
 
-        public CharityRepository(IDatabase db, ICalculatorClient calculatorClient, IContext<Branch> branch)
+        public CharityRepository(ICalculatorClient calculatorClient, IContext<Branch> branch)
         {
-            _db = db;
             _calculator = calculatorClient;
             _branch = branch;
         }

@@ -6,7 +6,6 @@ using System.Xml.Linq;
 using FfAdmin.AdminModule;
 using FfAdmin.Common;
 using FfAdmin.External.Banking;
-using FfAdminWeb.Services;
 using FfAdminWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +16,12 @@ namespace FfAdminWeb.Controllers
     public class CharityController : Controller
     {
         private readonly ICharityRepository _repository;
-        private readonly IEventingSystem _eventingSystem;
+        private readonly IEventRepository _eventRepository;
 
-        public CharityController(ICharityRepository repository, IEventingSystem eventingSystem)
+        public CharityController(ICharityRepository repository, IEventRepository eventRepository)
         {
             _repository = repository;
-            _eventingSystem = eventingSystem;
+            _eventRepository = eventRepository;
         }
 
         public class CharityGridRow
@@ -102,15 +101,9 @@ namespace FfAdminWeb.Controllers
                 });
             var xml = XElement.Parse(content).RemoveNamespaces();
 
-            if (!_eventingSystem.HasSession)
-                return BadRequest(new ValidationMessage[]
-                {
-                    new("main", "No session")
-                });
-
             var payments = await GetConvTransfers(xml);
 
-            await _eventingSystem.ImportEvents(payments);
+            await _eventRepository.Import(payments);
 
             return Ok();
         }

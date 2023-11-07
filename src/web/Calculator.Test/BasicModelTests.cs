@@ -64,7 +64,10 @@ public class BasicModelTests : VerifyBase
         },
         // 7
         new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 0, Option = "1"},
-        new ConvInvest {Timestamp = GetCurrent(), Cash_amount = 2.25m, Invested_amount = 12.50m, Option = "1"}, // Loss of 0.25
+        new ConvInvest
+        {
+            Timestamp = GetCurrent(), Cash_amount = 2.25m, Invested_amount = 12.50m, Option = "1"
+        }, // Loss of 0.25
         new NewDonation
         {
             Timestamp = GetCurrent(),
@@ -77,12 +80,7 @@ public class BasicModelTests : VerifyBase
             Option = "1",
             Execute_timestamp = GetCurrent(TimeSpan.Zero)
         },
-        new PriceInfo
-        {
-            Timestamp = GetCurrent(TimeSpan.FromDays(90)),
-            Option= "1",
-            Invested_amount = 13m
-        },
+        new PriceInfo {Timestamp = GetCurrent(TimeSpan.FromDays(90)), Option = "1", Invested_amount = 13m},
         new ConvLiquidate // Gain of 2.75
         {
             Timestamp = GetCurrent(TimeSpan.FromDays(90)),
@@ -91,7 +89,7 @@ public class BasicModelTests : VerifyBase
             Option = "1"
         },
         new ConvExit {Timestamp = GetCurrent(), Amount = decimal.Floor(2.50m * 52.5m) / 100m, Option = "1"},
-        // 12
+        // 13
         new ConvEnter {Timestamp = GetCurrent(), Invested_amount = 15.25m, Option = "1"},
         new ConvInvest {Timestamp = GetCurrent(), Invested_amount = 35.25m, Cash_amount = 0.94m, Option = "1"},
         new ConvLiquidate // Loss of 1.00
@@ -102,7 +100,7 @@ public class BasicModelTests : VerifyBase
             Option = "1"
         },
         new ConvExit {Timestamp = GetCurrent(), Amount = 0.17m, Option = "1"},
-        // 16
+        // 17
         new ConvTransfer
         {
             Timestamp = GetCurrent(),
@@ -122,7 +120,7 @@ public class BasicModelTests : VerifyBase
             Exchanged_currency = "EUR"
         }
 
-        // 18
+        // 19
     };
 
     private static readonly EventStream Stream = EventStream.Empty(
@@ -141,7 +139,8 @@ public class BasicModelTests : VerifyBase
             DonationRecords.Processor,
             HistoryHash.Processor,
             CharityBalance.Processor,
-            CumulativeInterest.Processor)
+            CumulativeInterest.Processor,
+            DonationStatistics.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -222,7 +221,7 @@ public class BasicModelTests : VerifyBase
     public async Task OptionWorthHistoryTest()
     {
         var contexts = (await Stream.GetValues<OptionWorthHistory>(0, 19)).ToListOrderedByKey();
-        
+
         await Verify(contexts);
     }
 
@@ -285,6 +284,15 @@ public class BasicModelTests : VerifyBase
     public async Task DonationRecordsTest()
     {
         var contexts = (await Stream.GetValues<DonationRecords>(18)).ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task DonationStatisticsTest()
+    {
+        var contexts = (await Stream.GetValues<DonationStatistics>(4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
+            .ToListOrderedByKey();
 
         await Verify(contexts);
     }

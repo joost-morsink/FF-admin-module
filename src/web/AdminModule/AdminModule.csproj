@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Calculator.ApiClient\Calculator.ApiClient.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\EventStore.Abstractions\EventStore.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="database.sql" />

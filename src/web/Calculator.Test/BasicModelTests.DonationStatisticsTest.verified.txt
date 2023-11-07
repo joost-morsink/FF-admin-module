@@ -1,0 +1,85 @@
+﻿[
+  {},
+  {
+    Statistics: {
+      EUR: {
+        Amount: 10.0,
+        Currency: EUR,
+        Worth: 10.0
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 15.0,
+        Currency: EUR,
+        Worth: 15.0
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 25.0,
+        Currency: EUR,
+        Worth: 25.0
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 25.0,
+        Currency: EUR,
+        Worth: 25.0
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 25.0,
+        Currency: EUR,
+        Worth: 24.75
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 35.0,
+        Currency: EUR,
+        Worth: 34.75
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 35.0,
+        Currency: EUR,
+        Worth: 35.25
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Amount: 35.0,
+        Currency: EUR,
+        Worth: 37.50
+      }
+    }
+  },
+  {
+    Statistics: {
+      EUR: {
+        Allocated: 1.31,
+        Amount: 35.0,
+        Currency: EUR,
+        Worth: 36.19
+      }
+    }
+  }
+]

@@ -28,3 +28,4 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
 }
 public record Donation(string Id, DateTimeOffset Timestamp, DateTimeOffset ExecuteTimestamp, string OptionId,
     string CharityId, Real Amount);
+    

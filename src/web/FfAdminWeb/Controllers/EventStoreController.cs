@@ -6,7 +6,6 @@ using FfAdmin.AdminModule;
 using FfAdmin.Common;
 using FfAdmin.EventStore;
 using FfAdmin.External.GiveWp;
-using FfAdminWeb.Services;
 using FfAdminWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,21 +17,18 @@ namespace FfAdminWeb.Controllers
     {
         private readonly IEventStore _eventStore;
         private readonly IEventRepository _eventRepository;
-        private readonly IEventingSystem _eventingSystem;
         private readonly IOptionRepository _optionRepository;
         private readonly ICharityRepository _charityRepository;
         private readonly IDonationRepository _donationRepository;
 
         public EventStoreController(IEventStore eventStore,
                                     IEventRepository eventRepository,
-                                    IEventingSystem eventingSystem,
                                     IOptionRepository optionRepository,
                                     ICharityRepository charityRepository,
                                     IDonationRepository donationRepository)
         {
             _eventStore = eventStore;
             _eventRepository = eventRepository;
-            _eventingSystem = eventingSystem;
             _optionRepository = optionRepository;
             _charityRepository = charityRepository;
             _donationRepository = donationRepository;
@@ -100,16 +96,10 @@ namespace FfAdminWeb.Controllers
         public async Task<IActionResult> PostEvent([FromBody] Event e)
         {
             var msgs = e.Validate().ToArray();
-            if (!_eventStore.HasSession)
-                return BadRequest(new ValidationMessage[]
-                {
-                    new("main", "No session")
-                });
-
             if (msgs.Length > 0)
                 return BadRequest(msgs);
 
-            await _eventingSystem.ImportEvent(e);
+            await _eventRepository.Import(new[] {e});
 
             return Ok();
         }
@@ -256,7 +246,7 @@ namespace FfAdminWeb.Controllers
                     select e.Donation);
                 var donationCharityMap =alreadyImported.ToDictionary(i => i.DonationId, i => i.CharityId);
            
-                await _eventingSystem.ImportEvents(events.SelectMany(TransformEvent));
+                await _eventRepository.Import(events.SelectMany(TransformEvent));
 
                 return Ok();
 

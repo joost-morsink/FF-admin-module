@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Calculator.ApiClient;
 
 namespace FfAdmin.AdminModule
 {
@@ -49,31 +50,34 @@ namespace FfAdmin.AdminModule
     }
     public class DonationRepository : IDonationRepository
     {
-        private readonly IDatabase _database;
+        private readonly ICalculatorClient _calculatorClient;
+        private readonly IContext<Branch> _branch;
 
-        public DonationRepository(IDatabase database)
+        public DonationRepository(ICalculatorClient calculatorClient, IContext<Branch> branch)
         {
-            _database = database;
+            _calculatorClient = calculatorClient;
+            _branch = branch;
         }
 
-        public Task<IDonationRepository.DonationAggregation[]> GetAggregations()
-            => _database.Query<IDonationRepository.DonationAggregation>(
-                @"select currency
-                    , sum(exchanged_amount) amount
-                    , sum(worth) worth
-                    , sum(allocated) allocated
-                    , sum(transferred) transferred
-                    , sum(ff_allocated) ff_allocated
-                    , sum(ff_transferred) ff_transferred
-                    from ff.web_export
-                    group by currency");
-
-        public Task<IDonationRepository.AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds)
-            => _database.Query<IDonationRepository.AlreadyImportedDonation>(@"select donation_id DonationId, charity_id CharityId from unnest(@ids) extId
-                                            join core.event on extId = donation_id", new
-            {
-                ids = extIds.ToArray()
-            });
-
+        public async Task<IDonationRepository.DonationAggregation[]> GetAggregations()
+            => (from s in (await _calculatorClient.GetDonationStatistics(_branch.Value)).Statistics.Values
+                select new IDonationRepository.DonationAggregation()
+                {
+                    Currency = s.Currency,
+                    Amount = (decimal)s.Amount,
+                    Allocated = (decimal)s.Allocated,
+                    Transferred = (decimal)s.Transferred,
+                    Worth = (decimal)s.Worth
+                }).ToArray();
+        
+        public async Task<IDonationRepository.AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds)
+        {
+            var donations = await _calculatorClient.GetDonations(_branch.Value);
+            return (from id in extIds
+                    let don = donations.Values.GetValueOrDefault(id)
+                    where don is not null
+                    select new IDonationRepository.AlreadyImportedDonation {DonationId = id, CharityId = don.CharityId})
+                .ToArray();
+        }
     }
 }

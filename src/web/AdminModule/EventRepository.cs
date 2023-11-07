@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Calculator.ApiClient;
 using FfAdmin.Common;
+using FfAdmin.EventStore.Abstractions;
+
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace FfAdmin.AdminModule
@@ -12,6 +15,7 @@ namespace FfAdmin.AdminModule
     public interface IEventRepository
     {
         Task<CoreMessage> Import(DateTime fileTimestamp, IEnumerable<Event> e);
+        Task Import(IEnumerable<Event> e);
         Task SetFileImported(string path);
         Task<CoreMessage> ProcessEvents(DateTime until);
         Task<Statistics> GetStatistics();
@@ -48,12 +52,22 @@ namespace FfAdmin.AdminModule
     public class EventRepository : IEventRepository
     {
         private readonly IDatabase _db;
+        private readonly ICalculatorClient _calculator;
+        private readonly IEventStore _eventStore;
+        private readonly IContext<Branch> _branchContext;
 
-        public EventRepository(IDatabase db)
+        public EventRepository(IDatabase db, ICalculatorClient calculator, IEventStore eventStore, IContext<Branch> branchContext)
         {
             _db = db;
+            _calculator = calculator;
+            _eventStore = eventStore;
+            _branchContext = branchContext;
         }
 
+        public async Task Import(IEnumerable<Event> events)
+        {
+            await _eventStore.AddEvents(_branchContext.Value, events.ToArray());
+        }
         public Task<IEventRepository.Statistics> GetStatistics()
         {
             return _db.QueryFirst<IEventRepository.Statistics>(@"

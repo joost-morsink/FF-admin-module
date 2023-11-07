@@ -83,4 +83,8 @@ public class CalculatorClient : ICalculatorClient
 
     public Task<ValidationErrors> GetValidationErrors(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => GenericGet<ValidationErrors>("validation-errors", branch, at, theory);
+
+    public async Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null,
+        IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableDictionary<string, DonationStatistic>>("donation-statistics", branch, at, theory);
 }
