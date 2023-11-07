@@ -6,6 +6,10 @@ namespace FfAdmin.Calculator;
 
 public record HistoryHash : IModel<HistoryHash>
 {
+    public static implicit operator HistoryHash(string str)
+        => new(Convert.FromBase64String(str));
+    public static implicit operator HistoryHash(Span<byte> bytes)
+        => new(bytes.ToArray());
     public HistoryHash() : this(new byte[32])
     {
         

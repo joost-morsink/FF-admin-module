@@ -4,6 +4,8 @@ namespace FfAdmin.Calculator;
 
 public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> Valuations) : IModel<IdealOptionValuations>
 {
+    public static implicit operator IdealOptionValuations(ImmutableDictionary<string, IdealValuation> values)
+        => new(values);
     public static IdealOptionValuations Empty { get; } = new(ImmutableDictionary<string, IdealValuation>.Empty);
 
     public static IEventProcessor<IdealOptionValuations> Processor { get; } = new Impl();

@@ -4,6 +4,8 @@ namespace FfAdmin.Calculator;
 
 public record MinimalExits(ImmutableDictionary<string, Real> Exits) : IModel<MinimalExits>
 {
+    public static implicit operator MinimalExits(ImmutableDictionary<string, Real> exits)
+        => new(exits);
     public static MinimalExits Empty { get; } = new(ImmutableDictionary<string, decimal>.Empty);
     
     public static IEventProcessor<MinimalExits> Processor { get; } = new Impl();

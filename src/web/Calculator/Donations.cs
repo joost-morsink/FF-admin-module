@@ -4,6 +4,8 @@ namespace FfAdmin.Calculator;
 
 public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<Donations>
 {
+    public static implicit operator Donations(ImmutableDictionary<string, Donation> values)
+        => new(values);
     public static Donations Empty { get; } = new(ImmutableDictionary<string, Donation>.Empty);
     public static IEventProcessor<Donations> Processor { get; } = new Impl();
 

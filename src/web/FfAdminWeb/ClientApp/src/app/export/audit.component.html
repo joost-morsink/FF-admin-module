@@ -1,11 +1,19 @@
 <h2>Audit</h2>
-<a href="/admin/audit/recent" download="recent.xlsx">Most recent</a>
+<a href="/admin/audit/recent" download="recent.xlsx">
+  <button>
+    <span class="inline-icon material-icons">schedule</span> Most recent
+  </button>
+</a>
+<button (click)="audit()">
+  <span class="inline-icon material-icons">playlist_add_check</span> Audit
+</button>
+
 <br/>
 <p *ngIf="data==null">Loading...</p>
 <mat-table class="mat-elevation-z8" [dataSource]="data" *ngIf="data != null">
-    <ng-container matColumnDef="hashcode">
+    <ng-container matColumnDef="hashCode">
         <mat-header-cell *matHeaderCellDef>Hash</mat-header-cell>
-        <mat-cell *matCellDef="let x"><a href="/admin/audit/{{x.id}}" download="audit.xlsx">{{ x.hashcode }}</a></mat-cell>
+        <mat-cell *matCellDef="let x"><a href="/admin/audit/{{x.hashCode}}" download="audit.xlsx">{{ x.hashCode }}</a></mat-cell>
     </ng-container>
     <ng-container matColumnDef="timestamp">
         <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>

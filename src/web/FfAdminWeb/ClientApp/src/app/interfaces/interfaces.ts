@@ -88,8 +88,11 @@ export interface IRemoteStatus {
   behind: number;
 }
 export interface IAuditInfo {
-  id: number;
-  hashcode: string;
+  timestamp: Date;
+  hashCode: string;
+  eventCount: number;
+  previousHashCode?: string;
+  previousCount?: number;
 }
 export interface IDonationsByCurrency {
   currency: string;

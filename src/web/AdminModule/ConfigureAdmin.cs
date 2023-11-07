@@ -15,7 +15,6 @@ namespace FfAdmin.AdminModule
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDonationRepository, DonationRepository>();
-            services.AddScoped<IExportRepository, ExportRepository>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
             services.AddScoped<IDatabase, Database>();
             services.AddContext<Branch>();

@@ -55,25 +55,25 @@ public class CalculatorClient : ICalculatorClient
         IEnumerable<Event>? theory = null)
         => GenericGet<CharityFractionSetsForOption>("current-charity-fraction-sets", branch, at, theory);
 
-    public Task<CumulativeInterest> GetCumulativeInterest(string branch, int? at = null,
+    public async Task<CumulativeInterest> GetCumulativeInterest(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
-        => GenericGet<CumulativeInterest>("cumulative-interest", branch, at, theory);
+        => await GenericGet<ImmutableDictionary<string,CumulativeInterest.DataPoint>>("cumulative-interest", branch, at, theory);
 
-    public Task<Donations> GetDonations(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => GenericGet<Donations>("donations", branch, at, theory);
+    public async Task<Donations> GetDonations(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableDictionary<string,Donation>>("donations", branch, at, theory);
 
-    public Task<DonationRecords> GetDonationRecords(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => GenericGet<DonationRecords>("donation-records", branch, at, theory);
+    public async Task<DonationRecords> GetDonationRecords(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableDictionary<string,ImmutableList<DonationRecord>>>("donation-records", branch, at, theory);
 
-    public Task<HistoryHash> GetHistoryHash(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => GenericGet<HistoryHash>("history-hash", branch, at, theory);
+    public async Task<HistoryHash> GetHistoryHash(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<string>("history-hash", branch, at, theory);
 
-    public Task<IdealOptionValuations> GetIdealOptionValuations(string branch, int? at = null,
+    public async Task<IdealOptionValuations> GetIdealOptionValuations(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
-        => GenericGet<IdealOptionValuations>("ideal-option-valuations", branch, at, theory);
+        => await GenericGet<ImmutableDictionary<string,IdealValuation>>("ideal-option-valuations", branch, at, theory);
 
-    public Task<MinimalExits> GetMinimalExits(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => GenericGet<MinimalExits>("minimal-exits", branch, at, theory);
+    public async Task<MinimalExits> GetMinimalExits(string branch, int? at = null, IEnumerable<Event>? theory = null)
+        => await GenericGet<ImmutableDictionary<string, decimal>>("minimal-exits", branch, at, theory);
 
     public async Task<Options> GetOptions(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => await GenericGet<ImmutableDictionary<string, Option>>("options", branch, at, theory);
