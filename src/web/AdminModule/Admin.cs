@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Calculator.ApiClient;
+using FfAdmin.Common;
 
 namespace FfAdmin.AdminModule
 {
@@ -11,25 +13,32 @@ namespace FfAdmin.AdminModule
     }
     public class Admin : IAdmin
     {
-        private readonly IDatabase _database;
+        private readonly ICalculatorClient _calculator;
+        private readonly IContext<Branch> _branch;
 
-        public Admin(IDatabase database)
+        public Admin(ICalculatorClient calculator, IContext<Branch> branch)
         {
-            _database = database;
+            _calculator = calculator;
+            _branch = branch;
         }
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        private class CalculateExitRecord
-        {
-            public decimal? Value { get; init; }
-        }
+
         public async Task<decimal> CalculateExit(string optionId, decimal extracash, decimal currentInvested, DateTimeOffset timestamp)
         {
-            var res = await _database.QueryFirst<CalculateExitRecord>("select * from ff.calculate_exit(@opt, @cash, @inv, @time) as value", new
+            var theory = new Event[]
             {
-                opt = optionId, cash = extracash, inv = currentInvested, time = timestamp.ToUniversalTime().DateTime
-            });
-            return res.Value ?? 0.00m;
+                new PriceInfo
+                {
+                    Invested_amount = currentInvested + extracash,
+                    Option = optionId,
+                    Timestamp = timestamp.ToUniversalTime().DateTime
+                }
+            };
+            if (!(await _calculator.GetIdealOptionValuations(_branch.Value, theory: theory)).Valuations.TryGetValue(
+                    optionId, out var ideal)
+                || !(await _calculator.GetMinimalExits(_branch.Value, theory:theory)).Exits.TryGetValue(
+                    optionId, out var exit))
+                return 0m;
+            return Math.Max(ideal.RealValue - ideal.IdealValue, exit);
         }
     }
 }

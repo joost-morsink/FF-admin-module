@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FfAdmin.Calculator;
 using FfAdmin.Common;
@@ -28,7 +31,7 @@ public class CalculatorClient : ICalculatorClient
             parts.Add($"?at={at.Value}");
         var response = await (theory is null
             ? _client.GetAsync(string.Concat(parts))
-            : _client.PostAsJsonAsync(string.Concat(parts), theory));
+            : PostAsJsonAsync(string.Concat(parts), theory));
         response.EnsureSuccessStatusCode();
 #if DEBUG
         var resultStr = await response.Content.ReadAsStringAsync();
@@ -39,6 +42,27 @@ public class CalculatorClient : ICalculatorClient
         if (result is null)
             throw new Exception();
         return result;
+    }
+
+    private static JsonSerializerOptions DefaultJsonOptions { get; } = new()
+    {
+        Converters = {new JsonStringEnumConverter()},
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
+    private async Task<HttpResponseMessage> PostAsJsonAsync(string address, IEnumerable<Event> events)
+    {
+        var content = $"[{string.Join(",", events.Select(e => e.ToJsonString()))}]";
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post, 
+            RequestUri = _client.BaseAddress is null ? new Uri(address) : new Uri(_client.BaseAddress, address), 
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
+        var response = await _client.SendAsync(request);
+        return response;
     }
 
     public async Task<AmountsToTransfer> GetAmountsToTransfer(string branch, int? at = null,
