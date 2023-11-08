@@ -7,7 +7,7 @@ namespace FfAdmin.AdminModule
     [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
     public static class ConfigureAdmin
     {
-        public static IServiceCollection AddAdminModule(this IServiceCollection services, Action<DatabaseOptions>? dbOpts = null)
+        public static IServiceCollection AddAdminModule(this IServiceCollection services)
         {
             services.AddScoped<IAdmin, Admin>();
             services.AddScoped<IOptionRepository, OptionRepository>();
@@ -15,11 +15,7 @@ namespace FfAdmin.AdminModule
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IDonationRepository, DonationRepository>();
-            services.AddScoped<IDatabaseRepository, DatabaseRepository>();
-            services.AddScoped<IDatabase, Database>();
             services.AddContext<Branch>();
-            if (dbOpts != null)
-                services.AddOptions<DatabaseOptions>().Configure(dbOpts);
             return services;
         }
 

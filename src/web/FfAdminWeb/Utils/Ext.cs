@@ -28,10 +28,10 @@ namespace FfAdminWeb.Utils
             var content = await reader.ReadToEndAsync();
             return content;
         }
-        public static IServiceCollection AddFfAdmin(this IServiceCollection services, Action<DatabaseOptions> options)
+        public static IServiceCollection AddFfAdmin(this IServiceCollection services)
         {
             services.AddSingleton<IEventStore, EventStore>();
-            services.AddAdminModule(options);
+            services.AddAdminModule();
 
             return services;
         }

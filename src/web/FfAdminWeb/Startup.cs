@@ -24,7 +24,7 @@ namespace FfAdminWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFfAdmin(opts => Configuration.GetSection("Database").Bind(opts));
+            services.AddFfAdmin();
             services.AddEventStoreClient().BindConfiguration("ApiClient:EventStore");
             services.AddCalculatorClient().BindConfiguration("ApiClient:Calculator");
             

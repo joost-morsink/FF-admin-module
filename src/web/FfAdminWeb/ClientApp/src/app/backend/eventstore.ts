@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IEvent, IEventStatistics, IFullEvent, IRemoteStatus } from '../interfaces/interfaces';
+import { IEvent, IEventStatistics, IFullEvent } from '../interfaces/interfaces';
 
 @Injectable()
 export class EventStore {
@@ -54,9 +54,6 @@ export class EventStore {
   }
   public importCsv(formData: FormData) {
     return this.http.post<void>(this.baseUrl + "eventstore/donations/give", formData).toPromise();
-  }
-  public getRemoteStatus(): Promise<IRemoteStatus> {
-    return this.http.get<IRemoteStatus>(this.baseUrl + "eventstore/remote/status").toPromise();
   }
   public pull(): Promise<void> {
     return this.http.post<void>(this.baseUrl + "eventstore/remote/pull", {}).toPromise();

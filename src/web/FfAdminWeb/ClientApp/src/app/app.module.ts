@@ -15,8 +15,6 @@ import {OptionsComponent} from './option/option.component';
 import {SessionModule} from './session/session.module';
 import {ConversionModule} from './conversion/conversion.module';
 import {ConversionDayComponent} from './conversion/conversionday.component';
-import {DatabaseModule} from './database/database.module';
-import {DatabaseComponent} from './database/database.component';
 import {DialogsModule} from './dialogs/dialogs.module';
 import {ExportModule} from './export/export.module';
 import {ExportComponent} from './export/export.component';
@@ -45,7 +43,6 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
       { path: 'events', component: EventsComponent },
       { path: 'donations', component: DonationsComponent },
       { path: 'conversion', component: ConversionDayComponent },
-      { path: 'database', component: DatabaseComponent },
       { path: 'export', component: ExportComponent }
     ], {}),
     FfBackendModule,
@@ -57,7 +54,6 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
     OptionModule,
     SessionModule,
     ConversionModule,
-    DatabaseModule,
     ExportModule
   ],
   providers: [CurrentBranch,
