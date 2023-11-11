@@ -54,7 +54,7 @@ namespace FfAdmin.External.Banking
         {
             return new XElement(Ns + "CdtTrfTxInf",
                 new XElement(Ns + "PmtId",
-                    new XElement(Ns + "EndToEndId", $"Onze referentie: {exDate.Replace("-", "")}{charity.Charity_ext_id}")),
+                    new XElement(Ns + "EndToEndId", $"Onze referentie: {exDate.Replace("-", "")}{charity.Charity_id}")),
                 new XElement(Ns + "Amt",
                     new XElement(Ns + "InstdAmt", new XAttribute("Ccy", t.Currency), t.Amount)),
                 new XElement(Ns + "Cdtr",
@@ -63,7 +63,7 @@ namespace FfAdmin.External.Banking
                     new XElement(Ns + "Id",
                         new XElement(Ns + "IBAN", charity.Bank_account_no))),
                 new XElement(Ns + "RmtInf",
-                    new XElement(Ns + "Ustrd", $"Ref. {exDate.Replace("-", "")}{charity.Charity_ext_id}")));
+                    new XElement(Ns + "Ustrd", $"Ref. {exDate.Replace("-", "")}{charity.Charity_id}")));
         }
     }
 }

@@ -25,9 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Calculator.ApiClient\Calculator.ApiClient.csproj" />
     <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
-    <ProjectReference Include="..\EventStore\EventStore.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
     <ProjectReference Include="..\AdminModule\AdminModule.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>

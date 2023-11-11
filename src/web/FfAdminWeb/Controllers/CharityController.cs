@@ -3,6 +3,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Azure.Core;
+using Calculator.ApiClient;
 using FfAdmin.AdminModule;
 using FfAdmin.Common;
 using FfAdmin.External.Banking;
@@ -135,9 +137,19 @@ namespace FfAdminWeb.Controllers
         {
             var res = (await _repository.GetOpenTransfers()).Where(t => t.Amount >= cutoff && t.Currency == currency);
             var charities = await _repository.GetCharities();
-            //var xml = res.GetPain(charities);
+            var xml = res.GetPain(charities.Select(Convert));
 
-            return File(Encoding.UTF8.GetBytes("<NotImplementedYet/>"), "application/xml");
+            return File(Encoding.UTF8.GetBytes(xml.ToString()), "application/xml");
         }
+
+        private static Charity Convert(FfAdmin.Calculator.Charity charity)
+            => new()
+            {
+                Charity_id = charity.Id,
+                Name = charity.Name,
+                Bank_account_no = charity.Bank.Account,
+                Bank_bic = charity.Bank.Bic,
+                Bank_name = charity.Bank.Name
+            };
     }
 }

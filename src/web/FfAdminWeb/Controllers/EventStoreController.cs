@@ -15,25 +15,19 @@ namespace FfAdminWeb.Controllers;
 [Route("eventstore")]
 public class EventStoreController : Controller
 {
-    private readonly IEventStore _oldEventStore;
-    private readonly FfAdmin.EventStore.Abstractions.IEventStore _eventStore;
     private readonly IEventRepository _eventRepository;
     private readonly IOptionRepository _optionRepository;
     private readonly ICharityRepository _charityRepository;
     private readonly IDonationRepository _donationRepository;
     private readonly IAuditRepository _auditRepository;
 
-    public EventStoreController(IEventStore oldEventStore,
-        FfAdmin.EventStore.Abstractions.IEventStore eventStore,
-        IEventRepository eventRepository,
+    public EventStoreController(IEventRepository eventRepository,
         IOptionRepository optionRepository,
         ICharityRepository charityRepository,
         IDonationRepository donationRepository,
         IAuditRepository auditRepository
     )
     {
-        _oldEventStore = oldEventStore;
-        _eventStore = eventStore;
         _eventRepository = eventRepository;
         _optionRepository = optionRepository;
         _charityRepository = charityRepository;
@@ -92,13 +86,7 @@ public class EventStoreController : Controller
             var charities = await _charityRepository.GetCharities();
             var events = rows.ToEvents(mollieRows, charities.Select(c => c.Id), options.Select(o => o.Id)).ToArray();
 
-            if (!_oldEventStore.HasSession)
-                return BadRequest(new ValidationMessage[]
-                {
-                    new("main", "No session")
-                });
-
-            var msgs = events.SelectMany(e => e.Validate()).ToArray();
+            var msgs = events.SelectMany((e,index) => e.Validate().Select(m => m.Prefix($"{index}"))).ToArray();
 
             if (msgs.Length > 0)
                 return BadRequest(msgs);
@@ -106,7 +94,7 @@ public class EventStoreController : Controller
             var alreadyImported = await _donationRepository.GetAlreadyImported(
                 from e in events.OfType<NewDonation>()
                 select e.Donation);
-            var donationCharityMap =alreadyImported.ToDictionary(i => i.DonationId, i => i.CharityId);
+            var donationCharityMap = alreadyImported.ToDictionary(i => i.DonationId, i => i.CharityId);
            
             await _eventRepository.Import(events.SelectMany(TransformEvent));
 

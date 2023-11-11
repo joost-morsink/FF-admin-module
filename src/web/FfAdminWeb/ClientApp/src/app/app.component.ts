@@ -7,15 +7,4 @@ import { EventStore } from './backend/eventstore';
 })
 export class AppComponent {
   title = 'app';
-  constructor(private eventStore: EventStore) {
-    window.onbeforeunload = e => this.closing(e);
-  }
-  private closing(e: any) {
-    if (this.eventStore.wasSessionAvailable()) {
-      e.preventDefault();
-      e.returnValue = '';
-    } else {
-      delete e['returnValue'];
-    }
-  }
 }

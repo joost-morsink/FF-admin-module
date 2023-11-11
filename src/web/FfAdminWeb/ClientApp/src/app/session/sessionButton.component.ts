@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {EventStore} from '../backend/eventstore';
 import {MatDialog} from '@angular/material/dialog';
 import {ErrorDialog} from '../dialogs/error.dialog';
-import {CommitDialog} from "./commit-dialog.component";
 import {CurrentBranch} from "../currentBranch";
 import {SelectBranchDialog} from "./select-branch.dialog";
 

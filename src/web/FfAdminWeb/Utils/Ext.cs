@@ -30,7 +30,6 @@ namespace FfAdminWeb.Utils
         }
         public static IServiceCollection AddFfAdmin(this IServiceCollection services)
         {
-            services.AddSingleton<IEventStore, EventStore>();
             services.AddAdminModule();
 
             return services;

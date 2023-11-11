@@ -73,7 +73,6 @@ export abstract class ConversionBaseComponent {
     try {
       this.enabled = false;
       await this.eventStore.postEvent(event);
-      await this.eventStore.process();
       if (data)
         success?.emit(data);
       else

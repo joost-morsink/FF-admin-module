@@ -41,7 +41,6 @@ export class ImportCsvComponent {
 
       try {
         await this.eventStore.importCsv(formData);
-        await this.eventStore.process();
         this.fileInput.files = null;
         this.file = null;
         this.fileName = null;

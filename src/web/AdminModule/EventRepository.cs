@@ -23,6 +23,7 @@ namespace FfAdmin.AdminModule
             public DateTimeOffset? FirstUnprocessed { get; set; }
         }
     }
+
     public class EventRepository : IEventRepository
     {
         private readonly ICalculatorClient _calculator;
@@ -38,8 +39,19 @@ namespace FfAdmin.AdminModule
 
         public async Task Import(IEnumerable<Event> events)
         {
+            events = events.ToArray();
+            
+            var errors = await _calculator.GetValidationErrors(_branchContext.Value, theory: events);
+            if (!errors.IsValid)
+            {
+                var count = await _eventStore.GetCount(_branchContext.Value);
+                
+                throw new ValidationException(errors.Errors.ToMessages(count));
+            }
+
             await _eventStore.AddEvents(_branchContext.Value, events.ToArray());
         }
+
         public async Task<IEventRepository.Statistics> GetStatistics()
         {
             var count = await _eventStore.GetCount(_branchContext.Value);
