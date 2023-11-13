@@ -46,7 +46,41 @@ public class EventStoreController : Controller
 
         return Ok();
     }
+    
+    [HttpGet("events")]
+    public async Task<IActionResult> GetEvents([FromQuery] int skip = 0, [FromQuery] int? limit = null)
+    {
+        var events = await _eventRepository.GetEvents(skip, limit);
+        return Ok(events);
+    }
+    [HttpGet("branches")]
+    public Task<string[]> GetBranches()
+        => _eventRepository.GetBranchNames();
 
+    public record BranchRequest(string To);
+
+    [HttpPost("branch")]
+    public Task Branch([FromBody] BranchRequest req)
+        => _eventRepository.Branch(req.To);
+
+    public record GenericBranchRequest(string Name);
+    [HttpPost("new-branch")]
+    public Task NewBranch([FromBody] GenericBranchRequest req) 
+        => _eventRepository.CreateEmptyBranch(req.Name);
+    
+    [HttpDelete("branch/{name}")]
+    public Task RemoveBranch([FromQuery] string name)
+        => _eventRepository.RemoveBranch(name);
+    
+    [HttpPost("fast-forward")]
+    public Task FastForward([FromBody] GenericBranchRequest req)
+        => _eventRepository.FastForward(req.Name);
+    
+    public record RebaseRequest(string On);
+    [HttpPost("rebase")]
+    public Task Rebase([FromBody] RebaseRequest req)
+        => _eventRepository.Rebase(req.On);
+    
     [HttpPost("audit")]
     public async Task<IActionResult> Audit()
     {

@@ -42,7 +42,7 @@ public class AzureSqlEventStore : IEventStore
     public async Task CreateNewBranchFrom(string newBranchName, string sourceBranchName)
     {
         await using var connection = await _database.OpenConnection();
-        await connection.ExecuteAsync("exec [CreateBranchFrom] (@newBranchName, @sourceBranchName)",
+        await connection.ExecuteAsync("exec [CreateBranchFrom] @newBranchName, @sourceBranchName",
             new {newBranchName, sourceBranchName});
     }
 

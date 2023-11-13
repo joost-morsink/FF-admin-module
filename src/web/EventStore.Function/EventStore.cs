@@ -36,7 +36,12 @@ public class EventStore
         FunctionContext executionContext)
     {
         var response = request.CreateResponse(HttpStatusCode.Created);
-        var body = await request.ReadFromJsonAsync<NewBranchRequest>();
+#if DEBUG
+        var str = await request.ReadAsStringAsync();
+        var body = JsonSerializer.Deserialize<NewBranchRequest>(str!);
+#else
+        var body = await ReadFromJsonAsync<NewBranchRequest>(request);
+#endif
         if (string.IsNullOrWhiteSpace(body?.Source))
             await _eventStore.CreateEmptyBranch(branchName);
         else
@@ -73,6 +78,7 @@ public class EventStore
         await response.WriteStringAsync($"[{string.Join(",\r\n", events.Select(e => e.ToJsonString()))}]");
         return response;
     }
+
     [Function("GetCount")]
     public async Task<HttpResponseData> GetCount(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{branchName}/events/count")]
@@ -121,7 +127,7 @@ public class EventStore
         if (!await _eventStore.BranchExists(branchName))
             return request.CreateResponse(HttpStatusCode.NotFound);
 
-        var on = (await request.ReadFromJsonAsync<RebaseRequest>())?.On;
+        var on = (await ReadFromJsonAsync<RebaseRequest>(request))?.On;
         if (on is null || !await _eventStore.BranchExists(on))
             return request.CreateResponse(HttpStatusCode.BadRequest);
 
@@ -141,13 +147,21 @@ public class EventStore
     {
         if (!await _eventStore.BranchExists(branchName))
             return request.CreateResponse(HttpStatusCode.NotFound);
-
-        var to = (await request.ReadFromJsonAsync<FastForwardRequest>())?.To;
+        
+        var to = (await ReadFromJsonAsync<FastForwardRequest>(request))?.To;
         if (to is null || !await _eventStore.BranchExists(to))
             return request.CreateResponse(HttpStatusCode.BadRequest);
 
         await _eventStore.FastForward(branchName, to);
 
         return request.CreateResponse(HttpStatusCode.OK);
+    }
+
+    private async ValueTask<T?> ReadFromJsonAsync<T>(HttpRequestData request)
+    {
+        var content = await request.ReadAsStringAsync();
+        if (content is null)
+            return default;
+        return JsonSerializer.Deserialize<T>(content);
     }
 }

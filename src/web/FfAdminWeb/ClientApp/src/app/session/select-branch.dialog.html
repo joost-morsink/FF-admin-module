@@ -4,9 +4,17 @@
     <mat-label>Branch name</mat-label>
     <input matNativeControl name="message" [formControl]="branchName" />
   </mat-form-field>
+  <br/>
+  <div *ngFor="let branch of branches" style="display: inline-block">
+    <branch-button [branch]="branch" [enabled]="enabled" (clickBranch)="branchClicked($event)"></branch-button>&nbsp;
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="true"><span class="inline-icon material-icons">check</span> OK</button>
-  <button mat-button mat-dialog-close><span class="inline-icon material-icons">close</span> Cancel</button>
+
+  <button mat-button [mat-dialog-close]="'switch'"><span class="inline-icon material-icons">check</span> OK</button>&nbsp;
+  <button mat-button [mat-dialog-close]="'branch'"><span class="inline-icon material-icons">call_split</span> Branch</button>&nbsp;
+  <button mat-button [mat-dialog-close]="'rebase'"><span class="inline-icon material-icons">upgrade</span> Rebase</button>&nbsp;
+  <button mat-button [mat-dialog-close]="'forward'"><span class="inline-icon material-icons">fast_forward</span> Fast forward</button>&nbsp;
+  <button mat-button mat-dialog-close><span class="inline-icon material-icons">close</span> Cancel</button>&nbsp;
 
 </mat-dialog-actions>

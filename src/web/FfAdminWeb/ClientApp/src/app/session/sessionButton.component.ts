@@ -19,17 +19,41 @@ export class SessionButtonComponent {
   cls = 'btn-light';
   text = 'Loading...';
   enabled= true;
+  private setBranch(branch: string){
+    this.currentBranch.setBranchName(branch);
+    this.text = branch;
+    this.refresh();
+  }
+  private refresh() {
+    location.reload();
+  }
   public async onClick(): Promise<void> {
     try {
       this.enabled=false;
       let dlg = this.dialog.open(SelectBranchDialog);
       let result = await dlg.beforeClosed().toPromise();
-      if (result) {
-        let branch = dlg.componentInstance.getBranchName();
-        this.currentBranch.setBranchName(branch);
-        this.text = branch;
+      console.log(result);
+      let branch = dlg.componentInstance.getBranchName();
+
+      switch(result){
+        case 'switch':
+          this.setBranch(branch);
+          break;
+        case 'branch':
+          await this.eventStore.branch(branch);
+          this.setBranch(branch);
+          break;
+        case 'rebase':
+          await this.eventStore.rebase(branch);
+          this.refresh();
+          break;
+        case 'forward':
+          await this.eventStore.fastForward(branch);
+          this.refresh();
+          break;
       }
     } catch (ex) {
+      console.log(ex);
       let errs = ex.error || [{key: "main", message: ex.message}];
       this.dialog.open(ErrorDialog, {
         data: {errors: errs}
@@ -39,4 +63,3 @@ export class SessionButtonComponent {
     }
   }
 }
-
