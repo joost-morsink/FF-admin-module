@@ -3,13 +3,7 @@ namespace FfAdmin.Calculator.Core;
 public abstract class EventProcessor<T> : IEventProcessor<T>
     where T : class
 {
-    object IEventProcessor.Start => Start;
-
-    object IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
-        => Process((T)model, previousContext, context, e);
-
     public abstract T Start { get; }
-    public Type ModelType => typeof(T);
     public virtual IEnumerable<Type> Dependencies => Enumerable.Empty<Type>();
 
     public virtual T Process(T model, IContext previousContext, IContext context, Event e)

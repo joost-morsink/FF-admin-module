@@ -54,7 +54,7 @@ public class BasicModelTests : VerifyBase
         {
             Timestamp = GetCurrent(),
             Donation = "3",
-            Donor = "1",
+            Donor = "2",
             Amount = 10m,
             Exchanged_amount = 10m,
             Currency = "EUR",
@@ -140,7 +140,9 @@ public class BasicModelTests : VerifyBase
             HistoryHash.Processor,
             CharityBalance.Processor,
             CumulativeInterest.Processor,
-            DonationStatistics.Processor)
+            DonationStatistics.Processor,
+            Donors.Processor,
+            DonorDashboardStats.Processor)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -292,6 +294,23 @@ public class BasicModelTests : VerifyBase
     public async Task DonationStatisticsTest()
     {
         var contexts = (await Stream.GetValues<DonationStatistics>(4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
+            .ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+    
+    [TestMethod]
+    public async Task DonorsTest()
+    {
+        var contexts = (await Stream.GetValues<Donors>(18))
+            .ToListOrderedByKey();
+
+        await Verify(contexts);
+    }
+    [TestMethod]
+    public async Task DonorDashboardStatsTest()
+    {
+        var contexts = (await Stream.GetValues<DonorDashboardStats>(18))
             .ToListOrderedByKey();
 
         await Verify(contexts);

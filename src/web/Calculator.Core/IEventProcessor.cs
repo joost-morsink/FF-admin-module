@@ -13,6 +13,10 @@ public interface IEventProcessor<T> : IEventProcessor
     where T : class
 {
     bool IEventProcessor.IsRecursive => true;
+    object IEventProcessor.Start => Start;
+    Type IEventProcessor.ModelType => typeof(T);
+    object IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
+        => Process((T)model, previousContext, context, e);
     new T Start { get; }
     T Process(T model, IContext previousContext, IContext context, Event e);
 }
