@@ -3,7 +3,7 @@ export class CurrentBranch {
     let x = this.getBranchName();
     if(!x)
     {
-      this.setBranchName("Main");
+      this.setBranchName("Please select branch");
     }
   }
 
