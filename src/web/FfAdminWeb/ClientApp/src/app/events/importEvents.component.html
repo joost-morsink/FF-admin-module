@@ -1,0 +1,13 @@
+<input type="file" class="file-input"
+       (change)="onFileSelected($event)" #fileUpload />
+<div class="file-upload">
+    <p>{{fileName || "No JSON uploaded yet."}}</p>
+    <button mat-mini-fab color="primary" class="upload-btn"
+            (click)="fileUpload.click()">
+        <span class="inline-icon material-icons">attach_file</span> Find event Json
+    </button>
+    <button *ngIf="file!=null" mat-mini-fab color="primary" class="upload-btn"
+            (click)="executeUpload()">
+        <span class="inline-icon material-icons">file_upload</span> Upload events
+    </button>
+</div>

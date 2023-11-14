@@ -170,3 +170,15 @@ end;
 go
 grant execute on [FastForward] to branching
 go
+
+
+create or alter procedure [GarbageCollect]() as begin
+    delete from Range where Min=Max;
+    delete from Range where Branch not in (select Branch from Branch);
+    delete e from Event e
+    where not exists (select 1 from Range r
+        where e.Sequence >= r.Min and (r.Max is null or e.Sequence < r.Max) and e.Branch = r.SubBranch);
+end
+go
+grant execute on [GarbageCollect] to branching
+go

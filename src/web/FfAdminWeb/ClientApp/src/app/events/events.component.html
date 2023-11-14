@@ -7,6 +7,10 @@
     <div>
         <button (click)="audit()" [disabled]="!(enabled && stats.unprocessed == 0)">
             <span class="inline-icon material-icons">playlist_add_check</span> Audit
-        </button>
+        </button>&nbsp;
+      <button (click)="export()" [disabled]="!(enabled)">
+        <span class="inline-icon material-icons">ios_share</span> Export
+      </button>&nbsp;
     </div>
+    <ff-import-events></ff-import-events>
 </div>

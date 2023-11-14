@@ -48,6 +48,26 @@ export class EventsComponent {
       }
     });
   }
+  public async export() {
+    this.executeDisabled(async () => {
+      try {
+        let events = await this.eventStore.getEvents(0);
+        console.log(JSON.stringify(events));
+        let content = btoa(JSON.stringify(events));
+        let url = `data:application/json;base64,${content}`;
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "events.json";
+        a.click();
+      }
+      catch (ex) {
+        this.dialog.open(ErrorDialog, {
+          data: { errors: ex.error }
+        });
+      }
+    });
+  }
+
 }
 
 @Component({

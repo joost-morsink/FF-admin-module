@@ -8,6 +8,7 @@ using FfAdmin.EventStore;
 using FfAdmin.External.GiveWp;
 using FfAdminWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace FfAdminWeb.Controllers;
 
@@ -42,9 +43,32 @@ public class EventStoreController : Controller
         if (msgs.Length > 0)
             return BadRequest(msgs);
 
-        await _eventRepository.Import(new[] {e});
+        try
+        {
+            await _eventRepository.Import(new[] {e});
+            return Ok();
+        }
+        catch (ValidationException vex)
+        {
+            return BadRequest(vex.Messages);
+        }
+    }
 
-        return Ok();
+    [HttpPost("import-many")]
+    public async Task<IActionResult> PostEvents([FromBody] Event[] events)
+    {
+        var msgs = events.SelectMany(e => e.Validate()).ToArray();
+        if (msgs.Length > 0)
+            return BadRequest(msgs);
+        try
+        {
+            await _eventRepository.Import(events);
+            return Ok();
+        }
+        catch (ValidationException vex)
+        {
+            return BadRequest(vex.Messages);
+        }
     }
     
     [HttpGet("events")]
