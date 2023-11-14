@@ -9,8 +9,8 @@ obj
 src/web/FfAdminWeb/data
 src/web/AdminModule/database.sql
 src/web/.idea
+src/web/.run
 *.user
 .DS_Store
-
 .fake
 *.received.txt
