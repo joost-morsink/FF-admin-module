@@ -93,15 +93,7 @@ public abstract class BaseCalculator
         Action<HttpResponseData>? onResponse = null)
         where T : class
     {
-        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
-        if (baseSequence.HasValue)
-            str = str.Prefix(baseSequence.Value);
-        if (events is not null)
-            str = str.AddEvents(events);
-        
-        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
-        await str.Get<HistoryHash>(index);
-        var model = await str.Get<T>(index);
+        var model = await GetModel<T>(branchName, baseSequence, events);
 
         var result = projection is null ? model : projection(model);
         if (result is null)
@@ -111,5 +103,19 @@ public abstract class BaseCalculator
         onResponse?.Invoke(response);
         await response.WriteAsJsonAsync(result);
         return response;
+    }
+
+    protected async Task<T> GetModel<T>(string branchName, int? baseSequence, IEnumerable<Event>? events) where T : class
+    {
+        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
+        if (baseSequence.HasValue)
+            str = str.Prefix(baseSequence.Value);
+        if (events is not null)
+            str = str.AddEvents(events);
+
+        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
+        await str.Get<HistoryHash>(index);
+        var model = await str.Get<T>(index);
+        return model;
     }
 }
