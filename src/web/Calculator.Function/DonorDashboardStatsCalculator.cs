@@ -1,4 +1,3 @@
-using System.Net;
 using FfAdmin.Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -43,7 +42,7 @@ public class DonorDashboardStatsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => HandlePost<DonorDashboardStats>(request, branchName, @base, data => data.Donors.GetValueOrDefault(id));
-    
+
     [Function("DonorDashboard")]
     public async Task<HttpResponseData> GetDonorDashboard(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donor-dashboard/{donor}")]
@@ -52,37 +51,62 @@ public class DonorDashboardStatsCalculator : BaseCalculator
         string donor,
         FunctionContext executionContext)
     {
-        var allStats = await GetModel<DonorDashboardStats>(branchName, null, null);
-        var stats = allStats.Donors.GetValueOrDefault(donor);
+        var charities = await GetModel<Charities>(branchName, null, null);
         
-        if(stats is null)
-            return request.CreateResponse(HttpStatusCode.NotFound);
-
-        var result = CreateHtml(stats);
-
-        var response = request.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/html; charset=utf-8");
-        response.Headers.Add("Cache-Control", "public, max-age=43200");
-        await response.WriteStringAsync(result);
-        return response;
-    }
-
-    private string CreateHtml(DonorDashboardStat stat)
-        => $@"<div class='donor-dashboard'>
-{TotalTable(stat)}
-</div>";
-
-    private string TotalTable(DonorDashboardStat stat)
-    {
-        var totalDonations = stat.Donations.Select(d => d.Value.Select(x => x.Worth).FirstOrDefault()).Sum();
-        var totalWorth = stat.Donations.Select(d => d.Value.Select(x => x.Worth).LastOrDefault()).Sum();
-        var totalAllocated = stat.Donations
-            .Select(d => d.Value.Select(x => x.Allocation).SelectValues().Sum(a => a.Amount)).Sum();
-        return TableWriter.Build(t =>
-            t.FirstColumnHeaderRow("Donated", totalDonations.ToString("N2"))
-                .FirstColumnHeaderRow("Profit", (totalWorth+totalAllocated-totalDonations).ToString("N2"))
-                .FirstColumnHeaderRow("Worth", totalWorth.ToString("N2"))
-                .FirstColumnHeaderRow("Allocated", totalAllocated.ToString("N2")));
-
+        return await Handle<DonorDashboardStats>(request, branchName, null,
+            data => data.Donors.TryGetValue(donor, out var stat)
+                ? new DonorDashboard(donor, stat, charities)
+                : null);
     }
 }
+
+public class DonorDashboard
+{
+    public DonorDashboard(string donor, DonorDashboardStat stat, Charities charities)
+    {
+        Donations = stat.Donations.Select(kvp => new DonationRow(donor, kvp.Key, kvp.Value)).ToList();
+        DonationHistory = stat.Donations.SelectMany(kvp => kvp.Value.Select(x => new DonationHistoryRow(donor, kvp.Key, x, charities))).ToList();
+    }
+    public IList<DonationRow> Donations { get; }
+    public IList<DonationHistoryRow> DonationHistory { get; }
+
+    public class DonationRow
+    {
+        public DonationRow(string donor, string donation, IReadOnlyList<DonationRecord> donationRecords)
+        {
+            Donor = donor;
+            Donation = donation;
+            Donated = donationRecords[0].Worth;
+            Worth = donationRecords[^1].Worth;
+            Allocated = donationRecords.Select(x => x.Allocation?.Amount ?? 0).Sum();
+        }
+
+        public decimal Donated { get; }
+        public decimal Profit => Worth + Allocated - Donated;
+        public decimal Worth { get; }
+        public decimal Allocated { get; }
+        public string Donor { get; }
+        public string Donation { get; }
+    }
+
+    public class DonationHistoryRow
+    {
+        public DonationHistoryRow(string donor, string donation, DonationRecord donationRecord, Charities charities)
+        {
+            Donor = donor;
+            Donation = donation;
+            Timestamp = donationRecord.Timestamp;
+            Worth = donationRecord.Worth;
+            Allocated = donationRecord.Allocation?.Amount ?? 0;
+            var c = donationRecord.Allocation?.Charity ?? "";
+            Charity = charities.Values.TryGetValue(c, out var charity) ? charity.Name : c;
+        }
+        public string Donor { get; }
+        public string Donation { get; }
+        public DateTimeOffset Timestamp { get; }
+        public decimal Worth { get; }
+        public decimal Allocated { get; }
+        public string Charity { get; }
+    }
+}
+
