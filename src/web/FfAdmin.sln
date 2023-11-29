@@ -52,6 +52,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBus", "ServiceBus\Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculator.ApiClient", "Calculator.ApiClient\Calculator.ApiClient.csproj", "{C0F43151-C881-462D-87CA-CCBC08ED1ABB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External.GiveWp.ApiClient", "External.GiveWp.ApiClient\External.GiveWp.ApiClient.csproj", "{91F86E84-AFC6-487D-8713-E78B2A947603}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventImport.Function", "EventImport.Function\EventImport.Function.csproj", "{2D5E71A7-5194-43F2-8EAF-323130750446}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +146,14 @@ Global
 		{C0F43151-C881-462D-87CA-CCBC08ED1ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0F43151-C881-462D-87CA-CCBC08ED1ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0F43151-C881-462D-87CA-CCBC08ED1ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91F86E84-AFC6-487D-8713-E78B2A947603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91F86E84-AFC6-487D-8713-E78B2A947603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91F86E84-AFC6-487D-8713-E78B2A947603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91F86E84-AFC6-487D-8713-E78B2A947603}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D5E71A7-5194-43F2-8EAF-323130750446}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D5E71A7-5194-43F2-8EAF-323130750446}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D5E71A7-5194-43F2-8EAF-323130750446}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D5E71A7-5194-43F2-8EAF-323130750446}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

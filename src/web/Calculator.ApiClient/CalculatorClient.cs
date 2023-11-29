@@ -55,16 +55,27 @@ public class CalculatorClient : ICalculatorClient
     private async Task<HttpResponseMessage> PostAsJsonAsync(string address, IEnumerable<Event> events)
     {
         var content = $"[{string.Join(",", events.Select(e => e.ToJsonString()))}]";
+        return await SendAsJsonAsync(address, content);
+    }
+
+    private async Task<HttpResponseMessage> SendAsJsonAsync(string address, string content)
+    {
         var request = new HttpRequestMessage
         {
-            Method = HttpMethod.Post, 
-            RequestUri = _client.BaseAddress is null ? new Uri(address) : new Uri(_client.BaseAddress, address), 
+            Method = HttpMethod.Post,
+            RequestUri = _client.BaseAddress is null ? new Uri(address) : new Uri(_client.BaseAddress, address),
             Content = new StringContent(content, Encoding.UTF8, "application/json")
         };
         var response = await _client.SendAsync(request);
         return response;
     }
 
+    private async Task<HttpResponseMessage> PostAsJsonAsync<T>(string address, T item)
+    {
+        var content = JsonSerializer.Serialize(item);
+        return await SendAsJsonAsync(address, content);
+
+    }
     public async Task<AmountsToTransfer> GetAmountsToTransfer(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
         => await GenericGet<ImmutableDictionary<string, MoneyBag>>("amounts-to-transfer", branch, at, theory);
@@ -119,4 +130,12 @@ public class CalculatorClient : ICalculatorClient
         => await GenericGet<ImmutableDictionary<string,DonorDashboardStat>>("donor-dashboard-stats", branch, at, theory);
     public async Task<DonorDashboardStat> GetDonorDashboardStat(string branch, string donor, int? at = null, IEnumerable<Event>? theory = null)
         => await GenericGet<DonorDashboardStat>($"donor-dashboard-stats/{donor}", branch, at, theory);
+    public async Task<string[]> GetNonExistingDonations(string branch, IEnumerable<string> ids)
+    {
+        var response = await PostAsJsonAsync($"api/{branch}/non-existing-donations", ids);
+        response.EnsureSuccessStatusCode();
+        var resultStr = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<string[]>(resultStr);
+        return result ?? Array.Empty<string>();
+    }
 }

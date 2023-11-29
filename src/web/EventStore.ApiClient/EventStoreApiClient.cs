@@ -80,9 +80,12 @@ public class EventStoreApiClient : IEventStore
     
     public async Task AddEvents(string branchName, Event[] events)
     {
-        var documents = $"[{string.Join(",",events.Select(e => e.ToJsonString()))}]";
-        var response = await _client.PostAsync($"/api/branches/{branchName}/events", new StringContent(documents));
-        response.EnsureSuccessStatusCode();
+        if (events.Length > 0)
+        {
+            var documents = $"[{string.Join(",", events.Select(e => e.ToJsonString()))}]";
+            var response = await _client.PostAsync($"/api/branches/{branchName}/events", new StringContent(documents));
+            response.EnsureSuccessStatusCode();
+        }
     }
 
     public async Task Rebase(string branchName, string onBranchName)

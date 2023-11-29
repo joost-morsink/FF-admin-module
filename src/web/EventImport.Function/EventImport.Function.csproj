@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+        <OutputType>Exe</OutputType>
+      <UserSecretsId>1f35ef88-83c1-48b0-9691-6be191f04e79</UserSecretsId>
+      <RootNamespace>FfAdmin.EventImport.Function</RootNamespace>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="host.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="local.settings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Calculator.ApiClient\Calculator.ApiClient.csproj" />
+      <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
+      <ProjectReference Include="..\External.GiveWp.ApiClient\External.GiveWp.ApiClient.csproj" />
+    </ItemGroup>
+</Project>
