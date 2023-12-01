@@ -7,12 +7,13 @@ namespace External.GiveWp.ApiClient;
 
 internal class DateTimeOffsetFormat : JsonConverter<DateTimeOffset>
 {
+    private static TimeZoneInfo _cetTimeZone = TimeZoneInfo.FindSystemTimeZoneById("CET");
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.String)
         {
-            if (DateTimeOffset.TryParseExact(reader.GetString(), "yyyy-MM-dd HH:mm:ss",CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,out var date))
-                return date;
+            if (DateTime.TryParseExact(reader.GetString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None,out var date))
+                return new DateTimeOffset(date, _cetTimeZone.GetUtcOffset(date));
         }
         throw new JsonException();
     }

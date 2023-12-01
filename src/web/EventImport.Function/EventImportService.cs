@@ -94,7 +94,7 @@ public class EventImportService : IEventImportService
             {
                 Timestamp = donation.Date,
                 Execute_timestamp =
-                    donation.Status is "Complete" ? donation.Date : donation.Date.AddDays(-56), // Storno
+                    donation.Status is "Complete" ? donation.Date : donation.Date.AddDays(56), // Storno
                 Donation = donation.Id.ToString(),
                 Charity = donation.Form.Id,
                 Amount = amount,
