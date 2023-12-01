@@ -29,5 +29,6 @@
       <ProjectReference Include="..\Calculator.ApiClient\Calculator.ApiClient.csproj" />
       <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
       <ProjectReference Include="..\External.GiveWp.ApiClient\External.GiveWp.ApiClient.csproj" />
+      <ProjectReference Include="..\External.Mollie.ApiClient\External.Mollie.ApiClient.csproj" />
     </ItemGroup>
 </Project>

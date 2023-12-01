@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Calculator.ApiClient;
 using External.GiveWp.ApiClient;
+using External.Mollie.ApiClient;
 using FfAdmin.Calculator;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
@@ -16,13 +18,15 @@ public class EventImportService : IEventImportService
 {
     private readonly ICalculatorClient _calculator;
     private readonly IEventStore _eventStore;
+    private readonly MollieClient _mollie;
     private readonly EventImportOptions _options;
 
-    public EventImportService(ICalculatorClient calculator, IEventStore eventStore,
+    public EventImportService(ICalculatorClient calculator, IEventStore eventStore, MollieClient mollie,
         IOptions<EventImportOptions> options)
     {
         _calculator = calculator;
         _eventStore = eventStore;
+        _mollie = mollie;
         _options = options.Value;
     }
 
@@ -62,13 +66,31 @@ public class EventImportService : IEventImportService
     {
         await Task.Yield();
         var option = options.Values["1"];
+        var amount = decimal.Parse(donation.Total, CultureInfo.InvariantCulture);
+
         if (donation.PaymentMeta.Currency != option.Currency)
         {
+            if (string.Equals(donation.Gateway, "mollie", StringComparison.OrdinalIgnoreCase))
+            {
+                var payment = await _mollie.GetPayment(donation.TransactionId);
+                if (payment is not null
+                    && payment.Status is "paid"
+                    && string.Equals(payment.SettlementAmount.Currency, option.Currency, StringComparison.OrdinalIgnoreCase))
+                    yield return MakeDonation(d =>
+                    {
+                        d.Exchange_reference = "mollie-" + payment.Id;
+                        d.Exchanged_amount = payment.SettlementAmount.Amount;
+                    });
+            }
         }
         else
         {
-            var amount = decimal.Parse(donation.Total, CultureInfo.InvariantCulture);
-            yield return new NewDonation
+            yield return MakeDonation();
+        }
+
+        NewDonation MakeDonation(Action<NewDonation>? action = null)
+        {
+            var result = new NewDonation
             {
                 Timestamp = donation.Date,
                 Execute_timestamp =
@@ -79,8 +101,11 @@ public class EventImportService : IEventImportService
                 Exchanged_amount = amount,
                 Currency = donation.PaymentMeta.Currency,
                 Donor = donation.PaymentMeta.DonorId,
+                Transaction_reference = donation.TransactionId,
                 Option = "1"
             };
+            action?.Invoke(result);
+            return result;
         }
     }
 }
