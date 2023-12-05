@@ -22,7 +22,9 @@ public class CachingModelCacheService : IModelCacheService
 
     private static object TypesForHashKey(HashValue hash)
         => (TYPESFORHASH, hash);
-    
+
+    public Task<string[]> GetBranches()
+        => _service.GetBranches();
     public Task ClearCache()
         => _service.ClearCache();
 

@@ -1,4 +1,3 @@
-using System.ComponentModel.Design;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 
@@ -6,6 +5,7 @@ namespace FfAdmin.ModelCache.Abstractions;
 
 public interface IModelCacheService
 {
+    Task<string[]> GetBranches();
     Task ClearCache();
     Task RemoveBranch(string branchName);
     Task<HashesForBranch> GetHashesForBranch(string branchName);

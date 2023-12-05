@@ -90,4 +90,12 @@ public class ModelCacheApiClient : IModelCacheService
         var completed = await response.Content.ReadFromJsonAsync<bool>();
         return completed;
     }
+    
+    public async Task<string[]> GetBranches()
+    {
+        var response = await _client.GetAsync("/api/branches");
+        response.EnsureSuccessStatusCode();
+        var branches = await response.Content.ReadFromJsonAsync<string[]>();
+        return branches ?? Array.Empty<string>();
+    }
 }

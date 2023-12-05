@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FfAdmin.ModelCache.Abstractions;
@@ -7,6 +9,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using FfAdmin.Common;
 
 namespace FfAdmin.ModelCache.Function;
 
@@ -19,6 +22,18 @@ public class ModelCache
         _service = service;
     }
 
+    [Function("GetBranches")]
+    public async Task<HttpResponseData> GetBranches(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches")]
+        HttpRequestData request,
+        FunctionContext executionContext)
+    {
+        var result = await _service.GetBranches();
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(result);
+        return response;
+    }
+    
     [Function("GetHashesForBranch")]
     public async Task<HttpResponseData> GetHashesForBranch(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{branchName}/hashes")]
@@ -135,5 +150,27 @@ public class ModelCache
         if (data is null)
             throw new InvalidOperationException("Could not deserialize CleanBranch message");
         await _service.RemoveBranch(data.BranchName);
+    }
+
+    [Function("Overview")]
+    public async Task<HttpResponseData> Overview(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "overview")]
+        HttpRequestData request,
+        FunctionContext executionContext)
+    {
+        var data = new Dictionary<string, (int,string)[]>();
+        var branches = await _service.GetBranches();
+        foreach(var branch in branches)
+        {
+            var hashes = await _service.GetHashesForBranch(branch);
+            data.Add(branch, hashes.Hashes.Select(h => (h.Key,Convert.ToHexString(h.Value))).ToArray());
+        }
+
+        var result = data.SelectMany(kvp => kvp.Value.Select(t => (kvp.Key, t.Item1, t.Item2)))
+            .ToLookup(x => x.Item3, x => $"{x.Key}@{x.Item2}")
+            .ToDictionary(x => x.Key, x => string.Join(", ",x)); 
+        var response =  request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(result);
+        return response;
     }
 }

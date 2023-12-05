@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
 
@@ -80,6 +82,9 @@ public class ModelCacheService : IModelCacheService
         var _ = await blobClient.UploadAsync(ms, true);
     }
 
+    public async Task<string[]> GetBranches()
+        => await GetAllBranches().ToArrayAsync();
+    
     public async Task<HashesForBranch> GetHashesForBranch(string branchName)
     {
         var blobClient = HashBlobClient(branchName);
@@ -118,20 +123,19 @@ public class ModelCacheService : IModelCacheService
         return Write(blobClient, data);
     }
 
-    private async Task<HashSet<HashValue>> GetAllHashes()
+    public IAsyncEnumerable<string> GetAllBranches()
     {
         var client = GetContainerClient();
-        var pageable = client.GetBlobsByHierarchyAsync(prefix: "hashes/");
-        var usedHashes = new HashSet<HashValue>();
-        await foreach (var item in pageable)
-        {
-            var branchName = item.Blob.Name.Substring(item.Blob.Name.LastIndexOf('/') + 1);
-            var hashes = await GetHashesForBranch(branchName);
-            foreach (var bytes in hashes.Hashes.Values)
-                usedHashes.Add(bytes);
-        }
-
-        return usedHashes;
+        IAsyncEnumerable<BlobHierarchyItem> pageable = client.GetBlobsByHierarchyAsync(prefix: "hashes/");
+        return from item in pageable.AsAsyncEnumerable()
+            select item.Blob.Name.Substring(item.Blob.Name.LastIndexOf('/') + 1);
+    }
+    private async Task<HashSet<HashValue>> GetAllHashes()
+    {
+        return new HashSet<HashValue>(await (from branch in GetAllBranches()
+            from hfb in GetHashesForBranch(branch).ToAsyncEnumerable()
+            from hash in hfb.Hashes.Values.ToAsyncEnumerable()
+            select (HashValue)hash).Distinct().ToListAsync());
     }
 
     public async Task<bool> RunGarbageCollection()
