@@ -14,7 +14,7 @@ public static class Ext
                 client.BaseAddress = options.BaseUri;
             })
             .AddHttpMessageHandler<GiveWpMessageHandler>();
-        services.AddSingleton<GiveWpMessageHandler>();
+        services.AddScoped<GiveWpMessageHandler>();
         return services.AddOptions<GiveWpClientOptions>();
     }
 }
