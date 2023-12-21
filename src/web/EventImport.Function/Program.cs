@@ -2,6 +2,7 @@ using System.Reflection;
 using Calculator.ApiClient;
 using External.GiveWp.ApiClient;
 using External.Mollie.ApiClient;
+using External.Stripe.ApiClient;
 using FfAdmin.EventImport.Function;
 using FfAdmin.EventStore.ApiClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ var host = new HostBuilder()
             .AddEventStoreClient().BindConfiguration("ApiClient:EventStore").Services
             .AddGiveWpClient().BindConfiguration("ApiClient:GiveWp").Services
             .AddMollieClient().BindConfiguration("ApiClient:Mollie").Services
+            .AddStripeClient().BindConfiguration("ApiClient:Stripe").Services
             .AddOptions<EventImportOptions>().BindConfiguration("EventImport").Services
             .AddScoped<IEventImportService, EventImportService>();
     })

@@ -30,5 +30,6 @@
       <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
       <ProjectReference Include="..\External.GiveWp.ApiClient\External.GiveWp.ApiClient.csproj" />
       <ProjectReference Include="..\External.Mollie.ApiClient\External.Mollie.ApiClient.csproj" />
+      <ProjectReference Include="..\External.Stripe.ApiClient\External.Stripe.ApiClient.csproj" />
     </ItemGroup>
 </Project>
