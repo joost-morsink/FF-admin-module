@@ -42,8 +42,8 @@ public class DonationsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => HandlePost<Donations>(request, branchName, @base, data => data.Values.GetValueOrDefault(id));
-    [Function("NonExistingDonations")]
-    public async Task<HttpResponseData> GetNonExistingDonations(
+    [Function("SplitDonationOnExistence")]
+    public async Task<HttpResponseData> SplitDonationOnExistence(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{branchName}/non-existing-donations")]
         HttpRequestData request,
         string branchName,
@@ -54,7 +54,9 @@ public class DonationsCalculator : BaseCalculator
         var body = await request.ReadAsStringAsync();
         var ids = JsonSerializer.Deserialize<string[]>(body!);
         var response = request.CreateResponse(System.Net.HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(ids!.Where(id => !donations.Values.ContainsKey(id)));
+        var dict = ids!.ToLookup(id => donations.Values.ContainsKey(id))
+            .ToDictionary(x => x.Key ? "exists" : "not_exists", x => x.ToArray());
+        await response.WriteAsJsonAsync(dict);
         return response;
     }
 }

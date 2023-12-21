@@ -20,6 +20,7 @@ public class EventImportService : IEventImportService
     private const string OPTION_ID = "1";
     private const string COMPLETE = "Complete";
     private const string SUBSCRIPTION = "Subscription";
+    private const string CANCELLED = "Cancelled";
     private const string MOLLIE = "mollie";
     private const string PAID = "paid";
     private const string STRIPE = "stripe";
@@ -42,25 +43,37 @@ public class EventImportService : IEventImportService
         _options = options.Value;
     }
 
-    public async Task ImportGiveWpDonations(GiveWpDonation[] donations)
+    public async Task ProcessGiveWpDonations(GiveWpDonation[] donations)
     {
-        donations = donations.Where(d => d.Status is COMPLETE or SUBSCRIPTION).ToArray();
-        if (donations.Length == 0)
+        var newDonations = donations.Where(d => d.Status is COMPLETE or SUBSCRIPTION).ToArray();
+        var cancelledDonations = donations.Where(d => d.Status is CANCELLED).ToArray();
+        if (newDonations.Length + cancelledDonations.Length == 0)
             return;
-        var (nonExisting, charities, options) = await (
-            _calculator.GetNonExistingDonations(_options.Branch, donations.Select(d => d.Id.ToString())),
+        var ((existing, nonExisting), charities, options) = await (
+            _calculator.SplitDonationsOnExistence(_options.Branch, newDonations.Select(d => d.Id.ToString())),
             _calculator.GetCharities(_options.Branch),
             _calculator.GetOptions(_options.Branch)
         );
 
-        var events = await CreateEvents(from d in donations
-            join ne in nonExisting on d.Id.ToString() equals ne
-            orderby d.Date
-            select d, charities, options).ToArrayAsync();
+        var events = await CreateEventsForDonations(from d in newDonations
+                join ne in nonExisting on d.Id.ToString() equals ne
+                orderby d.Date
+                select d, charities, options)
+            .Concat(CreateEventsForCancellations(
+                from d in cancelledDonations                
+                join e in existing on d.Id.ToString() equals e
+                orderby d.Date
+                select d).ToAsyncEnumerable()).ToArrayAsync();
+            
         await _eventStore.AddEvents(_options.Branch, events);
     }
 
-    private IAsyncEnumerable<Event> CreateEvents(IEnumerable<GiveWpDonation> giveWpDonations, Charities charities,
+    private IEnumerable<Event> CreateEventsForCancellations(IEnumerable<GiveWpDonation> giveWpDonations)
+    {
+        return giveWpDonations.Select(d => new CancelDonation {Donation = d.Id.ToString(), Timestamp = d.Date});
+    }
+
+    private IAsyncEnumerable<Event> CreateEventsForDonations(IEnumerable<GiveWpDonation> giveWpDonations, Charities charities,
         Options options)
     {
         giveWpDonations = giveWpDonations.ToArray();

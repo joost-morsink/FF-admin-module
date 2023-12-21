@@ -28,6 +28,27 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 return option with {UnenteredDonations = option.UnenteredDonations.Add(donation)};
             });
         }
+        protected override OptionWorths CancelDonation(OptionWorths model, IContext previous, IContext context, CancelDonation e)
+        {
+            var donation = previous.GetContext<Donations>().Values.GetValueOrDefault(e.Donation);
+            if (donation is null)
+                return model;
+            
+            return model.Mutate(donation.OptionId, option =>
+            {
+                var unenteredDonation = option.UnenteredDonations.FirstOrDefault(d => d.Id == e.Donation);
+                if (unenteredDonation is null)
+                {
+                    if (option.DonationFractions.ContainsKey(e.Donation))
+                        return option with {Cash = option.Cash - donation.Amount, DonationFractions = option.DonationFractions.Remove(e.Donation)}; 
+                    return option;
+                }
+                return option with
+                {
+                    UnenteredDonations = option.UnenteredDonations.Remove(unenteredDonation)
+                };
+            });
+        }
 
         protected override OptionWorths NewOption(OptionWorths model, IContext context, NewOption e)
         {

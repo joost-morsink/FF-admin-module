@@ -5,5 +5,5 @@ namespace FfAdmin.EventImport.Function;
 
 public interface IEventImportService
 {
-    Task ImportGiveWpDonations(GiveWpDonation[] donations);
+    Task ProcessGiveWpDonations(GiveWpDonation[] donations);
 }

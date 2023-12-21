@@ -28,7 +28,7 @@ public class EventImport
         if (!DateOnly.TryParse(start, out var startDate))
             return request.CreateResponse(HttpStatusCode.BadRequest);
         var donations = await _giveWp.GetDonations(startDate);
-        await _eventImportService.ImportGiveWpDonations(donations);
+        await _eventImportService.ProcessGiveWpDonations(donations);
         var response = request.CreateResponse(HttpStatusCode.OK);
 
         return response;
@@ -43,6 +43,6 @@ public class EventImport
         var startDate = DateOnly.FromDateTime(now.AddDays(-3).Date);
 
         var donations = await _giveWp.GetDonations(startDate);
-        await _eventImportService.ImportGiveWpDonations(donations);
+        await _eventImportService.ProcessGiveWpDonations(donations);
     }
 }

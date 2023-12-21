@@ -130,12 +130,14 @@ public class CalculatorClient : ICalculatorClient
         => await GenericGet<ImmutableDictionary<string,DonorDashboardStat>>("donor-dashboard-stats", branch, at, theory);
     public async Task<DonorDashboardStat> GetDonorDashboardStat(string branch, string donor, int? at = null, IEnumerable<Event>? theory = null)
         => await GenericGet<DonorDashboardStat>($"donor-dashboard-stats/{donor}", branch, at, theory);
-    public async Task<string[]> GetNonExistingDonations(string branch, IEnumerable<string> ids)
+    public async Task<(string[] exists, string[] notExists)> SplitDonationsOnExistence(string branch, IEnumerable<string> ids)
     {
         var response = await PostAsJsonAsync($"api/{branch}/non-existing-donations", ids);
         response.EnsureSuccessStatusCode();
         var resultStr = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<string[]>(resultStr);
-        return result ?? Array.Empty<string>();
+        var result = JsonSerializer.Deserialize<Dictionary<string,string[]>>(resultStr);
+        return (result?.GetValueOrDefault("exists") ?? Array.Empty<string>(),
+            result?.GetValueOrDefault("not_exists") ?? Array.Empty<string>());
+
     }
 }

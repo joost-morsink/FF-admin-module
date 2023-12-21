@@ -28,5 +28,5 @@ public interface ICalculatorClient
     Task<ValidationErrors> GetValidationErrors(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<AuditHistory> GetAuditHistory(string branch, int? at = null, IEnumerable<Event>? theory = null);
-    Task<string[]> GetNonExistingDonations(string branch, IEnumerable<string> ids);
+    Task<(string[] exists, string[] notExists)> SplitDonationsOnExistence(string branch, IEnumerable<string> ids);
 }

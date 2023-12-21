@@ -18,7 +18,13 @@ public record DonationRecords(ImmutableDictionary<string, ImmutableList<Donation
             var newValues = model.Values.Add(e.Donation, rec);
             return new(newValues);
         }
-       
+
+        protected override DonationRecords CancelDonation(DonationRecords model, IContext context, CancelDonation e)
+        {
+            var newValues = model.Values.SetItem(e.Donation, model.Values[e.Donation].Add(new DonationRecord(e.Timestamp, 0, null)));
+            return new(newValues);
+        }
+
         protected override DonationRecords ConvExit(DonationRecords model, IContext context, ConvExit e)
         {
             var donations = context.GetContext<Donations>().Values;
