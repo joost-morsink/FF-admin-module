@@ -359,8 +359,6 @@ namespace FfAdmin.Common
                 yield return new ValidationMessage(nameof(Option), "Field is required");
             if (Invested_amount < 0)
                 yield return new ValidationMessage(nameof(Invested_amount), "Amount must not be negative");
-            if (Cash_amount < 0)
-                yield return new ValidationMessage(nameof(Cash_amount), "Amount must not be negative");
         }
     }
 
