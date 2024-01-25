@@ -52,15 +52,20 @@ export class EventsComponent {
     this.executeDisabled(async () => {
       try {
         let events = await this.eventStore.getEvents(0);
-        console.log(JSON.stringify(events));
-        let content = btoa(JSON.stringify(events));
-        let url = `data:application/json;base64,${content}`;
+
+        let content = events.map(e => JSON.stringify(e)).join("\r\n");
+        content  = content.replace(/[\u007F-\uFFFF]/g, chr =>
+           "\\u" + (chr.charCodeAt(0).toString(16)).padStart(4, '0').toUpperCase());
+
+        let encoded = btoa(content);
+        let url = `data:application/json;base64,${encoded}`;
         let a = document.createElement('a');
         a.href = url;
         a.download = "events.json";
         a.click();
       }
       catch (ex) {
+        console.log(ex);
         this.dialog.open(ErrorDialog, {
           data: { errors: ex.error }
         });

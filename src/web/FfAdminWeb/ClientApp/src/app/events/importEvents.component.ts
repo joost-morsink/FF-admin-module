@@ -31,8 +31,8 @@ export class ImportEventsComponent {
 
       try {
         let content = await this.file.text();
-
-        await this.eventStore.importEvents(JSON.parse(content) as IFullEvent[]);
+        let events= content.split('\n').map(l => JSON.parse(l) as IFullEvent);
+        await this.eventStore.importEvents(events);
 
         this.dialog.open(InfoDialog, {
           data: { title: "Success", message: "Import and processing successful!" }
