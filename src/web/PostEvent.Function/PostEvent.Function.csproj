@@ -6,11 +6,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.16.2" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.2" />
         <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
     </ItemGroup>
     <ItemGroup>
         <None Update="host.json">
