@@ -75,6 +75,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                     Cash = option.Cash + newCash,
                     Timestamp = e.Timestamp,
                     DonationFractions = fractions,
+                    Invested = e.Invested_amount,
                     UnenteredDonations = donations[false].ToImmutableList()
                 };
             });
