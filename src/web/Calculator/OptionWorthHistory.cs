@@ -45,6 +45,10 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             IContext context, PriceInfo e)
             => AddRecord(model, e.Option, e, previousContext, context);
 
+        protected override OptionWorthHistory IncreaseCash(OptionWorthHistory model, IContext previousContext,
+            IContext context, IncreaseCash e)
+            => AddRecord(model, e.Option, e, previousContext, context);
+        
         private OptionWorth GetWorth(IContext context, string option)
             => context.GetContext<OptionWorths>().Worths[option];
         private CumulativeInterest.DataPoint GetCumulativeInterest(IContext context, string option)

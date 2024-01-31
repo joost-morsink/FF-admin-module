@@ -59,6 +59,11 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
         {
             return CumulativeInterestBetweenContexts(model, previousContext, context, e.Option, e.Timestamp, -e.Amount);
         }
+        protected override CumulativeInterest IncreaseCash(CumulativeInterest model, IContext previousContext,
+            IContext context, IncreaseCash e)
+        {
+            return CumulativeInterestBetweenContexts(model, previousContext, context, e.Option, e.Timestamp, 0);
+        }
     }
     public record DataPoint(Real Value, DateTimeOffset Timestamp);
 }

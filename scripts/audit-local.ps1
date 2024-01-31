@@ -1,4 +1,4 @@
-((Invoke-WebRequest https://g4g-calculator.azurewebsites.net/api/Main/option-worth-history).Content 
+((Invoke-WebRequest http://localhost:7070/api/Main/option-worth-history).Content 
     | ConvertFrom-Json)."1" 
     | ForEach-Object { 
         @{
