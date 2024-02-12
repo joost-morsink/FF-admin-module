@@ -45,4 +45,16 @@ public class EventImport
         var donations = await _giveWp.GetDonations(startDate);
         await _eventImportService.ProcessGiveWpDonations(donations);
     }
+
+    [Function("MonthlyImport")]
+    public async Task MonthlyImport(
+        [TimerTrigger("0 2 4 28 * *")] TimerInfo timer,
+        FunctionContext executionContext)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var startDate = DateOnly.FromDateTime(now.AddMonths(-1).Date);
+        
+        var donations = await _giveWp.GetDonations(startDate);
+        await _eventImportService.ProcessGiveWpDonations(donations);
+    }
 }
