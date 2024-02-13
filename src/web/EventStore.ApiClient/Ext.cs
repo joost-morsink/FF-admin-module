@@ -14,6 +14,7 @@ public static class Ext
             {
                 var options = provider.GetRequiredService<IOptions<EventStoreApiClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
+                client.Timeout = options.Timeout;
             }).AddHttpMessageHandler<AddEventStoreTokenDelegatingHandler>()
             .Services
             .AddScoped<AddEventStoreTokenDelegatingHandler>()

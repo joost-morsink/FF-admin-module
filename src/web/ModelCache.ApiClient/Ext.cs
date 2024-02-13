@@ -18,6 +18,7 @@ public static class Ext
             {
                 var options = provider.GetRequiredService<IOptions<ModelCacheApiClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
+                client.Timeout = options.Timeout;
             }).AddHttpMessageHandler<AddModelCacheTokenDelegatingHandler>().Services
             .AddScoped<AddModelCacheTokenDelegatingHandler>()
             .AddScoped<IModelCacheService>(sp =>

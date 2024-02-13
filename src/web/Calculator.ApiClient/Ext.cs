@@ -13,6 +13,7 @@ public static class Ext
             {
                 var options = provider.GetRequiredService<IOptions<CalculatorClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
+                client.Timeout = options.Timeout;
             })
             .Services
             .AddOptions<CalculatorClientOptions>();
