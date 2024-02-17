@@ -11,7 +11,7 @@ using FfAdmin.ModelCache.Abstractions;
 
 namespace FfAdmin.ModelCache.ApiClient;
 
-public class ModelCacheApiClient : IModelCacheService
+public class ModelCacheApiClient : IModelCacheService, ICheckOnline
 {
     private readonly HttpClient _client;
 
@@ -31,6 +31,19 @@ public class ModelCacheApiClient : IModelCacheService
         };
         var response = await _client.SendAsync(request);
         return response;
+    }
+
+    public async Task<bool> IsOnline()
+    {
+        try
+        {
+            var response = await _client.GetAsync("api/health");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task ClearCache()

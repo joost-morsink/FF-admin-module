@@ -24,10 +24,10 @@ namespace FfAdminWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFfAdmin();
+            services.AddFfAdmin()
+                .AddMiddlewares();
             services.AddEventStoreClient().BindConfiguration("ApiClient:EventStore");
             services.AddCalculatorClient().BindConfiguration("ApiClient:Calculator");
-            
             services.AddControllersWithViews().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -39,6 +39,8 @@ namespace FfAdminWeb
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            services.AddHostedService<TimedHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +62,7 @@ namespace FfAdminWeb
             }
 
             app.UseRouting();
+            app.UseMiddleware<LastRequestMiddleware>();
             app.UseMiddleware<CurrentBranchMiddleware>();
 
             app.UseEndpoints(endpoints =>

@@ -2,6 +2,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.XPath;
+using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ public static class Ext
                     return new CachingModelCacheService(client, sp.GetRequiredService<IMemoryCache>());
                 return client;
             })
+            .AddScoped<ICheckOnline>(sp => sp.GetRequiredService<ModelCacheApiClient>())
             .AddScoped<IModelCacheTokenProvider, ModelCacheTokenProvider>();
         return services.AddOptions<ModelCacheApiClientOptions>();
     }

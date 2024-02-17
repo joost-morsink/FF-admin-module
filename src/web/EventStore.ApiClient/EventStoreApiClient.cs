@@ -11,7 +11,7 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace FfAdmin.EventStore.ApiClient;
 
-public class EventStoreApiClient : IEventStore
+public class EventStoreApiClient : IEventStore, ICheckOnline
 {
     private readonly HttpClient _client;
 
@@ -33,6 +33,19 @@ public class EventStoreApiClient : IEventStore
         return response;
     }
     
+    public async Task<bool> IsOnline()
+    {
+        try
+        {
+            var response = await _client.GetAsync("api/health");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public async Task<string[]> GetBranchNames()
     {
         var response = await _client.GetAsync("/api/branches");

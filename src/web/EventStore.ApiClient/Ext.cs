@@ -1,4 +1,5 @@
 using System;
+using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ public static class Ext
             .Services
             .AddScoped<AddEventStoreTokenDelegatingHandler>()
             .AddScoped<IEventStore>(sp => sp.GetRequiredService<EventStoreApiClient>())
+            .AddScoped<ICheckOnline>(sp => sp.GetRequiredService<EventStoreApiClient>())
             .AddScoped<IEventStoreTokenProvider, EventStoreTokenProvider>()
             .AddOptions<EventStoreApiClientOptions>();
     }

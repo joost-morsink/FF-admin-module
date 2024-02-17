@@ -1,18 +1,18 @@
+using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace FfAdmin.EventStore.Function;
+namespace FfAdmin.ModelCache.Function;
 
 public class Health
 {
     [Function("Health")]
-    public HttpResponseData Run(
+    public HttpResponseData GetHealth(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")]
-        HttpRequestData req,
+        HttpRequestData request,
         FunctionContext executionContext)
     {
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        
+        var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
     }
 }

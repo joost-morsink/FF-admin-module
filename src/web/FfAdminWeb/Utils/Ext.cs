@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FfAdmin.AdminModule;
 using FfAdmin.EventStore;
+using FfAdminWeb.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,6 +34,13 @@ namespace FfAdminWeb.Utils
             services.AddAdminModule();
 
             return services;
+        }
+
+        public static IServiceCollection AddMiddlewares(this IServiceCollection services)
+        {
+            return services.AddSingleton<ILastRequest, LastRequest>()
+                .AddSingleton<LastRequestMiddleware>()
+                .AddSingleton<CurrentBranchMiddleware>();
         }
     }
 }

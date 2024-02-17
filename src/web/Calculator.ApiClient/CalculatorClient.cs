@@ -14,7 +14,7 @@ using Charity = FfAdmin.Calculator.Charity;
 
 namespace Calculator.ApiClient;
 
-public class CalculatorClient : ICalculatorClient
+public class CalculatorClient : ICalculatorClient, ICheckOnline
 {
     private readonly HttpClient _client;
 
@@ -75,6 +75,19 @@ public class CalculatorClient : ICalculatorClient
         var content = JsonSerializer.Serialize(item);
         return await SendAsJsonAsync(address, content);
 
+    }
+
+    public async Task<bool> IsOnline()
+    {
+        try
+        {
+            var response = await _client.GetAsync("api/health");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
     public async Task<AmountsToTransfer> GetAmountsToTransfer(string branch, int? at = null,
         IEnumerable<Event>? theory = null)

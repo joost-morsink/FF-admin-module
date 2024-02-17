@@ -29,4 +29,5 @@ public interface ICalculatorClient
     Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<AuditHistory> GetAuditHistory(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<(string[] exists, string[] notExists)> SplitDonationsOnExistence(string branch, IEnumerable<string> ids);
+    Task<bool> IsOnline();
 }

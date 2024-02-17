@@ -1,4 +1,5 @@
 using System;
+using FfAdmin.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -9,13 +10,15 @@ public static class Ext
     public static OptionsBuilder<CalculatorClientOptions> AddCalculatorClient(this IServiceCollection services)
     {
         return services
-            .AddHttpClient<ICalculatorClient, CalculatorClient>((provider, client) =>
+            .AddHttpClient<CalculatorClient>((provider, client) =>
             {
                 var options = provider.GetRequiredService<IOptions<CalculatorClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
                 client.Timeout = options.Timeout;
             })
             .Services
+            .AddScoped<ICalculatorClient>(sp => sp.GetRequiredService<CalculatorClient>())
+            .AddScoped<ICheckOnline>(sp => sp.GetRequiredService<CalculatorClient>())
             .AddOptions<CalculatorClientOptions>();
     }
 
