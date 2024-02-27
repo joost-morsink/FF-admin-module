@@ -87,9 +87,11 @@ create or alter procedure [CreateBranchFrom](@newBranchName varchar(64), @source
         where sb.[Name] = @sourceBranchName;
     declare @maxSequence int;
     select @maxSequence =  1 + max([Sequence]) from [Event] e join [Range] r on e.[Branch] = r.[SubBranch]
-            where r.[Branch] = @id and r.[Max] is null
+            where r.[Branch] = @id and r.[Max] is null;
+    select @maxSequence = isnull(@maxSequence,1 + max([Sequence])) from [ConsolidatedEvents] where [Branch] = @sourceBranchName;
     update [Range] set [Max] = @maxSequence
         where [Branch] = @id and [Max] is null;
+    delete from [Range] where [Branch] = @id and [Max] = [Min];
     insert into [Range]([Branch], [SubBranch], [Min], [Max]) values
         (@id, @id, @maxSequence, null);
 end;
