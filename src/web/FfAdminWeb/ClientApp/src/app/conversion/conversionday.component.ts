@@ -148,6 +148,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
     {
       let event = {
         type: 'CONV_INCREASE_CASH',
+        timestamp: this.timestamp.value,
         option: this.option.code,
         amount: this.compensation.value
       }
@@ -168,7 +169,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   }
   public zeroLiquidation() {
     this.newInvested.setValue(this.invested.value);
-    this.newCash.setValue(this.option.cash_amount);
+    this.newCash.setValue(this.option.cash_amount + parseFloat(this.compensation.value));
   }
 }
 

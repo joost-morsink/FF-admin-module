@@ -62,7 +62,7 @@ namespace FfAdmin.AdminModule
         {
             var count = await _eventStore.GetCount(_branchContext.Value);
             var ev = await _eventStore.GetEvents(_branchContext.Value, count - 1, 1);
-            return new() {FirstUnprocessed = null, Unprocessed = 0, LastProcessed = ev[0].Timestamp, Processed = count};
+            return new() {FirstUnprocessed = null, Unprocessed = 0, LastProcessed = ev.FirstOrDefault()?.Timestamp, Processed = count};
         }
         public Task<Event[]> GetEvents(int start, int? count)
             => _eventStore.GetEvents(_branchContext.Value, start, count);

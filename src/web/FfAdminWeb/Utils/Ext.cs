@@ -38,9 +38,7 @@ namespace FfAdminWeb.Utils
 
         public static IServiceCollection AddMiddlewares(this IServiceCollection services)
         {
-            return services.AddSingleton<ILastRequest, LastRequest>()
-                .AddSingleton<LastRequestMiddleware>()
-                .AddSingleton<CurrentBranchMiddleware>();
+            return services.AddSingleton<ILastRequest, LastRequest>();
         }
     }
 }
