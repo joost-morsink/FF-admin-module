@@ -29,7 +29,7 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Calculator\Calculator.csproj" />
-      <ProjectReference Include="..\EventStore.ApiClient\EventStore.ApiClient.csproj" />
-      <ProjectReference Include="..\ModelCache.ApiClient\ModelCache.ApiClient.csproj" />
+      <ProjectReference Include="..\EventStore.AzureSql\EventStore.AzureSql.csproj" />
+      <ProjectReference Include="..\ModelCache.BlobStorage\ModelCache.BlobStorage.csproj" />
     </ItemGroup>
 </Project>

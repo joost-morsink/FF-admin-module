@@ -2,8 +2,8 @@ using FfAdmin.Calculator;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Calculator.Function;
 using Microsoft.Extensions.Hosting;
-using FfAdmin.EventStore.ApiClient;
-using FfAdmin.ModelCache.ApiClient;
+using FfAdmin.EventStore.AzureSql;
+using FfAdmin.ModelCache.BlobStorage;
 using Microsoft.Extensions.DependencyInjection;
 
 var host = new HostBuilder()
@@ -11,8 +11,10 @@ var host = new HostBuilder()
     .ConfigureServices(services => 
         services
             .AddMemoryCache()
-            .AddEventStoreClient().BindConfiguration("EventStoreApi").Services
-            .AddModelCacheClient(true).BindConfiguration("ModelCacheApi").Services
+            //.AddEventStoreClient().BindConfiguration("EventStoreApi").Services
+            //.AddModelCacheClient(true).BindConfiguration("ModelCacheApi").Services
+            .AddAzureSqlEventStore()
+            .AddBlobStorageModelCacheService()
             .AddOptions<PagingEventRepositoryOptions>().Services
             .AddOptions<ModelCacheOptions>()
             //.Configure(o => o.PutEnabled = false)
