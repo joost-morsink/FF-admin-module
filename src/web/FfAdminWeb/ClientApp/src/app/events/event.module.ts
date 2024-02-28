@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FfUiModule } from '../ffUi.module';
-import { EventsComponent, EventStatsComponent, EventTileComponent } from './events.component';
+import {EventListComponent, EventsComponent, EventStatsComponent, EventTileComponent} from './events.component';
 import {ImportEventsComponent} from "./importEvents.component";
 
 @NgModule({
@@ -9,6 +9,7 @@ import {ImportEventsComponent} from "./importEvents.component";
     EventsComponent,
     EventStatsComponent,
     EventTileComponent,
+    EventListComponent,
     ImportEventsComponent
   ],
   imports: [

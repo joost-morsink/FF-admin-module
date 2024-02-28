@@ -74,9 +74,13 @@ public class EventStoreController : Controller
     [HttpGet("events")]
     public async Task<IActionResult> GetEvents([FromQuery] int skip = 0, [FromQuery] int? limit = null)
     {
-        var events = await _eventRepository.GetEvents(skip, limit);
+
+        var events = await (limit.HasValue && limit.Value < 0 
+            ? _eventRepository.GetLastEvents(-limit.Value) 
+            : _eventRepository.GetEvents(skip, limit));
         return Ok(events);
     }
+    
     [HttpGet("branches")]
     public Task<string[]> GetBranches()
         => _eventRepository.GetBranchNames();

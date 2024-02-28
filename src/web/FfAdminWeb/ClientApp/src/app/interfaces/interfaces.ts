@@ -27,10 +27,12 @@ export interface IOption extends ICode, IName, ICurrency, IOptionFractions, IOpt
 }
 export interface IFullEvent extends IEvent, IName, IOptionFractions, IOptionAmounts {
   option_currency: string;
-  donation_currency: string;
-  donation_amount: number;
-  transfer_currency: string;
-  transfer_amount: number;
+  charity: string;
+  option: string;
+  currency: string;
+  amount: number;
+  exchanged_currency: string;
+  exchanged_amount: number;
 }
 
 export interface IBank {

@@ -15,6 +15,7 @@ namespace FfAdmin.AdminModule
         Task Import(IEnumerable<Event> e);
         Task<Statistics> GetStatistics();
         Task<Event[]> GetEvents(int start, int? count);
+        Task<Event[]> GetLastEvents(int count);
         Task<string[]> GetBranchNames();
         Task CreateEmptyBranch(string branchName);
         Task Branch(string newBranchName);
@@ -66,6 +67,12 @@ namespace FfAdmin.AdminModule
         }
         public Task<Event[]> GetEvents(int start, int? count)
             => _eventStore.GetEvents(_branchContext.Value, start, count);
+
+        public async Task<Event[]> GetLastEvents(int count)
+        {
+            var c = await _eventStore.GetCount(_branchContext.Value);
+            return await _eventStore.GetEvents(_branchContext.Value, c - count, count);
+        }
 
         public Task<string[]> GetBranchNames()
             => _eventStore.GetBranchNames();

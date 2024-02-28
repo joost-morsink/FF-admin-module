@@ -1,4 +1,7 @@
-((Invoke-WebRequest https://g4g-calculator.azurewebsites.net/api/Main/option-worth-history).Content 
+param(
+    [string]$Branch = "Main"
+)
+((Invoke-WebRequest "https://g4g-calculator.azurewebsites.net/api/$Branch/option-worth-history").Content 
     | ConvertFrom-Json)."1" 
     | ForEach-Object { 
         @{

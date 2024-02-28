@@ -28,9 +28,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 div.event-tile {
   width: 400px;
-  min-height: 250px;
+  height: 250px;
   margin: 10px;
   padding: 5px;
+  display: inline-block;
+  vertical-align: top;
 }
 div.section {
   padding: 5px;

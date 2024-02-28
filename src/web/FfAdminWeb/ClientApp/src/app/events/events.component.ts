@@ -101,3 +101,34 @@ export class EventTileComponent {
     return new Date(this.data.timestamp).toLocaleString();
   }
 }
+
+@Component({
+  selector: 'ff-event-list',
+  templateUrl: './eventList.component.html'
+})
+export class EventListComponent {
+  constructor(public eventStore: EventStore, public admin: Admin) {
+    this.init();
+  }
+  public data: IFullEvent[];
+  public async fetch() : Promise<IFullEvent[]> {
+    let charities = (await this.admin.getCharities()).reduce((acc,x) => {
+      acc[x.code] = x;
+      return acc; }, {});
+    let options = (await this.admin.getOptions()).reduce((acc,x) => {
+      acc[x.code]=x;
+      return acc; }, {});
+    let events = await this.eventStore.getEvents(0, -60);
+    for(let e of events) {
+      if(e.charity in charities)
+        e.charity = charities[e.charity].name;
+      if(e.option in options)
+        e.exchanged_currency = options[e.option].currency;
+    }
+    return events;
+  }
+  public async init() : Promise<void> {
+    let results = await this.fetch();
+    this.data=results.reverse();
+  }
+}
