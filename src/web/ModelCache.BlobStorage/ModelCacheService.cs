@@ -37,6 +37,22 @@ public class ModelCacheService : IModelCacheService
         await blobClient.DeleteIfExistsAsync();
     }
 
+    public async Task RemoveModel(string type)
+    {
+        var client = GetContainerClient();
+        var pageable = client.GetBlobsByHierarchyAsync(prefix: "data/");
+        
+        await foreach (var item in pageable)
+        {
+            var parts = item.Blob.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 3 && parts[2] == type)
+            {
+                var blobClient = GetBlobClient(item.Blob.Name);
+                await blobClient.DeleteIfExistsAsync();
+            }
+        }
+    }
+
     private static string HashBlobName(string branchName)
         => $"hashes/{branchName}";
 

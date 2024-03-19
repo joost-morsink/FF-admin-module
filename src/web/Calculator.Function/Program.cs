@@ -41,6 +41,7 @@ var host = new HostBuilder()
             .AddModelProcessor<CumulativeInterest>()
             .AddModelProcessor<DonationStatistics>()
             .AddModelProcessor<AuditHistory>()
+            .AddModelProcessor<AggregatedDonationsAndTransfers>()
             
             .AddModelProcessor<Donors>()
             .AddModelProcessor<DonorDashboardStats>()

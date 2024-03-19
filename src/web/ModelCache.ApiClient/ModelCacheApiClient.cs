@@ -58,6 +58,12 @@ public class ModelCacheApiClient : IModelCacheService, ICheckOnline
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task RemoveModel(string type)
+    {
+        var response = await _client.DeleteAsync($"/api/data/all/{type}");
+        response.EnsureSuccessStatusCode();
+    }
+    
     public async Task<HashesForBranch> GetHashesForBranch(string branchName)
     {
         var response = await _client.GetAsync($"/api/branches/{branchName}/hashes");

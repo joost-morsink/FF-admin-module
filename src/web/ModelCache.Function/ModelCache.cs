@@ -82,7 +82,19 @@ public class ModelCache
         var response = request.CreateResponse(HttpStatusCode.OK);
         return response;
     }
-
+    
+    [Function("RemoveModel")]
+    public async Task<HttpResponseData> RemoveModel(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "data/all/{type}")]
+        HttpRequestData request,
+        string type,
+        FunctionContext executionContext)
+    {
+        await _service.RemoveModel(type);
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        return response;
+    }
+    
     [Function("GetAvailableData")]
     public async Task<HttpResponseData> GetAvailableData(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "data/{hash}")]

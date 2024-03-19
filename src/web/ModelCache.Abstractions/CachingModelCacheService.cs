@@ -31,6 +31,9 @@ public class CachingModelCacheService : IModelCacheService
     public Task RemoveBranch(string branchName)
         => _service.RemoveBranch(branchName);
 
+    public Task RemoveModel(string type)
+        => _service.RemoveModel(type);
+
     public Task<HashesForBranch> GetHashesForBranch(string branchName)
         => _service.GetHashesForBranch(branchName);
 
