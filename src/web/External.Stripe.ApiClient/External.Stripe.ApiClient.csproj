@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-      <PackageReference Include="Stripe.net" Version="43.7.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+      <PackageReference Include="Stripe.net" Version="45.7.0" />
     </ItemGroup>
 
 </Project>
