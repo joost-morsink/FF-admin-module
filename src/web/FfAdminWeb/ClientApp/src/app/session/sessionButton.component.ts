@@ -51,6 +51,9 @@ export class SessionButtonComponent {
           await this.eventStore.fastForward(branch);
           this.refresh();
           break;
+        case 'delete':
+          await this.eventStore.removeBranch(branch);
+          this.refresh();
       }
     } catch (ex) {
       console.log(ex);

@@ -97,7 +97,7 @@ public class EventStoreController : Controller
         => _eventRepository.CreateEmptyBranch(req.Name);
     
     [HttpDelete("branch/{name}")]
-    public Task RemoveBranch([FromQuery] string name)
+    public Task RemoveBranch(string name)
         => _eventRepository.RemoveBranch(name);
     
     [HttpPost("fast-forward")]
