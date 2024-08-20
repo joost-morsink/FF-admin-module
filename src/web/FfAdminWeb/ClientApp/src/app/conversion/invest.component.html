@@ -12,6 +12,13 @@
         <input matNativeControl name="newInvested" [(formControl)]="newInvested" />
         <mat-error *ngIf="formGroup.get('newInvested').errors"> {{ formGroup.get('newInvested').errors?.message }} </mat-error>
     </mat-form-field>
+    &nbsp;
+    <mat-form-field>
+      <mat-label>Investment ({{option.currency}})</mat-label>
+      <input matNativeControl name="invest" [(formControl)]="investment" />
+    </mat-form-field>
+    &nbsp;
+    <button (click)="transferInvestment()">Transfer investment</button>
     <br />
     <mat-form-field>
         <mat-label>New cash amount ({{option.currency}})</mat-label>

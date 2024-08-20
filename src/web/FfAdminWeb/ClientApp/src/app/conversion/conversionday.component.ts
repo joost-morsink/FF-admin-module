@@ -396,11 +396,13 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
   public newCash: UntypedFormControl;
   public transactionRef: UntypedFormControl;
   public formGroup: UntypedFormGroup;
-
+  public investment: UntypedFormControl;
   public ngOnInit(): void {
     this.timestamp = new UntypedFormControl(new Date().toISOString());
     this.newInvested = new UntypedFormControl(this.option.invested_amount);
     this.newCash = new UntypedFormControl(this.option.cash_amount);
+    this.investment = new UntypedFormControl("0");
+
     this.transactionRef = new UntypedFormControl("");
     this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
@@ -421,5 +423,10 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
       transaction_reference: this.transactionRef.value
     }
     await this.importAndProcess(event, this.invested);
+  }
+  public transferInvestment() {
+    let transferAmount = Number(this.investment.value) || 0;
+    this.newInvested.setValue((Number(this.newInvested.value) + transferAmount) || 0);
+    this.newCash.setValue((Number(this.newCash.value) - transferAmount) || 0);
   }
 }
