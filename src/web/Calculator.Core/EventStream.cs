@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading;
+using InvalidOperationException = System.InvalidOperationException;
 
 namespace FfAdmin.Calculator.Core;
 
@@ -130,7 +131,7 @@ public partial class EventStream
             try
             {
                 var context = await GetAtPosition(index);
-                return context.GetContext<T>();
+                return (T?)context.GetContext(typeof(T)) ?? throw new InvalidOperationException($"Eventprocessor for {typeof(T)} not found");
             }
             catch (MissingDataException mde)
             {

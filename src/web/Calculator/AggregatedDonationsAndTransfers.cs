@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
 
@@ -25,40 +26,51 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
 
 
     public static AggregatedDonationsAndTransfers Empty { get; } = new(ImmutableDictionary<Key, Value>.Empty);
-    public static IEventProcessor<AggregatedDonationsAndTransfers> Processor { get; } = new Impl();
 
-    public class Impl : EventProcessor<AggregatedDonationsAndTransfers>
+    public static IEventProcessor<AggregatedDonationsAndTransfers> GetProcessor(IServiceProvider services)
+        => ActivatorUtilities.CreateInstance<Impl>(services);
+
+    public class Impl(IContext<Options> cOptions, IContext<Donations> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
     {
-        public override AggregatedDonationsAndTransfers Start => Empty;
-
-        protected override AggregatedDonationsAndTransfers NewDonation(AggregatedDonationsAndTransfers model, IContext context, NewDonation e)
+        protected override BaseCalculation GetCalculation(IContext previousContext, IContext context)
         {
-            var option = context.GetContext<Options>().Values[e.Option];
-            var key = new Key(e.Timestamp.Year, e.Charity);
-            return model.AddDonated(key, option.Currency, e.Exchanged_amount);
+            return new Calc(previousContext, context, cOptions, cDonations);
         }
 
-        protected override AggregatedDonationsAndTransfers CancelDonation(AggregatedDonationsAndTransfers model, IContext previousContext, IContext context,
-            CancelDonation e)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Donations> cDonations) : BaseCalculation(previousContext, currentContext)
         {
-            var donation = previousContext.GetContext<Donations>().Values[e.Donation];
-            var option = context.GetContext<Options>().Values[donation.OptionId];
-            return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount);
-        }
+            public Options CurrentOptions => GetCurrent(cOptions);
 
-        protected override AggregatedDonationsAndTransfers UpdateCharityForDonation(AggregatedDonationsAndTransfers model, IContext previousContext,
-            IContext context, UpdateCharityForDonation e)
-        {
-            var donation = previousContext.GetContext<Donations>().Values[e.Donation];
-            var option = context.GetContext<Options>().Values[donation.OptionId];
-            return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount)
-                .AddDonated(new Key(e.Timestamp.Year, e.Charity), option.Currency, donation.Amount);
-        }
+            public Donations PreviousDonations => GetPrevious(cDonations);
 
-        protected override AggregatedDonationsAndTransfers ConvTransfer(AggregatedDonationsAndTransfers model, IContext context, ConvTransfer e)
-        {
-            var key = new Key(e.Timestamp.Year, e.Charity);
-            return model.AddTransferred(key, e.Currency, e.Amount);
+       
+            protected override AggregatedDonationsAndTransfers NewDonation(AggregatedDonationsAndTransfers model, NewDonation e)
+            {
+                var option = CurrentOptions.Values[e.Option];
+                var key = new Key(e.Timestamp.Year, e.Charity);
+                return model.AddDonated(key, option.Currency, e.Exchanged_amount);
+            }
+
+            protected override AggregatedDonationsAndTransfers CancelDonation(AggregatedDonationsAndTransfers model, CancelDonation e)
+            {
+                var donation = PreviousDonations.Values[e.Donation];
+                var option = CurrentOptions.Values[donation.OptionId];
+                return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount);
+            }
+
+            protected override AggregatedDonationsAndTransfers UpdateCharityForDonation(AggregatedDonationsAndTransfers model, UpdateCharityForDonation e)
+            {
+                var donation = PreviousDonations.Values[e.Donation];
+                var option = CurrentOptions.Values[donation.OptionId];
+                return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount)
+                    .AddDonated(new Key(e.Timestamp.Year, e.Charity), option.Currency, donation.Amount);
+            }
+
+            protected override AggregatedDonationsAndTransfers ConvTransfer(AggregatedDonationsAndTransfers model, ConvTransfer e)
+            {
+                var key = new Key(e.Timestamp.Year, e.Charity);
+                return model.AddTransferred(key, e.Currency, e.Amount);
+            }
         }
     }
 

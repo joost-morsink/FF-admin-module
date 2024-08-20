@@ -1,101 +1,108 @@
 using FfAdmin.Calculator.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
 
 public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<ValidationErrors>
 {
     public static ValidationErrors Empty { get; } = new(ImmutableList<ValidationError>.Empty);
-    public static IEventProcessor<ValidationErrors> Processor { get; } = new Impl();
+
+    public static IEventProcessor<ValidationErrors> GetProcessor(IServiceProvider services)
+        => ActivatorUtilities.CreateInstance<Impl>(services);
+
     public bool IsValid => Errors.IsEmpty;
 
-    private class Impl : EventProcessor<ValidationErrors>
+    private class Impl(IContext<Index> cIndex, IContext<Donations> cDonations, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityBalance> cCharityBalance, IContext<AmountsToTransfer> cAmountsToTransfer) : EventProcessor<ValidationErrors>
     {
-        public override ValidationErrors Start => Empty;
+        protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
+        {
+            return new Calc(previousContext, currentContext, cIndex, cDonations, cOptions, cCharities, cCharityBalance, cAmountsToTransfer);
+        }
 
-        private ValidationErrors Check(Func<bool> predicate, string message, ValidationErrors model, IContext context)
-            => predicate()
-                ? model
-                : new(model.Errors.Add(new(context.GetContext<Index>().Value, message)));
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Index> cIndex, IContext<Donations> cDonations, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityBalance> cCharityBalance, IContext<AmountsToTransfer> cAmountsToTransfer)
+            : BaseCalculation(previousContext, currentContext)
+        {
+            public Index CurrentIndex => GetCurrent(cIndex);
+            public Index PreviousIndex => GetPrevious(cIndex);
+            public Donations PreviousDonations => GetPrevious(cDonations);
+            public Options PreviousOptions => GetPrevious(cOptions);
+            public Charities PreviousCharities => GetPrevious(cCharities);
+            public CharityBalance CurrentCharityBalance => GetCurrent(cCharityBalance);
+            public AmountsToTransfer CurrentAmountsToTransfer => GetCurrent(cAmountsToTransfer);
+            private ValidationErrors Check(Func<bool> predicate, string message, ValidationErrors model)
+                => predicate()
+                    ? model
+                    : new(model.Errors.Add(new(PreviousIndex.Value, message)));
 
-        protected override ValidationErrors NewDonation(ValidationErrors model, IContext previousContext, IContext context,
-            NewDonation e)
-            => model.Check(
-                () => !previousContext.IsDonationKnown(e.Donation) && previousContext.IsOptionKnown(e.Option) &&
-                      previousContext.IsCharityKnown(e.Charity),
-                "New donation must be to a known option and charity and must not be a duplicate",
-                      previousContext);
+            protected override ValidationErrors NewDonation(ValidationErrors model, NewDonation e)
+                => model.Check(
+                    () => !PreviousDonations.Contains(e.Donation) && PreviousOptions.Contains(e.Option) &&
+                          PreviousCharities.Contains(e.Charity),
+                    "New donation must be to a known option and charity and must not be a duplicate",
+                    PreviousIndex);
 
-        protected override ValidationErrors NewOption(ValidationErrors model, IContext previousContext, IContext context, NewOption e)
-            => model.Check(() => !previousContext.IsOptionKnown(e.Code),
-                "New option must not be a duplicate", previousContext);
+            protected override ValidationErrors NewOption(ValidationErrors model, NewOption e)
+                => model.Check(() => !PreviousOptions.Contains(e.Code),
+                    "New option must not be a duplicate", PreviousIndex);
 
-        protected override ValidationErrors UpdateCharity(ValidationErrors model, IContext previousContext, IContext context,
-            UpdateCharity e)
-            => model.Check(() => previousContext.IsCharityKnown(e.Code), 
-                "Charity must be known to be updated", previousContext);
+            protected override ValidationErrors UpdateCharity(ValidationErrors model, UpdateCharity e)
+                => model.Check(() => PreviousCharities.Contains(e.Code),
+                    "Charity must be known to be updated", PreviousIndex);
 
-        protected override ValidationErrors UpdateFractions(ValidationErrors model, IContext previousContext, IContext context,
-            UpdateFractions e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Code),
-                "Option must be known to be updated", previousContext);
+            protected override ValidationErrors UpdateFractions(ValidationErrors model, UpdateFractions e)
+                => model.Check(() => PreviousOptions.Contains(e.Code),
+                    "Option must be known to be updated", PreviousIndex);
 
-        protected override ValidationErrors UpdateCharityForDonation(ValidationErrors model,
-            IContext previousContext, IContext context, UpdateCharityForDonation e)
-            => model.Check(() => previousContext.IsDonationKnown(e.Donation) && previousContext.IsCharityKnown(e.Charity),
-                "Donation and charity must be known to be updated", previousContext);
+            protected override ValidationErrors UpdateCharityForDonation(ValidationErrors model, UpdateCharityForDonation e)
+                => model.Check(() => PreviousDonations.Contains(e.Donation) && PreviousCharities.Contains(e.Charity),
+                    "Donation and charity must be known to be updated", PreviousIndex);
 
-        protected override ValidationErrors CharityPartition(ValidationErrors model, IContext previousContext, IContext context,
-            CharityPartition e)
-            => model.Check(() => previousContext.IsCharityKnown(e.Charity) &&
-                           previousContext.AreCharitiesKnown(e.Partitions.Select(p => p.Holder)), 
-                "Charity and all holders must be known to perform partitioning", previousContext);
+            protected override ValidationErrors CharityPartition(ValidationErrors model, CharityPartition e)
+                => model.Check(() =>  PreviousCharities.Contains(e.Charity) &&
+                                      e.Partitions.Select(p => p.Holder).All(PreviousCharities.Contains),
+                    "Charity and all holders must be known to perform partitioning", PreviousIndex);
 
-        protected override ValidationErrors CancelDonation(ValidationErrors model, IContext previousContext, IContext context,
-            CancelDonation e)
-            => model.Check(() => previousContext.IsDonationKnown(e.Donation),
-                "Donation must be known to be cancelled", previousContext);
+            protected override ValidationErrors CancelDonation(ValidationErrors model, CancelDonation e)
+                => model.Check(() => PreviousDonations.Contains(e.Donation),
+                    "Donation must be known to be cancelled", PreviousIndex);
 
-        protected override ValidationErrors ConvLiquidate(ValidationErrors model, IContext previousContext, IContext context,
-            ConvLiquidate e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Option),
-                "Option must be known to execute liquidate", previousContext);
-                
-        protected override ValidationErrors ConvExit(ValidationErrors model, IContext previousContext, IContext context, ConvExit e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Option),
-                "Option must be known to execute exit", previousContext)
-                .CheckCharityBalance(context);
+            protected override ValidationErrors ConvLiquidate(ValidationErrors model, ConvLiquidate e)
+                => model.Check(() => PreviousOptions.Contains(e.Option),
+                    "Option must be known to execute liquidate", PreviousIndex);
 
-        protected override ValidationErrors ConvEnter(ValidationErrors model, IContext previousContext, IContext context, ConvEnter e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Option), 
-                "Option must be known to execute enter", previousContext);
+            protected override ValidationErrors ConvExit(ValidationErrors model, ConvExit e)
+                => model.Check(() => PreviousOptions.Contains(e.Option),
+                        "Option must be known to execute exit", PreviousIndex)
+                    .CheckCharityBalance(CurrentCharityBalance, CurrentAmountsToTransfer, PreviousIndex);
 
-        protected override ValidationErrors ConvInvest(ValidationErrors model, IContext previousContext, IContext context,
-            ConvInvest e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Option),
-                "Option must be known to execute invest", previousContext);
+            protected override ValidationErrors ConvEnter(ValidationErrors model, ConvEnter e)
+                => model.Check(() => PreviousOptions.Contains(e.Option),
+                    "Option must be known to execute enter", PreviousIndex);
 
-        protected override ValidationErrors ConvTransfer(ValidationErrors model, IContext previousContext, IContext context,
-            ConvTransfer e)
-            => model.Check(() => previousContext.IsCharityKnown(e.Charity), 
-                "Charity must be known to transfer money", previousContext)
-                .CheckCharityBalance(context);
+            protected override ValidationErrors ConvInvest(ValidationErrors model, ConvInvest e)
+                => model.Check(() => PreviousOptions.Contains(e.Option),
+                    "Option must be known to execute invest", PreviousIndex);
 
-        protected override ValidationErrors IncreaseCash(ValidationErrors model, IContext previousContext, IContext context,
-            IncreaseCash e)
-            => model.Check(() => previousContext.IsOptionKnown(e.Option),
-                "Option must be known to increase cash", previousContext);
-        
+            protected override ValidationErrors ConvTransfer(ValidationErrors model, ConvTransfer e)
+                => model.Check(() => PreviousCharities.Contains(e.Charity),
+                        "Charity must be known to transfer money", PreviousIndex)
+                    .CheckCharityBalance(CurrentCharityBalance, CurrentAmountsToTransfer, PreviousIndex);
+
+            protected override ValidationErrors IncreaseCash(ValidationErrors model, IncreaseCash e)
+                => model.Check(() => PreviousOptions.Contains(e.Option),
+                    "Option must be known to increase cash", PreviousIndex);
+        }
     }
 }
 
 internal static class ValidationErrorsExt
 {
-    public static ValidationErrors Check(this ValidationErrors model, Func<bool> predicate, string message, IContext context)
+    public static ValidationErrors Check(this ValidationErrors model, Func<bool> predicate, string message, Index index)
         => predicate()
             ? model
-            : new(model.Errors.Add(new(context.GetContext<Index>().Value, message)));
-    public static ValidationErrors CheckCharityBalance(this ValidationErrors model, IContext context) 
-        => model.Check(() => Math.Abs(context.GetContext<CharityBalance>().Amount - context.GetContext<AmountsToTransfer>().Values.Values.SelectMany(mb => mb.Amounts.Values).Sum()) < (Real)0.0001, 
-            "Charity balance must be valid", context);
+            : new(model.Errors.Add(new(index.Value, message)));
+    public static ValidationErrors CheckCharityBalance(this ValidationErrors model, CharityBalance charityBalance, AmountsToTransfer amountsToTransfer, Index index) 
+        => model.Check(() => Math.Abs(charityBalance.Amount - amountsToTransfer.Values.Values.SelectMany(mb => mb.Amounts.Values).Sum()) < (Real)0.0001, 
+            "Charity balance must be valid", index);
 }
 public record ValidationError(int Position, string Message);

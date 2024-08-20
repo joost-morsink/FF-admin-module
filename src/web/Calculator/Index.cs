@@ -5,13 +5,17 @@ namespace FfAdmin.Calculator;
 public record Index(int Value) : IModel<Index>
 {
     public static Index Empty { get; } = new(0);
-    public static IEventProcessor<Index> Processor { get; } = new Impl();
+    public static IEventProcessor<Index> GetProcessor(IServiceProvider services) => new Impl();
 
     private class Impl : EventProcessor<Index>
     {
-        public override Index Start => Empty;
+        protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
+            => new Calc(previousContext, currentContext);
 
-        protected override Index Default(Index model, IContext context, Event e)
-            => new(model.Value + 1);
+        private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
+        {
+            protected override Index Default(Index model, Event e)
+                => new(model.Value + 1);
+        }
     }
 }

@@ -51,13 +51,7 @@ public partial class EventStream
 
             throw new ArgumentException($"Cannot find processor for model type {type}.");
         }
-
-        public T? GetContextOrNull<T>() where T : class
-            => (T?)GetContext(typeof(T));
-
-        public T GetContext<T>() where T : class
-            => GetContextOrNull<T>() ?? throw new ArgumentException($"EventProcessor for {typeof(T)} not found");
-
+        
         public object? GetContext(Type type)
         {
             (_values, var res) = _values.GetOrAdd(type, () =>

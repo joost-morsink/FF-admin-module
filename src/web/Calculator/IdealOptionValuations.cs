@@ -1,4 +1,5 @@
 using FfAdmin.Calculator.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
 
@@ -8,7 +9,8 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
         => new(values);
     public static IdealOptionValuations Empty { get; } = new(ImmutableDictionary<string, IdealValuation>.Empty);
 
-    public static IEventProcessor<IdealOptionValuations> Processor { get; } = new Impl();
+    public static IEventProcessor<IdealOptionValuations> GetProcessor(IServiceProvider services)
+        => ActivatorUtilities.CreateInstance<Impl>(services);
     public IdealOptionValuations Mutate(string option, Func<IdealValuation, IdealValuation> mutator,
         DateTimeOffset defaultTimestamp)
         => new(Valuations.SetItem(option,
@@ -16,83 +18,74 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 ? valuation
                 : IdealValuation.Empty with {Timestamp = defaultTimestamp})));
 
-    private class Impl : EventProcessor<IdealOptionValuations>
+    private class Impl(IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths) : EventProcessor<IdealOptionValuations>
     {
-        public override IdealOptionValuations Start => IdealOptionValuations.Empty;
-
-        // On ConvEnter, the cash is added to the real value and the ideal value.
-        protected override IdealOptionValuations ConvEnter(IdealOptionValuations model,
-            IContext previousContext, IContext context,
-            ConvEnter e)
+        protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
-            var addedCash = context.GetContext<OptionWorths>().Worths[e.Option].Cash 
-                            - previousContext.GetContext<OptionWorths>().Worths[e.Option].Cash;
-            return model.Mutate(e.Option,
-                option => option with
-                {
-                    RealValue = option.RealValue + addedCash, IdealValue = option.IdealValue + addedCash
-                }, e.Timestamp);
+            return new Calc(previousContext, currentContext, cOptions, cOptionWorths);
         }
 
-        // On ConvInvest, the added (or subtracted if negative) worth is added to the real value.
-        // The ideal value should change according to the reinvestment fraction for the option.
-        protected override IdealOptionValuations ConvInvest(IdealOptionValuations model,
-            IContext previousContext, IContext context,
-            ConvInvest e)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths)
+            : BaseCalculation(previousContext, currentContext)
         {
-            var addedWorth = context.GetContext<OptionWorths>().Worths[e.Option].TotalWorth 
-                             - previousContext.GetContext<OptionWorths>().Worths[e.Option].TotalWorth;
-            var reinvestmentFraction = context.GetContext<Options>()
-                .Values[e.Option].ReinvestmentFraction;
-            return model.Mutate(e.Option,
-                option => option with
-                {
-                    RealValue = option.RealValue + addedWorth,
-                    IdealValue = option.IdealValue + addedWorth * reinvestmentFraction
-                }, e.Timestamp);
-        }
+            public Options CurrentOptions => GetCurrent(cOptions);
+            public OptionWorths CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public OptionWorths PreviousOptionWorths => GetPrevious(cOptionWorths);
+            
+            // On ConvEnter, the cash is added to the real value and the ideal value.
+            protected override IdealOptionValuations ConvEnter(IdealOptionValuations model, ConvEnter e)
+            {
+                var addedCash = CurrentOptionWorths.Worths[e.Option].Cash
+                                - PreviousOptionWorths.Worths[e.Option].Cash;
+                return model.Mutate(e.Option,
+                    option => option with {RealValue = option.RealValue + addedCash, IdealValue = option.IdealValue + addedCash}, e.Timestamp);
+            }
 
-        // On ConvLiquidate, the added (or subtracted if negative) worth is added from the real value.
-        // The ideal value should change according to the reinvestment fraction for the option.
-        protected override IdealOptionValuations ConvLiquidate(IdealOptionValuations model,
-            IContext previousContext, IContext context, ConvLiquidate e)
-        {
-            var addedWorth = context.GetContext<OptionWorths>().Worths[e.Option].TotalWorth 
-                             - previousContext.GetContext<OptionWorths>().Worths[e.Option].TotalWorth;
-            var reinvestmentFraction = context.GetContext<Options>()
-                .Values[e.Option].ReinvestmentFraction;
+            // On ConvInvest, the added (or subtracted if negative) worth is added to the real value.
+            // The ideal value should change according to the reinvestment fraction for the option.
+            protected override IdealOptionValuations ConvInvest(IdealOptionValuations model, ConvInvest e)
+            {
+                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
+                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
+                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
+                
+                return model.Mutate(e.Option,
+                    option => option with {RealValue = option.RealValue + addedWorth, IdealValue = option.IdealValue + addedWorth * reinvestmentFraction},
+                    e.Timestamp);
+            }
 
-            return model.Mutate(e.Option,
-                option => option with
-                {
-                    RealValue = option.RealValue + addedWorth,
-                    IdealValue = option.IdealValue + addedWorth * reinvestmentFraction
-                }, e.Timestamp);
-        }
+            // On ConvLiquidate, the added (or subtracted if negative) worth is added from the real value.
+            // The ideal value should change according to the reinvestment fraction for the option.
+            protected override IdealOptionValuations ConvLiquidate(IdealOptionValuations model, ConvLiquidate e)
+            {
+                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
+                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
+                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
 
-        protected override IdealOptionValuations PriceInfo(IdealOptionValuations model, IContext previousContext, IContext context, PriceInfo e)
-        {
-            var addedWorth = context.GetContext<OptionWorths>().Worths[e.Option].TotalWorth 
-                             - previousContext.GetContext<OptionWorths>().Worths[e.Option].TotalWorth;
-            var reinvestmentFraction = context.GetContext<Options>()
-                .Values[e.Option].ReinvestmentFraction;
+                return model.Mutate(e.Option,
+                    option => option with {RealValue = option.RealValue + addedWorth, IdealValue = option.IdealValue + addedWorth * reinvestmentFraction},
+                    e.Timestamp);
+            }
 
-            return model.Mutate(e.Option,
-                option => option with
-                {
-                    RealValue = option.RealValue + addedWorth,
-                    IdealValue = option.IdealValue + addedWorth * reinvestmentFraction
-                }, e.Timestamp);
-        }
+            protected override IdealOptionValuations PriceInfo(IdealOptionValuations model, PriceInfo e)
+            {
+                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
+                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
+                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
 
-        // On ConvExit, the cash is subtracted from the real value, but not the ideal value. Ideally to equalize the real and ideal values.
-        protected override IdealOptionValuations ConvExit(IdealOptionValuations model, IContext currentContext,
-            ConvExit e)
-        {
-            var subtractedCash = e.Amount;
-            return model.Mutate(e.Option,
-                option => option with {Timestamp = e.Timestamp, RealValue = option.RealValue - subtractedCash},
-                e.Timestamp);
+                return model.Mutate(e.Option,
+                    option => option with {RealValue = option.RealValue + addedWorth, IdealValue = option.IdealValue + addedWorth * reinvestmentFraction},
+                    e.Timestamp);
+            }
+
+            // On ConvExit, the cash is subtracted from the real value, but not the ideal value. Ideally to equalize the real and ideal values.
+            protected override IdealOptionValuations ConvExit(IdealOptionValuations model, ConvExit e)
+            {
+                var subtractedCash = e.Amount;
+                return model.Mutate(e.Option,
+                    option => option with {Timestamp = e.Timestamp, RealValue = option.RealValue - subtractedCash},
+                    e.Timestamp);
+            }
         }
     }
 }

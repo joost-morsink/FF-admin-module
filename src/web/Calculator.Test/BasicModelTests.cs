@@ -1,3 +1,7 @@
+using FluentAssertions.Common;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 namespace FfAdmin.Calculator.Test;
 
 [TestClass]
@@ -123,26 +127,51 @@ public class BasicModelTests : VerifyBase
         // 19
     };
 
+    private static IServiceProvider GetServiceProvider()
+    {
+        var services = new ServiceCollection();
+        services
+            .AddContext<Index>()
+            .AddContext<Options>()
+            .AddContext<Charities>()
+            .AddContext<Donations>()
+            .AddContext<OptionWorths>()
+            .AddContext<OptionWorthHistory>()
+            .AddContext<IdealOptionValuations>()
+            .AddContext<MinimalExits>()
+            .AddContext<ValidationErrors>()
+            .AddContext<AmountsToTransfer>()
+            .AddContext<CurrentCharityFractionSets>()
+            .AddContext<DonationRecords>()
+            .AddContext<HistoryHash>()
+            .AddContext<CharityBalance>()
+            .AddContext<CumulativeInterest>()
+            .AddContext<DonationStatistics>()
+            .AddContext<Donors>()
+            .AddContext<DonorDashboardStats>();
+        return services.BuildServiceProvider();
+    }
+    private static readonly IServiceProvider ServiceProvider = GetServiceProvider();
     private static readonly EventStream Stream = EventStream.Empty(
             IModelCacheStrategy.Default,
-            Index.Processor,
-            Options.Processor,
-            Charities.Processor,
-            Donations.Processor,
-            OptionWorths.Processor,
-            OptionWorthHistory.Processor,
-            IdealOptionValuations.Processor,
-            MinimalExits.Processor,
-            ValidationErrors.Processor,
-            AmountsToTransfer.Processor,
-            CurrentCharityFractionSets.Processor,
-            DonationRecords.Processor,
-            HistoryHash.Processor,
-            CharityBalance.Processor,
-            CumulativeInterest.Processor,
-            DonationStatistics.Processor,
-            Donors.Processor,
-            DonorDashboardStats.Processor)
+            Index.GetProcessor(ServiceProvider),
+            Options.GetProcessor(ServiceProvider),
+            Charities.GetProcessor(ServiceProvider),
+            Donations.GetProcessor(ServiceProvider),
+            OptionWorths.GetProcessor(ServiceProvider),
+            OptionWorthHistory.GetProcessor(ServiceProvider),
+            IdealOptionValuations.GetProcessor(ServiceProvider),
+            MinimalExits.GetProcessor(ServiceProvider),
+            ValidationErrors.GetProcessor(ServiceProvider),
+            AmountsToTransfer.GetProcessor(ServiceProvider),
+            CurrentCharityFractionSets.GetProcessor(ServiceProvider),
+            DonationRecords.GetProcessor(ServiceProvider),
+            HistoryHash.GetProcessor(ServiceProvider),
+            CharityBalance.GetProcessor(ServiceProvider),
+            CumulativeInterest.GetProcessor(ServiceProvider),
+            DonationStatistics.GetProcessor(ServiceProvider),
+            Donors.GetProcessor(ServiceProvider),
+            DonorDashboardStats.GetProcessor(ServiceProvider))
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -350,7 +379,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task BulkTest()
     {
-        var stream = EventStream.Empty(IModelCacheStrategy.Default, Donations.Processor)
+        var stream = EventStream.Empty(IModelCacheStrategy.Default, Donations.GetProcessor(ServiceProvider))
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
             {
                 Timestamp = GetCurrent(),
