@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            .leftside {
+                width: 20%;
+                min-width: 200px;
+                display: inline-block;
+                padding: 3px;
+                vertical-align: text-top;
+                margin: 3px;
+            }
+            .main-container {
+                width: 70%;
+                min-width: 300px;
+                max-width: 1200px;
+                display: inline-block;
+                padding: 3px;
+                vertical-align: text-top;
+                margin: 3px;
+            }
+            .main {
+                display: flex;
+            }
+            .topbar {
+                width:100%;
+                padding: 3px;
+                margin: 3px;
+            }
+            .column-container {
+                display: flex;
+            }
+            .column {
+                flex: 1;
+                padding: 3px;
+                border-left: solid lightgrey 1px;
+                border-collapse: collapse;
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            table,td,th {
+                border: solid black 1px;
+                border-collapse: collapse;
+            }
+            td {
+                padding: 5px;
+            }
+            th { 
+                text-align: left;
+                padding: 5px;
+            }
+            svg {
+                max-width: 100%;
+                height: auto;
+            }
+        </style>
+        <title>${title}</title>
+    </head>
+    <body>
+        <div class="topbar">
+            <h1>Give for good wiki</h1>
+        </div>
+        <div class="leftside">
+            <a href="$branch$/index">Main page</a>
+        </div>
+        <div class="main-container">
+            <div class="main">
+                <div>
+                    $body$
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

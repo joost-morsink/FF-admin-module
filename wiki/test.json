@@ -1,0 +1,288 @@
+{
+    "pandoc-api-version": [
+      1,
+      23,
+      1
+    ],
+    "meta": {
+      "author": {
+        "t": "MetaInlines",
+        "c": [
+          {
+            "t": "Str",
+            "c": "J.W."
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "Morsink"
+          }
+        ]
+      },
+      "title": {
+        "t": "MetaInlines",
+        "c": [
+          {
+            "t": "Str",
+            "c": "Conversion"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "day"
+          }
+        ]
+      }
+    },
+    "blocks": [
+      {
+        "t": "Header",
+        "c": [
+          1,
+          [
+            "conversion-day",
+            [],
+            []
+          ],
+          [
+            {
+              "t": "Str",
+              "c": "Conversion"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "day"
+            }
+          ]
+        ]
+      },
+      {
+        "t": "Para",
+        "c": [
+          {
+            "t": "Str",
+            "c": "Conversion"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "day"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "exist"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "of"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "three"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "different"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "subprocesses,"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "which"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "may"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "or"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "may"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "not"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "occur"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "on"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "the"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "same"
+          },
+          {
+            "t": "Space"
+          },
+          {
+            "t": "Str",
+            "c": "day."
+          }
+        ]
+      },
+      {
+        "t": "RawBlock",
+        "c": [
+          "html",
+          "\u003Csvg xmlns=\u0022http://www.w3.org/2000/svg\u0022 xmlns:xlink=\u0022http://www.w3.org/1999/xlink\u0022 contentStyleType=\u0022text/css\u0022 height=\u0022509px\u0022 preserveAspectRatio=\u0022none\u0022 style=\u0022width:417px;height:509px;background:#FFFFFF;\u0022 version=\u00221.1\u0022 viewBox=\u00220 0 417 509\u0022 width=\u0022417px\u0022 zoomAndPan=\u0022magnify\u0022\u003E\u003Cdefs/\u003E\u003Cg\u003E\u003C!--entity Cday--\u003E\u003Cg id=\u0022elem_Cday\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u0022128.6914\u0022 x=\u0022175.44\u0022 y=\u00227\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022232.2857\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u002217\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u0022108.6914\u0022 x=\u0022185.44\u0022 y=\u002244.9951\u0022\u003EConversion day\u003C/text\u003E\u003C/g\u003E\u003C!--entity In--\u003E\u003Cg id=\u0022elem_In\u0022\u003E\u003Ca href=\u0022#the-in-process\u0022 target=\u0022_top\u0022 title=\u0022#the-in-process\u0022 xlink:actuate=\u0022onRequest\u0022 xlink:href=\u0022#the-in-process\u0022 xlink:show=\u0022new\u0022 xlink:title=\u0022#the-in-process\u0022 xlink:type=\u0022simple\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002235\u0022 x=\u0022130.29\u0022 y=\u0022118.29\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022140.29\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022128.29\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002213.002\u0022 x=\u0022141.289\u0022 y=\u0022156.2851\u0022\u003EIn\u003C/text\u003E\u003C/a\u003E\u003C/g\u003E\u003C!--entity Out--\u003E\u003Cg id=\u0022elem_Out\u0022\u003E\u003Ca href=\u0022#the-out-process\u0022 target=\u0022_top\u0022 title=\u0022#the-out-process\u0022 xlink:actuate=\u0022onRequest\u0022 xlink:href=\u0022#the-out-process\u0022 xlink:show=\u0022new\u0022 xlink:title=\u0022#the-out-process\u0022 xlink:type=\u0022simple\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002245.3818\u0022 x=\u0022217.1\u0022 y=\u0022118.29\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022232.2909\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022128.29\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002225.3818\u0022 x=\u0022227.1\u0022 y=\u0022156.2851\u0022\u003EOut\u003C/text\u003E\u003C/a\u003E\u003C/g\u003E\u003C!--entity Transfer--\u003E\u003Cg id=\u0022elem_Transfer\u0022\u003E\u003Ca href=\u0022#the-transfer-process\u0022 target=\u0022_top\u0022 title=\u0022#the-transfer-process\u0022 xlink:actuate=\u0022onRequest\u0022 xlink:href=\u0022#the-transfer-process\u0022 xlink:show=\u0022new\u0022 xlink:title=\u0022#the-transfer-process\u0022 xlink:type=\u0022simple\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002278.3516\u0022 x=\u0022297.61\u0022 y=\u0022118.29\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022329.2858\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022128.29\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002258.3516\u0022 x=\u0022307.61\u0022 y=\u0022156.2851\u0022\u003ETransfer\u003C/text\u003E\u003C/a\u003E\u003C/g\u003E\u003C!--entity Enter--\u003E\u003Cg id=\u0022elem_Enter\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002257.5771\u0022 x=\u00227\u0022 y=\u0022229.59\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u002228.2886\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022239.59\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002237.5771\u0022 x=\u002217\u0022 y=\u0022267.5851\u0022\u003EEnter\u003C/text\u003E\u003C/g\u003E\u003C!--entity Invest--\u003E\u003Cg id=\u0022elem_Invest\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002262.6836\u0022 x=\u002299.45\u0022 y=\u0022229.59\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022123.2918\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022239.59\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002242.6836\u0022 x=\u0022109.45\u0022 y=\u0022267.5851\u0022\u003EInvest\u003C/text\u003E\u003C/g\u003E\u003C!--entity Liquidate--\u003E\u003Cg id=\u0022elem_Liquidate\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002284.9072\u0022 x=\u0022197.33\u0022 y=\u0022229.59\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022232.2836\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022239.59\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002264.9072\u0022 x=\u0022207.33\u0022 y=\u0022267.5851\u0022\u003ELiquidate\u003C/text\u003E\u003C/g\u003E\u003C!--entity Exit--\u003E\u003Cg id=\u0022elem_Exit\u0022\u003E\u003Crect fill=\u0022#FFFFCC\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u002246.5098\u0022 x=\u0022317.53\u0022 y=\u0022229.59\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022333.2849\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmNgGCrgH7oAqQBkAEWG/Pv/f\u002Bt/EI0uAQMwG3BikAH4DIErIAaD1FNkADZDSDIAXTPYAEIYn2ZiAMFYIARgLiEbUKR5kAMA7zW3iUrbg3kAAAAASUVORK5CYII=\u0022 y=\u0022239.59\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002226.5098\u0022 x=\u0022327.53\u0022 y=\u0022267.5851\u0022\u003EExit\u003C/text\u003E\u003C/g\u003E\u003C!--entity EventStore--\u003E\u003Cg id=\u0022elem_EventStore\u0022\u003E\u003Ca href=\u0022event_store\u0022 target=\u0022_top\u0022 title=\u0022event_store\u0022 xlink:actuate=\u0022onRequest\u0022 xlink:href=\u0022event_store\u0022 xlink:show=\u0022new\u0022 xlink:title=\u0022event_store\u0022 xlink:type=\u0022simple\u0022\u003E\u003Crect fill=\u0022#C2F0FF\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u0022100.2744\u0022 x=\u0022281.65\u0022 y=\u0022340.89\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022324.2872\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAL0lEQVR4XmNgGAXI4B\u002BJGAX82/r//39SMLIhJGtGN2QYGECWIcia4YaQiEcBFAAA3exLaNqtLeYAAAAASUVORK5CYII=\u0022 y=\u0022350.89\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u002280.2744\u0022 x=\u0022291.65\u0022 y=\u0022378.8851\u0022\u003EEvent store\u003C/text\u003E\u003C/a\u003E\u003C/g\u003E\u003C!--entity Investments--\u003E\u003Cg id=\u0022elem_Investments\u0022\u003E\u003Crect fill=\u0022#C2F0FF\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u0022225.9668\u0022 x=\u002217.81\u0022 y=\u0022340.89\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022123.2934\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAL0lEQVR4XmNgGAXI4B\u002BJGAX82/r//39SMLIhJGtGN2QYGECWIcia4YaQiEcBFAAA3exLaNqtLeYAAAAASUVORK5CYII=\u0022 y=\u0022350.89\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u0022205.9668\u0022 x=\u002227.81\u0022 y=\u0022378.8851\u0022\u003EInvestments and withdrawals\u003C/text\u003E\u003C/g\u003E\u003C!--entity Web--\u003E\u003Cg id=\u0022elem_Web\u0022\u003E\u003Ca href=\u0022admin_module\u0022 target=\u0022_top\u0022 title=\u0022admin_module\u0022 xlink:actuate=\u0022onRequest\u0022 xlink:href=\u0022admin_module\u0022 xlink:show=\u0022new\u0022 xlink:title=\u0022admin_module\u0022 xlink:type=\u0022simple\u0022\u003E\u003Crect fill=\u0022#C9FFC9\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u0022153.3145\u0022 x=\u0022258.13\u0022 y=\u0022452.18\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022327.2872\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAU0lEQVR4XtWNQQoAIAzD9v//\u002BD0nHgajGvUiaCGX0WZml1IPwdTi7it6ZxgROkaBlqKoNxQQOiZBznS0EwyfAx2jQEtR1BsKCB2TIGc6\u002BkxwyANpzYhrKPLnjFMAAAAASUVORK5CYII=\u0022 y=\u0022462.18\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u0022133.3145\u0022 x=\u0022268.13\u0022 y=\u0022490.1751\u0022\u003EG4g Admin Module\u003C/text\u003E\u003C/a\u003E\u003C/g\u003E\u003C!--entity Bank--\u003E\u003Cg id=\u0022elem_Bank\u0022\u003E\u003Crect fill=\u0022#C9FFC9\u0022 height=\u002251.2969\u0022 rx=\u00222.5\u0022 ry=\u00222.5\u0022 style=\u0022stroke:#181818;stroke-width:0.5;\u0022 width=\u0022196.8799\u0022 x=\u002226.35\u0022 y=\u0022452.18\u0022/\u003E\u003Cimage height=\u002216\u0022 width=\u002216\u0022 x=\u0022117.2899\u0022 xlink:href=\u0022data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAU0lEQVR4XtWNQQoAIAzD9v//\u002BD0nHgajGvUiaCGX0WZml1IPwdTi7it6ZxgROkaBlqKoNxQQOiZBznS0EwyfAx2jQEtR1BsKCB2TIGc6\u002BkxwyANpzYhrKPLnjFMAAAAASUVORK5CYII=\u0022 y=\u0022462.18\u0022/\u003E\u003Ctext fill=\u0022#000000\u0022 font-family=\u0022sans-serif\u0022 font-size=\u002214\u0022 lengthAdjust=\u0022spacing\u0022 textLength=\u0022176.8799\u0022 x=\u002236.35\u0022 y=\u0022490.1751\u0022\u003EInvestment bank website\u003C/text\u003E\u003C/g\u003E\u003C!--reverse link Cday to In--\u003E\u003Cg id=\u0022link_Cday_In\u0022\u003E\u003Cpath d=\u0022M210.9519,67.9002 C194.9319,86.9302 180.87,103.63 165.7,121.66 \u0022 fill=\u0022none\u0022 id=\u0022Cday-backto-In\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022218.68,58.72,211.7559,60.734,210.9519,67.9002,217.876,65.8861,218.68,58.72\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Cday to Out--\u003E\u003Cg id=\u0022link_Cday_Out\u0022\u003E\u003Cpath d=\u0022M239.79,70.72 C239.79,88.49 239.79,100.24 239.79,117.98 \u0022 fill=\u0022none\u0022 id=\u0022Cday-backto-Out\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022239.79,58.72,235.79,64.72,239.79,70.72,243.79,64.72,239.79,58.72\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Cday to Transfer--\u003E\u003Cg id=\u0022link_Cday_Transfer\u0022\u003E\u003Cpath d=\u0022M270.008,67.6928 C285.788,85.4628 298.89,100.24 314.64,117.98 \u0022 fill=\u0022none\u0022 id=\u0022Cday-backto-Transfer\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022262.04,58.72,263.0331,65.8624,270.008,67.6928,269.0149,60.5504,262.04,58.72\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--link In to Out--\u003E\u003Cg id=\u0022link_In_Out\u0022\u003E\u003Cpath d=\u0022M165.76,143.94 C182.72,143.94 191.69,143.94 208.65,143.94 \u0022 fill=\u0022none\u0022 id=\u0022In-to-Out\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022216.65,143.94,208.65,140.94,208.65,146.94,216.65,143.94\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--link Out to Transfer--\u003E\u003Cg id=\u0022link_Out_Transfer\u0022\u003E\u003Cpath d=\u0022M262.9,143.94 C274.35,143.94 277.8,143.94 289.25,143.94 \u0022 fill=\u0022none\u0022 id=\u0022Out-to-Transfer\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022297.25,143.94,289.25,140.94,289.25,146.94,297.25,143.94\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link In to Enter--\u003E\u003Cg id=\u0022link_In_Enter\u0022\u003E\u003Cpath d=\u0022M121.2012,170.8805 C102.6512,188.9805 82.16,208.99 61.25,229.39 \u0022 fill=\u0022none\u0022 id=\u0022In-backto-Enter\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022129.79,162.5,122.7021,163.8273,121.2012,170.8805,128.2891,169.5532,129.79,162.5\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link In to Invest--\u003E\u003Cg id=\u0022link_In_Invest\u0022\u003E\u003Cpath d=\u0022M142.0418,181.8768 C139.2718,199.6468 137.43,211.53 134.67,229.28 \u0022 fill=\u0022none\u0022 id=\u0022In-backto-Invest\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022143.89,170.02,139.0136,175.3323,142.0418,181.8768,146.9181,176.5645,143.89,170.02\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--link Enter to Invest--\u003E\u003Cg id=\u0022link_Enter_Invest\u0022\u003E\u003Cpath d=\u0022M64.73,255.24 C76.17,255.24 79.61,255.24 91.05,255.24 \u0022 fill=\u0022none\u0022 id=\u0022Enter-to-Invest\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u002299.05,255.24,91.05,252.24,91.05,258.24,99.05,255.24\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Out to Liquidate--\u003E\u003Cg id=\u0022link_Out_Liquidate\u0022\u003E\u003Cpath d=\u0022M239.79,182.02 C239.79,199.79 239.79,211.53 239.79,229.28 \u0022 fill=\u0022none\u0022 id=\u0022Out-backto-Liquidate\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022239.79,170.02,235.79,176.02,239.79,182.02,243.79,176.02,239.79,170.02\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Out to Exit--\u003E\u003Cg id=\u0022link_Out_Exit\u0022\u003E\u003Cpath d=\u0022M271.1039,178.8335 C287.5239,196.6035 301.33,211.53 317.72,229.28 \u0022 fill=\u0022none\u0022 id=\u0022Out-backto-Exit\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022262.96,170.02,264.0941,177.1414,271.1039,178.8335,269.9698,171.7121,262.96,170.02\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--link Liquidate to Exit--\u003E\u003Cg id=\u0022link_Liquidate_Exit\u0022\u003E\u003Cpath d=\u0022M282.4,255.24 C293.95,255.24 297.51,255.24 309.07,255.24 \u0022 fill=\u0022none\u0022 id=\u0022Liquidate-to-Exit\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022317.07,255.24,309.07,252.24,309.07,258.24,317.07,255.24\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Enter to EventStore--\u003E\u003Cg id=\u0022link_Enter_EventStore\u0022\u003E\u003Cpath d=\u0022M69.9442,275.4063 C75.5642,278.3263 76.13,278.44 81.79,280.89 C158.82,314.15 181.38,313.79 260.79,340.89 C267.46,343.16 274.47,345.57 281.39,347.96 \u0022 fill=\u0022none\u0022 id=\u0022Enter-backto-EventStore\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u002264.62,272.64,70.7621,280.339,69.0569,274.9453,74.4506,273.24,64.62,272.64\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Invest to EventStore--\u003E\u003Cg id=\u0022link_Invest_EventStore\u0022\u003E\u003Cpath d=\u0022M167.4614,276.1856 C200.5914,294.1956 247.85,319.89 285.68,340.46 \u0022 fill=\u0022none\u0022 id=\u0022Invest-backto-EventStore\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022162.19,273.32,168.1867,281.1328,166.5829,275.708,172.0076,274.1042,162.19,273.32\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Liquidate to EventStore--\u003E\u003Cg id=\u0022link_Liquidate_EventStore\u0022\u003E\u003Cpath d=\u0022M264.7629,285.9011 C279.7229,303.6811 295.84,322.83 310.78,340.58 \u0022 fill=\u0022none\u0022 id=\u0022Liquidate-backto-EventStore\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022260.9,281.31,263.6336,290.7719,264.1191,285.1359,269.7551,285.6213,260.9,281.31\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Exit to EventStore--\u003E\u003Cg id=\u0022link_Exit_EventStore\u0022\u003E\u003Cpath d=\u0022M338.229,287.2899 C336.769,305.0699 335.31,322.83 333.84,340.58 \u0022 fill=\u0022none\u0022 id=\u0022Exit-backto-EventStore\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022338.72,281.31,333.9969,289.9525,338.3108,286.2932,341.97,290.6072,338.72,281.31\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Transfer to EventStore--\u003E\u003Cg id=\u0022link_Transfer_EventStore\u0022\u003E\u003Cpath d=\u0022M357.4673,174.9808 C367.7073,191.1708 376.43,208.11 381.79,229.59 C387.3,251.71 387.8,258.89 381.79,280.89 C375.85,302.62 362.74,324.45 351.44,340.49 \u0022 fill=\u0022none\u0022 id=\u0022Transfer-backto-EventStore\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022354.26,169.91,355.6903,179.6544,356.9327,174.1357,362.4515,175.3781,354.26,169.91\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Invest to Investments--\u003E\u003Cg id=\u0022link_Invest_Investments\u0022\u003E\u003Cpath d=\u0022M130.79,287.31 C130.79,305.09 130.79,322.83 130.79,340.58 \u0022 fill=\u0022none\u0022 id=\u0022Invest-backto-Investments\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022130.79,281.31,126.79,290.31,130.79,286.31,134.79,290.31,130.79,281.31\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Liquidate to Investments--\u003E\u003Cg id=\u0022link_Liquidate_Investments\u0022\u003E\u003Cpath d=\u0022M210.5445,285.5598 C192.8245,303.3398 173.38,322.83 155.68,340.58 \u0022 fill=\u0022none\u0022 id=\u0022Liquidate-backto-Investments\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003Cpolygon fill=\u0022#181818\u0022 points=\u0022214.78,281.31,205.5936,284.8611,211.2504,284.8515,211.26,290.5084,214.78,281.31\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link EventStore to Web--\u003E\u003Cg id=\u0022link_EventStore_Web\u0022\u003E\u003Cpath d=\u0022M332.966,410.6034 C333.446,428.3734 333.62,434.13 334.1,451.87 \u0022 fill=\u0022none\u0022 id=\u0022EventStore-backto-Web\u0022 style=\u0022stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;\u0022/\u003E\u003Cpolygon fill=\u0022none\u0022 points=\u0022332.48,392.61,326.9682,410.7654,338.9638,410.4414,332.48,392.61\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--reverse link Investments to Bank--\u003E\u003Cg id=\u0022link_Investments_Bank\u0022\u003E\u003Cpath d=\u0022M128.4289,410.5832 C127.4589,428.3532 127.13,434.13 126.16,451.87 \u0022 fill=\u0022none\u0022 id=\u0022Investments-backto-Bank\u0022 style=\u0022stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;\u0022/\u003E\u003Cpolygon fill=\u0022none\u0022 points=\u0022129.41,392.61,122.4378,410.2562,134.42,410.9103,129.41,392.61\u0022 style=\u0022stroke:#181818;stroke-width:1.0;\u0022/\u003E\u003C/g\u003E\u003C!--SRC=[ZLHDImCn4BtdLmpgIOXUF4afQ2aYA0eA7ef8TdTiexl9ccHR2_vuCzcFf2qjlILltioyDpjPMnlf4CwoPwDpj1Q-XBaM9b_8IZYyp1ehbOTvtOQPxVZY1SrIvhZ55tLTobmugHMtBIEcJ7HLQuNA7KZAUmvZ1dCdrBn4E9bejKHZFG4AiJu1OM7Y3p0Q3SB7OpYzxTGcgVVg2D9JuuvWlHgXx2UQlLGMD9rpxhl6ioyUBtqDvdLndqn1waxd8PRqd2fte65gSuds61CFygUHXP_w4TpfhznVaXoGew2mlxGoMAkQF7K0MQJuq7r0g0UBeYWdG1kVVxgafR5E6mpVFjnVw4ho-bKaUJTnbI2jqEgeV9e5eGfOIRSeZ5Y9qeQAQNn_ISQIphpXuyxzDjgFOGkExdVAaELjCEv3gYvji8F73gdvkwivt1ILLF2eYwPiP_Y6MN0wF4ho-ehvGkbIpzTxfWUPKD-mmipw9ntgt19meD36p4P__29qtf0UKAh3M6DAq9-18YtCPe9aVrH1zljx7qug1XRI_IFiHoJvbGp1KxT0BbN_1ui4Mi78q8tRfGnFFl9S1qNoFm00]--\u003E\u003C/g\u003E\u003C/svg\u003E"
+        ]
+      },
+      {
+        "t": "Header",
+        "c": [
+          2,
+          [
+            "the-in-process",
+            [],
+            []
+          ],
+          [
+            {
+              "t": "Str",
+              "c": "The"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "in"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "process"
+            }
+          ]
+        ]
+      },
+      {
+        "t": "Header",
+        "c": [
+          2,
+          [
+            "the-out-process",
+            [],
+            []
+          ],
+          [
+            {
+              "t": "Str",
+              "c": "The"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "out"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "process"
+            }
+          ]
+        ]
+      },
+      {
+        "t": "Header",
+        "c": [
+          2,
+          [
+            "the-transfer-process",
+            [],
+            []
+          ],
+          [
+            {
+              "t": "Str",
+              "c": "The"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "transfer"
+            },
+            {
+              "t": "Space"
+            },
+            {
+              "t": "Str",
+              "c": "process"
+            }
+          ]
+        ]
+      }
+    ]
+  }
