@@ -16,7 +16,7 @@ The first is an enumeration of the different types of events and the other is th
 ## Ordering
 
 The events are ordered sequentially, but not necessarily chronologically.
-Thius means the [Admin Module](./admin_module) supports non-chronological event processing.
+This means the [Admin Module](./admin_module) supports non-chronological event processing.
 
 ## Categories
 

@@ -42,7 +42,7 @@ Admin ~-> PayOrd
 Bank ~> Trans
 Events <-~ Trans
 
-PayOrd -[dotted]> Bank
+PayOrd ~> Bank
 
 PayOrd <|-. Pain
 Trans <|-. Camt
