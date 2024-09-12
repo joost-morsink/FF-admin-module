@@ -151,6 +151,7 @@ The calculator has a caching strategy which drives the [Model cache](./model_cac
 
 A theory is the way the calculator supports calculating models based on a current situation plus some events that have not (yet) been imported into the [Event store](./event_store).
 Using the [`ValidationErrors` model](./models/validation_errors) the set of events can be checked for errors on import on some existing sequence of events.
+Theories are also used for calculating the [`MinimalExits`](./models/minimal_exits) for an investment option.
 
 Results from theory requests are not cached in the [Model cache](./model_cache).
 
