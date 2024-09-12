@@ -11,8 +11,7 @@ Described here are the architecture and business processes that pertain to Give 
 
 Give for good is a non-profit organization that allow donors to donate money indirectly to charities.
 The donated money is first invested in green/sustainable stock funds.
-A part of the profits is donated to the selected charities anually.
-
+A part of the profits is donated to the selected charities anually, a small part is used to support the platform, and the rest is used for reinvestment.
 
 ```plantuml
 @startuml
@@ -20,35 +19,38 @@ A part of the profits is donated to the selected charities anually.
 sprite $sCap jar:archimate/strategy-capability
 
 rectangle Platform  as "Give for good donation platform" {
-    Business_Service(web, "Website")
-    Business_Process(Donating, "Donating")
-    Business_Service(admin, "Admin module")
-    Business_Process(Investment, "Investment")
-    Business_Process(Payout, "Payout")
+    Strategy_Capability(CapDonating, "Donating")
+    Strategy_Capability(CapDashboard, "Donor dashboard")
+    Strategy_Capability(CapInvest, "Investing")
+    Strategy_Capability(CapPayout, "Payout")
+    Strategy_Capability(CapHistory, "Complete history")
 
-    web -- Donating
-    admin -- Investment
-    admin -- Payout
-    Donating ->> Investment : batched
-    Investment .> Payout : long-term
-    admin <-> web 
+
 
 } 
 Motivation_Driver(Better, "Make the world \na better place")
 Motivation_Goal(Income, "Recurrent income \nfor charities")
+Motivation_Requirement(ReqDonating, "Donors can make donations")
 Motivation_Requirement(Correctness, "Correct, auditable \nadministration of funds")
 Motivation_Requirement(Transparancy, "Transparant software \nand processes")
 Motivation_Outcome(Donations, "More donations for charities \nthrough the platform")
 Motivation_Outcome(Trust, "Increase donors' trust")
+Motivation_Outcome(Roi, "Return on investment")
 
 Motivation_Stakeholder(Charities, "Charities")
 Motivation_Stakeholder(Board, "Give for good board")
 Motivation_Stakeholder(Donor, "Donors")
 
-admin .-u-|> Correctness
-admin .-u-|> Transparancy
-web .-|> Transparancy
+CapHistory .-u-|> Correctness
+CapHistory .-u-|> Transparancy
+CapDashboard .-|> Transparancy
+CapInvest .-u--|> Roi
+CapPayout .-|> Income
+CapDonating .-u-|> ReqDonating
+ReqDonating -u-> Donations
 Charities -- Income
+Donations .> Income : long-term +
+Income <. Roi : +
 Donor <-. Trust : +
 Donor --- Donations
 Board --- Donations
@@ -61,16 +63,13 @@ Better <|-. Income
 Board -- Better
 Charities -- Better
 Donor -- Better
-Income <|----. Payout
 
-url for web is [[https://giveforgood.world]]
-url for admin is [[admin_module]]
 url for Charities is [[charity]]
 url for Donor is [[donor]]
-url for Donating is [[donation#making-a-donation]]
-url for Payout is [[payout]]
+url for Platform is [[platform]]
 @enduml
 ```
+
 
 ## Stakeholders
 

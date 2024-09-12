@@ -44,6 +44,7 @@ rectangle Web as "giveforgood.world" {
     Wordpress .u-|> CharityRepo
     GiveWp .u-|> DonationRepo
     GiveWp -l-> Wordpress : plugin
+    CharityRepo <|-. GiveWp
 }
 
 url for Web is [[https://giveforgood.world]]
@@ -61,5 +62,5 @@ Unentered --> Entered : [[events/CONV_ENTER Enter event]] on [[conversion_day Co
 Entered --> [*]
 Registered : Data in GiveWP
 Unentered : Data in admin module
-Entered : Monetary funds part of investment option
+Entered : Monetary funds part of [[option investment option]]
 ```
