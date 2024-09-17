@@ -10,7 +10,7 @@ import {
   TransferComponent,
   EnterComponent,
   InvestComponent,
-  InflationComponent
+  InflationComponent, PriceComponent
 } from './conversionday.component';
 
 @NgModule({
@@ -23,7 +23,8 @@ import {
     TransferComponent,
     EnterComponent,
     InvestComponent,
-    InflationComponent
+    InflationComponent,
+    PriceComponent
   ],
   imports: [
     CommonModule,

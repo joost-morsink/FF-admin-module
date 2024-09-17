@@ -15,3 +15,5 @@
 <ff-invest-admin *ngIf="step=='invest'" [option]="option" (invested)="onInvested($event)"></ff-invest-admin>
 
 <ff-inflation-admin *ngIf="step=='inflation'" [option]="option" (inflation)="onInflated($event)"></ff-inflation-admin>
+
+<ff-price-admin *ngIf="step=='price'" [option]="option" (priced)="onPriced($event)"></ff-price-admin>

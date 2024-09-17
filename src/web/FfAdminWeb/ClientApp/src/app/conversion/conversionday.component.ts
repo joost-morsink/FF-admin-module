@@ -6,7 +6,7 @@ import { EventStore } from '../backend/eventstore';
 import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
 import { ErrorDialog } from '../dialogs/error.dialog';
 import { InfoDialog } from "../dialogs/info.dialog";
-type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest' | 'inflation';
+type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest' | 'inflation' | 'price';
 
 @Component({
   selector: 'ff-conversion-day-component',
@@ -47,6 +47,11 @@ export class ConversionDayComponent {
     this.option = null;
     this.step='init';
   }
+
+  public onPriced(dummy: any) {
+    this.option = null;
+    this.step='init';
+  }
 }
 
 @Component({
@@ -57,7 +62,7 @@ export class SelectOptionComponent {
   constructor(private admin:Admin){
     this.fetchOptions();
   }
-  public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter", "inflation"];
+  public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter", "inflation", "price"];
   public options: IOption[];
   @Output() public optionSelected: EventEmitter<{ option: IOption, process: ProcessStep }> = new EventEmitter();
 
@@ -472,5 +477,40 @@ export class InflationComponent extends ConversionBaseComponent implements OnIni
       inflation_factor: 1.0 + (Number(this.inflationPercentage.value) / 100.0)
     }
     await this.importAndProcess(event, this.inflation);
+  }
+}
+@Component({
+  selector: 'ff-price-admin',
+  templateUrl: './price.component.html'
+})
+export class PriceComponent extends ConversionBaseComponent implements OnInit {
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
+    super(eventStore, dialog);
+  }
+  @Input() public option: IOption;
+  @Output() public priced: EventEmitter<void> = new EventEmitter();
+
+  public timestamp: UntypedFormControl;
+  public newInvested: UntypedFormControl;
+  public newCash: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
+  public ngOnInit(): void {
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.newInvested = new UntypedFormControl(this.option.invested_amount);
+    this.formGroup = new UntypedFormGroup({
+      timestamp: this.timestamp,
+      newInvested: this.newInvested
+    });
+    this.enabled = true;
+  }
+
+  public async priceInfo() {
+    let event = {
+      type: 'PRICE_INFO',
+      timestamp: this.timestamp.value,
+      option: this.option.code,
+      invested_amount: this.newInvested.value
+    }
+    await this.importAndProcess(event, this.priced);
   }
 }
