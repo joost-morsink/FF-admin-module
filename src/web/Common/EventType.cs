@@ -16,6 +16,7 @@ namespace FfAdmin.Common
         CONV_TRANSFER,
         CONV_ENTER,
         CONV_INVEST,
+        CONV_INFLATION,
         AUDIT,
         DONA_CANCEL,
         META_UPDATE_CHARITY,

@@ -57,6 +57,9 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             protected override OptionWorthHistory ConvExit(OptionWorthHistory model, ConvExit e)
                 => AddRecord(model, e.Option, e);
 
+            protected override OptionWorthHistory ConvInflation(OptionWorthHistory model, ConvInflation e)
+                => AddRecord(model, e.Option, e);
+            
             protected override OptionWorthHistory PriceInfo(OptionWorthHistory model, PriceInfo e)
                 => AddRecord(model, e.Option, e);
 

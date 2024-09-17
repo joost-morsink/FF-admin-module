@@ -50,6 +50,7 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
                 ConvTransfer ct => ConvTransfer(ct),
                 ConvEnter ce => ConvEnter(ce),
                 ConvInvest ci => ConvInvest(ci),
+                ConvInflation ci => ConvInflation(ci),
                 IncreaseCash ic => IncreaseCash(ic),
                 Audit a => Audit(a),
                 PriceInfo pi => PriceInfo(pi),
@@ -95,6 +96,9 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
         protected virtual T ConvInvest(ConvInvest e)
             => Default(e);
 
+        protected virtual T ConvInflation(ConvInflation e)
+            => Default(e);
+        
         protected virtual T IncreaseCash(IncreaseCash e)
             => Default(e);
 

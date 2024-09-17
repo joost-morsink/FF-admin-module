@@ -122,9 +122,16 @@ public class BasicModelTests : VerifyBase
             Exchanged_amount = 0.51m,
             Currency = "EUR",
             Exchanged_currency = "EUR"
-        }
-
+        },
         // 19
+        new ConvInflation
+        {
+            Timestamp = GetCurrent(),
+            Option = "1",
+            Inflation_factor = 1.01m,
+            Invested_amount = 34.35m,
+        }
+        // 20
     };
 
     private static IServiceProvider GetServiceProvider()
@@ -251,7 +258,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task OptionWorthHistoryTest()
     {
-        var contexts = (await Stream.GetValues<OptionWorthHistory>(0, 19)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<OptionWorthHistory>(0, 20)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -259,7 +266,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task CumulativeInterestTest()
     {
-        var contexts = (await Stream.GetValues<CumulativeInterest>(0, 1, 2, 7, 8, 9, 12, 13, 14, 15, 16, 19))
+        var contexts = (await Stream.GetValues<CumulativeInterest>(0, 1, 2, 7, 8, 9, 12, 13, 14, 15, 16, 19, 20))
             .ToListOrderedByKey();
         await Verify(contexts);
     }
@@ -275,7 +282,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task IdealOptionValuationsBadYearTest()
     {
-        var contexts = (await Stream.GetValues<IdealOptionValuations>(13, 14, 15, 16, 17)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<IdealOptionValuations>(13, 14, 15, 16, 17, 20)).ToListOrderedByKey();
 
         await Verify(contexts);
     }

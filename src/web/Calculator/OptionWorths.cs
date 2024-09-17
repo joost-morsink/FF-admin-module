@@ -110,6 +110,10 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
             protected override OptionWorths IncreaseCash(OptionWorths model, IncreaseCash e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Cash = option.Cash + e.Amount});
+            
+            protected override OptionWorths ConvInflation(OptionWorths model, ConvInflation e)
+                => model.Mutate(e.Option, option =>
+                    option with {Timestamp = e.Timestamp, Invested = e.Invested_amount});
         }
     }
 }

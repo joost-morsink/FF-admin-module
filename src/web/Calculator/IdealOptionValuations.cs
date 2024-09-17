@@ -54,29 +54,29 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                     e.Timestamp);
             }
 
-            // On ConvLiquidate, the added (or subtracted if negative) worth is added from the real value.
-            // The ideal value should change according to the reinvestment fraction for the option.
             protected override IdealOptionValuations ConvLiquidate(IdealOptionValuations model, ConvLiquidate e)
-            {
-                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
-                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
-                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
+                => RecalculateValuations(model, e.Option, e.Timestamp);
 
-                return model.Mutate(e.Option,
+            // On ConvLiquidate and PriceInfo, the added (or subtracted if negative) worth is added from the real value.
+            // The ideal value should change according to the reinvestment fraction for the option.
+            private IdealOptionValuations RecalculateValuations(IdealOptionValuations model, string option, DateTimeOffset timestamp)
+            {
+                var addedWorth = AddedWorth(option);
+                var reinvestmentFraction = CurrentOptions.Values[option].ReinvestmentFraction;
+
+                return model.Mutate(option,
                     option => option with {RealValue = option.RealValue + addedWorth, IdealValue = option.IdealValue + addedWorth * reinvestmentFraction},
-                    e.Timestamp);
+                    timestamp);
+            }
+
+            private decimal AddedWorth(string option)
+            {
+                return CurrentOptionWorths.Worths[option].TotalWorth
+                       - PreviousOptionWorths.Worths[option].TotalWorth;
             }
 
             protected override IdealOptionValuations PriceInfo(IdealOptionValuations model, PriceInfo e)
-            {
-                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
-                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
-                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
-
-                return model.Mutate(e.Option,
-                    option => option with {RealValue = option.RealValue + addedWorth, IdealValue = option.IdealValue + addedWorth * reinvestmentFraction},
-                    e.Timestamp);
-            }
+                => RecalculateValuations(model, e.Option, e.Timestamp);
 
             // On ConvExit, the cash is subtracted from the real value, but not the ideal value. Ideally to equalize the real and ideal values.
             protected override IdealOptionValuations ConvExit(IdealOptionValuations model, ConvExit e)
@@ -85,6 +85,13 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 return model.Mutate(e.Option,
                     option => option with {Timestamp = e.Timestamp, RealValue = option.RealValue - subtractedCash},
                     e.Timestamp);
+            }
+
+            // On ConvInflation, the ideal value is multiplied by the inflation factor.
+            protected override IdealOptionValuations ConvInflation(IdealOptionValuations model, ConvInflation e)
+            {
+                var iov = RecalculateValuations(model, e.Option, e.Timestamp);
+                return iov.Mutate(e.Option, iv => iv with {IdealValue = iv.IdealValue * e.Inflation_factor}, e.Timestamp);
             }
         }
     }

@@ -145,6 +145,20 @@
             Invested: 34.25
           },
           Timestamp: DateTimeOffset_10
+        },
+        {
+          EventType: CONV_INFLATION,
+          New: {
+            Cash: 0.77,
+            CumulativeInterest: 1.1376687761732174043679930894,
+            Invested: 34.35
+          },
+          Old: {
+            Cash: 0.77,
+            CumulativeInterest: 1.1344294003868471953578336558,
+            Invested: 34.25
+          },
+          Timestamp: DateTimeOffset_11
         }
       ]
     }

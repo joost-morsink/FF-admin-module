@@ -43,5 +43,14 @@
         Timestamp: DateTimeOffset_2
       }
     }
+  },
+  {
+    Valuations: {
+      1: {
+        IdealValue: 36.1176000,
+        RealValue: 35.12,
+        Timestamp: DateTimeOffset_2
+      }
+    }
   }
 ]

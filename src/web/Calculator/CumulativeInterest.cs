@@ -56,6 +56,10 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
             {
                 return CumulativeInterestBetweenContexts(model, e.Option, e.Timestamp, 0);
             }
+            protected override CumulativeInterest ConvInflation(CumulativeInterest model, ConvInflation e)
+            {
+                return CumulativeInterestBetweenContexts(model, e.Option, e.Timestamp, 0);
+            }
 
             protected override CumulativeInterest ConvLiquidate(CumulativeInterest model, ConvLiquidate e)
             {

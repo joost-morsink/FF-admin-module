@@ -46,6 +46,7 @@ public class EventProcessor<T> : IEventProcessor<T>
                 ConvTransfer ct => ConvTransfer(model, ct),
                 ConvEnter ce => ConvEnter(model, ce),
                 ConvInvest ci => ConvInvest(model, ci),
+                ConvInflation ci => ConvInflation(model, ci),
                 IncreaseCash ic => IncreaseCash(model, ic),
                 Audit a => Audit(model, a),
                 PriceInfo pi => PriceInfo(model, pi),
@@ -94,6 +95,9 @@ public class EventProcessor<T> : IEventProcessor<T>
         protected virtual T ConvInvest(T model, ConvInvest e)
             => Default(model, e);
 
+        protected virtual T ConvInflation(T model, ConvInflation e)
+            => Default(model, e);
+        
         protected virtual T IncreaseCash(T model, IncreaseCash e)
             => Default(model, e);
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -59,6 +61,7 @@ namespace FfAdmin.Common
                     EventType.CONV_TRANSFER => JsonSerializer.Deserialize<ConvTransfer>(json, options)!,
                     EventType.CONV_ENTER => JsonSerializer.Deserialize<ConvEnter>(json, options)!,
                     EventType.CONV_INVEST => JsonSerializer.Deserialize<ConvInvest>(json, options)!,
+                    EventType.CONV_INFLATION => JsonSerializer.Deserialize<ConvInflation>(json, options)!,
                     EventType.CONV_INCREASE_CASH => JsonSerializer.Deserialize<IncreaseCash>(json, options)!,
                     EventType.AUDIT => JsonSerializer.Deserialize<Audit>(json, options)!,
                     EventType.PRICE_INFO => JsonSerializer.Deserialize<PriceInfo>(json, options)!,
@@ -396,6 +399,24 @@ namespace FfAdmin.Common
                 yield return new(nameof(Option), "Field is required");
             if (Invested_amount < 0m)
                 yield return new(nameof(Invested_amount), "Invested amount cannot be negative");
+        }
+    }
+    
+    public class ConvInflation : Event
+    {
+        public override EventType Type => EventType.CONV_INFLATION;
+        public string Option { get; set; } = "";
+        public decimal Invested_amount { get; set; } 
+        public decimal Inflation_factor { get; set; } = 1m;
+
+        public override IEnumerable<ValidationMessage> Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Option))
+                yield return new ValidationMessage(nameof(Option), "Field is required");
+            if (Inflation_factor <= 0)
+                yield return new ValidationMessage(nameof(Inflation_factor), "Inflation must be positive");
+            if(Invested_amount <0m)
+                yield return new ValidationMessage(nameof(Invested_amount), "Invested amount cannot be negative");
         }
     }
 }
