@@ -61,6 +61,9 @@ div.conv-liquidate, div.conv-invest {
 div.price-info {
   background-color: lightgray;
 }
+div.conv-inflation {
+  background-color: #00cc00;
+}
 div.tile-container {
   display: inline-flex;
   width: 100%;

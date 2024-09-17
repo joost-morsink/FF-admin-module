@@ -1,0 +1,25 @@
+<h2>Correct for inflation</h2>
+
+<form>
+    <mat-form-field>
+        <mat-label>Timestamp</mat-label>
+        <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
+        <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br />
+
+  <mat-form-field>
+        <mat-label>Invested amount ({{option.currency}})</mat-label>
+        <input matNativeControl name="invested" [(formControl)]="invested" />
+        <mat-error *ngIf="formGroup.get('invested').errors"> {{ formGroup.get('invested').errors?.message }} </mat-error>
+    </mat-form-field>
+    <br/>
+
+    <mat-form-field>
+      <mat-label>Inflation (%)</mat-label>
+      <input matNativeControl name="inflationPercentage" [(formControl)]="inflationPercentage" />
+    </mat-form-field>
+    <br/>
+
+    <button [disabled]="!enabled" (click)="inflate()">Correct for inflation</button>
+</form>

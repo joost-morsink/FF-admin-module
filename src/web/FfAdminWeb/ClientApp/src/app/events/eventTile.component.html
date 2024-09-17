@@ -19,4 +19,8 @@
     <p *ngIf="data.amount != null"><strong>Exit amount:</strong> {{data.amount}}</p>
 </div>
   <p *ngIf="data.type == 'CONV_TRANSFER'"><strong>{{data.currency}}</strong> {{data.amount}}</p>
+  <div *ngIf="data.type == 'CONV_INFLATION'">
+    <p><strong>Invested amount:</strong> {{data.invested_amount}}</p>
+    <p><strong>Inflation factor:</strong> {{data.inflation_factor}}</p>
+  </div>
 </div>

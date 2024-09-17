@@ -6,7 +6,7 @@ import { EventStore } from '../backend/eventstore';
 import { IOption, IEvent, IOpenTransfer } from '../interfaces/interfaces';
 import { ErrorDialog } from '../dialogs/error.dialog';
 import { InfoDialog } from "../dialogs/info.dialog";
-type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest';
+type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'invest' | 'inflation';
 
 @Component({
   selector: 'ff-conversion-day-component',
@@ -42,6 +42,11 @@ export class ConversionDayComponent {
     this.option = null;
     this.step = 'init';
   }
+
+  public onInflated(dummy: any) {
+    this.option = null;
+    this.step='init';
+  }
 }
 
 @Component({
@@ -52,7 +57,7 @@ export class SelectOptionComponent {
   constructor(private admin:Admin){
     this.fetchOptions();
   }
-  public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter"];
+  public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter", "inflation"];
   public options: IOption[];
   @Output() public optionSelected: EventEmitter<{ option: IOption, process: ProcessStep }> = new EventEmitter();
 
@@ -428,5 +433,44 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
     let transferAmount = Number(this.investment.value) || 0;
     this.newInvested.setValue((Number(this.newInvested.value) + transferAmount) || 0);
     this.newCash.setValue((Number(this.newCash.value) - transferAmount) || 0);
+  }
+}
+
+@Component({
+  selector: 'ff-inflation-admin',
+  templateUrl: './inflation.component.html'
+})
+export class InflationComponent extends ConversionBaseComponent implements OnInit {
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
+    super(eventStore, dialog);
+  }
+  @Input() public option: IOption;
+  @Output() public inflation: EventEmitter<void> = new EventEmitter();
+
+  public timestamp: UntypedFormControl;
+  public invested: UntypedFormControl;
+  public inflationPercentage: UntypedFormControl;
+  public formGroup: UntypedFormGroup;
+  public ngOnInit(): void {
+    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.invested = new UntypedFormControl(this.option.invested_amount);
+    this.inflationPercentage = new UntypedFormControl("0");
+    this.formGroup = new UntypedFormGroup({
+      timestamp: this.timestamp,
+      invested: this.invested,
+      inflationPercentage: this.inflationPercentage
+    });
+    this.enabled = true;
+  }
+
+  public async inflate() {
+    let event = {
+      type: 'CONV_INFLATION',
+      timestamp: this.timestamp.value,
+      option: this.option.code,
+      invested_amount: this.invested.value,
+      inflation_factor: 1.0 + (Number(this.inflationPercentage.value) / 100.0)
+    }
+    await this.importAndProcess(event, this.inflation);
   }
 }

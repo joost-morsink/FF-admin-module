@@ -33,6 +33,7 @@ export interface IFullEvent extends IEvent, IName, IOptionFractions, IOptionAmou
   amount: number;
   exchanged_currency: string;
   exchanged_amount: number;
+  inflation_factor: number;
 }
 
 export interface IBank {

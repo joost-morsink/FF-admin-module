@@ -24,6 +24,12 @@
             <button (click)="click(option,'enter')"><span class="inline-icon material-icons">trending_up</span>Enter/invest</button>
         </mat-cell>
     </ng-container>
+    <ng-container matColumnDef="inflation">
+      <mat-header-cell *matHeaderCellDef>Inflation</mat-header-cell>
+      <mat-cell *matCellDef="let option">
+          <button (click)="click(option,'inflation')"><span class="inline-icon material-icons">trending_down</span>Inflation</button>
+      </mat-cell>
+    </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
 </mat-table>
