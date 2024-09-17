@@ -43,10 +43,12 @@ Almost all event types are prefixed with a string indicating the category to whi
 | [CONV_TRANSFER](./events/CONV_TRANSFER)                   | A [transfer](./transfer) of funds to a charity has been made |
 | [CONV_ENTER](./events/CONV_ENTER)                         | Eligible [donations](./donation) have entered                |
 | [CONV_INVEST](./events/CONV_INVEST)                       | Funds have been invested in stocks                           |
+| [CONV_INFLATION](./events/CONV_INFLATION)                 | A correction for inflation has been requested                |
 | [AUDIT](./events/AUDIT)                                   | An audit report has been consolidated                        |
 | [DONA_CANCEL](./events/DONA_CANCEL)                       | A [donation](./donation) has been cancelled                  |
 | [META_UPDATE_CHARITY](./events/META_UPDATE_CHARITY)       | A [charity](./charity) has been updated                      |
 | [CONV_INCREASE_CASH](./events/CONV_INCREASE_CASH)         | An non-donation increase in cash has been registered         |
 | [META_CHARITY_PARTITION](./events/META_CHARITY_PARTITION) | A [theme-charity](./theme) is partitioned over other [charities](./charity) |
 | [PRICE_INFO](./events/PRICE_INFO)                         | A price information is registered                            |
+
 

@@ -49,6 +49,7 @@ The `OptionWorths` model is affected by the following events:
 * [`CONV_LIQUIDATE`](../events/CONV_LIQUIDATE)
 * [`CONV_EXIT`](../events/CONV_EXIT)
 * [`CONV_INCREASE_CASH`](../events/CONV_INCREASE_CASH)
+* [`CONV_INFLATION`](../events/CONV_INFLATION)
 * [`PRICE_INFO`](../events/PRICE_INFO)
 
 ### DONA_NEW
@@ -86,6 +87,10 @@ It only affects the cash part of the investment option.
 > **Assumption:** [`CONV_EXIT`](../events/CONV_EXIT) always immediately follows a [`CONV_LIQUIDATE`](../events/CONV_LIQUIDATE), assuming no stock price change in between. 
 >
 > **Consequence**:  If no liquidation is needed for an exit, a 0 amount liquidation must be added to 'set' the invested amount to the proper value.
+
+### CONV_INFLATION
+
+Inflation correction events contain stock pricing information and affects the investment option's total worth.
 
 ### CONV_INCREASE_CASH
 

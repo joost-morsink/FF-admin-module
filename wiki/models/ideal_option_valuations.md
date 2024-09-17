@@ -34,6 +34,7 @@ The ideal valuation is affected by the following events:
 * [`CONV_INVEST`](../events/CONV_ENTER)
 * [`CONV_LIQUIDATE`](../events/CONV_ENTER)
 * [`CONV_EXIT`](../events/CONV_ENTER)
+* [`CONV_INFLATION`](../events/CONV_INFLATION)
 * [`PRICE_INFO`](../events/CONV_ENTER)
 
 ### CONV_ENTER
@@ -48,6 +49,11 @@ Both the real and ideal valuations are adjusted with the total gain in option wo
 This event changes the worth of an investment option, ideally by adjusting the real valuation to exactly the ideal valuation. 
 In case of a [bad year](../option_fractions#bad-year-fraction) this amount can of course be higher than the difference between real and ideal valuations.
 This change is not regarded as a 'loss', so only the real valudation is adjusted negatively with the exited amount.
+
+### CONV_INFLATION
+
+This event changes the ideal valuation for an investment option, according to the given inflation factor.
+We increase the value of the ideal valuation by the factor in the `CONV_INFLATION` event, because that is how the ideal worth should be affected by the inflation correction.
 
 ### Others
 
