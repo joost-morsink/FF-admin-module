@@ -1,7 +1,7 @@
 namespace FfAdmin.Calculator.Test;
 
 [TestClass]
-public class FractionSetTest
+public class FractionSetTest : VerifyBase
 {
     [TestMethod]
     public void SimpleTest()
@@ -57,5 +57,19 @@ public class FractionSetTest
         agg["0"]["4"].Should().Be(0.5m);
         agg["1"]["1"].Should().Be(2m/3m);
         agg["1"]["3"].Should().Be(1m/3m);
+    }
+
+    [TestMethod]
+    public void SerializationTest()
+    {
+        var fs = FractionSet.Empty
+            .AddRange(new[] {("1", 2m), ("2", 1m), ("3", 1m), ("4", 1m)})
+            .Add("5",0.6m);
+        
+        var json = System.Text.Json.JsonSerializer.Serialize(fs);
+        fs.Divisor.Should().Be(8);
+        json.Should().Contain($"\"Divisor\":{Math.Round(fs.Divisor)}");
+        foreach(var item in fs)
+            json.Should().Contain($"\"{item.Key}\":{Math.Round(item.Value * fs.Divisor)}");
     }
 }

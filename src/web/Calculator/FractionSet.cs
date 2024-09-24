@@ -21,14 +21,13 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
         var negate = Fractions.TryGetValue(key, out var old) ? old : 0;
         var added = Divisor == 0 ? 1 : fraction * Divisor;
         var newFractions = Fractions.Add(key, added);
-        var newDivisor = Divisor + added;
+        var newDivisor = Divisor + added - negate;
         return new(newFractions, newDivisor);
     }
 
     public FractionSet AddRange(IEnumerable<(string, Real)> entries)
     {
         var e = entries.ToArray();
-        var divisor = Divisor;
         if (Divisor == 0)
         {
             var newFractions = e.Aggregate(Fractions,
@@ -38,6 +37,7 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
         }
         else
         {
+            // Todo: compensate for existing entries
             var newFractions = e.Aggregate(Fractions,
                 (acc, f) => acc.Add(f.Item1, Divisor * f.Item2));
             var newDivisor = Divisor * (1 + e.Sum(f => f.Item2));
@@ -60,7 +60,7 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
     public bool ContainsKey(string key)
         => Fractions.ContainsKey(key);
 
-    public bool TryGetValue(string key, out decimal value)
+    public bool TryGetValue(string key, out Real value)
     {
         if (Fractions.TryGetValue(key, out var val))
         {
@@ -74,12 +74,12 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
 
     public Real this[string key] => Fractions.TryGetValue(key, out var frac) ? frac / Divisor : 0;
     public IEnumerable<string> Keys => Fractions.Keys;
-    public IEnumerable<decimal> Values => Fractions.Values.Select(x => x / Divisor);
+    public IEnumerable<Real> Values => Fractions.Values.Select(x => x / Divisor);
 
-    public IEnumerator<KeyValuePair<string, decimal>> GetEnumerator()
+    public IEnumerator<KeyValuePair<string, Real>> GetEnumerator()
     {
         foreach (var (key, value) in Fractions)
-            yield return new KeyValuePair<string, decimal>(key, value / Divisor);
+            yield return new KeyValuePair<string, Real>(key, value / Divisor);
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -116,5 +116,24 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
     {
         var sum = dict.Values.Sum();
         return new(dict, sum);
+    }
+
+    public SerializationData ToSerializationData()
+        => SerializationData.FromFractionSet(this);
+    
+    public record SerializationData
+    {
+        private SerializationData(Real Divisor, ImmutableDictionary<string, Real> Data)
+        {
+            this.Divisor = Divisor;
+            this.Data = Data;
+        }
+        public Real Divisor { get; }
+        public ImmutableDictionary<string, Real> Data { get; }
+        
+        public FractionSet ToFractionSet()
+            => new(Data, Divisor);
+        public static SerializationData FromFractionSet(FractionSet fs)
+            => new(fs.Divisor, fs.Fractions);
     }
 }
