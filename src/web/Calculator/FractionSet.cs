@@ -123,6 +123,7 @@ public class FractionSet : IReadOnlyDictionary<string, Real>
     
     public record SerializationData
     {
+        [JsonConstructor]
         private SerializationData(Real Divisor, ImmutableDictionary<string, Real> Data)
         {
             this.Divisor = Divisor;
