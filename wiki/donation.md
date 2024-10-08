@@ -10,6 +10,14 @@ The monetary amount is exchanged to the investment option's currency if needed.
 
 ## Making a donation
 
+```pumlarch
+~donor
+
+rectangle Web as "giveforgood.world" {
+    ~donor r make_donation
+}
+```
+
 ```plantuml
 @startuml
 !include <archimate/Archimate>

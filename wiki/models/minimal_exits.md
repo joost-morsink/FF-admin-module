@@ -1,6 +1,12 @@
 ---
 title: Model Minimal exits
 author: J.W. Morsink
+archimate:
+  layer: Application
+  type: DataObject
+  caption: minimal exits
+  serves:
+  - to: conversion_day#exit
 ---
 
 # Model Minimal exits

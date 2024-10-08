@@ -1,37 +1,26 @@
 ---
 title: Calculator
 author: J.W. Morsink
+archimate:
+    layer: Application
+    type: Service
+    serves:
+    - to: admin_ui
+    - to: auto_import
+    - to: website
+    - to: payout#determine
 ---
 # Calculator
 
 The calculator module is responsible for all calculations for Give for Good.
 It is modelled as state transitions due to events and may be dependent on other models so simplify calculations.
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
-
-Business_Service(Web, "Donor portal\n giveforgood.world")
+```pumlarch
 component "Admin Module" as Admin {
-    Application_Service(Ui, "User interface")
-    Application_Service(EventStore, "Event store")
-    Application_Service(Calculator, "Calculator")
-    Application_Service(ModelCache, "Model Cache")
-    Application_Process(AutoImport, "Automatic importer")
-    
-    Ui <-- Calculator
-    Ui <-- EventStore
-    Calculator <-- EventStore
-    Calculator <-- ModelCache
-    AutoImport <-- Calculator
+    ~admin_ui|auto_import d calculator|event_store
+    ~calculator d event_store|model_cache    
 }
-Calculator -l-> Web 
-
-url for EventStore is [[event_store]]
-url for ModelCache is [[model_cache]]
-url for Calculator is [[calculator]]
-url for AutoImport is [[auto_import]]
-@enduml
+~calculator l website
 ```
 
 ## Calculator core

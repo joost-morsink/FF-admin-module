@@ -1,39 +1,22 @@
+---
+"#investment":
+    layer: Business
+    type: Process
+    caption: Investment
+    relates:
+    - to: admin_module
+    influences:
+    - to: payout
+      caption: long-term
+---
 # Platform
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
-sprite $sCap jar:archimate/strategy-capability
 
-Strategy_Capability(CapDonating, "Donating")
-Strategy_Capability(CapDashboard, "Donor dashboard")
-Strategy_Capability(CapInvest, "Investing")
-Strategy_Capability(CapPayout, "Payout")
-Strategy_Capability(CapHistory, "Complete history")
+```pumlarch
+~website|admin_module
+~donating_process|investment_process|payout
 
-    Business_Service(web, "Website")
-    Business_Process(Donating, "Donating")
-    Business_Service(admin, "Admin module")
-    Business_Process(Investment, "Investment")
-    Business_Process(Payout, "Payout")
+~strategy#donating|strategy#dashboard|strategy#investment|strategy#payout|strategy#history d website|admin_module
+~website|admin_module d donating_process|investment_process|payout
 
-    web -- Donating
-    admin -- Investment
-    admin -- Payout
-    Donating ->> Investment : batched
-    Investment .> Payout : long-term
-    web <-> admin
-
-    CapDonating <-- web
-    CapDashboard <-- web
-    CapInvest  <-- admin
-    CapPayout <-- admin
-    CapHistory <-- admin
-
-
-url for web is [[https://giveforgood.world]]
-url for admin is [[admin_module]]
-url for Payout is [[payout]]
-url for Donating is [[donation]]
-@enduml
 ```

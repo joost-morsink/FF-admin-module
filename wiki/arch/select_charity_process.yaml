@@ -1,0 +1,6 @@
+name: select_charity_process
+layer: Business
+type: Process
+caption: Select Charity
+composes:
+- to: donating_process 

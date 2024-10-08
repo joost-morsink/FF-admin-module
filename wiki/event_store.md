@@ -1,6 +1,21 @@
 ---
 title: Give for Good - Event Store
 author: J.W. Morsink
+archimate:
+    caption: Event Store
+    layer: Application
+    type: Service
+    serves: 
+    - to: admin_ui
+    - to: calculator
+    - to: auto_import
+    - to: asb
+    - to: conversion_day#enter
+    - to: conversion_day#invest
+    - to: conversion_day#liquidate
+    - to: conversion_day#exit
+    - to: conversion_day#transfer
+    - to: payout#register
 ---
 # Event Store
 

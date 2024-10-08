@@ -1,0 +1,8 @@
+name: admin_ui
+layer: Application
+type: Service
+caption: Admin UI
+serves:
+- to: conversion_day
+- to: payout#determine
+- to: payout#register

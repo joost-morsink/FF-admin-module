@@ -1,6 +1,82 @@
 ---
 title: Conversion day
-author: J.W. Morsink
+author: J.W. Morsink    
+archimate:
+    layer: Business
+    type: Process
+"#in":
+    layer: Business
+    type: Process
+    caption: Cash In
+    url: "#the-in-process"
+    triggers:
+    - to: "#out"
+      caption: optional
+    aggregates:
+    - to: conversion_day
+"#out":
+    layer: Business
+    type: Process
+    caption: Cash Out
+    url: "#the-out-process"
+    triggers:
+    - to: "#transfer"
+      caption: optional
+    aggregates:
+    - to: conversion_day
+"#transfer":
+    layer: Business
+    type: Process
+    caption: Transfer Cash
+    url: "#the-transfer-process"
+    aggregates:
+    - to: conversion_day
+    influences:
+    - to: models/amounts_to_transfer
+      bidirectional: true
+"#enter":
+    layer: Business
+    type: Process
+    caption: Enter
+    url: "#the-in-process"
+    composes:
+    - to: "#in"
+    triggers:
+    - to: "#invest"
+    influences:
+    - to: models/option_worths
+"#invest":
+    layer: Business
+    type: Process
+    caption: Invest
+    url: "#the-in-process"
+    composes:
+    - to: "#in"
+    triggers:
+    - to: "#liquidate"
+      caption: optional
+"#liquidate":
+    layer: Business
+    type: Process
+    caption: Liquidate
+    url: "#the-out-process"
+    composes:
+    - to: "#out"
+    triggers:
+    - to: "#exit"
+"#exit":
+    layer: Business
+    type: Process
+    caption: Exit
+    url: "#the-out-process"
+    composes:
+    - to: "#out"
+    triggers:
+    - to: "#transfer"
+      caption: optional
+    influences:
+    - to: models/option_worths
+    - to: models/amounts_to_transfer
 ---
 
 # Conversion day
@@ -8,105 +84,57 @@ author: J.W. Morsink
 Conversion day exist of three different subprocesses, which may or may not occur on the same day. 
 
 ## Overview
+```pumlarch
+~conversion_day d #in
+~conversion_day d #out
+~conversion_day d #transfer
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
+~#in r #out
+~#out r #transfer
+~#in d #enter
+~#in d #invest
+~#enter r #invest
+~#out d #liquidate
+~#out d #exit
+~#liquidate r #exit
 
-Business_Process(Cday, "Conversion day")
-Business_Process(In, "Cash In")
-Business_Process(Out, "Cash Out")
-Business_Process(Transfer, "Transfer Cash")
+~event_store u #enter
+~event_store u #invest
+~event_store u #liquidate
+~event_store u #exit
+~event_store u #transfer
 
-Cday o-- In
-Cday o-- Out
-Cday o-- Transfer
-In ->> Out : optional
-Out ->> Transfer : optional
+~investments u #invest
+~investments u #liquidate
 
-
-Business_Process(Enter, "Enter")
-Business_Process(Invest, "Invest") 
-Business_Process(Liquidate, "Liquidate")
-Business_Process(Exit, "Exit")
-
-In *-- Enter
-In *-- Invest
-Enter ->> Invest
-Out *-- Liquidate
-Out *-- Exit
-Liquidate ->> Exit
-
-Application_Service(EventStore, "Event store")
-Application_Service(Ui, "User interface for process")
-Application_Service(Investments, "Investments and withdrawals")
-
-EventStore -u-> Enter
-EventStore -u-> Invest
-EventStore -u-> Liquidate
-EventStore -u-> Exit
-EventStore -u-> Transfer
-
-Investments -u-> Invest
-Investments -u-> Liquidate
-
-Ui -u---> Cday
+~admin_ui --u conversion_day
 
 component "G4g Admin Module" as Web 
 component "Investment bank website" as Bank 
-
-Ui <|-. Web
-EventStore <|-. Web 
-Investments <|-. Bank
-
-url of Web is [[admin_module]]
-url of EventStore is [[event_store]]
-url of In is [[#the-in-process]]
-url of Out is [[#the-out-process]]
-url of Exit is [[#exit]]
-url of Transfer is [[payout]]
+investments <|-. Bank
+event_store <|-. Web
+admin_ui <|-. Web
 ```
 
 ## Models
 
 The conversion day process makes use of some models in the [calculator module](./calculator).
 
-```plantuml
-!include <archimate/Archimate>
-
-Business_Process(Transfer, "Transfer Cash")
-Business_Process(Enter, "Enter")
-Business_Process(Invest, "Invest") 
-Business_Process(Liquidate, "Liquidate")
-Business_Process(Exit, "Exit")
-
-Enter ->> Invest
-Invest ->> Liquidate : optional
-Liquidate ->> Exit
-Exit ->> Transfer : optional
-
+```pumlarch
+~#enter r #invest
+~#invest r #liquidate
+~#liquidate r #exit
+~#exit r #transfer
 component Calculator {
-    Application_DataObject(IOV, "Ideal option valuations")
-    Application_DataObject(OW, "Option worths")
-    Application_DataObject(ME, "Minimal exits")
-    Application_DataObject(ATT, "Amounts to transfer")
+    ~#enter d models/option_worths
+    ~models/option_worths r models/ideal_option_valuations
+    ~models/ideal_option_valuations r models/minimal_exits
+    ~#exit d models/option_worths
+    ~#exit d models/ideal_option_valuations
+    ~#exit d models/minimal_exits
+    ~#exit d models/amounts_to_transfer
+    ~#transfer d models/amounts_to_transfer
 }
-
-OW .> IOV
-IOV .> ME
-Enter .-> OW
-IOV -u-> Exit
-ME -u-> Exit
-Exit .-> OW
-Exit .-> ATT
-Transfer <.-> ATT
-
-url of Exit is [[#exit]]
-url of Transfer is [[#the-transfer-process]]
-url of IOV is [[models/ideal_option_valuations]]
-url of ME is [[models/minimal_exits]]
-url of OW is [[models/option_worths]]
-url of ATT is [[models/amounts_to_transfer]]
 ```
 
 ## The in process

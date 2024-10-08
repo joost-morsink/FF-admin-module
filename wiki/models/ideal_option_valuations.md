@@ -1,6 +1,12 @@
 ---
 title: Model Ideal option valuations
 author: J.W. Morsink
+archimate:
+  layer: Application
+  type: DataObject
+  caption: Ideal option valuations
+  serves:
+  - to: conversion_day#exit
 ---
 
 # Model Ideal option valuations

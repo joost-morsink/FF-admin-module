@@ -1,6 +1,10 @@
 ---
 title: Model Option worths
 author: J.W. Morsink
+archimate:
+  layer: Application
+  type: DataObject
+  caption: Option worths
 ---
 
 # Model Option worths

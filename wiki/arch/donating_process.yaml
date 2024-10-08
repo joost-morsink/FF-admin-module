@@ -1,0 +1,6 @@
+name: donating_process
+layer: Business
+type: Process
+caption: Donating
+triggers:
+- to: investment_process

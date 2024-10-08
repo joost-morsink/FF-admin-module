@@ -1,55 +1,90 @@
 ---
 title: Payout
 author: J.W. Morsink
+archimate: 
+    layer: Business
+    type: Process
+"#determine":
+    layer: Business
+    type: Process
+    caption: Determine payouts
+    composes: 
+    - to: payout
+    triggers:
+    - to: "#make"
+"#make":
+    layer: Business
+    type: Process
+    caption: Make payments
+    composes:
+    - to: payout
+    triggers:
+    - to: "#register"
+"#register":
+    layer: Business
+    type: Process
+    caption: Register charity payments
+    composes:
+    - to: payout
+"#banking":
+    layer: Business
+    type: Function
+    caption: Banking function \nexternal
+    serves:
+    - to: "#make"
+    accesses:
+    - to: "#transactions"
+"#att":
+    layer: Application
+    type: DataObject
+    caption: Amounts to transfer
+    url: models/amounts_to_transfer
+    accesses:
+    - to: calculator
+"#payment_order":
+    layer: Application
+    type: DataObject
+    caption: "Payment Order"
+    accesses:
+    - to: "#banking"
+"#pain":
+    layer: Technology
+    type: Artifact
+    caption: Pain file
+    realizes: 
+    - to: "#payment_order"
+"#transactions":
+    layer: Application
+    type: DataObject
+    caption: Transaction data
+    accesses:
+    - to: event_store
+"#camt":
+    layer: Technology
+    type: Artifact
+    caption: Camt file
+    realizes: 
+    - to: "#transactions"
 ---
 
 # Payout
 
 The payout process
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
+```pumlarch
+~payout
+~#determine|#make|#register
 
-Business_Process(Payout, "Payout")
-Business_Process(DetPay, "Determine payouts")
-Business_Process(MakePay, "Make payments")
-Business_Function(Bank, "Banking function\n(external)")
-Business_Process(RegPay, "Register charity payments")
+~payout d #determine|#make|#register
 
-Application_Service(Admin, "Admin UI")
-Application_Service(Events, "Event store")
-Application_Service(Calc, "Calculator")
-Application_DataObject(ATT, "Amounts to transfer")
-Application_DataObject(PayOrd, "Payment Order")
-Application_DataObject(Trans, "Transaction data")
-Technology_Artifact(Pain, "Pain file")
-Technology_Artifact(Camt, "Camt file")
+~#determine|#make|#register d calculator|admin_ui|event_store
 
-Payout *-- DetPay
-Payout *-- MakePay
-Payout *-- RegPay
-DetPay ->> MakePay
-MakePay ->> RegPay
-DetPay <-- Calc
-DetPay <-- Admin
-RegPay <-- Admin
-RegPay <-- Events
-MakePay <-- Bank
+~#att|#payment_order|#banking|#transactions
 
-Calc <-~ ATT
-Admin ~-> PayOrd
-Bank ~> Trans
-Events <-~ Trans
+~#make -d #banking
 
-PayOrd ~> Bank
+~calculator|admin_ui|event_store d #att|#payment_order|#transactions
 
-PayOrd <|-. Pain
-Trans <|-. Camt
-
-url for Admin is [[admin_module]]
-url for Events is [[event_store]]
-url for Calc is [[calculator]]
-url for ATT is [[models/amounts_to_transfer]]
-@enduml
+~#payment_order|#transactions d #pain|#camt 
 ```
+

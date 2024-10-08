@@ -1,0 +1,7 @@
+name: administrator
+layer: Business
+type: Actor
+caption: Give for Good administrator
+assigns:
+- to: admin_ui
+  caption: uses

@@ -1,0 +1,32 @@
+"#dashboard":
+  layer: Strategy
+  type: Capability
+  caption: Donor dashboard
+  url: donor_dashboard
+  realizes:
+  - to: motivation#transparancy
+"#history":
+  layer: Strategy
+  type: Capability
+  caption: Complete history
+  realizes:
+  - to: motivation#transparancy
+  - to: motivation#correctness
+"#donating":
+  layer: Strategy
+  type: Capability
+  caption: Donating
+  realizes:
+  - to: motivation#donating
+"#payout":
+  layer: Strategy
+  type: Capability
+  caption: Payout
+  realizes:
+  - to: motivation#income
+"#investment":
+  layer: Strategy
+  type: Capability
+  caption: Investment
+  realizes:
+  - to: motivation#roi

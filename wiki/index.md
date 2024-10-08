@@ -12,60 +12,29 @@ Described here are the architecture and business processes that pertain to Give 
 Give for good is a non-profit organization that allow donors to donate money indirectly to charities.
 The donated money is first invested in green/sustainable stock funds.
 A part of the profits is donated to the selected charities anually, a small part is used to support the platform, and the rest is used for reinvestment.
+```pumlarch
+~motivation#donor [hidden]d- motivation#trust
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
-sprite $sCap jar:archimate/strategy-capability
+~motivation#donor|motivation#board|motivation#charities
+~motivation#trust|motivation#donations|motivation#income|motivation#roi
 
-rectangle Platform  as "Give for good donation platform" {
-    Strategy_Capability(CapDonating, "Donating")
-    Strategy_Capability(CapDashboard, "Donor dashboard")
-    Strategy_Capability(CapInvest, "Investing")
-    Strategy_Capability(CapPayout, "Payout")
-    Strategy_Capability(CapHistory, "Complete history")
-} 
+~motivation#donor|motivation#board|motivation#charities d motivation#better_place
+~motivation#donor|motivation#board|motivation#charities d motivation#trust|motivation#donations|motivation#income|motivation#roi
+~motivation#better_place d motivation#trust|motivation#donations|motivation#income|motivation#roi
 
-Motivation_Driver(Better, "Make the world \na better place")
-Motivation_Goal(Income, "Recurrent income \nfor charities")
-Motivation_Requirement(ReqDonating, "Donors can make donations")
-Motivation_Requirement(Correctness, "Correct, auditable \nadministration of funds")
-Motivation_Requirement(Transparancy, "Transparant software \nand processes")
-Motivation_Outcome(Donations, "More donations for charities \nthrough the platform")
-Motivation_Outcome(Trust, "Increase donors' trust")
-Motivation_Outcome(Roi, "Return on investment")
+~motivation#trust|motivation#donations|motivation#income|motivation#roi d motivation#transparancy|motivation#correctness|motivation#donating
 
-Motivation_Stakeholder(Charities, "Charities")
-Motivation_Stakeholder(Board, "Give for good board")
-Motivation_Stakeholder(Donor, "Donors")
+```
 
-CapHistory .-u-|> Correctness
-CapHistory .-u-|> Transparancy
-CapDashboard .-|> Transparancy
-CapInvest .-u--|> Roi
-CapPayout .-|> Income
-CapDonating .-u-|> ReqDonating
-ReqDonating -u-> Donations
-Charities -- Income
-Donations .> Income : long-term +
-Income <. Roi : +
-Donor <-. Trust : +
-Donor --- Donations
-Board --- Donations
-Board --- Trust
-Trust .> Donations : +
-Trust <|-. Correctness
-Trust <|-. Transparancy
+Motivations are realized as follows:
 
-Better <|-. Income
-Board -- Better
-Charities -- Better
-Donor -- Better
+```pumlarch
+~motivation#transparancy|motivation#correctness|motivation#donating|motivation#income|motivation#roi
+rectangle Platform as "Give for food donation platform" {
+    ~strategy#dashboard|strategy#history|strategy#donating|strategy#payout|strategy#investment u motivation#transparancy|motivation#correctness|motivation#donating|motivation#income|motivation#roi
+}
 
-url for Charities is [[charity]]
-url for Donor is [[donor]]
 url for Platform is [[platform]]
-@enduml
 ```
 
 
@@ -92,28 +61,11 @@ Being transparant in process, software and data convinces people of Give for Goo
 
 ## User roles
 
-```plantuml
-!include <archimate/Archimate>
+```pumlarch
+~roles#donor|roles#web_admin|roles#donation_admin 
 
-Business_Role(Donor, "Donor")
-Business_Role(WebAdmin, "Website administrator")
-Business_Role(Admin, "Donations \nadministrator")
+~roles#donor|roles#web_admin|roles#donation_admin d donating_process|conversion_day
+~donating_process|conversion_day d website|admin_module
 
-Business_Process(CDay, "Conversion day")
-Business_Process(Donating, "Donating")
-
-Donor -->> Donating
-Admin -->> CDay
-
-Business_Service(AdminModule, "Admin module")
-Business_Service(Web, "giveforgood.world")
-
-CDay <-- AdminModule
-Donating <-- Web
-WebAdmin <--- Web
-
-url for Donor is [[donor]]
-url for Donating is [[donation]]
-url for CDay is [[conversion_day]]
-url for AdminModule is [[admin_module]]
+~website u roles#web_admin 
 ```

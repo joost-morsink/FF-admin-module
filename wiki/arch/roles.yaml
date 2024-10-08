@@ -1,0 +1,18 @@
+"#donor":
+  layer: Business
+  type: Role
+  caption: Donor
+  triggers:
+  - to: donating_process
+"#web_admin":
+  layer: Business
+  type: Role
+  caption: Website administrator
+"#donation_admin":
+  layer: Business
+  type: Role
+  caption: Donations admnistrator
+  triggers:
+  - to: conversion_day
+
+

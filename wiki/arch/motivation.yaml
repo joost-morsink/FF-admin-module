@@ -1,0 +1,80 @@
+# Stakeholders
+"#donor":
+  layer: Motivation
+  type: Stakeholder
+  caption: Donors
+  url: donor
+  relates:
+  - to: "#better_place"
+  - to: "#donations"
+"#board":
+  layer: Motivation
+  type: Stakeholder
+  caption: Give for good board
+  relates:
+  - to: "#better_place"
+  - to: "#donations"
+  - to: "#trust"
+"#charities":
+  layer: Motivation
+  type: Stakeholder
+  caption: Charities
+  url: charity
+  relates:
+  - to: "#better_place"
+  - to: "#income"
+
+# Drivers, goals and outcomes
+"#income":
+  layer: Motivation
+  type: Goal
+  caption: Recurrent income \nfor charities
+  realizes:
+  - to: "#better_place"
+"#better_place":
+  layer: Motivation
+  type: Driver
+  caption: Make the world\n a better place
+"#trust":
+  layer: Motivation
+  type: Outcome
+  caption: Increase donors' trust
+  influences:
+  - to: "#donations"
+    caption: +
+  - to: "#donor"
+    caption: +
+"#donations":
+  layer: Motivation
+  type: Outcome
+  caption: More donation for charities \nthrough the platform
+  influences:
+  - to: "#income"
+    caption: long-term +
+"#roi":
+  layer: Motivation
+  type: Outcome
+  caption: Return on investment
+  influences:
+  - to: "#income"
+    caption: +
+
+# Requirements
+"#transparancy":
+  layer: Motivation
+  type: Requirement
+  caption: Transparant software \nand processes
+  realizes:
+  - to: "#trust"
+"#correctness":
+  layer: Motivation
+  type: Requirement
+  caption: Correct, auditable \nadministration of funds
+  realizes:
+  - to: "#trust"
+"#donating":
+  layer: Motivation
+  type: Requirement
+  caption: Donors can make donations
+  serves:
+  - to: "#donations"
