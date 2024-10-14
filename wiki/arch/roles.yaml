@@ -2,6 +2,7 @@
   layer: Business
   type: Role
   caption: Donor
+  url: donor
   triggers:
   - to: donating_process
 "#web_admin":

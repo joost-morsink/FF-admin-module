@@ -84,57 +84,47 @@ archimate:
 Conversion day exist of three different subprocesses, which may or may not occur on the same day. 
 
 ## Overview
-```pumlarch
-~conversion_day d #in
-~conversion_day d #out
-~conversion_day d #transfer
 
-~#in r #out
-~#out r #transfer
-~#in d #enter
-~#in d #invest
-~#enter r #invest
-~#out d #liquidate
-~#out d #exit
-~#liquidate r #exit
+``` arch(plantuml)
+$subprocess = (#in, #out, #transfer);
+$insteps = (#enter, #invest);
+$outsteps = (#liquidate, #exit);
+$steps = (#enter, #invest, #liquidate, #exit, #transfer);
 
-~event_store u #enter
-~event_store u #invest
-~event_store u #liquidate
-~event_store u #exit
-~event_store u #transfer
+conversion_day d $subprocess;
+$subprocess;
+#in d $insteps;
+#out d $outsteps;
+$insteps;
+$outsteps;
 
-~investments u #invest
-~investments u #liquidate
+(event_store, investments) u $steps;
 
-~admin_ui --u conversion_day
+admin_ui u 3 conversion_day;
 
-component "G4g Admin Module" as Web 
-component "Investment bank website" as Bank 
-investments <|-. Bank
-event_store <|-. Web
-admin_ui <|-. Web
+> component "G4g Admin Module" as Web 
+> component "Investment bank website" as Bank 
+> investments <|-. Bank
+> event_store <|-. Web
+> admin_ui <|-. Web
 ```
 
 ## Models
 
 The conversion day process makes use of some models in the [calculator module](./calculator).
+```arch(plantuml)
+$steps = (#enter, #invest, #liquidate, #exit, #transfer);
 
-```pumlarch
-~#enter r #invest
-~#invest r #liquidate
-~#liquidate r #exit
-~#exit r #transfer
-component Calculator {
-    ~#enter d models/option_worths
-    ~models/option_worths r models/ideal_option_valuations
-    ~models/ideal_option_valuations r models/minimal_exits
-    ~#exit d models/option_worths
-    ~#exit d models/ideal_option_valuations
-    ~#exit d models/minimal_exits
-    ~#exit d models/amounts_to_transfer
-    ~#transfer d models/amounts_to_transfer
-}
+$steps;
+> component Calculator {
+  $models = (models/option_worths, 
+             models/ideal_option_valuations,
+             models/minimal_exits,
+             models/amounts_to_transfer);
+  $models;
+> }
+
+$steps d $models;
 ```
 
 ## The in process

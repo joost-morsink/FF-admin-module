@@ -11,12 +11,14 @@
 ---
 # Platform
 
+```arch(plantuml)
+$capabilities = (strategy#donating, strategy#dashboard, strategy#investment, strategy#payout, strategy#history);
+$functions = (website, admin_module);
+$procs = (donating_process, investment_process, payout);
 
-```pumlarch
-~website|admin_module
-~donating_process|investment_process|payout
+$capabilities; $functions; $procs;
 
-~strategy#donating|strategy#dashboard|strategy#investment|strategy#payout|strategy#history d website|admin_module
-~website|admin_module d donating_process|investment_process|payout
-
+$capabilities d $functions;
+$functions d $procs;
 ```
+

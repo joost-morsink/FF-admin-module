@@ -18,27 +18,25 @@ archimate:
 
 The admin module consist of several components, hosted on Microsoft Azure:
 
-```pumlarch
-component "Admin Module" as Admin {
-    component "Asp.Net Core webapp" as AzWeb #Technology {
-        ~admin_ui
-    }
-    component "Azure function app" as AzFnc1 #Technology {
-        ~admin_ui d calculator
-        ~admin_ui d event_store
-        ~calculator d event_store
-        ~calculator d model_cache
-    }
-    ~asb
-    component "Azure function app" as AzFnc2 #Technology {
-        ~auto_import d event_store
-        ~auto_import d calculator
-    }
+```arch(plantuml)
+>component "Admin Module" as Admin {
+>    component "Asp.Net Core webapp" as AzWeb #Technology {
+        admin_ui;
+>    }
+>    component "Azure function app" as AzFnc1 #Technology {
+        admin_ui d calculator;
+        admin_ui d event_store;
+        calculator d (event_store, model_cache);
+>    }
+    asb;
+>    component "Azure function app" as AzFnc2 #Technology {
+        auto_import d (event_store, calculator);
+>    }
 
-    ~event_store d asb
-    ~model_cache d asb
-}
-~administrator r admin_ui
-~donor r website
-~calculator l website
+    (event_store, model_cache) d asb;
+>}
+
+administrator r admin_ui;
+donor r  website;
+calculator l website;
 ```

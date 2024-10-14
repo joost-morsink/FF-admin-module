@@ -12,29 +12,34 @@ Described here are the architecture and business processes that pertain to Give 
 Give for good is a non-profit organization that allow donors to donate money indirectly to charities.
 The donated money is first invested in green/sustainable stock funds.
 A part of the profits is donated to the selected charities anually, a small part is used to support the platform, and the rest is used for reinvestment.
-```pumlarch
-~motivation#donor [hidden]d- motivation#trust
 
-~motivation#donor|motivation#board|motivation#charities
-~motivation#trust|motivation#donations|motivation#income|motivation#roi
+```arch(plantuml)
+$stakeholders = (motivation#donor, motivation#board, motivation#charities);
+$drivers = motivation#better_place;
+$goals = (motivation#trust, motivation#donations, motivation#income, motivation#roi);
+$requirements = (motivation#transparancy, motivation#correctness, motivation#donating);
 
-~motivation#donor|motivation#board|motivation#charities d motivation#better_place
-~motivation#donor|motivation#board|motivation#charities d motivation#trust|motivation#donations|motivation#income|motivation#roi
-~motivation#better_place d motivation#trust|motivation#donations|motivation#income|motivation#roi
+$stakeholders; $drivers; $goals; $requirements;
 
-~motivation#trust|motivation#donations|motivation#income|motivation#roi d motivation#transparancy|motivation#correctness|motivation#donating
+$stakeholders d $drivers;
+$stakeholders d 2 $goals;
+$drivers d $goals;
+$goals d $requirements;
 
+> motivation__donor -[hidden]d-- motivation__trust
 ```
 
 Motivations are realized as follows:
 
-```pumlarch
-~motivation#transparancy|motivation#correctness|motivation#donating|motivation#income|motivation#roi
-rectangle Platform as "Give for food donation platform" {
-    ~strategy#dashboard|strategy#history|strategy#donating|strategy#payout|strategy#investment u motivation#transparancy|motivation#correctness|motivation#donating|motivation#income|motivation#roi
-}
+```arch(plantuml)
+$motivation = (motivation#transparancy, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
+$strategy = (strategy#dashboard, strategy#history, strategy#donating, strategy#payout, strategy#investment);
 
-url for Platform is [[platform]]
+$motivation;
+>rectangle Platform as "Give for good donation platform" {
+    $strategy u $motivation;
+>}
+>url for Platform is [[platform]]
 ```
 
 
@@ -61,11 +66,14 @@ Being transparant in process, software and data convinces people of Give for Goo
 
 ## User roles
 
-```pumlarch
-~roles#donor|roles#web_admin|roles#donation_admin 
+```arch(plantuml)
+$roles = (roles#donor, roles#web_admin, roles#donation_admin);
+$processes = (donating_process, conversion_day);
+$sites = (website, admin_module);
 
-~roles#donor|roles#web_admin|roles#donation_admin d donating_process|conversion_day
-~donating_process|conversion_day d website|admin_module
+$roles;
 
-~website u roles#web_admin 
+$roles d $processes;
+$processes d $sites;
+website u 2 roles#web_admin;
 ```

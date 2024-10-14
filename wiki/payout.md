@@ -70,21 +70,19 @@ archimate:
 # Payout
 
 The payout process
+```arch(plantuml)
+$steps = (#determine, #make, #register);
+$services = (calculator, admin_ui, event_store);
+$layer4 = (#att, #payment_order, #banking, #transactions);
+$artifacts = (#pain, #camt);
 
-```pumlarch
-~payout
-~#determine|#make|#register
-
-~payout d #determine|#make|#register
-
-~#determine|#make|#register d calculator|admin_ui|event_store
-
-~#att|#payment_order|#banking|#transactions
-
-~#make -d #banking
-
-~calculator|admin_ui|event_store d #att|#payment_order|#transactions
-
-~#payment_order|#transactions d #pain|#camt 
+payout;
+$steps;
+payout d $steps;
+$steps d ($services, #banking);
+$layer4;
+$services d $layer4;
+$layer4 d $artifacts;
 ```
+
 

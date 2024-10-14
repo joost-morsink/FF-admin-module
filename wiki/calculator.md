@@ -15,12 +15,13 @@ archimate:
 The calculator module is responsible for all calculations for Give for Good.
 It is modelled as state transitions due to events and may be dependent on other models so simplify calculations.
 
-```pumlarch
-component "Admin Module" as Admin {
-    ~admin_ui|auto_import d calculator|event_store
-    ~calculator d event_store|model_cache    
-}
-~calculator l website
+```arch(plantuml)
+> component "Admin Module" as Admin {
+    (admin_ui, auto_import) d (calculator, event_store);
+    calculator d (event_store, model_cache);
+> } 
+
+calculator l website;
 ```
 
 ## Calculator core

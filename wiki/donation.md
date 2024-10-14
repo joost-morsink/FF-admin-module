@@ -1,6 +1,53 @@
 ---
 title: Donation
 author: J.W. Morsink
+"#donate":
+    layer: Business
+    type: Process
+    caption: Make donation
+"#select":
+    layer: Business
+    type: Process
+    caption: Select charity
+    triggers:
+    - to: "#details"
+    composes:
+    - to: "#donate"
+"#details":
+    layer: Business
+    type: Process
+    caption: Enter details
+    triggers:
+    - to: "#payment"
+    composes:
+    - to: "#donate"
+"#payment":
+    layer: Business
+    type: Process
+    caption: Payment
+    triggers:
+    - to: "#thanks"
+    composes:
+    - to: "#donate"
+"#thanks":
+    layer: Business
+    type: Process
+    caption: Thank you    
+    composes:
+    - to: "#donate"
+
+"#charity_repo":
+    layer: Application
+    type: Service
+    caption: Charities
+    serves:
+    - to: "#select"
+"#donating_svc":
+    layer: Application
+    type: Service
+    caption: Donating
+    serves:
+    - to: "#payment"
 ---
 
 # Donation
@@ -10,12 +57,26 @@ The monetary amount is exchanged to the investment option's currency if needed.
 
 ## Making a donation
 
-```pumlarch
-~donor
+```arch(plantuml)
+$steps = (#select, #details, #payment, #thanks);
+$services = (#charity_repo, #donating_svc);
+donor;
 
-rectangle Web as "giveforgood.world" {
-    ~donor r make_donation
-}
+> rectangle Web as "giveforgood.world" {
+    donor r #donate;
+    $steps;
+    #donate d $steps;
+    $steps d $services;
+
+>    component Wordpress #Application
+>    component GiveWp #Application
+
+>    Wordpress .u-|> donation__charity_repo
+>    GiveWp .u-|> donation__donating_svc
+>    GiveWp -l-> Wordpress : plugin
+>    donation__charity_repo <|-. GiveWp
+
+> }
 ```
 
 ```plantuml

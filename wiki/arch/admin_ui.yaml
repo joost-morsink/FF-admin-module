@@ -6,3 +6,5 @@ serves:
 - to: conversion_day
 - to: payout#determine
 - to: payout#register
+accesses:
+- to: payout#payment_order
