@@ -33,7 +33,10 @@ public record MinimalExits(ImmutableDictionary<string, Real> Exits) : IModel<Min
 
             protected override MinimalExits PriceInfo(MinimalExits model, PriceInfo e)
                 => CalculateNewMinimalExits(model, e.Option, e.Timestamp);
-            
+
+            protected override MinimalExits IncreaseCash(MinimalExits model, IncreaseCash e)
+                => CalculateNewMinimalExits(model, e.Option, e.Timestamp);
+
             private MinimalExits CalculateNewMinimalExits(MinimalExits model, string optionId, DateTimeOffset timestamp)
             {
                 var option = CurrentOptions.Values[optionId];

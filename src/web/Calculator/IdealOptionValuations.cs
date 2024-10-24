@@ -56,7 +56,8 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
 
             protected override IdealOptionValuations ConvLiquidate(IdealOptionValuations model, ConvLiquidate e)
                 => RecalculateValuations(model, e.Option, e.Timestamp);
-
+            protected override IdealOptionValuations IncreaseCash(IdealOptionValuations model, IncreaseCash e)
+                => RecalculateValuations(model, e.Option, e.Timestamp);
             // On ConvLiquidate and PriceInfo, the added (or subtracted if negative) worth is added from the real value.
             // The ideal value should change according to the reinvestment fraction for the option.
             private IdealOptionValuations RecalculateValuations(IdealOptionValuations model, string option, DateTimeOffset timestamp)
