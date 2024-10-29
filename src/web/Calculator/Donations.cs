@@ -29,7 +29,7 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
 
             protected override Donations NewDonation(Donations model, NewDonation e)
                 => new(model.Values.Add(e.Donation,
-                    new Donation(e.Donation, e.Timestamp, e.Execute_timestamp, e.Option, e.Charity, (Real)e.Exchanged_amount)));
+                    new Donation(e.Donation, e.Timestamp, e.Execute_timestamp, e.Option, e.Charity, (Real)e.Exchanged_amount, e.Currency, (Real)e.Amount)));
 
             protected override Donations UpdateCharityForDonation(Donations model, UpdateCharityForDonation e)
                 => new(model.Values.SetItem(e.Donation,
@@ -38,5 +38,5 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
     }
 }
 public record Donation(string Id, DateTimeOffset Timestamp, DateTimeOffset ExecuteTimestamp, string OptionId,
-    string CharityId, Real Amount);
+    string CharityId, Real Amount, string OriginalCurrency, Real OriginalAmount);
     

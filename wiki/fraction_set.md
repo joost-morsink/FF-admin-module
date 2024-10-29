@@ -1,3 +1,8 @@
+---
+title: Fraction set
+author: J.W. Morsink
+---
+
 # Fraction set
 
 A fraction set is a technical data structure that keeps track of how big a share each part of a total has.

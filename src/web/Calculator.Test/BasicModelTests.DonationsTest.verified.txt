@@ -6,6 +6,8 @@
       ExecuteTimestamp: DateTimeOffset_1,
       Id: 1,
       OptionId: 1,
+      OriginalAmount: 10.0,
+      OriginalCurrency: EUR,
       Timestamp: DateTimeOffset_1
     },
     2: {
@@ -14,6 +16,8 @@
       ExecuteTimestamp: DateTimeOffset_2,
       Id: 2,
       OptionId: 1,
+      OriginalAmount: 10.0,
+      OriginalCurrency: HEUR,
       Timestamp: DateTimeOffset_2
     },
     3: {
@@ -22,6 +26,8 @@
       ExecuteTimestamp: DateTimeOffset_3,
       Id: 3,
       OptionId: 1,
+      OriginalAmount: 10.0,
+      OriginalCurrency: EUR,
       Timestamp: DateTimeOffset_4
     },
     4: {
@@ -30,6 +36,8 @@
       ExecuteTimestamp: DateTimeOffset_5,
       Id: 4,
       OptionId: 1,
+      OriginalAmount: 10.0,
+      OriginalCurrency: EUR,
       Timestamp: DateTimeOffset_5
     }
   }

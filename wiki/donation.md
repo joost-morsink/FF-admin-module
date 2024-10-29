@@ -79,49 +79,6 @@ donor;
 > }
 ```
 
-```plantuml
-@startuml
-!include <archimate/Archimate>
-
-Business_Actor(Donor, "Donor")
-
-rectangle Web as "giveforgood.world" {
-    Business_Process(Donate, "Make donation")
-    Business_Process(Charity, "Select charity")
-    Business_Process(Details, "Enter details")
-    Business_Process(Pay, "Payment")
-    Business_Process(Thank, "Thank you")
-
-    Donor ->> Donate
-    Donate *-- Charity
-    Donate *-- Details
-    Donate *-- Pay
-    Donate *-- Thank
-    Charity ->> Details
-    Details ->> Pay
-    Pay ->> Thank
-
-    Application_Service(CharityRepo, "Charities")
-    Application_Service(DonationRepo, "Donating")
-
-    CharityRepo -u-> Charity
-    DonationRepo -u-> Pay
-
-    component Wordpress #Application
-    component GiveWp #Application
-
-    Wordpress .u-|> CharityRepo
-    GiveWp .u-|> DonationRepo
-    GiveWp -l-> Wordpress : plugin
-    CharityRepo <|-. GiveWp
-}
-
-url for Web is [[https://giveforgood.world]]
-url for Donor is [[donor]]
-
-@enduml
-```
-
 When a donation is made, it goes through several stages:
 
 ```plantuml

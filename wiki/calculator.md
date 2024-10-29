@@ -83,7 +83,7 @@ Because the calculation of the model is **entirely** dependent on the previous m
 
 The Index model keeps track of the index of the current event. 
 Every index in the sequence has an event associated with it that lead to the current state.
-For the event that preceded the start state (at t=0), the [NONE](./events/NONE.md) is assumed to have happened.
+For the event that preceded the start state (at t=0), the [NONE](./events/NONE.md) event is assumed to have happened.
 
 ```mermaid
 graph LR
@@ -118,6 +118,7 @@ graph LR
     Options --> ValidationErrors
     AmountsToTransfer --> ValidationErrors
     CharityBalance --> ValidationErrors
+    Options --> MonthlyDonations
 
     click Index "./models/index"
     click HistoryHash "./models/history_hash"
@@ -127,6 +128,7 @@ graph LR
     click OptionWorths "./models/option_worths"
     click IdealOptionValuations "./models/ideal_option_valuations"
     click MinimalExits "./models/minimal_exits"
+    click MonthlyDonations "./models/monthly_donations"
 ```
 
 ## Caching

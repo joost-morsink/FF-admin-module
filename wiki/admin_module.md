@@ -40,3 +40,8 @@ administrator r admin_ui;
 donor r  website;
 calculator l website;
 ```
+
+## Technical implementation
+
+The admin module uses [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) to administer changes in the (financial or meta) state of the Give for Good concept. 
+It defines [events](./event) to record these state changes, and [models](./calculator#models) to aggregate these events into insightful parts of the overall state at any given position in the event sequence.

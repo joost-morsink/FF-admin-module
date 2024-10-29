@@ -78,3 +78,9 @@
   caption: Donors can make donations
   serves:
   - to: "#donations"
+"#insight":
+  layer: Motivation
+  type: Requirement
+  caption: Donors can retrieve information \nabout their previous donations
+  realizes: 
+  - to: "#trust"

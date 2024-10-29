@@ -11,6 +11,8 @@
             ExecuteTimestamp: DateTimeOffset_2,
             Id: 1,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_2
           },
           {
@@ -19,6 +21,8 @@
             ExecuteTimestamp: DateTimeOffset_3,
             Id: 2,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: HEUR,
             Timestamp: DateTimeOffset_3
           },
           {
@@ -27,6 +31,8 @@
             ExecuteTimestamp: DateTimeOffset_4,
             Id: 3,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_5
           }
         ]
@@ -51,6 +57,8 @@
             ExecuteTimestamp: DateTimeOffset_4,
             Id: 3,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_5
           }
         ]
@@ -76,6 +84,8 @@
             ExecuteTimestamp: DateTimeOffset_4,
             Id: 3,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_5
           }
         ]
@@ -101,6 +111,8 @@
             ExecuteTimestamp: DateTimeOffset_4,
             Id: 3,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_5
           },
           {
@@ -109,6 +121,8 @@
             ExecuteTimestamp: DateTimeOffset_9,
             Id: 4,
             OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
             Timestamp: DateTimeOffset_9
           }
         ]

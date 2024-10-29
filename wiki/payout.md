@@ -69,7 +69,9 @@ archimate:
 
 # Payout
 
-The payout process
+The payout process is the process of paying the amounts [allocated](./allocation) to the [charities](./charity) and administering the payment for subtraction from the allocation amount. 
+It is implemented by [CONV_TRANSFER](./events/CONV_TRANSFER) events and influences the [Amounts to transfer model](./models/amounts_to_transfer) negatively.
+
 ```arch(plantuml)
 $steps = (#determine, #make, #register);
 $services = (calculator, admin_ui, event_store);

@@ -17,7 +17,7 @@ A part of the profits is donated to the selected charities anually, a small part
 $stakeholders = (motivation#donor, motivation#board, motivation#charities);
 $drivers = motivation#better_place;
 $goals = (motivation#trust, motivation#donations, motivation#income, motivation#roi);
-$requirements = (motivation#transparancy, motivation#correctness, motivation#donating);
+$requirements = (motivation#insight, motivation#transparancy, motivation#correctness, motivation#donating);
 
 $stakeholders; $drivers; $goals; $requirements;
 
@@ -32,7 +32,7 @@ $goals d $requirements;
 Motivations are realized as follows:
 
 ```arch(plantuml)
-$motivation = (motivation#transparancy, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
+$motivation = (motivation#insight, motivation#transparancy, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
 $strategy = (strategy#dashboard, strategy#history, strategy#donating, strategy#payout, strategy#investment);
 
 $motivation;
@@ -77,3 +77,10 @@ $roles d $processes;
 $processes d $sites;
 website u 2 roles#web_admin;
 ```
+
+## Software
+
+The software supporting the Give for Good organization comprises of two business functions:
+
+* The [Admin module](./admin_module), a module for the administration of donations, investments and transfers.
+* The [Give for Good website](https://giveforgood.world), a front end for (potential) donors.

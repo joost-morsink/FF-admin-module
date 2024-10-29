@@ -15,6 +15,8 @@ ExecuteTimestamp: The time at which the donation may be considered made.
 OptionId: The id of the investment option
 CharityId: The id of the charity
 Amount: The amount of money donated, in the option's currency.
+OriginalCurrency: The currency of the original donation.
+OriginalAmount: The amount of money donated, in the original currency.
 @endtyaml
 ```
 

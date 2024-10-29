@@ -34,7 +34,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 return model.Mutate(e.Option, option =>
                 {
                     var donation = new Donation(e.Donation, e.Timestamp, e.Execute_timestamp, e.Option, e.Charity,
-                        (Real)e.Exchanged_amount);
+                        (Real)e.Exchanged_amount, e.Currency, (Real)e.Amount);
 
                     return option with {UnenteredDonations = option.UnenteredDonations.Add(donation)};
                 });

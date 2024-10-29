@@ -5,6 +5,7 @@
   url: donor_dashboard
   realizes:
   - to: motivation#transparancy
+  - to: motivation#insight
 "#history":
   layer: Strategy
   type: Capability
@@ -22,6 +23,7 @@
   layer: Strategy
   type: Capability
   caption: Payout
+  url: payout
   realizes:
   - to: motivation#income
 "#investment":

@@ -10,3 +10,6 @@ archimate:
 ---
 
 # Model Cache
+
+The model cache is responsible for caching instances of [models](./calculator#models) for certain points in the event sequence, to speed up calculations.
+

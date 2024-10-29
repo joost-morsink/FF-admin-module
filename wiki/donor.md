@@ -25,3 +25,12 @@ A donor uses the [Give for good website](https://giveforgood.world) to make dona
 donor u (make_donation, donor_dashboard);
 ```
 
+## Data
+
+The following data should be retrievable from the dashboard:
+
+* An overview of all donations made
+* A 'current' worth of the donations
+* Paid amounts to charities
+
+Graphical visualisations based on these data should be available as well.
