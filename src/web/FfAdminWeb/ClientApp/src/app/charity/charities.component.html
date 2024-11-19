@@ -25,7 +25,7 @@
   <ng-container matColumnDef="link">
     <mat-header-cell *matHeaderCellDef>Partition</mat-header-cell>
     <mat-cell *matCellDef="let x">
-      <a [routerLink]="['/partition',x.id]">
+      <a [routerLink]="['/partition',x.code]">
         <button><span class="inline-icon material-icons">pie_chart</span><span>Partition</span></button>
       </a>
     </mat-cell>
