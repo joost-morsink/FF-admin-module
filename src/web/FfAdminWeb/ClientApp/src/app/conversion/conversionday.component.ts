@@ -16,6 +16,8 @@ export class ConversionDayComponent {
   constructor(private admin: Admin) { }
   public option: IOption;
   public step: string = 'init';
+  @Output() public defaultTimestamp : string = '';
+  
   public onOptionSelected(option: { option: IOption, process: ProcessStep }) {
     this.option = option.option;
     this.step = option.process;
@@ -23,7 +25,8 @@ export class ConversionDayComponent {
   public async refreshOption() {
     this.option = await this.admin.getOption(this.option.code);
   }
-  public async onLiquidated(dummy: any) {
+  public async onLiquidated(component: LiquidationComponent) {
+    this.defaultTimestamp = component.timestamp.value;
     await this.refreshOption()
     this.step = 'exit';
   }
@@ -34,7 +37,8 @@ export class ConversionDayComponent {
   public onTransferred(dummy: any) {
     this.step = 'enter';
   }
-  public async onEntered(dummy: any) {
+  public async onEntered(component: EnterComponent) {
+    this.defaultTimestamp = component.timestamp.value;
     await this.refreshOption();
     this.step = 'invest';
   }
@@ -116,7 +120,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
     super(eventStore, dialog);
   }
   @Input() public option: IOption;
-  @Output() public liquidated: EventEmitter<void> = new EventEmitter();
+  @Output() public liquidated: EventEmitter<LiquidationComponent> = new EventEmitter<LiquidationComponent>();
 
   public exit_amount: number;
 
@@ -175,7 +179,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
       cash_amount: this.newCash.value,
       transaction_reference: this.transactionRef.value
     }
-    await this.importAndProcess(event, this.liquidated);
+    await this.importAndProcess(event, this.liquidated, this);
   }
   public zeroLiquidation() {
     this.newInvested.setValue(this.invested.value);
@@ -192,6 +196,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
     super(eventStore, dialog);
   }
   @Input() public option: IOption;
+  @Input() public defaultTimestamp: string;
   @Output() public exited: EventEmitter<void> = new EventEmitter();
 
   public exit_amount: number;
@@ -201,7 +206,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
   public loanable: number;
 
   public ngOnInit() {
-    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.timestamp = new UntypedFormControl(this.defaultTimestamp || new Date().toISOString());
     this.exitAmount = new UntypedFormControl("0.00");
     this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
@@ -364,7 +369,7 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
     super(eventStore, dialog);
   }
   @Input() public option: IOption;
-  @Output() public entered: EventEmitter<void> = new EventEmitter();
+  @Output() public entered: EventEmitter<EnterComponent> = new EventEmitter<EnterComponent>();
 
   public timestamp: UntypedFormControl;
   public investedAmount: UntypedFormControl;
@@ -386,7 +391,7 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
       option: this.option.code,
       invested_amount: this.investedAmount.value,
     }
-    await this.importAndProcess(event, this.entered);
+    await this.importAndProcess(event, this.entered, this);
   }
 }
 
@@ -399,6 +404,7 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
     super(eventStore, dialog);
   }
   @Input() public option: IOption;
+  @Input() public defaultTimestamp: string;
   @Output() public invested: EventEmitter<void> = new EventEmitter();
 
   public timestamp: UntypedFormControl;
@@ -408,7 +414,7 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
   public formGroup: UntypedFormGroup;
   public investment: UntypedFormControl;
   public ngOnInit(): void {
-    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.timestamp = new UntypedFormControl(this.defaultTimestamp || new Date().toISOString());
     this.newInvested = new UntypedFormControl(this.option.invested_amount);
     this.newCash = new UntypedFormControl(this.option.cash_amount);
     this.investment = new UntypedFormControl("0");
