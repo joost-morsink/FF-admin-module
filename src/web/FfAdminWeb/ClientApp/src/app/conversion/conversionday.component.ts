@@ -17,7 +17,7 @@ export class ConversionDayComponent {
   public option: IOption;
   public step: string = 'init';
   @Output() public defaultTimestamp : string = '';
-  
+
   public onOptionSelected(option: { option: IOption, process: ProcessStep }) {
     this.option = option.option;
     this.step = option.process;
@@ -407,6 +407,7 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
   @Input() public defaultTimestamp: string;
   @Output() public invested: EventEmitter<void> = new EventEmitter();
 
+  public transferInvestmentButtonDisabled: boolean;
   public timestamp: UntypedFormControl;
   public newInvested: UntypedFormControl;
   public newCash: UntypedFormControl;
@@ -444,6 +445,7 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
     let transferAmount = Number(this.investment.value) || 0;
     this.newInvested.setValue((Number(this.newInvested.value) + transferAmount) || 0);
     this.newCash.setValue((Number(this.newCash.value) - transferAmount) || 0);
+    this.transferInvestmentButtonDisabled = true;
   }
 }
 

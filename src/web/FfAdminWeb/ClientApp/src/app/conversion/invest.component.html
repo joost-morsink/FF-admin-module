@@ -18,7 +18,7 @@
       <input matNativeControl name="invest" [(formControl)]="investment" />
     </mat-form-field>
     &nbsp;
-    <button (click)="transferInvestment()">Transfer investment</button>
+    <button (click)="transferInvestment()" [disabled]="transferInvestmentButtonDisabled">Transfer investment</button>
     <br />
     <mat-form-field>
         <mat-label>New cash amount ({{option.currency}})</mat-label>
