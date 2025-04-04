@@ -2,7 +2,7 @@
   "profiles": {
     "EventImport.Function": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7041",
+      "commandLineArgs": "--port 7079",
       "launchBrowser": false
     }
   }

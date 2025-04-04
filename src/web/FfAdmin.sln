@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External.Mollie.ApiClient",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External.Stripe.ApiClient", "External.Stripe.ApiClient\External.Stripe.ApiClient.csproj", "{748C2E25-B0BD-4EE3-A4EF-729B2FC6054C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeRate", "ExchangeRate\ExchangeRate.csproj", "{2BC83E07-BE8E-4479-8A80-937826DF99EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +168,10 @@ Global
 		{748C2E25-B0BD-4EE3-A4EF-729B2FC6054C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{748C2E25-B0BD-4EE3-A4EF-729B2FC6054C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{748C2E25-B0BD-4EE3-A4EF-729B2FC6054C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BC83E07-BE8E-4479-8A80-937826DF99EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BC83E07-BE8E-4479-8A80-937826DF99EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BC83E07-BE8E-4479-8A80-937826DF99EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BC83E07-BE8E-4479-8A80-937826DF99EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

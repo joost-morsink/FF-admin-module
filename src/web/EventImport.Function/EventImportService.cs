@@ -10,7 +10,10 @@ using External.Stripe.ApiClient;
 using FfAdmin.Calculator;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
+using FfAdmin.ExchangeRate;
 using Microsoft.Extensions.Options;
+using Stripe;
+using Event = FfAdmin.Common.Event;
 using Options = FfAdmin.Calculator.Options;
 
 namespace FfAdmin.EventImport.Function;
@@ -32,14 +35,17 @@ public class EventImportService : IEventImportService
     private readonly MollieClient _mollie;
     private readonly EventImportOptions _options;
     private readonly IStripeService _stripe;
+    private readonly IExchangeRateService _exchangeRateService;
 
     public EventImportService(ICalculatorClient calculator, IEventStore eventStore, MollieClient mollie, IStripeService stripe,
+        IExchangeRateService exchangeRateService,
         IOptions<EventImportOptions> options)
     {
         _calculator = calculator;
         _eventStore = eventStore;
         _mollie = mollie;
         _stripe = stripe;
+        _exchangeRateService = exchangeRateService;
         _options = options.Value;
     }
 
@@ -98,13 +104,24 @@ public class EventImportService : IEventImportService
             {
                 var payment = await _mollie.GetPayment(donation.TransactionId);
                 if (payment is not null
-                    && payment.Status is PAID
-                    && string.Equals(payment.SettlementAmount.Currency, option.Currency, StringComparison.OrdinalIgnoreCase))
-                    yield return MakeDonation(d =>
-                    {
-                        d.Exchange_reference = $"{MOLLIE}-{payment.Id}";
-                        d.Exchanged_amount = payment.SettlementAmount.Amount;
-                    });
+                    && payment.Status is PAID)
+                {
+                    if(string.Equals(payment.SettlementAmount.Currency, option.Currency, StringComparison.OrdinalIgnoreCase))
+                        yield return MakeDonation(d =>
+                        {
+                            d.Exchange_reference = $"{MOLLIE}-{payment.Id}";
+                            d.Exchanged_amount = payment.SettlementAmount.Amount;
+                        });
+                    else // Unable to retrieve exchange settlement from Mollie, use external service
+                    if (await _exchangeRateService.GetExchangeRate(payment.Amount.Currency, option.Currency,
+                            DateOnly.FromDateTime(donation.Date.Date))
+                        is { } rate)
+                        yield return MakeDonation(d =>
+                        {
+                            d.Exchange_reference = $"{MOLLIE}-{payment.Id}";
+                            d.Exchanged_amount = decimal.Floor(d.Amount * 100 / (decimal)rate.Factor) / 100;
+                        });
+                }
             }
 
             if (string.Equals(donation.Gateway, STRIPE_CHECKOUT, StringComparison.OrdinalIgnoreCase))
