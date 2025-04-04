@@ -13,7 +13,7 @@ try {
         $charity = $charities.$id
         foreach($entry in ($att.$id.Amounts | Get-Member -Type NoteProperty)){
             $curr = $entry.Name
-            $amount = $att.$id.Amounts.$curr
+            $amount = [Double]::Truncate(100*$att.$id.Amounts.$curr)/100;
             $line = @{Id=$id;Name=$charity.Name;BankName=$charity.Bank.Name;BankBic=$charity.Bank.Bic;BankAccount=$charity.Bank.Account;Currency=$curr;Amount=$amount.ToString()}
             [void] $lines.Add($line)
         }
