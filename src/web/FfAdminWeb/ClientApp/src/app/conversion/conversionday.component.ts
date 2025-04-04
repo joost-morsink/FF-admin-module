@@ -376,7 +376,7 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
   public formGroup: UntypedFormGroup;
 
   public ngOnInit() {
-    this.timestamp = new UntypedFormControl(new Date().toISOString());
+    this.timestamp = new UntypedFormControl("");
     this.investedAmount = new UntypedFormControl("0.00");
     this.formGroup = new UntypedFormGroup({
       timestamp: this.timestamp,
@@ -415,7 +415,7 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
   public formGroup: UntypedFormGroup;
   public investment: UntypedFormControl;
   public ngOnInit(): void {
-    this.timestamp = new UntypedFormControl(this.defaultTimestamp || new Date().toISOString());
+    this.timestamp = new UntypedFormControl(this.defaultTimestamp);
     this.newInvested = new UntypedFormControl(this.option.invested_amount);
     this.newCash = new UntypedFormControl(this.option.cash_amount);
     this.investment = new UntypedFormControl("0");
