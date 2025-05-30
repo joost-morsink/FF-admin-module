@@ -1,5 +1,6 @@
 param (
-    $Branch = "Main"
+    $Branch = "Main",
+    [Double]$Cutoff = 0
 )
 $culture = [cultureinfo]::CurrentCulture
 try {
@@ -15,7 +16,9 @@ try {
             $curr = $entry.Name
             $amount = [Double]::Truncate(100*$att.$id.Amounts.$curr)/100;
             $line = @{Id=$id;Name=$charity.Name;BankName=$charity.Bank.Name;BankBic=$charity.Bank.Bic;BankAccount=$charity.Bank.Account;Currency=$curr;Amount=$amount.ToString()}
-            [void] $lines.Add($line)
+            if($amount -ge $Cutoff){
+                [void] $lines.Add($line)
+            }
         }
     }
 
