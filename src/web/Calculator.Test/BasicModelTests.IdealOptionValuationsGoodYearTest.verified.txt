@@ -3,7 +3,7 @@
   {
     Valuations: {
       1: {
-        IdealValue: 15.0,
+        IdealValue: 15.000,
         RealValue: 15.0,
         Timestamp: DateTimeOffset_1
       }

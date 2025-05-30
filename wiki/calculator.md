@@ -112,6 +112,7 @@ graph LR
     IdealOptionValuations --> MinimalExits
     OptionWorths --> OptionWorthHistory
     CumulativeInterest --> OptionWorthHistory
+    OptionWorthHistory --> IdealOptionValuations
     Index --> ValidationErrors
     Donations --> ValidationErrors
     Charities --> ValidationErrors

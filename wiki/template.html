@@ -21,16 +21,25 @@
             }
         
             @media only screen and (min-width: 1000px) {
-                
+                .topbar {
+                    position:fixed;
+                }
                 .leftside {
-                    width: 20%;
-                    min-width: 200px;
+                    position: fixed;
+                    max-width: 300px;
+                    min-width: 300px;
                     display: inline-block;
                     padding: 3px;
                     vertical-align: text-top;
                     margin: 3px;
+                    margin-top: 150px;
                 }
                 .main-container {
+                    position:absolute;
+                    top: 150px;
+                    left: 300px;
+                    right:0;
+                    bottom:0;
                     width: 70%;
                     min-width: 300px;
                     max-width: 1200px;
@@ -38,6 +47,7 @@
                     padding: 3px;
                     vertical-align: text-top;
                     margin: 3px;
+                    overflow-y: auto;
                 }
             }
 
@@ -46,8 +56,13 @@
             }
             .topbar {
                 width:100%;
-                padding: 3px;
                 margin: 3px;
+                background-color: white;
+                opacity: 100%;
+            }
+            .topbar > img {
+                width:100%;
+                max-width: 800px;
             }
 
             .column-container {
@@ -97,16 +112,20 @@
     </head>
     <body>
         <div class="topbar">
-            <h1>Give for good wiki</h1>
+            <img src="images/Logo.svg"/>
         </div>
         <div class="leftside">
-            <a href="$branch$/index">Main page</a>
+            <a href="$branch$/index">Main page</a><br/>
+            
         </div>
         <div class="main-container">
             <div class="main">
                 <div>
                     $body$
+                    <br/><i>By ${author}</i><br/>
+
                 </div>
+
             </div>
         </div>
     </body>

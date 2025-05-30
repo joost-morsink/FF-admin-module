@@ -33,12 +33,22 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
             public OptionWorths PreviousOptionWorths => GetPrevious(cOptionWorths);
             
             // On ConvEnter, the cash is added to the real value and the ideal value.
+            // But we also register price information on the invested amount.
             protected override IdealOptionValuations ConvEnter(IdealOptionValuations model, ConvEnter e)
             {
                 var addedCash = CurrentOptionWorths.Worths[e.Option].Cash
                                 - PreviousOptionWorths.Worths[e.Option].Cash;
+                var addedWorth = CurrentOptionWorths.Worths[e.Option].TotalWorth
+                                 - PreviousOptionWorths.Worths[e.Option].TotalWorth;
+                var profit = addedWorth - addedCash;
+                var reinvestmentFraction = CurrentOptions.Values[e.Option].ReinvestmentFraction;
+
                 return model.Mutate(e.Option,
-                    option => option with {RealValue = option.RealValue + addedCash, IdealValue = option.IdealValue + addedCash}, e.Timestamp);
+                    option => option with
+                    {
+                        RealValue = option.RealValue + addedCash + profit, 
+                        IdealValue = option.IdealValue + addedCash + profit * reinvestmentFraction
+                    }, e.Timestamp);
             }
 
             // On ConvInvest, the added (or subtracted if negative) worth is added to the real value.

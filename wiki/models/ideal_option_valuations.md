@@ -47,8 +47,10 @@ The ideal valuation is affected by the following events:
 
 This event changes the worth of an investment option, but is not regarded as 'profit'. 
 The increase in worth is of course due to new [donations](../donation) entering into the investment option.
+But because of the need for registering the `InvestedAmount` it also records a price change, which is to be regarded as 'profit'.
 
-Both the real and ideal valuations are adjusted with the total gain in option worth.
+Both the real and ideal valuations are adjusted with the total gain in cash value. 
+The real value is updated with the profits as well, but the ideal value is updated with only the reinvestment part of the profits.
 
 ### CONV_EXIT
  

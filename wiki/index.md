@@ -2,7 +2,7 @@
 title: Give for Good
 author: J.W. Morsink
 ---
-# Give for Good 
+# Give for Good
 
 Welcome to the documentation wiki for Give for Good.
 Described here are the architecture and business processes that pertain to Give for Good.
