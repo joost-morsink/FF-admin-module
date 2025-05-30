@@ -139,6 +139,9 @@ Enter indicates the state change of unentered donations to entered donations, wh
 Invest is a step that allows the administration of the transfer of monetary funds from the cash part to the invested part of the investment option.
 The investment option's [worth](./worth) is not modified by this step.
 
+Users may follow the [in process checklist](./guides/in_process)
+
+
 ## The out process
 
 The out process supports the cashflow of invested funds out of the investment option for allocation of monetary funds to the [charity](./charity) and consists of two steps:
@@ -150,6 +153,8 @@ These steps are usually executed right after each other.
 Liquidate is a step that allows the administration of the transfer of monetary funds from the invested part to the cash part of the investment option.
 The investment option's [worth](./worth) is not modified by this step.
 Exit indicates the transfer of monetary funds out of the investment option for [allocation](./allocation) to [charities](./charity).
+
+Users may follow the [out process checklist](./guides/out_process)
 
 ### Exit
 
