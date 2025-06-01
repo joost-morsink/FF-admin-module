@@ -1,5 +1,3 @@
-using FfAdmin.Calculator.Core;
-
 namespace FfAdmin.Calculator;
 
 public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<Donations>
@@ -24,14 +22,14 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
 
-            protected override Donations CancelDonation(Donations model, CancelDonation e)
+            protected override async ValueTask<Donations> CancelDonation(Donations model, CancelDonation e)
                 => new(model.Values.Remove(e.Donation));
 
-            protected override Donations NewDonation(Donations model, NewDonation e)
+            protected override async ValueTask<Donations> NewDonation(Donations model, NewDonation e)
                 => new(model.Values.Add(e.Donation,
                     new Donation(e.Donation, e.Timestamp, e.Execute_timestamp, e.Option, e.Charity, (Real)e.Exchanged_amount, e.Currency, (Real)e.Amount)));
 
-            protected override Donations UpdateCharityForDonation(Donations model, UpdateCharityForDonation e)
+            protected override async ValueTask<Donations> UpdateCharityForDonation(Donations model, UpdateCharityForDonation e)
                 => new(model.Values.SetItem(e.Donation,
                     model.Values[e.Donation] with {CharityId = e.Charity}));
         }

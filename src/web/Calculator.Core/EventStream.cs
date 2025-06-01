@@ -131,7 +131,7 @@ public partial class EventStream
             try
             {
                 var context = await GetAtPosition(index);
-                return (T?)context.GetContext(typeof(T)) ?? throw new InvalidOperationException($"Eventprocessor for {typeof(T)} not found");
+                return (T?)await context.GetContext(typeof(T)) ?? throw new InvalidOperationException($"Eventprocessor for {typeof(T)} not found");
             }
             catch (MissingDataException mde)
             {

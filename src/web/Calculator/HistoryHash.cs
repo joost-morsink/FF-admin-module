@@ -37,7 +37,7 @@ public record HistoryHash : IModel<HistoryHash>
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override HistoryHash Default(HistoryHash model, Event e)
+            protected override async ValueTask<HistoryHash> Default(HistoryHash model, Event e)
             {
                 using var ms = new MemoryStream();
                 ms.Write(model.Hash);

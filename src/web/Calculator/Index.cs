@@ -1,5 +1,3 @@
-using FfAdmin.Calculator.Core;
-
 namespace FfAdmin.Calculator;
 
 public record Index(int Value) : IModel<Index>
@@ -14,7 +12,7 @@ public record Index(int Value) : IModel<Index>
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override Index Default(Index model, Event e)
+            protected override async ValueTask<Index> Default(Index model, Event e)
                 => new(model.Value + 1);
         }
     }

@@ -2,7 +2,7 @@ namespace FfAdmin.Calculator.Core;
 
 public interface IContext
 {
-    object? GetContext(Type type);
+    ValueTask<object?> GetContext(Type type);
     IEnumerable<Type> AvailableContexts { get; }
     IContext Previous { get; }
     Event Event { get; }
@@ -13,13 +13,13 @@ public interface IContext<T>
 {
     
     public static IContext<T> Instance { get; } = new Impl();
-    public T GetValue(IContext context) => GetValueOrNull(context) ?? throw new ArgumentException($"EventProcessor for {typeof(T)} not found");
-    T? GetValueOrNull(IContext context);
+    public async ValueTask<T> GetValue(IContext context) => await GetValueOrNull(context) ?? throw new ArgumentException($"EventProcessor for {typeof(T)} not found");
+    ValueTask<T?> GetValueOrNull(IContext context);
 
     private class Impl : IContext<T>
     {
-        public T? GetValueOrNull(IContext context)
-            => (T?)context.GetContext(typeof(T));
+        public async ValueTask<T?> GetValueOrNull(IContext context)
+            => (T?)await context.GetContext(typeof(T));
     }
 }
 

@@ -1,4 +1,3 @@
-using FfAdmin.Calculator.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
@@ -21,14 +20,16 @@ public record CurrentCharityFractionSets(ImmutableDictionary<string, CharityFrac
         protected class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths, IContext<Donations> cDonations)
             : BaseCalculation(previousContext, currentContext)
         {
-            public Options CurrentOptions => GetCurrent(cOptions);
-            public OptionWorths CurrentOptionWorths => GetCurrent(cOptionWorths);
-            public Donations CurrentDonations => GetCurrent(cDonations);
-            protected override CurrentCharityFractionSets Default(Event e)
+            public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
+            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<Donations> CurrentDonations => GetCurrent(cDonations);
+            protected override async ValueTask<CurrentCharityFractionSets> Default(Event e)
             {
-                var fractionSets = CurrentOptions.Values
+                var currentDonations = await CurrentDonations;
+                var currentOptionWorths = await CurrentOptionWorths;
+                var fractionSets = (await CurrentOptions).Values
                     .Select(o =>
-                        (o.Key, CharityFractionSetsForOption.Create(CurrentDonations, CurrentOptionWorths.Worths[o.Key])))
+                        (o.Key, CharityFractionSetsForOption.Create(currentDonations, currentOptionWorths.Worths[o.Key])))
                     .ToImmutableDictionary();
                 return new(fractionSets);
             }

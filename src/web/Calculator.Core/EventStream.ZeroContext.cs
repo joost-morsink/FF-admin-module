@@ -11,8 +11,8 @@ public partial class EventStream
             _processors = processors;
         }
         
-        public object? GetContext(Type type)
-            => _processors.Where(p => p.ModelType == type).Select(p => p.Start).FirstOrDefault();
+        public ValueTask<object?> GetContext(Type type)
+            => new (_processors.Where(p => p.ModelType == type).Select(p => p.Start).FirstOrDefault());
 
         public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
         public IContext Previous => this;

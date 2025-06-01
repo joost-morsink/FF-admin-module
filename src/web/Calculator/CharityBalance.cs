@@ -14,12 +14,12 @@ public record CharityBalance(Real Amount) : IModel<CharityBalance>
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override CharityBalance ConvExit(CharityBalance model, ConvExit e)
+            protected override async ValueTask<CharityBalance> ConvExit(CharityBalance model, ConvExit e)
             {
                 return new(model.Amount + e.Amount);
             }
 
-            protected override CharityBalance ConvTransfer(CharityBalance model, ConvTransfer e)
+            protected override async ValueTask<CharityBalance> ConvTransfer(CharityBalance model, ConvTransfer e)
             {
                 return new(model.Amount - e.Amount);
             }

@@ -23,12 +23,12 @@ public record AuditHistory(ImmutableList<AuditMoment> Moments) : IModel<AuditHis
         private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Index> cIndex, IContext<HistoryHash> cHistoryHash)
             : BaseCalculation(previousContext, currentContext)
         {
-            public Index PreviousIndex => GetPrevious(cIndex);
-            public HistoryHash PreviousHash => GetPrevious(cHistoryHash);
-            protected override AuditHistory Audit(AuditHistory model, Audit e)
+            public ValueTask<Index> PreviousIndex => GetPrevious(cIndex);
+            public ValueTask<HistoryHash> PreviousHash => GetPrevious(cHistoryHash);
+            protected override async ValueTask<AuditHistory> Audit(AuditHistory model, Audit e)
             {
-                var index = PreviousIndex.Value;
-                var hash = Convert.ToBase64String(PreviousHash.Hash);
+                var index = (await PreviousIndex).Value;
+                var hash = Convert.ToBase64String((await PreviousHash).Hash);
                 var prev = model.Moments.LastOrDefault();
 
                 var valid = e.EventCount == index && e.Hashcode == hash &&

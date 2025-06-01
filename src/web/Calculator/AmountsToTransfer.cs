@@ -21,26 +21,26 @@ public record AmountsToTransfer(ImmutableDictionary<string, MoneyBag> Values) : 
 
         private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CurrentCharityFractionSets> cCurrentCharityFractionSets) : BaseCalculation(previousContext, currentContext)
         {
-            public Options CurrentOptions => GetCurrent(cOptions);
-            public Charities CurrentCharities => GetCurrent(cCharities);
-            public CurrentCharityFractionSets CurrentCharityFractionSets => GetCurrent(cCurrentCharityFractionSets);
-            protected override AmountsToTransfer NewCharity(AmountsToTransfer model, NewCharity e)
+            public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
+            public ValueTask<Charities> CurrentCharities => GetCurrent(cCharities);
+            public ValueTask<CurrentCharityFractionSets> CurrentCharityFractionSets => GetCurrent(cCurrentCharityFractionSets);
+            protected override async ValueTask<AmountsToTransfer> NewCharity(AmountsToTransfer model, NewCharity e)
             {
                 var newValues = model.Values.SetItem(e.Code, MoneyBag.Empty);
                 return new(newValues);
             }
 
-            protected override AmountsToTransfer ConvTransfer(AmountsToTransfer model, ConvTransfer e)
+            protected override async ValueTask<AmountsToTransfer> ConvTransfer(AmountsToTransfer model, ConvTransfer e)
             {
                 var newValues = model.Values.SetItem(e.Charity, model.Values[e.Charity].Add(e.Currency, -(Real)e.Amount));
                 return new(newValues);
             }
 
-            protected override AmountsToTransfer ConvExit(AmountsToTransfer model,  ConvExit e)
+            protected override async ValueTask<AmountsToTransfer> ConvExit(AmountsToTransfer model,  ConvExit e)
             {
-                var option = CurrentOptions.Values[e.Option];
-                var charities = CurrentCharities;
-                var charityFractionSet = CurrentCharityFractionSets.Sets[e.Option]!;
+                var option = (await CurrentOptions).Values[e.Option];
+                var charities = await CurrentCharities;
+                var charityFractionSet = (await CurrentCharityFractionSets).Sets[e.Option]!;
 
                 var newValues = AddAmountToCharity(charityFractionSet.CharityFractions.Aggregate(model.Values,
                         (acc, frac) =>

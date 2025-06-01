@@ -50,6 +50,14 @@ public readonly struct TypedDictionary : IEnumerable<KeyValuePair<Type, object?>
         return (Set(type, res), res);
     }
 
+    public async ValueTask<(TypedDictionary, object?)> GetOrAddAsync(Type type, Func<ValueTask<object?>> creator)
+    {
+        if (Values.TryGetValue(type, out var value))
+            return (this, value);
+        var res = await creator();
+        return (Set(type, res), res);
+    }
+
     public bool Contains<T>()
         where T : class
         => Contains(typeof(T));

@@ -12,11 +12,11 @@ public record DonorDashboardStats(ImmutableDictionary<string, DonorDashboardStat
         => ActivatorUtilities.CreateInstance<Impl>(services);
     private class Impl(IContext<Donors> cDonors, IContext<DonationRecords> cDonationRecords) : EventProcessor<DonorDashboardStats>
     {
-        public override DonorDashboardStats Process(DonorDashboardStats model, IContext previousContext, IContext context,
+        public override async ValueTask<DonorDashboardStats> Process(DonorDashboardStats model, IContext previousContext, IContext context,
             Event e)
         {
             if (ShouldCalculate(e))
-                return base.Process(model, previousContext, context, e);
+                return await base.Process(model, previousContext, context, e);
             return model;
         }
         public bool ShouldCalculate(Event e)
@@ -34,18 +34,18 @@ public record DonorDashboardStats(ImmutableDictionary<string, DonorDashboardStat
         private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Donors> cDonors, IContext<DonationRecords> cDonationRecords)
             : BaseCalculation(previousContext, currentContext)
         {
-            public Donors CurrentDonors => GetCurrent(cDonors);
-            public DonationRecords CurrentDonationRecords => GetCurrent(cDonationRecords);
+            public ValueTask<Donors> CurrentDonors => GetCurrent(cDonors);
+            public ValueTask<DonationRecords> CurrentDonationRecords => GetCurrent(cDonationRecords);
             
-            protected override DonorDashboardStats Default(DonorDashboardStats model, Event e)
+            protected override ValueTask<DonorDashboardStats> Default(DonorDashboardStats model, Event e)
             {
                 return Calculate();
             }
-            private DonorDashboardStats Calculate()
+            private async ValueTask<DonorDashboardStats> Calculate()
             {
 
-                var donors = CurrentDonors;
-                var donationRecords = CurrentDonationRecords;
+                var donors = await CurrentDonors;
+                var donationRecords = await CurrentDonationRecords;
                 var result = donors.Values.ToImmutableDictionary(d => d.Key,
                     d => new DonorDashboardStat(d.Value
                         .Where(r => donationRecords.Values.ContainsKey(r))

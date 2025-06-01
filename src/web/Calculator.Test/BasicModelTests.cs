@@ -185,14 +185,14 @@ public class BasicModelTests : VerifyBase
     public async Task RepoTest()
     {
         var context = await Stream.GetLast();
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
         options!.Values.Should().ContainKey("1");
-        var charities = context.GetContext<Charities>();
+        var charities = await context.GetContext<Charities>();
         charities.Should().NotBeNull();
         charities!.Values.Should().HaveCountGreaterOrEqualTo(2);
         charities.Values.Should().ContainKey("1").WhoseValue.Name.Should().Be("WWF");
-        var donations = context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations>();
         donations.Should().NotBeNull();
         donations!.Values.Should().ContainKey("1").WhoseValue.Should().BeEquivalentTo(new
         {
@@ -204,9 +204,9 @@ public class BasicModelTests : VerifyBase
     public async Task UnenteredTest()
     {
         var context = await Stream.GetAtPosition(7);
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths>();
         worths.Should().NotBeNull();
         var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 0m, Invested = 0m});
@@ -217,9 +217,9 @@ public class BasicModelTests : VerifyBase
     public async Task EnterTest()
     {
         var context = await Stream.GetAtPosition(8);
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths>();
         worths.Should().NotBeNull();
         var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 15m, Invested = 0m});
@@ -230,21 +230,21 @@ public class BasicModelTests : VerifyBase
     public async Task OptionsTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Options>());
+        await Verify(await context.GetContext<Options>());
     }
 
     [TestMethod]
     public async Task CharitiesTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Charities>());
+        await Verify(await context.GetContext<Charities>());
     }
 
     [TestMethod]
     public async Task DonationsTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Donations>());
+        await Verify(await context.GetContext<Donations>());
     }
 
     [TestMethod]
@@ -298,7 +298,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task ValidationErrorIndicesTest()
     {
-        var context = (await Stream.GetAtPosition(16)).GetContext<ValidationErrors>();
+        var context = await (await Stream.GetAtPosition(16)).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
     }
 
@@ -358,9 +358,9 @@ public class BasicModelTests : VerifyBase
         for (int i = 0; i < 18; i++)
         {
             var context = await Stream.GetAtPosition(i);
-            var donations = context.GetContext<Donations>().Values;
-            var worths = context.GetContext<OptionWorths>().Worths;
-            var records = context.GetContext<DonationRecords>().Values;
+            var donations = (await context.GetContext<Donations>()).Values;
+            var worths = (await context.GetContext<OptionWorths>()).Worths;
+            var records = (await context.GetContext<DonationRecords>()).Values;
             var q =
                 from dr in records
                 let dw = dr.Value[^1].Worth
@@ -400,9 +400,9 @@ public class BasicModelTests : VerifyBase
                 Execute_timestamp = GetCurrent(TimeSpan.Zero)
             }));
         for (int i = 0; i < 1000; i += 906) // 906 threw a stackoverflow, fixed now
-            (await stream.GetAtPosition(i)).GetContext<Donations>();
+            await (await stream.GetAtPosition(i)).GetContext<Donations>();
         var context = await stream.GetLast();
-        var donations = context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations>();
         donations.Should().NotBeNull();
     }
 }

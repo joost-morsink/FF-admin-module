@@ -1,4 +1,3 @@
-using FfAdmin.Calculator.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
@@ -24,11 +23,11 @@ public record Charities(ImmutableDictionary<string, Charity> Values) : IModel<Ch
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override Charities NewCharity(Charities model, NewCharity e)
+            protected override async ValueTask<Charities> NewCharity(Charities model, NewCharity e)
                 => new(model.Values.Add(e.Code,
                     new Charity(e.Code, e.Name, BankInfo.Empty, null)));
 
-            protected override Charities UpdateCharity(Charities model, UpdateCharity e)
+            protected override async ValueTask<Charities> UpdateCharity(Charities model, UpdateCharity e)
             {
                 var charity = model.Values[e.Code];
                 var bankInfo = new BankInfo(e.Bank_name ?? charity.Bank.Name, e.Bank_account_no ?? charity.Bank.Account,
@@ -36,7 +35,7 @@ public record Charities(ImmutableDictionary<string, Charity> Values) : IModel<Ch
                 return new(model.Values.SetItem(charity.Id, charity with {Bank = bankInfo, Name = e.Name ?? charity.Name}));
             }
 
-            protected override Charities CharityPartition(Charities model, CharityPartition e)
+            protected override async ValueTask<Charities> CharityPartition(Charities model, CharityPartition e)
             {
                 var charity = model.Values[e.Charity];
                 return new(model.Values.SetItem(charity.Id,

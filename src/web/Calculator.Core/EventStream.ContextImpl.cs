@@ -21,7 +21,7 @@ public partial class EventStream
             _values = TypedDictionary.Empty;
         }
 
-        private object Calculate(Type type)
+        private async ValueTask<object> Calculate(Type type)
         {
             ICalculatingContext? current = this;
             foreach (var proc in _processors.Where(p => p.ModelType == type))
@@ -33,7 +33,7 @@ public partial class EventStream
                         todo.Push(current);
                     if (current.Previous is not ICalculatingContext cc)
                     {
-                        var prev = current.Previous.GetContext(type);
+                        var prev = await current.Previous.GetContext(type);
                         if (prev is null)
                             throw new MissingDataException(_index, type);
                         break;
@@ -43,20 +43,20 @@ public partial class EventStream
                 }
 
                 while (todo.TryPop(out current))
-                    current.GetContext(type);
-                return proc.Process(
-                    Previous.GetContext(type) ?? throw new MissingDataException(_index, type),
+                    await current.GetContext(type);
+                return await proc.Process(
+                    await Previous.GetContext(type) ?? throw new MissingDataException(_index, type),
                     Previous, this, Event);
             }
 
             throw new ArgumentException($"Cannot find processor for model type {type}.");
         }
         
-        public object? GetContext(Type type)
+        public async ValueTask<object?> GetContext(Type type)
         {
-            (_values, var res) = _values.GetOrAdd(type, () =>
+            (_values, var res) = await _values.GetOrAddAsync(type, async () =>
             {
-                var res = Calculate(type);
+                var res = await Calculate(type);
                 _parent.OnCalculated(_index, type, res);
                 return res;
             });

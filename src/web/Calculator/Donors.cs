@@ -1,3 +1,4 @@
+
 namespace FfAdmin.Calculator;
 
 public record Donors(ImmutableDictionary<string, ImmutableList<string>> Values) : IModel<Donors>
@@ -17,7 +18,7 @@ public record Donors(ImmutableDictionary<string, ImmutableList<string>> Values) 
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override Donors NewDonation(Donors model, NewDonation e)
+            protected override async ValueTask<Donors> NewDonation(Donors model, NewDonation e)
                 => model.Add(e.Donor, e.Donation);
         }
     }

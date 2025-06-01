@@ -1,4 +1,3 @@
-using FfAdmin.Calculator.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
@@ -26,10 +25,10 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
         private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Donations> cDonations)
             : BaseCalculation(previousContext, currentContext)
         {
-            public Donations CurrentDonations => GetCurrent(cDonations);
-            public Donations PreviousDonations => GetPrevious(cDonations);
+            public ValueTask<Donations> CurrentDonations => GetCurrent(cDonations);
+            public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
             
-            protected override OptionWorths NewDonation(OptionWorths model, NewDonation e)
+            protected override async ValueTask<OptionWorths> NewDonation(OptionWorths model, NewDonation e)
             {
                 return model.Mutate(e.Option, option =>
                 {
@@ -40,9 +39,9 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 });
             }
 
-            protected override OptionWorths CancelDonation(OptionWorths model, CancelDonation e)
+            protected override async ValueTask<OptionWorths> CancelDonation(OptionWorths model, CancelDonation e)
             {
-                var donation = PreviousDonations.Values.GetValueOrDefault(e.Donation);
+                var donation = (await PreviousDonations).Values.GetValueOrDefault(e.Donation);
                 if (donation is null)
                     return model;
 
@@ -60,14 +59,14 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 });
             }
 
-            protected override OptionWorths NewOption(OptionWorths model, NewOption e)
+            protected override async ValueTask<OptionWorths> NewOption(OptionWorths model, NewOption e)
             {
                 var worth = new OptionWorth(e.Code, e.Timestamp, (Real)0, (Real)0, FractionSet.Empty,
                     ImmutableList<Donation>.Empty);
                 return model with {Worths = model.Worths.Add(e.Code, worth)};
             }
 
-            protected override OptionWorths ConvEnter(OptionWorths model, ConvEnter e)
+            protected override async ValueTask<OptionWorths> ConvEnter(OptionWorths model, ConvEnter e)
             {
                 return model.Mutate(e.Option, option =>
                 {
@@ -91,27 +90,27 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                 });
             }
 
-            protected override OptionWorths ConvInvest(OptionWorths model, ConvInvest e)
+            protected override async ValueTask<OptionWorths> ConvInvest(OptionWorths model, ConvInvest e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Invested = e.Invested_amount, Cash = e.Cash_amount});
 
-            protected override OptionWorths ConvLiquidate(OptionWorths model, ConvLiquidate e)
+            protected override async ValueTask<OptionWorths> ConvLiquidate(OptionWorths model, ConvLiquidate e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Cash = e.Cash_amount, Invested = e.Invested_amount});
 
-            protected override OptionWorths ConvExit(OptionWorths model, ConvExit e)
+            protected override async ValueTask<OptionWorths> ConvExit(OptionWorths model, ConvExit e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Cash = option.Cash - e.Amount});
 
-            protected override OptionWorths PriceInfo(OptionWorths model, PriceInfo e)
+            protected override async ValueTask<OptionWorths> PriceInfo(OptionWorths model, PriceInfo e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Invested = e.Invested_amount});
 
-            protected override OptionWorths IncreaseCash(OptionWorths model, IncreaseCash e)
+            protected override async ValueTask<OptionWorths> IncreaseCash(OptionWorths model, IncreaseCash e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Cash = option.Cash + e.Amount});
             
-            protected override OptionWorths ConvInflation(OptionWorths model, ConvInflation e)
+            protected override async ValueTask<OptionWorths> ConvInflation(OptionWorths model, ConvInflation e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Invested = e.Invested_amount});
         }

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
@@ -38,67 +37,67 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             IContext<IdealOptionValuations> cIdealOptionValuations)
             : BaseCalculation(previousContext, currentContext)
         {
-            public OptionWorths CurrentOptionWorths => GetCurrent(cOptionWorths);
-            public OptionWorths PreviousOptionWorths => GetPrevious(cOptionWorths);
-            public CumulativeInterest CurrentCumulativeInterest => GetCurrent(cCumulativeInterest);
-            public CumulativeInterest PreviousCumulativeInterest => GetPrevious(cCumulativeInterest);
-            public IdealOptionValuations CurrentIdealOptionValuations => GetCurrent(cIdealOptionValuations);
-            public IdealOptionValuations PreviousIdealOptionValuations => GetPrevious(cIdealOptionValuations);
+            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<OptionWorths> PreviousOptionWorths => GetPrevious(cOptionWorths);
+            public ValueTask<CumulativeInterest> CurrentCumulativeInterest => GetCurrent(cCumulativeInterest);
+            public ValueTask<CumulativeInterest> PreviousCumulativeInterest => GetPrevious(cCumulativeInterest);
+            public ValueTask<IdealOptionValuations> CurrentIdealOptionValuations => GetCurrent(cIdealOptionValuations);
+            public ValueTask<IdealOptionValuations> PreviousIdealOptionValuations => GetPrevious(cIdealOptionValuations);
 
-            protected override OptionWorthHistory NewOption(OptionWorthHistory model, NewOption e)
+            protected override async ValueTask<OptionWorthHistory> NewOption(OptionWorthHistory model, NewOption e)
             {
                 return model.Options.Add(e.Code, ImmutableList.Create(
                     new OptionWorthRecord(e.Type, e.Timestamp, new Worth(0, 0, 0, 1, 0, 0), new Worth(0, 0, 0, 1, 0, 0))));
             }
 
-            protected override OptionWorthHistory ConvEnter(OptionWorthHistory model, ConvEnter e)
+            protected override ValueTask<OptionWorthHistory> ConvEnter(OptionWorthHistory model, ConvEnter e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory ConvInvest(OptionWorthHistory model, ConvInvest e)
+            protected override ValueTask<OptionWorthHistory> ConvInvest(OptionWorthHistory model, ConvInvest e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory ConvLiquidate(OptionWorthHistory model, ConvLiquidate e)
+            protected override ValueTask<OptionWorthHistory> ConvLiquidate(OptionWorthHistory model, ConvLiquidate e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory ConvExit(OptionWorthHistory model, ConvExit e)
+            protected override ValueTask<OptionWorthHistory> ConvExit(OptionWorthHistory model, ConvExit e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory ConvInflation(OptionWorthHistory model, ConvInflation e)
+            protected override ValueTask<OptionWorthHistory> ConvInflation(OptionWorthHistory model, ConvInflation e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory PriceInfo(OptionWorthHistory model, PriceInfo e)
+            protected override ValueTask<OptionWorthHistory> PriceInfo(OptionWorthHistory model, PriceInfo e)
                 => AddRecord(model, e.Option, e);
 
-            protected override OptionWorthHistory IncreaseCash(OptionWorthHistory model, IncreaseCash e)
+            protected override ValueTask<OptionWorthHistory> IncreaseCash(OptionWorthHistory model, IncreaseCash e)
                 => AddRecord(model, e.Option, e);
 
-            private OptionWorth GetCurrentWorth(string option)
-                => CurrentOptionWorths.Worths[option];
+            private async ValueTask<OptionWorth> GetCurrentWorth(string option)
+                => (await CurrentOptionWorths).Worths[option];
 
-            private OptionWorth GetPreviousWorth(string option)
-                => PreviousOptionWorths.Worths[option];
+            private async ValueTask<OptionWorth> GetPreviousWorth(string option)
+                => (await PreviousOptionWorths).Worths[option];
 
-            private CumulativeInterest.DataPoint GetCurrentCumulativeInterest(string option)
-                => CurrentCumulativeInterest.Options[option];
+            private async ValueTask<CumulativeInterest.DataPoint> GetCurrentCumulativeInterest(string option)
+                => (await CurrentCumulativeInterest).Options[option];
 
-            private CumulativeInterest.DataPoint GetPreviousCumulativeInterest(string option)
-                => PreviousCumulativeInterest.Options[option];
+            private async ValueTask<CumulativeInterest.DataPoint> GetPreviousCumulativeInterest(string option)
+                => (await PreviousCumulativeInterest).Options[option];
 
-            private IdealValuation GetCurrentIdealValuation(string option)
-                => CurrentIdealOptionValuations.Valuations[option];
+            private async ValueTask<IdealValuation> GetCurrentIdealValuation(string option)
+                => (await CurrentIdealOptionValuations).Valuations[option];
 
-            private IdealValuation GetPreviousIdealValuation(string option)
-                => PreviousIdealOptionValuations.Valuations.GetValueOrDefault(option)
-                    ?? new (DateTimeOffset.MinValue, 0,0);
+            private async ValueTask<IdealValuation> GetPreviousIdealValuation(string option)
+                => (await PreviousIdealOptionValuations).Valuations.GetValueOrDefault(option)
+                   ?? new (DateTimeOffset.MinValue, 0,0);
 
-            private OptionWorthHistory AddRecord(OptionWorthHistory model, string option, Event e)
+            private async ValueTask<OptionWorthHistory> AddRecord(OptionWorthHistory model, string option, Event e)
             {
-                var old = GetPreviousWorth(option);
-                var @new = GetCurrentWorth(option);
-                var oldCi = GetPreviousCumulativeInterest(option);
-                var newCi = GetCurrentCumulativeInterest(option);
-                var oldIv = GetPreviousIdealValuation(option);
-                var newIv = GetCurrentIdealValuation(option);
+                var old = await GetPreviousWorth(option);
+                var @new = await GetCurrentWorth(option);
+                var oldCi = await GetPreviousCumulativeInterest(option);
+                var newCi = await GetCurrentCumulativeInterest(option);
+                var oldIv = await GetPreviousIdealValuation(option);
+                var newIv = await GetCurrentIdealValuation(option);
                 return AddRecord(model, option, e, old, @new, oldCi.Value, newCi.Value, oldIv, newIv);
             }
 
