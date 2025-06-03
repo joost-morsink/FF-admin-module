@@ -6,21 +6,20 @@ public partial class EventStream
     {
         private readonly ImmutableArray<IEventProcessor> _processors;
         private readonly EventStream _parent;
-        private readonly Func<IContext> _previous;
+        private readonly Lazy<ValueTask<IContext>> _previous;
         private readonly Event _event;
         private readonly int _index;
         private TypedDictionary _values;
 
-        public ContextImpl(EventStream parent, Func<IContext> previous, Event @event, int index)
+        public ContextImpl(EventStream parent, Func<ValueTask<IContext>> previous, Event @event, int index)
         {
             _processors = parent._processors;
             _parent = parent;
-            _previous = previous;
+            _previous = new Lazy<ValueTask<IContext>>(previous);
             _event = @event;
             _index = index;
             _values = TypedDictionary.Empty;
         }
-
         private async ValueTask<object> Calculate(Type type)
         {
             ICalculatingContext? current = this;
@@ -31,9 +30,10 @@ public partial class EventStream
                 {
                     if (current != this)
                         todo.Push(current);
-                    if (current.Previous is not ICalculatingContext cc)
+                    var curPrevious = await current.Previous;
+                    if (curPrevious is not ICalculatingContext cc)
                     {
-                        var prev = await current.Previous.GetContext(type);
+                        var prev = await curPrevious.GetContext(type);
                         if (prev is null)
                             throw new MissingDataException(_index, type);
                         break;
@@ -44,14 +44,15 @@ public partial class EventStream
 
                 while (todo.TryPop(out current))
                     await current.GetContext(type);
+                var previous = await Previous;
                 return await proc.Process(
-                    await Previous.GetContext(type) ?? throw new MissingDataException(_index, type),
-                    Previous, this, Event);
+                    await previous.GetContext(type) ?? throw new MissingDataException(_index, type),
+                    previous, this, Event);
             }
 
             throw new ArgumentException($"Cannot find processor for model type {type}.");
         }
-        
+
         public async ValueTask<object?> GetContext(Type type)
         {
             (_values, var res) = await _values.GetOrAddAsync(type, async () =>
@@ -66,7 +67,7 @@ public partial class EventStream
         public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
 
         public ICalculatingContext AddEvent(Event @event)
-            => new ContextImpl(_parent, () => this, @event, _index + 1);
+            => new ContextImpl(_parent, () => new(this), @event, _index + 1);
 
         public bool IsEvaluated<T>()
             => _values.Contains(typeof(T));
@@ -74,7 +75,7 @@ public partial class EventStream
         public bool IsEvaluated(Type type)
             => _values.Contains(type);
 
-        public IContext Previous => _previous();
+        public ValueTask<IContext> Previous => _previous.Value;
         public Event Event => _event;
 
         public void SetContext(Type type, object model)

@@ -4,7 +4,7 @@ public interface IContext
 {
     ValueTask<object?> GetContext(Type type);
     IEnumerable<Type> AvailableContexts { get; }
-    IContext Previous { get; }
+    ValueTask<IContext> Previous { get; }
     Event Event { get; }
 }
 

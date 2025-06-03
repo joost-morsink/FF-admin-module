@@ -34,10 +34,10 @@ public partial class EventStream
     private readonly IModelCacheStrategy _modelCacheStrategy;
     private readonly ConcurrentDictionary<int, IContext> _contexts;
 
-    private IContext GetContextAtPosition(int index)
+    private async ValueTask<IContext> GetContextAtPosition(int index)
         => _contexts.TryGetValue(index, out var context)
             ? context
-            : throw new MissingDataException(index, typeof(object));
+            : await CreateContextForPosition(index);
 
     public EventStream AddEvents(IEnumerable<Event> events)
         => new(_processors, Events.AddEvents(events), _modelCache, _modelCacheStrategy);

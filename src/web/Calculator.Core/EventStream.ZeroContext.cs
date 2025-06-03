@@ -15,7 +15,7 @@ public partial class EventStream
             => new (_processors.Where(p => p.ModelType == type).Select(p => p.Start).FirstOrDefault());
 
         public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
-        public IContext Previous => this;
+        public ValueTask<IContext> Previous => new(this);
         public Event Event => NoneEvent.Instance;
     }
 }
