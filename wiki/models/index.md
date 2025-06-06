@@ -1,5 +1,5 @@
 ---
-title: Model HistoryHash
+title: Model Index
 author: J.W. Morsink
 ---
 

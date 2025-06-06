@@ -1,3 +1,7 @@
+--- 
+title: CONV_INVEST
+author: J.W. Morsink
+---
 # CONV_INVEST
 
 This [event](../event) represents the investment of an amount of cash into the actual [investment option](../option).

@@ -1,3 +1,7 @@
+--- 
+title: CONV_EXIT
+author: J.W. Morsink
+---
 # CONV_EXIT
 
 This [event](../event) represents an [allocation](../allocation) of money to [charities](../charities) from the [cash amount](../cash_amount) of an investment option.

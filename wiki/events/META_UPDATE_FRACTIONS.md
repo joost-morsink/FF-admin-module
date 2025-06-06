@@ -1,6 +1,10 @@
-# META_UPDATE_FRACTIONS
+--- 
+title: META_UPDATE_FRACTIONS
+author: J.W. Morsink
+---
+# ${title}
 
-This [event](../event) updates the reinvestment [ractions](../option_fractions) for an [option](./option).
+This [event](../event) updates the reinvestment [fractions](../option_fractions) for an [option](./option).
 The three fractions in the event should add up to 1.
 
 | Field                   | Type                | Description                                                                                                  | Value                   |

@@ -1,3 +1,7 @@
+--- 
+title: DONA_UPDATE_CHARITY
+author: J.W. Morsink
+---
 # DONA_UPDATE_CHARITY
 
 This [event](../event) represents the [donor's](../donor) decision to change the beneficiary [charity](../charity) of the [donation's](../donation) profits.

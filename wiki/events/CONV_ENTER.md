@@ -1,3 +1,7 @@
+--- 
+title: CONV_ENTER
+author: J.W. Morsink
+---
 # CONV_ENTER
 
 This [event](../event) signifies the point in time at which all new [donations](../donation) are made part (in cash form) of the [investment option](../option).

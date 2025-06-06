@@ -1,3 +1,7 @@
+--- 
+title: META_UPDATE_CHARITY
+author: J.W. Morsink
+---
 # META_UPDATE_CHARITY
 
 This [event](../event) updates information on the [charity](../charity), like bank information. Only supplied data is used for update.

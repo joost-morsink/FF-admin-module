@@ -1,3 +1,8 @@
+--- 
+title: DONA_CANCEL
+author: J.W. Morsink
+---
+
 # DONA_CANCEL
 
 This [event](../event) represents revocation of a direct debit, and is only valid if the timestamp for the cancellation lies before the execution timestamp of the original [donation](../donation).

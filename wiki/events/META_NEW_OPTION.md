@@ -1,3 +1,7 @@
+--- 
+title: META_NEW_OPTION
+author: J.W. Morsink
+---
 # META_NEW_OPTION
 
 This [event](../event) creates a new [investment option](../option) that can be used for investing the donations.

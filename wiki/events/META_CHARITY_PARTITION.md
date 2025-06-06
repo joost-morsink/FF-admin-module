@@ -1,3 +1,7 @@
+--- 
+title: META_CHARITY_PARTITION
+author: J.W. Morsink
+---
 # META_CHARITY_PARTITION
 
 This [event](../event) makes a [charity](../charity) into a ['donation theme'](../theme) by specifying the distribution of the theme.

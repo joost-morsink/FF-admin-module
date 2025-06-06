@@ -1,3 +1,7 @@
+--- 
+title: CONV_LIQUIDATE
+author: J.W. Morsink
+---
 # CONV_LIQUIDATE
 
 This [event](../event) represents a liquidation from an [investment option](../option), for the purpose of [donating](../transfer) the withdrawn money to the [charities](../charity). 

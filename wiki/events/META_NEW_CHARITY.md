@@ -1,3 +1,8 @@
+--- 
+title: META_NEW_CHARITY
+author: J.W. Morsink
+---
+
 # META_NEW_CHARITY
 
 This [event](../event) creates a new [charity](../charity) that can be chosen by a [donor](../donor) as a beneficiary for [donations](../donation)
