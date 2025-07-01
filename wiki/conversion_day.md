@@ -82,6 +82,7 @@ archimate:
 # Conversion day
 
 Conversion day exist of three different subprocesses, which may or may not occur on the same day. 
+For these subprocesses, we have designed [checklists](./checklist) to aid in going through the process correctly.
 
 ## Overview
 

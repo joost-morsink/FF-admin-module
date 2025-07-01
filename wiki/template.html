@@ -107,6 +107,13 @@
                 color:lightgrey;
                 
             }
+            @media print
+            {    
+                .no-print, .no-print *
+                {
+                    display: none !important;
+                }
+            }
         </style>
         <title>${title}</title>
     </head>
@@ -114,7 +121,7 @@
         <div class="topbar">
             <img src="$branch$/images/Logo.svg"/>
         </div>
-        <div class="leftside">
+        <div class="leftside no-print">
             <a href="$branch$/index">Main page</a><br/>
             Recently visited pages:
             $recent$
