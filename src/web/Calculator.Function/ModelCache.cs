@@ -88,6 +88,20 @@ public class ModelCache : IModelCache
         }
     }
 
+    public async Task<object?> Get(int index, Type type, Bucket bucket)
+    {
+        if (!_options.GetEnabled)
+            return null;
+        var indexes = await Forward();
+        if (!indexes.TryGetValue(index, out var hash))
+            return null;
+        var data = await _service.GetData(hash, $"{type.Name}_{bucket.Name}");
+        if (data is null)
+            return null;
+        return FromJson(type, data);
+    }
+
+
     public async Task Put(int index, Type type, object model)
     {
         if(!_options.PutEnabled)
@@ -111,7 +125,16 @@ public class ModelCache : IModelCache
             await _service.PutData(hash, type.Name, data);
         }
     }
-    
+    public async Task Put(int index, Type type, Bucket bucket, object model)
+    {
+        if (!_options.PutEnabled)
+            return;
+        var indexes = await Forward();
+        if (!indexes.TryGetValue(index, out var hash))
+            return;
+        var data = ToJson(type, model);
+        await _service.PutData(hash, $"{type.Name}_{bucket.Name}", data);
+    }
     private object FromJson(Type type, byte[] data)
     {
         return JsonSerializer.Deserialize(data.AsSpan(), type) ?? throw new InvalidOperationException("Not valid JSON");

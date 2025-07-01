@@ -206,7 +206,7 @@ namespace FfAdmin.Common
         }
     }
 
-    public class NewDonation : Event
+    public class NewDonation : Event, IDonationEvent
     {
         public override EventType Type => EventType.DONA_NEW;
         public DateTimeOffset Execute_timestamp { get; set; }
@@ -237,7 +237,12 @@ namespace FfAdmin.Common
         }
     }
 
-    public class UpdateCharityForDonation : Event
+    public interface IDonationEvent
+    {
+        string Donation { get; }
+    }
+
+    public class UpdateCharityForDonation : Event, IDonationEvent
     {
         public override EventType Type => EventType.DONA_UPDATE_CHARITY;
         public string Donation { get; set; } = "";
@@ -252,7 +257,7 @@ namespace FfAdmin.Common
         }
     }
 
-    public class CancelDonation : Event
+    public class CancelDonation : Event, IDonationEvent
     {
         public override EventType Type => EventType.DONA_CANCEL;
         public string Donation { get; set; } = "";
