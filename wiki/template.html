@@ -2,8 +2,37 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
         <style>
-      
+            body {
+                background-color: #fff;
+                font-family: "Montserrat", sans-serif;
+                font-optical-sizing: auto;
+                font-weight: 300;
+                font-style: normal;
+            }
+            h1, h2, h3 {
+                font-family: "Quicksand", sans-serif;
+                font-weight: 700;
+            }
+            h1 {
+                font-size: 2em;
+                color: #0D79C2;
+            }
+            h2 {
+                font-size: 1.5em;
+                color: #0996DA;
+            }
+            h3 {
+                font-size: 1.25em;
+                color: #0D79C2;
+            }
+            div.leftside {
+                display: none;
+            }
             .leftside {
                 width: 100%;
                 min-width: 200px;
@@ -23,6 +52,9 @@
             @media only screen and (min-width: 1000px) {
                 .topbar {
                     position:fixed;
+                }
+                div.leftside {
+                    display: block;
                 }
                 .leftside {
                     position: fixed;
@@ -56,8 +88,7 @@
             }
             .topbar {
                 width:100%;
-                margin: 3px;
-                background-color: white;
+                padding: 3px;
                 opacity: 100%;
             }
             .topbar > img {
@@ -65,6 +96,13 @@
                 max-width: 800px;
             }
 
+            div.footer {
+                margin-top: 10;
+            }
+            .footer > img {
+                background-color: #0D79C2;
+                height: 1em;
+            }
             .column-container {
                 display: flex;
             }
@@ -73,9 +111,6 @@
                 padding: 3px;
                 border-left: solid lightgrey 1px;
                 border-collapse: collapse;
-            }
-            body {
-                font-family: Arial, Helvetica, sans-serif;
             }
             table,td,th {
                 border: solid black 1px;
@@ -131,9 +166,10 @@
                 <div>
                     $body$
                     <br/><i>By ${author}</i><br/>
-
                 </div>
-
+            </div>
+            <div class="footer">
+                 &copy; 2025 <img src="$branch$/images/Logo2.svg" />
             </div>
         </div>
     </body>
