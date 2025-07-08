@@ -97,10 +97,13 @@ public partial class EventStream
             {
                 var (index, type, bucket, model) = item;
                 var positions = await _calculationPositions.Value.Positions;
-                if (bucket is null && _modelCacheStrategy.ShouldCache(positions,
+                if (_modelCacheStrategy.ShouldCache(positions,
                         await _calculationPositions.Value.Count, index))
                 {
-                    await _modelCache.Put(index, type, model);
+                    if (bucket is null)
+                        await _modelCache.Put(index, type, model);
+                    else
+                        await _modelCache.Put(index, type, bucket.Value, model);
                 }
             }
         }

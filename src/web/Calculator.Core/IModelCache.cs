@@ -7,14 +7,23 @@ public interface IModelCache
     Task<int?> GetIndexGreaterThanOrEqual(int index);
     Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index);
     Task<object?> Get(int index, Type type);
+    Task<object?> Get(int index, Type type, Bucket bucket);
     async Task<T?> Get<T>(int index) 
         where T : class
         => (T?) await Get(index, typeof(T));
+    async Task<T?> Get<T>(int index, Bucket bucket)
+        where T : class
+        => (T?) await Get(index, typeof(T), bucket);
     Task Put(int index, Type type, object model);
+    Task Put(int index, Type type, Bucket bucket, object model);
     Task Put<T>(int index, T model) 
         where T : class
         => Put(index, typeof(T), model);
 
+    Task Put<T>(int index, Bucket bucket, T model)
+        where T : class
+        => Put(index, typeof(T), model);
+    
     IModelCache GetPrefix(int count) => Prefixed.From(this, count);
 
     public static IModelCache Empty { get; } = new EmptyImpl();
@@ -34,8 +43,12 @@ public interface IModelCache
 
         public Task<object?> Get(int index, Type type)
             => Task.FromResult<object?>(null);
-
+        public Task<object?> Get(int index, Type type, Bucket bucket)
+            => Task.FromResult<object?>(null);
+        
         public Task Put(int index, Type type, object model)
+            => Task.CompletedTask;
+        public Task Put(int index, Type type, Bucket bucket, object model)
             => Task.CompletedTask;
     }
 
@@ -70,11 +83,19 @@ public interface IModelCache
 
         public async Task<object?> Get(int index, Type type)
             => index >= _count ? null : await _inner.Get(index, type);
+        public async Task<object?> Get(int index, Type type, Bucket bucket)
+            => index >= _count ? null : await _inner.Get(index, type, bucket);
 
         public async Task Put(int index, Type type, object model)
         {
             if (index < _count)
                 await _inner.Put(index, type, model);
         }
+        public async Task Put(int index, Type type, Bucket bucket, object model)
+        {
+            if (index < _count)
+                await _inner.Put(index, type, bucket, model);
+        }
     }
 }
+
