@@ -4,6 +4,15 @@ namespace FfAdmin.Calculator;
 
 public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictionary<DateOnly, MonthlyDonations.Data>> Donations) : IModel<MonthlyDonations>
 {
+    public static IMetaModel<MonthlyDonations> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<MonthlyDonations>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override MonthlyDonations Empty => MonthlyDonations.Empty;
+        public override IEventProcessor<MonthlyDonations> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     private static DateOnly ToMonth(DateOnly date)
         => new (date.Year, date.Month, 1);
     private static DateOnly ToMonth(DateTimeOffset date)

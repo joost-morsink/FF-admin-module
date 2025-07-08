@@ -2,11 +2,19 @@ namespace FfAdmin.Calculator;
 
 public record Options(ImmutableDictionary<string, Option> Values) : IModel<Options>
 {
+    public static IMetaModel<Options> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<Options>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override Options Empty => new(ImmutableDictionary<string, Option>.Empty);
+
+        public override IEventProcessor<Options> GetProcessor(IServiceProvider serviceProvider)
+            => new Impl();
+    }
     public static implicit operator Options(ImmutableDictionary<string, Option> dict)
         => new(dict);
-    public static Options Empty { get; } = new(ImmutableDictionary<string, Option>.Empty);
-    public static IEventProcessor<Options> GetProcessor(IServiceProvider services)
-        => new Impl();
     
     public bool Contains(string id)
         => Values.ContainsKey(id);

@@ -7,7 +7,7 @@ public static class Extensions
 {
     public static IServiceCollection AddModelProcessor<T>(this IServiceCollection services)
         where T : class, IModel<T>
-        => services.AddSingleton<IEventProcessor>(sp => T.GetProcessor(sp))
+        => services.AddSingleton<IEventProcessor>(sp => T.GetMetaModel().GetProcessor(sp))
             .AddSingleton<IContext<T>>(_ => IContext<T>.Instance);
 
     public static IServiceCollection AddProcessor<T>(this IServiceCollection services)

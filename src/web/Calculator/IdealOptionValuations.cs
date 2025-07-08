@@ -4,12 +4,17 @@ namespace FfAdmin.Calculator;
 
 public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> Valuations) : IModel<IdealOptionValuations>
 {
+    public static IMetaModel<IdealOptionValuations> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<IdealOptionValuations>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override IdealOptionValuations Empty => new(ImmutableDictionary<string, IdealValuation>.Empty);
+        public override IEventProcessor<IdealOptionValuations> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator IdealOptionValuations(ImmutableDictionary<string, IdealValuation> values)
         => new(values);
-    public static IdealOptionValuations Empty { get; } = new(ImmutableDictionary<string, IdealValuation>.Empty);
-
-    public static IEventProcessor<IdealOptionValuations> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
     public IdealOptionValuations Mutate(string option, Func<IdealValuation, IdealValuation> mutator,
         DateTimeOffset defaultTimestamp)
         => new(Valuations.SetItem(option,

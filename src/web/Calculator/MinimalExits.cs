@@ -4,13 +4,19 @@ namespace FfAdmin.Calculator;
 
 public record MinimalExits(ImmutableDictionary<string, Real> Exits) : IModel<MinimalExits>
 {
+    public static IMetaModel<MinimalExits> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<MinimalExits>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override MinimalExits Empty => new(ImmutableDictionary<string, Real>.Empty);
+        public override IEventProcessor<MinimalExits> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator MinimalExits(ImmutableDictionary<string, Real> exits)
         => new(exits);
-    public static MinimalExits Empty { get; } = new(ImmutableDictionary<string, decimal>.Empty);
-
-    public static IEventProcessor<MinimalExits> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
-
+    
     private class Impl(IContext<Options> cOptions, IContext<IdealOptionValuations> cIdealOptionValuations) : EventProcessor<MinimalExits>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)

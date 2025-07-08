@@ -5,10 +5,17 @@ namespace FfAdmin.Calculator;
 
 public record CurrentCharityFractionSets(ImmutableDictionary<string, CharityFractionSetsForOption> Sets) : IModel<CurrentCharityFractionSets>
 {
-    public static CurrentCharityFractionSets Empty { get; } = new(ImmutableDictionary<string, CharityFractionSetsForOption>.Empty);
+    public static IMetaModel<CurrentCharityFractionSets> GetMetaModel()
+        => Meta.Instance;
 
-    public static IEventProcessor<CurrentCharityFractionSets> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
+    private class Meta : IModel<CurrentCharityFractionSets>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override CurrentCharityFractionSets Empty { get; } = new(ImmutableDictionary<string, CharityFractionSetsForOption>.Empty);
+
+        public override IEventProcessor<CurrentCharityFractionSets> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
 
     public class Impl(IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths, IContext<Donations> cDonations) : ContextualCalculator<CurrentCharityFractionSets>
     {

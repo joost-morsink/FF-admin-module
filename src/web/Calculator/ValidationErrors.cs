@@ -4,10 +4,15 @@ namespace FfAdmin.Calculator;
 
 public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<ValidationErrors>
 {
-    public static ValidationErrors Empty { get; } = new(ImmutableList<ValidationError>.Empty);
-
-    public static IEventProcessor<ValidationErrors> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
+    public static IMetaModel<ValidationErrors> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<ValidationErrors>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override ValidationErrors Empty { get; } = new([]);
+        public override IEventProcessor<ValidationErrors> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
 
     public bool IsValid => Errors.IsEmpty;
 

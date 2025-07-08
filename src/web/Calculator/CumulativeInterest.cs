@@ -4,14 +4,19 @@ namespace FfAdmin.Calculator;
 
 public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.DataPoint> Options) : IModel<CumulativeInterest>
 {
+    public static IMetaModel<CumulativeInterest> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<CumulativeInterest>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override CumulativeInterest Empty => new(ImmutableDictionary<string, DataPoint>.Empty);
+
+        public override IEventProcessor<CumulativeInterest> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<ProcessorImpl>(serviceProvider);
+    }
     public static implicit operator CumulativeInterest(ImmutableDictionary<string, DataPoint> dictionary)
         => new(dictionary);
-
-    public static CumulativeInterest Empty { get; } = new(ImmutableDictionary<string, DataPoint>.Empty);
-
-    public static IEventProcessor<CumulativeInterest> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<ProcessorImpl>(services);
-
+    
     private class ProcessorImpl(IContext<OptionWorths> cOptionWorths): EventProcessor<CumulativeInterest>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)

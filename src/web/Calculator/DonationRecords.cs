@@ -4,13 +4,18 @@ namespace FfAdmin.Calculator;
 
 public record DonationRecords(ImmutableDictionary<string, ImmutableList<DonationRecord>> Values) : IModel<DonationRecords>
 {
+    public static IMetaModel<DonationRecords> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<DonationRecords>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override DonationRecords Empty { get; } = new(ImmutableDictionary<string, ImmutableList<DonationRecord>>.Empty);
+        public override IEventProcessor<DonationRecords> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public static implicit operator DonationRecords(ImmutableDictionary<string, ImmutableList<DonationRecord>> values)
         => new(values);
-    public static DonationRecords Empty { get; } = new(ImmutableDictionary<string, ImmutableList<DonationRecord>>.Empty);
-
-    public static IEventProcessor<DonationRecords> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
-
+    
     private class Impl(IContext<Donations> cDonations, IContext<OptionWorths> cOptionWorths) : EventProcessor<DonationRecords>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)

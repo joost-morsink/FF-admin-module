@@ -8,6 +8,16 @@ namespace FfAdmin.Calculator;
 public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDonationsAndTransfers.Key, AggregatedDonationsAndTransfers.Value> Data)
     : IModel<AggregatedDonationsAndTransfers>
 {
+    public static IMetaModel<AggregatedDonationsAndTransfers> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<AggregatedDonationsAndTransfers>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override AggregatedDonationsAndTransfers Empty { get; } = new(ImmutableDictionary<Key, Value>.Empty);
+        public override IEventProcessor<AggregatedDonationsAndTransfers> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public record struct Key(int Year, string Charity);
 
     public record struct Value(MoneyBag Donated, MoneyBag Transferred)
@@ -23,13 +33,7 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
 
     public AggregatedDonationsAndTransfers AddTransferred(Key key, string currency, Real amount)
         => Manipulate(key, v => v with {Transferred = v.Transferred.Add(currency, amount)});
-
-
-    public static AggregatedDonationsAndTransfers Empty { get; } = new(ImmutableDictionary<Key, Value>.Empty);
-
-    public static IEventProcessor<AggregatedDonationsAndTransfers> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
-
+    
     public class Impl(IContext<Options> cOptions, IContext<Donations> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext context)

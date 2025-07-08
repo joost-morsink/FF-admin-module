@@ -4,13 +4,18 @@ namespace FfAdmin.Calculator;
 
 public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IModel<OptionWorths>
 {
+    public static IMetaModel<OptionWorths> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<OptionWorths>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override OptionWorths Empty => new(ImmutableDictionary<string, OptionWorth>.Empty);
+        public override IEventProcessor<OptionWorths> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator OptionWorths(ImmutableDictionary<string, OptionWorth> dict)
         => new(dict);
-    public static OptionWorths Empty { get; } =
-        new(ImmutableDictionary<string, OptionWorth>.Empty);
-
-    public static IEventProcessor<OptionWorths> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
 
     public OptionWorths Mutate(string key, Func<OptionWorth, OptionWorth> mutator)
         => new(Worths.SetItem(key, mutator(Worths[key])));

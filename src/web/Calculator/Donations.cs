@@ -2,12 +2,19 @@ namespace FfAdmin.Calculator;
 
 public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<Donations>
 {
+    public static IMetaModel<Donations> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<Donations>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override Donations Empty => new(ImmutableDictionary<string, Donation>.Empty);
+
+        public override IEventProcessor<Donations> GetProcessor(IServiceProvider serviceProvider)
+            => new Impl();
+    }
     public static implicit operator Donations(ImmutableDictionary<string, Donation> values)
         => new(values);
-    public static Donations Empty { get; } = new(ImmutableDictionary<string, Donation>.Empty);
-
-    public static IEventProcessor<Donations> GetProcessor(IServiceProvider services)
-        => new Impl();
 
     public bool Contains(string id)
         => Values.ContainsKey(id);

@@ -2,8 +2,15 @@ namespace FfAdmin.Calculator;
 
 public record CharityBalance(Real Amount) : IModel<CharityBalance>
 {
-    public static CharityBalance Empty { get; } = new((Real)0);
-    public static IEventProcessor<CharityBalance> GetProcessor(IServiceProvider services) => new Impl();
+    public static IMetaModel<CharityBalance> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<CharityBalance>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override CharityBalance Empty { get; } = new((Real)0);
+        public override IEventProcessor<CharityBalance> GetProcessor(IServiceProvider services) => new Impl();
+    }
 
     private class Impl : EventProcessor<CharityBalance>
     {

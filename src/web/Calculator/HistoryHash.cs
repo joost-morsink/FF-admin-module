@@ -6,6 +6,15 @@ namespace FfAdmin.Calculator;
 
 public record HistoryHash : IModel<HistoryHash>
 {
+    public static IMetaModel<HistoryHash> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<HistoryHash>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override HistoryHash Empty => new();
+        public override IEventProcessor<HistoryHash> GetProcessor(IServiceProvider serviceProvider)
+            => new Impl();
+    }
     public static implicit operator HistoryHash(string str)
         => new(Convert.FromBase64String(str));
     public static implicit operator HistoryHash(Span<byte> bytes)

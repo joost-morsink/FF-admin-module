@@ -4,12 +4,18 @@ namespace FfAdmin.Calculator;
 
 public record DonorDashboardStats(ImmutableDictionary<string, DonorDashboardStat> Donors) : IModel<DonorDashboardStats>
 {
+    public static IMetaModel<DonorDashboardStats> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<DonorDashboardStats>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override DonorDashboardStats Empty { get; } = new(ImmutableDictionary<string, DonorDashboardStat>.Empty);
+        public override IEventProcessor<DonorDashboardStats> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public static implicit operator DonorDashboardStats(ImmutableDictionary<string,DonorDashboardStat> dict)
         => new(dict);
-    public static DonorDashboardStats Empty { get; } = new(ImmutableDictionary<string, DonorDashboardStat>.Empty);
-
-    public static IEventProcessor<DonorDashboardStats> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
     private class Impl(IContext<Donors> cDonors, IContext<DonationRecords> cDonationRecords) : EventProcessor<DonorDashboardStats>
     {
         public override async ValueTask<DonorDashboardStats> Process(DonorDashboardStats model, IContext previousContext, IContext context,

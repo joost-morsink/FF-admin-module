@@ -1,13 +1,22 @@
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace FfAdmin.Calculator;
 
 public record Donors(ImmutableDictionary<string, ImmutableList<string>> Values) : IModel<Donors>
 {
+    public static IMetaModel<Donors> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<Donors>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override Donors Empty => new(ImmutableDictionary<string, ImmutableList<string>>.Empty);
+        public override IEventProcessor<Donors> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator Donors(ImmutableDictionary<string, ImmutableList<string>> dict)
         => new(dict);
-    public static Donors Empty { get; } = new(ImmutableDictionary<string, ImmutableList<string>>.Empty);
-    public static IEventProcessor<Donors> GetProcessor(IServiceProvider services) 
-        => new Impl();
 
     public Donors Add(string donor, string donation)
         => Values.SetItem(donor, Values.GetValueOrDefault(donor, ImmutableList<string>.Empty).Add(donation));

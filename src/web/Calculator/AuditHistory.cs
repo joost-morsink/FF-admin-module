@@ -4,12 +4,18 @@ namespace FfAdmin.Calculator;
 
 public record AuditHistory(ImmutableList<AuditMoment> Moments) : IModel<AuditHistory>
 {
+    public static IMetaModel<AuditHistory> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<AuditHistory>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override AuditHistory Empty { get; } = new(ImmutableList<AuditMoment>.Empty);
+        public override IEventProcessor<AuditHistory> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public static implicit operator AuditHistory(ImmutableList<AuditMoment> moments)
         => new(moments);
-    public static AuditHistory Empty { get; } = new(ImmutableList<AuditMoment>.Empty);
-
-    public static IEventProcessor<AuditHistory> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
 
     public AuditHistory Add(AuditMoment moment)
         => Moments.Add(moment);

@@ -4,14 +4,19 @@ namespace FfAdmin.Calculator;
 
 public record DonationStatistics(ImmutableDictionary<string, DonationStatistic> Statistics) : IModel<DonationStatistics>
 {
+    public static IMetaModel<DonationStatistics> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<DonationStatistics>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override DonationStatistics Empty => new(ImmutableDictionary<string, DonationStatistic>.Empty);
+        public override IEventProcessor<DonationStatistics> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator DonationStatistics(ImmutableDictionary<string, DonationStatistic> statistics)
         => new(statistics);
-
-    public static DonationStatistics Empty { get; } = new(ImmutableDictionary<string, DonationStatistic>.Empty);
-
-    public static IEventProcessor<DonationStatistics> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
-
+    
     public DonationStatistics Mutate(string currency, Func<DonationStatistic, DonationStatistic> mutator)
         => new(Statistics.SetItem(currency,
             mutator(Statistics.GetValueOrDefault(currency, DonationStatistic.Empty(currency)))));

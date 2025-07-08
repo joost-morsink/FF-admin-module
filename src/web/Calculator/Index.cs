@@ -2,8 +2,15 @@ namespace FfAdmin.Calculator;
 
 public record Index(int Value) : IModel<Index>
 {
-    public static Index Empty { get; } = new(0);
-    public static IEventProcessor<Index> GetProcessor(IServiceProvider services) => new Impl();
+    public static IMetaModel<Index> GetMetaModel()
+        => Meta.Instance;
+
+    private class Meta : IModel<Index>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override Index Empty { get; } = new(0);
+        public override IEventProcessor<Index> GetProcessor(IServiceProvider services) => new Impl();
+    }
 
     private class Impl : EventProcessor<Index>
     {

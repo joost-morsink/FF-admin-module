@@ -8,7 +8,7 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
     // ValueTask<object> IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
     //     => Process(previousContext, context, e);
 
-    public T Start => T.Empty;
+    public T Start => T.GetMetaModel().Empty;
     public Type ModelType => typeof(T);
     public virtual IEnumerable<Type> Dependencies => Enumerable.Empty<Type>();
     
@@ -109,6 +109,6 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
             => Default(e);
 
         protected virtual ValueTask<T> Default(Event e)
-            => new(T.Empty);
+            => new(T.GetMetaModel().Empty);
     }
 }

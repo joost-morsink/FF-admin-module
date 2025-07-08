@@ -4,12 +4,17 @@ namespace FfAdmin.Calculator;
 
 public record AmountsToTransfer(ImmutableDictionary<string, MoneyBag> Values) : IModel<AmountsToTransfer>
 {
+    public static IMetaModel<AmountsToTransfer> GetMetaModel()
+        => Meta.Instance;
+    private class Meta : IModel<AmountsToTransfer>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override AmountsToTransfer Empty => new(ImmutableDictionary<string, MoneyBag>.Empty);
+        public override IEventProcessor<AmountsToTransfer> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     public static implicit operator AmountsToTransfer(ImmutableDictionary<string, MoneyBag> values)
         => new(values);
-    public static AmountsToTransfer Empty { get; } = new(ImmutableDictionary<string, MoneyBag>.Empty);
-
-    public static IEventProcessor<AmountsToTransfer> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
 
     private class Impl(IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CurrentCharityFractionSets> cCurrentCharityFractionSets) : EventProcessor<AmountsToTransfer>
     {
