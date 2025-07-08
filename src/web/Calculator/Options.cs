@@ -4,6 +4,8 @@ public record Options(ImmutableDictionary<string, Option> Values) : IModel<Optio
 {
     public static IMetaModel<Options> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<Options>.BaseSimpleMetaModel
     {

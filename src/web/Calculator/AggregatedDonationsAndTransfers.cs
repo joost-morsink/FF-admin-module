@@ -10,6 +10,8 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
 {
     public static IMetaModel<AggregatedDonationsAndTransfers> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<AggregatedDonationsAndTransfers>.BaseSimpleMetaModel
     {

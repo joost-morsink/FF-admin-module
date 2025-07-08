@@ -12,23 +12,27 @@ namespace FfAdmin.Calculator.Function;
 public abstract class BaseCalculator
 {
     protected readonly IEventStore _eventStore;
-    protected readonly IEnumerable<IEventProcessor> _processors;
     protected readonly IMemoryCache _memoryCache;
     protected readonly IOptions<PagingEventRepositoryOptions> _pagingOptions;
     private readonly IModelCacheFactory _modelCacheFactory;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly MetaModels _metaModels;
+
 
     public BaseCalculator(CalculatorDependencies dependencies)
     {
         _eventStore = dependencies.EventStore;
-        _processors = dependencies.Processors;
+        _serviceProvider = dependencies.ServiceProvider;
         _memoryCache = dependencies.MemoryCache;
         _pagingOptions = dependencies.PagingOptions;
         _modelCacheFactory = dependencies.ModelCacheFactory;
+        _metaModels = dependencies.MetaModels;
     }
 
     protected EventStream CreateEventStream(string branchName, IModelCacheStrategy modelCacheStrategy)
     {
-        return new EventStream(_processors,
+        return new EventStream(_serviceProvider,
+            _metaModels,
             new PagingEventRepository(new EventStoreRepository(_eventStore, branchName),
                 branchName, _memoryCache, _pagingOptions),
             _modelCacheFactory.CreateForBranch(branchName), modelCacheStrategy);

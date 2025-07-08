@@ -6,6 +6,8 @@ public record AuditHistory(ImmutableList<AuditMoment> Moments) : IModel<AuditHis
 {
     public static IMetaModel<AuditHistory> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<AuditHistory>.BaseSimpleMetaModel
     {

@@ -1,19 +1,23 @@
-using System.Net.Http.Headers;
 using FfAdmin.Calculator.Core;
 
 namespace FfAdmin.Calculator;
 
-public readonly struct Unit()
+public class Unit
 {
+    private Unit() { }
     public static Unit Value { get; } = new();
 }
 
-public interface IModel<THeader, TKey, TDetail>
+public interface IModel
+{
+    static abstract IMetaModel GetMetaModel();
+}
+public interface IModel<THeader, TKey, TDetail> : IModel
     where THeader : class, IModel<THeader, TKey, TDetail>
     where TKey : notnull
     where TDetail : class
 {
-    static abstract IMetaModel<THeader, TKey, TDetail> GetMetaModel();
+    static new abstract IMetaModel<THeader, TKey, TDetail> GetMetaModel();
 }
 
 public class MetaModels
@@ -63,8 +67,17 @@ public interface IMetaModel<THeader, TKey, TDetail> : IMetaModel
     new TDetail EmptyDetail { get; }
     object IMetaModel.EmptyDetail => EmptyDetail;
     Bucket? GetBucket(THeader header, TKey key);
-    TKey? GetKeyForEvent(Event e);
-    IEventProcessor<TDetail> GetDetailProcessor(IServiceProvider serviceProvider);
+    Bucket? IMetaModel.GetBucket(object header, object key)
+        => GetBucket((THeader)header, (TKey)key);
+
+    new TKey? GetKeyForEvent(Event e);
+    object? IMetaModel.GetKeyForEvent(Event e)
+        => GetKeyForEvent(e);
+    
+    new IEventProcessor<TDetail> GetDetailProcessor(IServiceProvider serviceProvider);
+    IEventProcessor IMetaModel.GetDetailProcessor(IServiceProvider serviceProvider)
+        => GetDetailProcessor(serviceProvider);
+    
 }
 
 public interface IMetaModel<T> : IMetaModel<T, Unit, T>

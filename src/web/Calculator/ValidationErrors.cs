@@ -6,6 +6,9 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
 {
     public static IMetaModel<ValidationErrors> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
     private class Meta : IModel<ValidationErrors>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

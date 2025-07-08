@@ -7,6 +7,8 @@ public record Donors(ImmutableDictionary<string, ImmutableList<string>> Values) 
 {
     public static IMetaModel<Donors> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<Donors>.BaseSimpleMetaModel
     {

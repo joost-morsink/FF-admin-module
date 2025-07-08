@@ -6,6 +6,9 @@ public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictio
 {
     public static IMetaModel<MonthlyDonations> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
     private class Meta : IModel<MonthlyDonations>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

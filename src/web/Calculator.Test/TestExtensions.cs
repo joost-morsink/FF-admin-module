@@ -31,6 +31,6 @@ public static class TestExtensions
         => dictionary.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToImmutableList();
 
     public static IServiceCollection AddContext<T>(this IServiceCollection services)
-        where T:class
-        => services.AddSingleton(_ => IContext<T>.Instance);
+        where T:class, IModel
+        => services.AddSingleton(IContext<T>.Instance).AddSingleton(T.GetMetaModel());
 }

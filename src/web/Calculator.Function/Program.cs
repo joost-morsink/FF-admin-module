@@ -21,6 +21,8 @@ var host = new HostBuilder()
             .Services
             .AddScoped<CalculatorDependencies>()
             .AddScoped<IModelCacheFactory, ModelCacheFactory>()
+            .AddSingleton<MetaModels>()
+            
             .AddModelProcessor<HistoryHash>()
             .AddModelProcessor<FfAdmin.Calculator.Index>()
             

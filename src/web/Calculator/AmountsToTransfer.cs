@@ -6,6 +6,9 @@ public record AmountsToTransfer(ImmutableDictionary<string, MoneyBag> Values) : 
 {
     public static IMetaModel<AmountsToTransfer> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
     private class Meta : IModel<AmountsToTransfer>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

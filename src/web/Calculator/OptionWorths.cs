@@ -6,6 +6,8 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
 {
     public static IMetaModel<OptionWorths> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<OptionWorths>.BaseSimpleMetaModel
     {

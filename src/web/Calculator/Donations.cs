@@ -4,6 +4,8 @@ public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<D
 {
     public static IMetaModel<Donations> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<Donations>.BaseSimpleMetaModel
     {

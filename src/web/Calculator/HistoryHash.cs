@@ -8,6 +8,9 @@ public record HistoryHash : IModel<HistoryHash>
 {
     public static IMetaModel<HistoryHash> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
     private class Meta : IModel<HistoryHash>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

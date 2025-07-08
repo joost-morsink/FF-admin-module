@@ -6,6 +6,8 @@ public record MinimalExits(ImmutableDictionary<string, Real> Exits) : IModel<Min
 {
     public static IMetaModel<MinimalExits> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<MinimalExits>.BaseSimpleMetaModel
     {

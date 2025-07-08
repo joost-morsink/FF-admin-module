@@ -4,6 +4,8 @@ public record CharityBalance(Real Amount) : IModel<CharityBalance>
 {
     public static IMetaModel<CharityBalance> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<CharityBalance>.BaseSimpleMetaModel
     {

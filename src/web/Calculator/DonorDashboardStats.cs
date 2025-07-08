@@ -6,6 +6,8 @@ public record DonorDashboardStats(ImmutableDictionary<string, DonorDashboardStat
 {
     public static IMetaModel<DonorDashboardStats> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<DonorDashboardStats>.BaseSimpleMetaModel
     {

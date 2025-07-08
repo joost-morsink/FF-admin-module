@@ -6,6 +6,9 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
 {
     public static IMetaModel<OptionWorthHistory> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
     private class Meta : IModel<OptionWorthHistory>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

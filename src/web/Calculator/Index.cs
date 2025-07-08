@@ -4,6 +4,8 @@ public record Index(int Value) : IModel<Index>
 {
     public static IMetaModel<Index> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<Index>.BaseSimpleMetaModel
     {

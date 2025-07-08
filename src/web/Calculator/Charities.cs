@@ -6,6 +6,8 @@ public record Charities(ImmutableDictionary<string, Charity> Values) : IModel<Ch
 {
     public static IMetaModel<Charities> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
 
     private class Meta : IModel<Charities>.BaseSimpleMetaModel
     {

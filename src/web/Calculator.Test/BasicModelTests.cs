@@ -155,30 +155,14 @@ public class BasicModelTests : VerifyBase
             .AddContext<CumulativeInterest>()
             .AddContext<DonationStatistics>()
             .AddContext<Donors>()
-            .AddContext<DonorDashboardStats>();
+            .AddContext<DonorDashboardStats>()
+            .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
     private static readonly IServiceProvider ServiceProvider = GetServiceProvider();
     private static readonly EventStream Stream = EventStream.Empty(
-            IModelCacheStrategy.Default,
-            Index.GetMetaModel().GetProcessor(ServiceProvider),
-            Options.GetMetaModel().GetProcessor(ServiceProvider),
-            Charities.GetMetaModel().GetProcessor(ServiceProvider),
-            Donations.GetMetaModel().GetProcessor(ServiceProvider),
-            OptionWorths.GetMetaModel().GetProcessor(ServiceProvider),
-            OptionWorthHistory.GetMetaModel().GetProcessor(ServiceProvider),
-            IdealOptionValuations.GetMetaModel().GetProcessor(ServiceProvider),
-            MinimalExits.GetMetaModel().GetProcessor(ServiceProvider),
-            ValidationErrors.GetMetaModel().GetProcessor(ServiceProvider),
-            AmountsToTransfer.GetMetaModel().GetProcessor(ServiceProvider),
-            CurrentCharityFractionSets.GetMetaModel().GetProcessor(ServiceProvider),
-            DonationRecords.GetMetaModel().GetProcessor(ServiceProvider),
-            HistoryHash.GetMetaModel().GetProcessor(ServiceProvider),
-            CharityBalance.GetMetaModel().GetProcessor(ServiceProvider),
-            CumulativeInterest.GetMetaModel().GetProcessor(ServiceProvider),
-            DonationStatistics.GetMetaModel().GetProcessor(ServiceProvider),
-            Donors.GetMetaModel().GetProcessor(ServiceProvider),
-            DonorDashboardStats.GetMetaModel().GetProcessor(ServiceProvider))
+            ServiceProvider,
+            IModelCacheStrategy.Default)
         .AddEvents(TestEvents);
 
     [TestMethod]
@@ -386,7 +370,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task BulkTest()
     {
-        var stream = EventStream.Empty(IModelCacheStrategy.Default, Donations.GetMetaModel().GetProcessor(ServiceProvider))
+        var stream = EventStream.Empty(ServiceProvider, IModelCacheStrategy.Default)
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
             {
                 Timestamp = GetCurrent(),

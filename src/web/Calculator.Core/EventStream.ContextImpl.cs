@@ -4,53 +4,87 @@ public partial class EventStream
 {
     private class ContextImpl : ICalculatingContext
     {
-        private readonly ImmutableArray<IEventProcessor> _processors;
         private readonly EventStream _parent;
         private readonly Lazy<ValueTask<IContext>> _previous;
         private readonly Event _event;
         private readonly int _index;
         private TypedDictionary _values;
-
+        private TypedBucketDictionary _bucketValues;
+        private MetaModels _metaModels => _parent._metaModels;
+        private IServiceProvider _serviceProvider => _parent._serviceProvider;
         public ContextImpl(EventStream parent, Func<ValueTask<IContext>> previous, Event @event, int index)
         {
-            _processors = parent._processors;
             _parent = parent;
             _previous = new Lazy<ValueTask<IContext>>(previous);
             _event = @event;
             _index = index;
             _values = TypedDictionary.Empty;
+            _bucketValues = TypedBucketDictionary.Empty;
         }
         private async ValueTask<object> Calculate(Type type)
         {
             ICalculatingContext? current = this;
-            foreach (var proc in _processors.Where(p => p.ModelType == type))
-            {
-                var todo = new Stack<ICalculatingContext>();
-                while (!current.IsEvaluated(type))
-                {
-                    if (current != this)
-                        todo.Push(current);
-                    var curPrevious = await current.Previous;
-                    if (curPrevious is not ICalculatingContext cc)
-                    {
-                        var prev = await curPrevious.GetContext(type);
-                        if (prev is null)
-                            throw new MissingDataException(_index, type);
-                        break;
-                    }
+            if(_metaModels.Get(type) is not {} metaModel)
+                throw new ArgumentException($"Cannot find processor for model type {type}.");
 
-                    current = cc;
+            var proc = metaModel.GetProcessor(_serviceProvider);
+            var todo = new Stack<ICalculatingContext>();
+            while (!current.IsEvaluated(type))
+            {
+                if (current != this)
+                    todo.Push(current);
+                var curPrevious = await current.Previous;
+                if (curPrevious is not ICalculatingContext cc)
+                {
+                    var prev = await curPrevious.GetContext(type);
+                    if (prev is null)
+                        throw new MissingDataException(_index, type);
+                    break;
                 }
 
-                while (todo.TryPop(out current))
-                    await current.GetContext(type);
-                var previous = await Previous;
-                return await proc.Process(
-                    await previous.GetContext(type) ?? throw new MissingDataException(_index, type),
-                    previous, this, Event);
+                current = cc;
             }
 
-            throw new ArgumentException($"Cannot find processor for model type {type}.");
+            while (todo.TryPop(out current))
+                await current.GetContext(type);
+            var previous = await Previous;
+            return await proc.Process(
+                await previous.GetContext(type) ?? throw new MissingDataException(_index, type),
+                previous, this, Event);
+        }
+        
+        private async ValueTask<object> Calculate(object header, object key)
+        {
+            ICalculatingContext? current = this;
+            var type = header.GetType();
+            if(_metaModels.Get(type) is not {} metaModel)
+                throw new ArgumentException($"Cannot find processor for model type {type}.");
+
+            var proc = metaModel.GetDetailProcessor(_serviceProvider);
+            var todo = new Stack<ICalculatingContext>();
+            while (!current.IsEvaluated(header, key))
+            {
+                if (current != this)
+                    todo.Push(current);
+                var curPrevious = await current.Previous;
+                if (curPrevious is not ICalculatingContext cc)
+                {
+                    var prev = await curPrevious.GetContext(header, key);
+                    if (prev is null)
+                        throw new MissingDataException(_index, type);
+                    break;
+                }
+
+                current = cc;
+            }
+
+            while (todo.TryPop(out current))
+                await current.GetContext(header, key);
+            var previous = await Previous;
+            return await proc.Process(
+                await previous.GetContext(header, key) ?? throw new MissingDataException(_index, type),
+                previous, this, Event);
+
         }
 
         public async ValueTask<object?> GetContext(Type type)
@@ -58,13 +92,30 @@ public partial class EventStream
             (_values, var res) = await _values.GetOrAddAsync(type, async () =>
             {
                 var res = await Calculate(type);
-                _parent.OnCalculated(_index, type, res);
+                _parent.OnCalculated(_index, type,null,  res);
                 return res;
             });
             return res;
         }
 
-        public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
+        public async ValueTask<object?> GetContext(object header, object key)
+        {
+            var type = header.GetType();
+            if(_metaModels.Get(type) is not {} metaModel)
+                throw new ArgumentException($"Cannot find processor for model type {type}.");
+            var bucket = metaModel.GetBucket(header, key);
+            if (bucket is null)
+                return GetContext(type);
+            (_bucketValues, var res) = await _bucketValues.GetOrAddAsync(type, bucket.Value, async () =>
+            {
+                var res = await Calculate(header, key);
+                _parent.OnCalculated(_index, metaModel.DetailType, bucket.Value, res);
+                return res;
+            });
+            return res;
+        }
+
+        public IEnumerable<Type> AvailableContexts => _metaModels.AvailableTypes;
 
         public ICalculatingContext AddEvent(Event @event)
             => new ContextImpl(_parent, () => new(this), @event, _index + 1);
@@ -74,6 +125,21 @@ public partial class EventStream
 
         public bool IsEvaluated(Type type)
             => _values.Contains(type);
+
+        bool ICalculatingContext.IsEvaluated(object header, object key)
+            => IsEvaluated(header, key);
+        
+        private bool IsEvaluated(object header, object key)
+        {
+            var type = header.GetType();
+            if(_metaModels.Get(type) is not { } metaModel)
+                throw new ArgumentException($"Cannot find processor for model type {type}.");
+            
+            var bucket = metaModel.GetBucket(header, key);
+            return bucket is null 
+                ? _values.Contains(type)
+                : _bucketValues.Contains(type, bucket.Value);
+        }
 
         public ValueTask<IContext> Previous => _previous.Value;
         public Event Event => _event;

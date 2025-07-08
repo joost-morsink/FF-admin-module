@@ -6,6 +6,9 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
 {
     public static IMetaModel<IdealOptionValuations> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
     private class Meta : IModel<IdealOptionValuations>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();

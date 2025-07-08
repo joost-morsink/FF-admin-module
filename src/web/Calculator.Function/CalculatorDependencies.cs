@@ -6,8 +6,9 @@ using Microsoft.Extensions.Options;
 
 namespace FfAdmin.Calculator.Function;
 
-public record CalculatorDependencies(IEventStore EventStore,
+public record CalculatorDependencies(IServiceProvider ServiceProvider, 
+    MetaModels MetaModels,
+    IEventStore EventStore,
     IModelCacheFactory ModelCacheFactory,
-    IEnumerable<IEventProcessor> Processors, 
     IMemoryCache MemoryCache,
     IOptions<PagingEventRepositoryOptions> PagingOptions);

@@ -6,6 +6,9 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
 {
     public static IMetaModel<CumulativeInterest> GetMetaModel()
         => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
     private class Meta : IModel<CumulativeInterest>.BaseSimpleMetaModel
     {
         public static Meta Instance { get; } = new();
