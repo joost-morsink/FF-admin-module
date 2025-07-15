@@ -3,12 +3,6 @@ namespace FfAdmin.Calculator.Core;
 public abstract class ContextualCalculator<T> : IContextualCalculator<T>
     where T : class, IModel<T>
 {
-    object IEventProcessor.Start => Start;
-
-    // ValueTask<object> IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
-    //     => Process(previousContext, context, e);
-
-    public T Start => T.GetMetaModel().Empty;
     public Type ModelType => typeof(T);
     public virtual IEnumerable<Type> Dependencies => Enumerable.Empty<Type>();
     

@@ -60,3 +60,19 @@ public class DonationsCalculator : BaseCalculator
         return response;
     }
 }
+
+
+public class Donations2Calculator : BaseCalculator
+{
+    public Donations2Calculator(CalculatorDependencies dependencies) : base(dependencies) { }
+
+    [Function("Donations2")]
+    public Task<HttpResponseData> GetDonations2(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donations2/{id}")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        string id,
+        int? at)
+        => Handle<Donations2, string, Donations2.Details>(request, branchName, at, id, (data,k) => data.Values.GetValueOrDefault(k));
+}

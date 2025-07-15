@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace FfAdmin.Calculator.Core;
 
 public partial class EventStream
@@ -61,15 +63,17 @@ public partial class EventStream
                 throw new ArgumentException($"Cannot find processor for model type {type}.");
 
             var proc = metaModel.GetDetailProcessor(_serviceProvider);
-            var todo = new Stack<ICalculatingContext>();
+            var todo = new Stack<(ICalculatingContext ctx, object header)>();
+            var curHeader = header;
             while (!current.IsEvaluated(header, key))
             {
                 if (current != this)
-                    todo.Push(current);
+                    todo.Push((current, curHeader!));
                 var curPrevious = await current.Previous;
+                curHeader = await curPrevious.GetContext(type); 
                 if (curPrevious is not ICalculatingContext cc)
                 {
-                    var prev = await curPrevious.GetContext(header, key);
+                    var prev = await curPrevious.GetContext(curHeader!, key);
                     if (prev is null)
                         throw new MissingDataException(_index, type);
                     break;
@@ -78,12 +82,21 @@ public partial class EventStream
                 current = cc;
             }
 
-            while (todo.TryPop(out current))
-                await current.GetContext(header, key);
+            while (todo.TryPop(out var item))
+                await item.ctx.GetContext(item.header, key);
             var previous = await Previous;
-            return await proc.Process(
-                await previous.GetContext(header, key) ?? throw new MissingDataException(_index, type),
-                previous, this, Event);
+            var prevHeader = await previous.GetContext(type);
+            var prevDetail = await previous.GetContext(prevHeader!, key);
+            var bucket = metaModel.GetBucket(header, key);
+            var eventKey = metaModel.GetKeyForEvent(Event);
+            if (bucket is null || eventKey is null)
+                return prevDetail!;
+            var eventBucket = metaModel.GetBucket(header,eventKey);
+            return bucket == eventBucket
+                ? await proc.Process(
+                    prevDetail?? throw new MissingDataException(_index, type),
+                    previous, this, Event)
+                : prevDetail!;
 
         }
 
@@ -92,7 +105,7 @@ public partial class EventStream
             (_values, var res) = await _values.GetOrAddAsync(type, async () =>
             {
                 var res = await Calculate(type);
-                _parent.OnCalculated(_index, type,null,  res);
+                _parent.OnCalculated(_index, _metaModels.Get(type)!,null,  res);
                 return res;
             });
             return res;
@@ -109,7 +122,7 @@ public partial class EventStream
             (_bucketValues, var res) = await _bucketValues.GetOrAddAsync(type, bucket.Value, async () =>
             {
                 var res = await Calculate(header, key);
-                _parent.OnCalculated(_index, metaModel.DetailType, bucket.Value, res);
+                _parent.OnCalculated(_index, metaModel, bucket.Value, res);
                 return res;
             });
             return res;

@@ -108,7 +108,27 @@ public abstract class BaseCalculator
         await response.WriteAsJsonAsync(result);
         return response;
     }
+    protected async Task<HttpResponseData> Handle<T,K,D>(
+        HttpRequestData request,
+        string branchName,
+        int? baseSequence,
+        K key,
+        Func<D, K, object?>? projection = null,
+        IEnumerable<Event>? events = null)
+        where T : class, IModel<T,K,D>
+        where K : notnull
+        where D : class
+    {
+        var model = await GetModel<T,K,D>(branchName, baseSequence, events, key);
+        
+        var result = projection is null ? (object?)null : projection(model, key);
+        if (result is null)
+            return request.CreateResponse(HttpStatusCode.NotFound);
 
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(result);
+        return response;
+    }
     protected async Task<T> GetModel<T>(string branchName, int? baseSequence, IEnumerable<Event>? events) where T : class
     {
         var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
@@ -121,5 +141,21 @@ public abstract class BaseCalculator
         await str.Get<HistoryHash>(index);
         var model = await str.Get<T>(index);
         return model;
+    }
+    protected async Task<D> GetModel<T, K, D>(string branchName, int? baseSequence, IEnumerable<Event>? events, K key) 
+        where T : class, IModel<T,K,D>
+        where K : notnull
+        where D : class
+    {
+        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
+        if (baseSequence.HasValue)
+            str = str.Prefix(baseSequence.Value);
+        if (events is not null)
+            str = str.AddEvents(events);
+
+        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
+        await str.Get<HistoryHash>(index);
+        var detail = await str.Get<T, K, D>(index, key);
+        return detail;
     }
 }

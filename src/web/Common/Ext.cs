@@ -44,4 +44,14 @@ public static class Ext
         => tasks.Parallel().GetAwaiter();
     public static TaskAwaiter<(T,U,V)> GetAwaiter<T,U,V>(this (Task<T>, Task<U>, Task<V>) tasks)
         => tasks.Parallel().GetAwaiter();
+
+    public static int GetNumeric(this string str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return 0;
+        var nums = str.Where(char.IsDigit).ToArray();
+        if (nums.Length > 0)
+            return int.Parse(nums);
+        return str.Select(x => (int)x).Sum();
+    }
 }

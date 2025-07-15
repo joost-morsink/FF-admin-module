@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using VerifyTests;
 
 namespace FfAdmin.Calculator.Test;
 
@@ -156,6 +158,7 @@ public class BasicModelTests : VerifyBase
             .AddContext<DonationStatistics>()
             .AddContext<Donors>()
             .AddContext<DonorDashboardStats>()
+            .AddContext<Donations2>()
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -231,6 +234,22 @@ public class BasicModelTests : VerifyBase
         await Verify(await context.GetContext<Donations>());
     }
 
+    [TestMethod]
+    public async Task Donations2Test()
+    {
+        var context = await Stream.GetLast();
+        var total = await context.GetContext<Donations2>();
+        var meta = Donations2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+
+        foreach (var x in Enumerable.Range(0, 1 << meta.MaskBits(total)))
+        {
+            var detail = (Donations2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
     [TestMethod]
     public async Task OptionWorthsTest()
     {

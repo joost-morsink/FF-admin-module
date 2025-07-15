@@ -65,8 +65,9 @@ public class ModelCache : IModelCache
             return (type, FromJson(type, data));
         }
     }
-    public async Task<object?> Get(int index, Type type)
+    public async Task<object?> Get(int index, IMetaModel metamodel)
     {
+        var type = metamodel.HeaderType;
         if(!_options.GetEnabled)
             return null;
         if (type == typeof(HistoryHash))
@@ -88,22 +89,24 @@ public class ModelCache : IModelCache
         }
     }
 
-    public async Task<object?> Get(int index, Type type, Bucket bucket)
+    public async Task<object?> Get(int index, IMetaModel metamodel, Bucket bucket)
     {
+        var type = metamodel.DetailType;
         if (!_options.GetEnabled)
             return null;
         var indexes = await Forward();
         if (!indexes.TryGetValue(index, out var hash))
             return null;
-        var data = await _service.GetData(hash, $"{type.Name}_{bucket.Name}");
+        var data = await _service.GetData(hash, $"{metamodel.HeaderType.Name}_{bucket.Name}");
         if (data is null)
             return null;
         return FromJson(type, data);
     }
 
 
-    public async Task Put(int index, Type type, object model)
+    public async Task Put(int index, IMetaModel metamodel, object model)
     {
+        var type = metamodel.HeaderType;
         if(!_options.PutEnabled)
             return;
         if (type == typeof(HistoryHash))
@@ -125,15 +128,16 @@ public class ModelCache : IModelCache
             await _service.PutData(hash, type.Name, data);
         }
     }
-    public async Task Put(int index, Type type, Bucket bucket, object model)
+    public async Task Put(int index, IMetaModel metamodel, Bucket bucket, object model)
     {
+        var type = metamodel.DetailType;
         if (!_options.PutEnabled)
             return;
         var indexes = await Forward();
         if (!indexes.TryGetValue(index, out var hash))
             return;
         var data = ToJson(type, model);
-        await _service.PutData(hash, $"{type.Name}_{bucket.Name}", data);
+        await _service.PutData(hash, $"{metamodel.HeaderType.Name}_{bucket.Name}", data);
     }
     private object FromJson(Type type, byte[] data)
     {

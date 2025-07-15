@@ -1,12 +1,10 @@
 namespace FfAdmin.Calculator.Core;
 
 public class EventProcessor<T> : IEventProcessor<T>
-    where T : class, IModel<T>
+    where T : class
 {
     async ValueTask<object> IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
         => await Process((T)model, previousContext, context, e);
-
-    public T Start => T.GetMetaModel().Empty;
 
     public virtual ValueTask<T> Process(T model, IContext previousContext, IContext context, Event e)
     {

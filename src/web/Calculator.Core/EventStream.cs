@@ -47,12 +47,11 @@ public partial class EventStream
         var e = await Events.GetEvent(position - 1);
         if (e is null)
             return await GetAtPosition(await Events.Count());
+        
         var res = new ContextImpl(this, () => GetContextAtPosition(position - 1), e, position);
-
         if ((await _calculationPositions.Value.Positions).Contains(position))
-            foreach (var (modelType, model) in await _modelCache.GetAvailableData(_metaModels.AvailableTypes, position))
-                res.SetContext(modelType, model);
-
+            return new CachedContext(res, () => GetContextAtPosition(position - 1), this, e, position); 
+        
         return res;
     }
 
@@ -78,11 +77,11 @@ public partial class EventStream
     private record struct CalculationValues(Task<int[]> Positions, ValueTask<int> Count);
 
     private static readonly AsyncLocal<CalculationValues> _calculationPositions = new();
-    private static ConcurrentQueue<(int, Type, Bucket?, object)> _calculationQueue = new();
+    private static ConcurrentQueue<(int, IMetaModel, Bucket?, object)> _calculationQueue = new();
     private static readonly SemaphoreSlim _calculationSemaphore = new(1);
-    private void OnCalculated(int index, Type type, Bucket? bucket, object model)
+    private void OnCalculated(int index, IMetaModel metamodel, Bucket? bucket, object model)
     {
-        _calculationQueue.Enqueue((index, type, bucket, model));
+        _calculationQueue.Enqueue((index, metamodel, bucket, model));
         ProcessCalculationQueue().Ignore();
     }
 
@@ -95,15 +94,15 @@ public partial class EventStream
 
             while (_calculationQueue.TryDequeue(out var item))
             {
-                var (index, type, bucket, model) = item;
+                var (index, metaModel, bucket, model) = item;
                 var positions = await _calculationPositions.Value.Positions;
                 if (_modelCacheStrategy.ShouldCache(positions,
                         await _calculationPositions.Value.Count, index))
                 {
                     if (bucket is null)
-                        await _modelCache.Put(index, type, model);
+                        await _modelCache.Put(index, metaModel, model);
                     else
-                        await _modelCache.Put(index, type, bucket.Value, model);
+                        await _modelCache.Put(index, metaModel, bucket.Value, model);
                 }
             }
         }
@@ -138,6 +137,37 @@ public partial class EventStream
             }
         }
     }
+    public async Task<D> Get<T,K,D>(int index, K key)
+        where T : class, IModel<T,K,D>
+        where K : notnull
+        where D : class
+    {
+        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+
+        if (index < 0)
+            throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be non-negative");
+        int cont = index;
+        while (true)
+        {
+            try
+            {
+                var context = await GetAtPosition(index);
+                var header = (T?)await context.GetContext(typeof(T)) ?? throw new InvalidOperationException($"Eventprocessor for {typeof(T)} not found");
+                var detail = await context.GetContext(header, key);
+                
+                return (D?)detail ?? throw new InvalidOperationException($"Eventprocessor for {typeof(D)} not found");
+            }
+            catch (MissingDataException mde)
+            {
+                if (mde.Index >= cont)
+                    throw;
+                var newLowerBound = await _modelCache.GetIndexLowerThanOrEqual(mde.Index - 1);
+                cont = newLowerBound ?? 0;
+                await LoadContexts(await _modelCache.GetIndexLowerThanOrEqual(mde.Index - 1) ?? 0, mde.Index);
+            }
+        }
+    }
 
     public async Task<IContext> GetLast() => await GetAtPosition(await Events.Count());
+
 }
