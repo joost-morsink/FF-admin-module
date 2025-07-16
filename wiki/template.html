@@ -129,22 +129,34 @@
                 border: solid lightgrey 1px;
 
             }
-            a.imagelink {
-                color: grey;
-                margin-left: -80px;
-                margin-top:-20px;
-                text-decoration: none;
+            div.diagram {
+                position: relative; /* establish a positioning context */
+                display: inline-block; /* shrink to fit */
             }
-            a.imagelink::before{
+            div.diagram > svg {
+              display: block; /* remove unwanted spacing */
+            }
+
+            div.diagram > a.imagelink {
+                position: absolute;
+                bottom: 10px; /* distance from bottom */
+                right: 10px;  /* distance from right */
+                opacity: 0;
+                background: rgba(0,0,0,0.5);
+                color:lightgrey;
+                padding: 5px 10px;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            div.diagram >a.imagelink::before{
                 content: "Download"
             }
-            a.imagelink:hover {
-                color:lightgrey;
-                
+            div.diagram > a.imagelink:hover {
+                opacity: 1;
             }
             @media print
             {    
-                .no-print, .no-print *
+                .no-print, .no-print *, .a.imagelink 
                 {
                     display: none !important;
                 }
