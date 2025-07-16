@@ -3,9 +3,13 @@ using FfAdmin.Calculator.Core;
 using FfAdmin.Calculator.Function;
 using Microsoft.Extensions.Hosting;
 using FfAdmin.EventStore.AzureSql;
+#if !DEBUG
 using FfAdmin.ModelCache.BlobStorage;
+#endif
 using Microsoft.Extensions.DependencyInjection;
-
+#if DEBUG
+using FfAdmin.ModelCache.Local;
+#endif
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services => 
@@ -14,7 +18,13 @@ var host = new HostBuilder()
             //.AddEventStoreClient().BindConfiguration("EventStoreApi").Services
             //.AddModelCacheClient(true).BindConfiguration("ModelCacheApi").Services
             .AddAzureSqlEventStore()
+#if DEBUG
+            .AddLocalModelCacheService()
+                .Configure(o => o.Directory=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"ff-model-cache"))
+                .Services
+#else
             .AddBlobStorageModelCacheService()
+#endif
             .AddOptions<PagingEventRepositoryOptions>().Services
             .AddOptions<ModelCacheOptions>()
             //.Configure(o => o.PutEnabled = false)

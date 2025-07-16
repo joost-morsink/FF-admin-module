@@ -32,4 +32,7 @@
       <ProjectReference Include="..\EventStore.AzureSql\EventStore.AzureSql.csproj" />
       <ProjectReference Include="..\ModelCache.BlobStorage\ModelCache.BlobStorage.csproj" />
     </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+      <ProjectReference Include="..\ModelCache.Local\ModelCache.Local.csproj" />
+    </ItemGroup>
 </Project>

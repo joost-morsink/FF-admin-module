@@ -1,20 +1,14 @@
 using FfAdmin.Calculator.Core;
 using FfAdmin.ModelCache.Abstractions;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace FfAdmin.Calculator.Function;
 
-public class ModelCacheFactory : IModelCacheFactory
+public class ModelCacheFactory(IModelCacheService service, IMemoryCache memoryCache, IOptions<ModelCacheOptions> options) : IModelCacheFactory
 {
-    private readonly IModelCacheService _service;
-    private readonly ModelCacheOptions _options;
-
-    public ModelCacheFactory(IModelCacheService service, IOptions<ModelCacheOptions> options)
-    {
-        _service = service;
-        _options = options.Value;
-    }
+    private readonly ModelCacheOptions _options = options.Value;
 
     public IModelCache CreateForBranch(string branch)
-        => new ModelCache(_service, branch, _options);
+        => new CachedModelCache(branch, new ModelCache(service, branch, _options), memoryCache); 
 }

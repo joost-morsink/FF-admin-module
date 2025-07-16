@@ -9,14 +9,40 @@ public interface IModelCacheStrategy
     private class DefaultImpl : IModelCacheStrategy
     {
         public bool ShouldCache(int[] positions, int count, int position)
-            => position % 100 == 0 || position == count;
+            => positions.Contains(position) || position == count;
 
         public int[] Optimize(int[] positions, int count)
-            => positions.Length == 0
-                ? Enumerable.Range(0, int.MaxValue / 100)
-                    .Select(x => x * 100)
-                    .TakeWhile(x => x < count)
-                    .ToArray()
-                : positions;
+            => FilterPositions(positions, count).ToArray();
+
+        public IEnumerable<int> FilterPositions(IEnumerable<int> positions, int count)
+        {
+            const float FACTOR = 1.5f;
+            return Inner().Reverse().Where(x => x > 0).Distinct();
+            IEnumerable<int> Inner()
+            {
+                var gap = 50;
+
+                var last = count;
+                foreach (var pos in positions.Prepend(0).Reverse())
+                {
+                    if (pos > last)
+                        yield return pos;
+                    if (last - pos >= gap)
+                    {
+                        yield return last;
+                        while (last - pos > Convert.ToInt32(gap * FACTOR))
+                        {
+                            yield return last - gap;
+                            last = last - gap;
+                            gap = Convert.ToInt32(gap * FACTOR);
+                        }
+                        last = pos;
+                        gap = Convert.ToInt32(gap * FACTOR);
+                    }
+                }
+
+                yield return last;
+            }
+        }
     }
 }

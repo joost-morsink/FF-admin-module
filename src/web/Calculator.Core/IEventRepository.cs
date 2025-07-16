@@ -94,7 +94,7 @@ public static class EventRepositoryExtensions
         }
 
         public async ValueTask<int> StoredCount()
-            => Math.Min(_count, await _baseRepository.StoredCount());
+            => await _baseRepository.StoredCount();
         public async ValueTask<int> Count()
             => Math.Min(_count, await _baseRepository.Count());
 

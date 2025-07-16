@@ -3,6 +3,7 @@ namespace FfAdmin.Calculator.Core;
 public interface IModelCache
 {
     Task<int[]> GetIndexes();
+    Task<int[]> GetStoredIndexes();
     Task<int?> GetIndexLowerThanOrEqual(int index);
     Task<int?> GetIndexGreaterThanOrEqual(int index);
     Task<(Type, object)[]> GetAvailableData(IEnumerable<Type> types, int index);
@@ -33,7 +34,10 @@ public interface IModelCache
     {
         public Task<int[]> GetIndexes()
             => Task.FromResult(Array.Empty<int>());
-
+        
+        public Task<int[]> GetStoredIndexes()
+            => Task.FromResult(Array.Empty<int>());
+        
         public Task<int?> GetIndexLowerThanOrEqual(int index)
             => Task.FromResult(default(int?));
 
@@ -74,6 +78,9 @@ public interface IModelCache
         public async Task<int[]> GetIndexes()
             => (await _inner.GetIndexes()).TakeWhile(x => x < _count).ToArray();
 
+        public Task<int[]> GetStoredIndexes()
+            => _inner.GetStoredIndexes();
+        
         public Task<int?> GetIndexLowerThanOrEqual(int index)
             => _inner.GetIndexLowerThanOrEqual(Math.Min(index, _count - 1));
 
@@ -90,12 +97,12 @@ public interface IModelCache
 
         public async Task Put(int index, IMetaModel type, object model)
         {
-            if (index < _count)
+            if (index <= _count)
                 await _inner.Put(index, type, model);
         }
         public async Task Put(int index, IMetaModel type, Bucket bucket, object model)
         {
-            if (index < _count)
+            if (index <= _count)
                 await _inner.Put(index, type, bucket, model);
         }
     }

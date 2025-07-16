@@ -90,12 +90,12 @@ public partial class EventStream
         await _calculationSemaphore.WaitAsync();
         try
         {
-            _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+            _calculationPositions.Value = new(_modelCache.GetStoredIndexes(), Events.StoredCount());
+            var positions = _modelCacheStrategy.Optimize(await _calculationPositions.Value.Positions, await _calculationPositions.Value.Count);
 
             while (_calculationQueue.TryDequeue(out var item))
             {
                 var (index, metaModel, bucket, model) = item;
-                var positions = await _calculationPositions.Value.Positions;
                 if (_modelCacheStrategy.ShouldCache(positions,
                         await _calculationPositions.Value.Count, index))
                 {

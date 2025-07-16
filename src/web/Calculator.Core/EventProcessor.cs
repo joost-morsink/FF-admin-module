@@ -24,9 +24,21 @@ public class EventProcessor<T> : IEventProcessor<T>
             where C : class
             => context.GetValue(currentContext);
 
+        protected ValueTask<D> GetCurrent<H, K, D>(IContext<H, K, D> context, H header, K key)
+            where H : class, IModel<H, K, D>
+            where K : notnull
+            where D : class
+            => context.GetValue(currentContext, header, key);
+        
         protected ValueTask<C> GetPrevious<C>(IContext<C> context)
             where C : class
             => context.GetValue(previousContext);
+
+        protected ValueTask<D> GetPrevious<H, K, D>(IContext<H, K, D> context, H header, K key)
+            where H : class, IModel<H, K, D>
+            where K : notnull
+            where D : class
+            => context.GetValue(previousContext, header, key);
 
         public virtual ValueTask<T> Process(T model, Event e)
             => e switch

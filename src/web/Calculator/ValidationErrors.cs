@@ -19,19 +19,28 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
 
     public bool IsValid => Errors.IsEmpty;
 
-    private class Impl(IContext<Index> cIndex, IContext<Donations> cDonations, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityBalance> cCharityBalance, IContext<AmountsToTransfer> cAmountsToTransfer) : EventProcessor<ValidationErrors>
+    private class Impl(IContext<Index> cIndex, IContext<Donations2, string, Donations2.Details> cDonations, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityBalance> cCharityBalance, IContext<AmountsToTransfer> cAmountsToTransfer) : EventProcessor<ValidationErrors>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
             return new Calc(previousContext, currentContext, cIndex, cDonations, cOptions, cCharities, cCharityBalance, cAmountsToTransfer);
         }
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Index> cIndex, IContext<Donations> cDonations, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityBalance> cCharityBalance, IContext<AmountsToTransfer> cAmountsToTransfer)
+        private sealed class Calc(
+            IContext previousContext,
+            IContext currentContext,
+            IContext<Index> cIndex,
+            IContext<Donations2, string, Donations2.Details> cDonations,
+            IContext<Options> cOptions,
+            IContext<Charities> cCharities,
+            IContext<CharityBalance> cCharityBalance,
+            IContext<AmountsToTransfer> cAmountsToTransfer)
             : BaseCalculation(previousContext, currentContext)
         {
             public ValueTask<Index> CurrentIndex => GetCurrent(cIndex);
             public ValueTask<Index> PreviousIndex => GetPrevious(cIndex);
-            public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
+            public ValueTask<Donations2> PreviousDonations => GetPrevious(cDonations);
+            public async ValueTask<Donation?> PreviousDonation(string id) => (await GetPrevious(cDonations, await PreviousDonations, id)).Values.GetValueOrDefault(id);
             public ValueTask<Options> PreviousOptions => GetPrevious(cOptions);
             public ValueTask<Charities> PreviousCharities => GetPrevious(cCharities);
             public ValueTask<CharityBalance> CurrentCharityBalance => GetCurrent(cCharityBalance);
@@ -43,7 +52,7 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
 
             protected override async ValueTask<ValidationErrors> NewDonation(ValidationErrors model, NewDonation e)
                 => await model.Check(
-                    async () => !(await PreviousDonations).Contains(e.Donation) && (await PreviousOptions).Contains(e.Option) &&
+                    async () => await PreviousDonation(e.Donation) is null && (await PreviousOptions).Contains(e.Option) &&
                           (await PreviousCharities).Contains(e.Charity),
                     "New donation must be to a known option and charity and must not be a duplicate",
                     await PreviousIndex);
@@ -61,7 +70,7 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
                     "Option must be known to be updated", await PreviousIndex);
 
             protected override async ValueTask<ValidationErrors> UpdateCharityForDonation(ValidationErrors model, UpdateCharityForDonation e)
-                => await model.Check(async () => (await PreviousDonations).Contains(e.Donation) && (await PreviousCharities).Contains(e.Charity),
+                => await model.Check(async () => await PreviousDonation(e.Donation) is not null && (await PreviousCharities).Contains(e.Charity),
                     "Donation and charity must be known to be updated", await PreviousIndex);
 
             protected override async ValueTask<ValidationErrors> CharityPartition(ValidationErrors model, CharityPartition e)
@@ -70,7 +79,7 @@ public record ValidationErrors(ImmutableList<ValidationError> Errors) : IModel<V
                     "Charity and all holders must be known to perform partitioning", await PreviousIndex);
 
             protected override async ValueTask<ValidationErrors> CancelDonation(ValidationErrors model, CancelDonation e)
-                => await model.Check(async () => (await PreviousDonations).Contains(e.Donation),
+                => await model.Check(async () => await PreviousDonation(e.Donation) is not null,
                     "Donation must be known to be cancelled", await PreviousIndex);
 
             protected override async ValueTask<ValidationErrors> ConvLiquidate(ValidationErrors model, ConvLiquidate e)

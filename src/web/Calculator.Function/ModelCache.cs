@@ -36,6 +36,9 @@ public class ModelCache : IModelCache
     public async Task<int[]> GetIndexes()
         => (await Forward()).Keys.ToArray();
 
+    public Task<int[]> GetStoredIndexes()
+        => GetIndexes();
+
     public async Task<int?> GetIndexLowerThanOrEqual(int index)
         => (await Forward()).FirstKeyLowerThanOrEqual(index);
 
