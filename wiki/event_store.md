@@ -1,5 +1,5 @@
 ---
-title: Give for Good - Event Store
+title: Event Store
 author: J.W. Morsink
 archimate:
     caption: Event Store

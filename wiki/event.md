@@ -1,5 +1,5 @@
 ---
-title: Give for Good - Events
+title: Events
 author: J.W. Morsink
 ---
 

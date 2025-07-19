@@ -1,4 +1,6 @@
 ---
+title: Platform
+author: J.W. Morsink
 "#investment":
     layer: Business
     type: Process

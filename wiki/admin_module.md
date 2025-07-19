@@ -1,5 +1,5 @@
 ---
-title: Give for Good - Admin Module
+title: Admin Module
 author: J.W. Morsink
 archimate:
     layer: Business

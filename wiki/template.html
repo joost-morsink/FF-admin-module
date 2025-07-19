@@ -142,11 +142,12 @@
                 bottom: 10px; /* distance from bottom */
                 right: 10px;  /* distance from right */
                 opacity: 0;
-                background: rgba(0,0,0,0.5);
+                background: #0D79C2;
                 color:lightgrey;
                 padding: 5px 10px;
                 text-decoration: none;
                 border-radius: 4px;
+                transition: opacity 0.5s ease-in-out;
             }
             div.diagram >a.imagelink::before{
                 content: "Download"
@@ -162,16 +163,65 @@
                 }
             }
         </style>
-        <title>${title}</title>
+        <title>Give for good - ${title}</title>
     </head>
     <body>
+        <script>
+function trackVisit(title, url) {
+    if(title[0] == '$') {// title not set
+        return;
+    }
+    const key = 'recentlyViewed_$branch$';
+    const maxItems = 10;
+
+    const current = JSON.parse(localStorage.getItem(key)) || [];
+
+    // Remove if already exists
+    const filtered = current.filter(item => item.url !== url);
+
+    // Add to beginning
+    filtered.unshift({ title, url });
+
+    // Limit the list
+    const limited = filtered.slice(0, maxItems);
+
+    localStorage.setItem(key, JSON.stringify(limited));
+}
+
+function showRecent(){
+    const key = 'recentlyViewed_$branch$';
+    var list = document.getElementById("recent");
+
+    const items = JSON.parse(localStorage.getItem(key)) || [];
+    console.log(items);
+    // Clear the list
+    list.innerHTML = '<ul/>';
+
+    // Add each item as an <li><a></a></li>
+    for (const item of items) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.textContent = item.title;
+        li.appendChild(a);
+        list.appendChild(li);
+    }
+}
+window.onload = () => {
+    showRecent();
+    trackVisit(document.title.substring("Give for Good - ".length), window.location.href);
+};
+
+        </script>
         <div class="topbar">
             <img src="$branch$/images/Logo.svg"/>
         </div>
         <div class="leftside no-print">
             <a href="$branch$/index">Main page</a><br/>
             Recently visited pages:
-            $recent$
+            <div id="recent">
+
+            </div>
         </div>
         <div class="main-container">
             <div class="main">

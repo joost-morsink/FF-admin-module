@@ -1,3 +1,8 @@
+---
+title: Money bag
+author: J.W. Morsink
+---
+
 # Money bag
 
 A money bag is a technical data structure that contains different amounts of money in different currencies, and supports the basic arithmetic addition operator.
