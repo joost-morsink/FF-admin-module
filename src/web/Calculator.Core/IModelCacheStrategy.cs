@@ -20,9 +20,11 @@ public interface IModelCacheStrategy
             return Inner().Reverse().Where(x => x > 0).Distinct();
             IEnumerable<int> Inner()
             {
-                var gap = 50;
+                var gap = 25;
 
                 var last = count;
+                yield return count; // Always cache the current
+                yield return count - 1; // And the previous
                 foreach (var pos in positions.Prepend(0).Reverse())
                 {
                     if (pos > last)
@@ -32,8 +34,8 @@ public interface IModelCacheStrategy
                         yield return last;
                         while (last - pos > Convert.ToInt32(gap * FACTOR))
                         {
-                            yield return last - gap;
-                            last = last - gap;
+                            last -= gap;
+                            yield return last;
                             gap = Convert.ToInt32(gap * FACTOR);
                         }
                         last = pos;
