@@ -102,7 +102,7 @@ public partial class EventStream
                     if (bucket is null)
                         await _modelCache.Put(index, metaModel, model);
                     else
-                        await _modelCache.Put(index, metaModel, bucket.Value, model);
+                        await _modelCache.Put(index, metaModel, bucket.Value, metaModel.CleanDetail(model, bucket.Value));
                 }
             }
         }

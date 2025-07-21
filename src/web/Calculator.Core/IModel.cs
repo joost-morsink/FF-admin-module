@@ -47,6 +47,7 @@ public interface IMetaModel
     IEventProcessor GetDetailProcessor(IServiceProvider serviceProvider);
     Bucket? GetBucket(object header, object key);
     object? GetKeyForEvent(Event e);
+    object CleanDetail(object detail, Bucket bucket);
 }
 public interface IMetaModel<THeader, TKey, TDetail> : IMetaModel
     where THeader : class, IModel<THeader, TKey, TDetail>
@@ -78,6 +79,9 @@ public interface IMetaModel<THeader, TKey, TDetail> : IMetaModel
     IEventProcessor IMetaModel.GetDetailProcessor(IServiceProvider serviceProvider)
         => GetDetailProcessor(serviceProvider);
     
+    TDetail CleanDetail(TDetail detail, Bucket bucket);
+    object IMetaModel.CleanDetail(object detail, Bucket bucket)
+        => CleanDetail((TDetail)detail, bucket);
 }
 
 public interface IMetaModel<T> : IMetaModel<T, Unit, T>
@@ -115,6 +119,9 @@ public interface IModel<T> : IModel<T, Unit, T>
 
         public IEventProcessor<T> GetDetailProcessor(IServiceProvider serviceProvider)
             => GetProcessor(serviceProvider);
+
+        public T CleanDetail(T detail, Bucket bucket)
+            => detail;
     }
 }
 

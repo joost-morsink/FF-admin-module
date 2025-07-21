@@ -64,8 +64,9 @@ public record Donations2(int NumberOfDonations) : IModel<Donations2, string, Don
         public Details EmptyDetail => new(ImmutableDictionary<string, Donation>.Empty);
 
         public Bucket? GetBucket(Donations2 header, string key)
-            => new Bucket(key.GetNumeric(), MaskBits(header));
-        
+            => GetBucket(key, MaskBits(header));
+        private Bucket GetBucket(string key, int maskBits)
+            => new (key.GetNumeric(), maskBits);
         public string? GetKeyForEvent(Event e)
             => e switch
             {
@@ -80,6 +81,9 @@ public record Donations2(int NumberOfDonations) : IModel<Donations2, string, Don
 
         public IEventProcessor<Details> GetDetailProcessor(IServiceProvider serviceProvider)
             => DetailsProcessor.Instance;
+
+        public Details CleanDetail(Details detail, Bucket bucket)
+            => new(detail.Values.Where(kvp => GetBucket(kvp.Key, bucket.MaskBits) == bucket).ToImmutableDictionary());
 
     }
     public Donations2 Increment() => new(NumberOfDonations + 1);
