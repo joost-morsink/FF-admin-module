@@ -1,0 +1,34 @@
+﻿{
+  Detail_1: {
+    Shares: {
+      1: 10.0
+    }
+  },
+  Detail_2: {
+    Shares: {
+      2: 5.0
+    }
+  },
+  Detail_3: {
+    Shares: {
+      3: 9.264978381717109326744904262
+    }
+  },
+  Detail_4: {
+    Shares: {
+      4: 9.264978381717109326744904262
+    }
+  },
+  Header: {
+    NumberOfDonations: 4,
+    Worths: {
+      1: {
+        Cash: 0.77,
+        DonationFractionDivisor: 33.529956763434218653489808524,
+        Id: 1,
+        Invested: 34.25,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  }
+}

@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using FfAdmin.Calculator.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator.Test;
@@ -31,6 +29,38 @@ public static class TestExtensions
         => dictionary.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToImmutableList();
 
     public static IServiceCollection AddContext<T>(this IServiceCollection services)
-        where T:class, IModel
-        => services.AddSingleton(IContext<T>.Instance).AddSingleton(T.GetMetaModel());
+        where T : class, IModel
+    {
+        var meta = T.GetMetaModel();
+        services.AddSingleton(meta);
+        services.Add(ContextInstance(meta.HeaderType));
+        if (meta.KeyType is not null)
+            services.Add(ContextInstance(meta.HeaderType, meta.KeyType, meta.DetailType));
+        return services;
+    }
+
+    private static ServiceDescriptor ContextInstance(Type type)
+    {
+        var svcType = typeof(IContext<>).MakeGenericType(type);
+        return new ServiceDescriptor(svcType, svcType.GetProperty(nameof(IContext<object>.Instance))!.GetValue(null)!);
+    }
+
+    private static ServiceDescriptor ContextInstance(Type header, Type key, Type detail)
+    {
+
+        var svcType = typeof(IContext<,,>).MakeGenericType(header, key, detail);
+        return new ServiceDescriptor(svcType, svcType.GetProperty(nameof(IContext<Dummy, Dummy, Dummy>.Instance))!.GetValue(null)!);
+    }
+
+    private class Dummy : IModel<Dummy,Dummy, Dummy> {
+        public static IMetaModel<Dummy, Dummy, Dummy> GetMetaModel()
+        {
+            throw new NotImplementedException();
+        }
+
+        static IMetaModel IModel.GetMetaModel()
+        {
+            return GetMetaModel();
+        }
+    }
 }

@@ -59,6 +59,7 @@ var host = new HostBuilder()
             .AddModelProcessor<DonorDashboardStats>()
         
             .AddModelProcessor<Donations2, string, Donations2.Details>()
+            .AddModelProcessor<OptionWorths2, string, OptionWorths2.Details>()
             
         )
     .Build();

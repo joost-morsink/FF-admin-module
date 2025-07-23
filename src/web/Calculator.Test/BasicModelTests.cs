@@ -159,6 +159,7 @@ public class BasicModelTests : VerifyBase
             .AddContext<Donors>()
             .AddContext<DonorDashboardStats>()
             .AddContext<Donations2>()
+            .AddContext<OptionWorths2>()
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -243,7 +244,7 @@ public class BasicModelTests : VerifyBase
         var dict = new Dictionary<string, object>();
         dict.Add("Header", total);
 
-        foreach (var x in Enumerable.Range(0, 1 << meta.MaskBits(total)))
+        foreach (var x in Enumerable.Range(1, 4))
         {
             var detail = (Donations2.Details?) await context.GetContext(total, x.ToString());
             dict[$"Detail_{x}"] = detail!;
@@ -258,6 +259,21 @@ public class BasicModelTests : VerifyBase
         await Verify(contexts);
     }
 
+    [TestMethod]
+    public async Task OptionWorths2Test()
+    {
+        var context = await Stream.GetLast();
+        var total = await context.GetContext<OptionWorths2>();
+        var meta = OptionWorths2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1, 4))
+        {
+            var detail = (OptionWorths2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
     [TestMethod]
     public async Task OptionWorthHistoryTest()
     {

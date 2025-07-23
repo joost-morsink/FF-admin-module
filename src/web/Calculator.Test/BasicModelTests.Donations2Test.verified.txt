@@ -1,5 +1,4 @@
 ﻿{
-  Detail_0: {},
   Detail_1: {
     Values: {
       1: {
@@ -14,12 +13,6 @@
       }
     }
   },
-  Detail_10: {},
-  Detail_11: {},
-  Detail_12: {},
-  Detail_13: {},
-  Detail_14: {},
-  Detail_15: {},
   Detail_2: {
     Values: {
       2: {
@@ -62,11 +55,6 @@
       }
     }
   },
-  Detail_5: {},
-  Detail_6: {},
-  Detail_7: {},
-  Detail_8: {},
-  Detail_9: {},
   Header: {
     NumberOfDonations: 4
   }

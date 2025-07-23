@@ -89,9 +89,9 @@ public partial class EventStream
             var prevDetail = await previous.GetContext(prevHeader!, key);
             var bucket = metaModel.GetBucket(header, key);
             var eventKey = metaModel.GetKeyForEvent(Event);
-            if (bucket is null || eventKey is null)
+            if (bucket is null)
                 return prevDetail!;
-            var eventBucket = metaModel.GetBucket(header, eventKey);
+            var eventBucket = eventKey is null ? null : metaModel.GetBucket(header, eventKey);
             return metaModel.IsMegaEvent(Event) || bucket == eventBucket
                 ? await proc.Process(
                     prevDetail?? throw new MissingDataException(_index, type),
