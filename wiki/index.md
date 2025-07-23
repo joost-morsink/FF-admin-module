@@ -4,12 +4,57 @@ author: J.W. Morsink
 ---
 # Give for Good
 
-Welcome to the documentation wiki for Give for Good.
-Described here are the architecture and business processes that pertain to Give for Good.
+Give for Good is a non-profit organization that facilitates donors to give their favorite [charities](./charity) a recurring source of income.
+It achieves this by investing the donated money in the stockmarket, with the selected charity as the ultimate benificiary of the profits made.
+At least once a year a so called [conversion day](./conversion_day) takes place by calculating exactly how much funds should be transferred to the different charities, depending on how much profit has been made and on the selected charities of the donations.
+
+To facilitate the business processes involved two components play a big role in the organisation's architecture:
+
+* The [Give for Good website](https://www.giveforgood.world).
+* The [Adminstration module](./admin_module).
+
+```plantuml
+@startuml
+entity Donor
+entity Donation
+entity Charity
+entity Option
+entity Allocation
+entity Transfer
+
+Donor o-- Donation : makes
+Donation ..> Charity : benificiary
+Option *-- Donation : invests
+
+Donation - Allocation : n relates to 1
+Allocation .> Charity : for
+Option <. Allocation : by
+Transfer .> Charity : for
+url for Donor [[./donor]]
+url for Donation [[./donation]]
+url for Charity [[./charity]]
+url for Option [[./option]]
+url for Allocation [[./allocation]]
+url for Transfer [[./transfer]]
+@enduml
+```
+
+A [donor](./donor) makes a [donation](./donation) (implicitly for investment in a [investment option](./option)) and selects a [charity](./charity) as a benificiary for the profits allocated to it by [allocation](./allocation). 
+These allocated funds are transferred to the charity by a [transfer](./transfer).
+
+## Business processes
+
+The following business processes can be identified:
+
+* [Making a donation](./donation#making-a-donation)
+* [Conversion day](./conversion_day)
+    * [Conversion of funds going in and investing them](./conversion_day#the-in-process)
+    * [Conversion of funds going out and allocating them to charities](./conversion_day#the-out-process)
+* [Payout to charities](./payout)
+* Other processes that are present outside of the admin module still need to be identified.
 
 ## Organizational motivation for a platform
 
-Give for good is a non-profit organization that allow donors to donate money indirectly to charities.
 The donated money is first invested in green/sustainable stock funds.
 A part of the profits is donated to the selected charities anually, a small part is used to support the platform, and the rest is used for reinvestment.
 

@@ -150,11 +150,30 @@
                 transition: opacity 0.5s ease-in-out;
             }
             div.diagram >a.imagelink::before{
-                content: "Download"
+                content: "Download";
             }
             div.diagram > a.imagelink:hover {
                 opacity: 1;
             }
+            div.diagram > a.sourcelink {
+                position: absolute;
+                bottom: 45px; /* distance from bottom */
+                right: 10px;  /* distance from right */
+                opacity: 0;
+                background: #0D79C2;
+                color:lightgrey;
+                padding: 5px 10px;
+                text-decoration: none;
+                border-radius: 4px;
+                transition: opacity 0.5s ease-in-out;
+            }
+            div.diagram > a.sourcelink::before{
+                content: "Source";
+            }
+            div.diagram > a.sourcelink:hover {
+                opacity: 1;
+            }
+
             @media print
             {    
                 .no-print, .no-print *, .a.imagelink 
