@@ -27,9 +27,9 @@ Donor o-- Donation : makes
 Donation ..> Charity : benificiary
 Option *-- Donation : invests
 
-Donation - Allocation : n relates to 1
-Allocation .> Charity : for
-Option <. Allocation : by
+Allocation - Donation : on behalf of n
+Allocation ..> Charity : for
+Option <.. Allocation : by
 Transfer .> Charity : for
 url for Donor [[./donor]]
 url for Donation [[./donation]]
