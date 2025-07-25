@@ -15,5 +15,6 @@
   caption: Donations admnistrator
   triggers:
   - to: conversion_day
+  - to: payout
 
 

@@ -1,6 +1,7 @@
 ---
 title: Checklists
 author: J.W. Morsink
+difficulty: easy
 ---
 
 # Checklists

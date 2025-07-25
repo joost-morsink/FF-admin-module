@@ -1,6 +1,7 @@
 ---
 title: Admin Module
 author: J.W. Morsink
+difficulty: medium
 archimate:
     layer: Business
     type: Function
@@ -45,3 +46,12 @@ calculator l website;
 
 The admin module uses [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) to administer changes in the (financial or meta) state of the Give for Good concept. 
 It defines [events](./event) to record these state changes, and [models](./calculator#models) to aggregate these events into insightful parts of the overall state at any given position in the event sequence.
+
+The [Calculator](./calculator) is responsible for calculating model values from the event stream. 
+Events are stored in an [event store](./event_store) that supports a simple branching system to make testing scenario's and snapshot isolation possible.
+A model cache is responsible for storing model states at certain positions in the event stream, so not everything has to be recalculated every time.
+
+A website can be used to do all the necessary user actions for [conversion day](./conversion_day).
+This website is called the 'Admin UI'.
+
+An [auto importer](./auto_import) module is responsible for importing donation and charity information as events into the admin module.

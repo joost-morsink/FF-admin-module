@@ -1,6 +1,7 @@
 ---
 title: Model HistoryHash
 author: J.W. Morsink
+difficulty: hard
 ---
 
 # Model HistoryHash

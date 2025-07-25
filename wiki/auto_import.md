@@ -1,6 +1,7 @@
 ---
 title: Automatic importer
 author: J.W. Morsink
+difficulty: medium
 archimate:
     layer: Application
     type: Process
@@ -30,3 +31,11 @@ flowchart TD
     click DONA_NEW "./events/DONA_NEW"
     click META_NEW_CHARITY "./events/META_NEW_CHARITY"
 ```
+
+## Scheduling
+
+A daily import process is scheduled that takes into account the last three days.
+This way, when a job occasionally fails, the donations are imported a few days later.
+Also a monthly import is scheduled to sweep anything that still hasn't been synchronized to the admin module.
+
+Before each [enter](./conversion_day#the-in-process) the run state of these processes should be checked, to make sure all donations are taken into account.

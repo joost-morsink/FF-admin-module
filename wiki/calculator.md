@@ -1,6 +1,7 @@
 ---
 title: Calculator
 author: J.W. Morsink
+difficulty: hard
 archimate:
     layer: Application
     type: Service
@@ -147,4 +148,11 @@ Using the [`ValidationErrors` model](./models/validation_errors) the set of even
 Theories are also used for calculating the [`MinimalExits`](./models/minimal_exits) for an investment option.
 
 Results from theory requests are not cached in the [Model cache](./model_cache).
+
+## Partitioning
+
+> Paritioning is, at the time of writing, still a work in progress.
+
+Partitioning is a system that splits a model into multiple entities for storage. 
+Thereby optimizing network transfer and memory usage when [calculating](./calculator).
 

@@ -1,6 +1,7 @@
 ---
 title: Conversion day
-author: J.W. Morsink    
+author: J.W. Morsink 
+difficulty: medium
 archimate:
     layer: Business
     type: Process
@@ -169,3 +170,4 @@ The exit amount should be the largest of these two, always resulting in a positi
 ## The transfer process
 
 The transfer process uses the [CONV_TRANSFER](./events/CONV_TRANSFER) event to administer exactly how much funds have been transferred to each [charity](./charity).
+This transfer process implements the [payout capability](./payout).

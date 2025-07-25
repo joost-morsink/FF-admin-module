@@ -9,3 +9,5 @@ serves:
 - to: payout#register
 accesses:
 - to: payout#payment_order
+realizes:
+- to: strategy#payout

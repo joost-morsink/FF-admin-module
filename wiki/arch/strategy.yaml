@@ -9,7 +9,8 @@
 "#history":
   layer: Strategy
   type: Capability
-  caption: Complete history
+  caption: Complete History
+  url: complete_history
   realizes:
   - to: motivation#transparancy
   - to: motivation#correctness
@@ -17,6 +18,7 @@
   layer: Strategy
   type: Capability
   caption: Donating
+  url: donation#making-a-donation
   realizes:
   - to: motivation#donating
 "#payout":
