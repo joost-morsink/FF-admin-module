@@ -1,6 +1,7 @@
 ---
 title: Donor
 author: J.W. Morsink
+difficulty: easy
 archimate:
   layer: Business
   type: Actor

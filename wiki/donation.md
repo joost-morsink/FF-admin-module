@@ -1,6 +1,7 @@
 ---
 title: Donation
 author: J.W. Morsink
+difficulty: medium
 "#donate":
     layer: Business
     type: Process

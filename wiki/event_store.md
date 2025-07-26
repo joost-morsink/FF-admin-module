@@ -1,6 +1,7 @@
 ---
 title: Event Store
 author: J.W. Morsink
+difficulty: medium
 archimate:
     caption: Event Store
     layer: Application

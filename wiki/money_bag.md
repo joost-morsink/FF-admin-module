@@ -1,6 +1,7 @@
 ---
 title: Money bag
 author: J.W. Morsink
+difficulty: medium
 ---
 
 # Money bag

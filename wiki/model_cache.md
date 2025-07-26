@@ -1,6 +1,7 @@
 ---
 title: Model Cache
 author: J.W. Morsink
+difficulty: hard
 archimate: 
     caption: Model Cache
     layer: Application
@@ -11,5 +12,5 @@ archimate:
 
 # Model Cache
 
-The model cache is responsible for caching instances of [models](./calculator#models) for certain points in the event sequence, to speed up calculations.
+The model cache is a technical component responsible for caching instances of [models](./calculator#models) for certain points in the event sequence, to speed up calculations.
 

@@ -1,6 +1,7 @@
 ---
 title: Donor dashboard
 author: J.W. Morsink
+difficulty: easy
 archimate: 
     layer: Business
     type: Service
@@ -10,7 +11,7 @@ archimate:
 
 # Donor dashboard
 
-The donor dashboard is a piece of front-end software that aims to give [donor's](./donor) insight in their [donation](./donation), the development of its worth, and the [allocations](./allocation) made to the [charity](./charity).
+The donor dashboard is a piece of front-end software that aims to give [donors](./donor) insight in their [donation](./donation), the development of its worth, and the [allocations](./allocation) made to the [charity](./charity).
 
 The motivation for having a donor dashboard is as follows:
 

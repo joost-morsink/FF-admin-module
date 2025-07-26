@@ -1,6 +1,7 @@
 ---
 title: Events
 author: J.W. Morsink
+difficulty: medium
 ---
 
 # Events
@@ -17,6 +18,7 @@ The first is an enumeration of the different types of events and the other is th
 
 The events are ordered sequentially, but not necessarily chronologically.
 This means the [Admin Module](./admin_module) supports non-chronological event processing.
+The system does behave best when the events are in chronological order.
 
 ## Categories
 

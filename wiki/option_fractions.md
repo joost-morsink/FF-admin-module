@@ -1,6 +1,7 @@
 ---
 title: Option fractions
 author: J.W. Morsink
+difficulty: medium
 ---
 
 # Option fractions

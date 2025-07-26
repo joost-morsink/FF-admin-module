@@ -1,6 +1,7 @@
 ---
 title: Investment option
 author: J.W. Morsink
+difficulty: medium
 ---
 
 # Investment option

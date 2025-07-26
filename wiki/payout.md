@@ -1,6 +1,7 @@
 ---
 title: Payout
 author: J.W. Morsink
+difficulty: easy
 archimate: 
     layer: Business
     type: Process
@@ -87,4 +88,5 @@ $services d $layer4;
 $layer4 d $artifacts;
 ```
 
-
+Allocated funds might not be transferred every year, depending on the actual amount and costs involved in the actual transfers.
+If a transfer is postponed, it is automatically added to the next transfer.
