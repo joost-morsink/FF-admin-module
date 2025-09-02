@@ -160,6 +160,7 @@ public class BasicModelTests : VerifyBase
             .AddContext<DonorDashboardStats>()
             .AddContext<Donations2>()
             .AddContext<OptionWorths2>()
+            .AddContext<Donors2>()
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -361,6 +362,22 @@ public class BasicModelTests : VerifyBase
             .ToListOrderedByKey();
 
         await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task Donors2Test()
+    {
+        var context = await Stream.GetAtPosition(18);
+        var total = await context.GetContext<Donors2>();
+        var meta = Donors2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1,2))
+        {
+            var detail = (Donors2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
     }
     [TestMethod]
     public async Task DonorDashboardStatsTest()

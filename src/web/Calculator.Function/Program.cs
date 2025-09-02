@@ -60,6 +60,7 @@ var host = new HostBuilder()
         
             .AddModelProcessor<Donations2, string, Donations2.Details>()
             .AddModelProcessor<OptionWorths2, string, OptionWorths2.Details>()
+            .AddModelProcessor<Donors2, string, Donors2.Details>()
             
         )
     .Build();
