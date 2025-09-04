@@ -97,12 +97,16 @@ public class EventImportService : IEventImportService
     {
         var option = options.Values[OPTION_ID];
         var amount = decimal.Parse(donation.Total, CultureInfo.InvariantCulture);
+        
+        var molliePayment = string.Equals(donation.Gateway, MOLLIE, StringComparison.OrdinalIgnoreCase)
+            ? await _mollie.GetPayment(donation.TransactionId)
+            : null;
 
         if (donation.PaymentMeta.Currency != option.Currency)
         {
             if (string.Equals(donation.Gateway, MOLLIE, StringComparison.OrdinalIgnoreCase))
             {
-                var payment = await _mollie.GetPayment(donation.TransactionId);
+                var payment = molliePayment;
                 if (payment is not null
                     && payment.Status is PAID)
                 {
@@ -137,11 +141,18 @@ public class EventImportService : IEventImportService
         }
         else
         {
-            yield return MakeDonation(d => d.Exchanged_amount = d.Amount);
+            yield return MakeDonation(d =>
+            {
+                d.Exchanged_amount = d.Amount;
+            });
         }
 
         NewDonation MakeDonation(Action<NewDonation>? action = null)
         {
+            var possibleFraud = molliePayment is not null
+                                && string.Equals(molliePayment.Method, "creditcard", StringComparison.OrdinalIgnoreCase)
+                                && string.Equals(molliePayment.Amount.Currency, "EUR", StringComparison.OrdinalIgnoreCase)
+                                && decimal.TryParse(molliePayment.Amount.Value, CultureInfo.InvariantCulture, out var amt) && amt >= 50;
             var result = new NewDonation
             {
                 Timestamp = donation.Date,
@@ -155,6 +166,8 @@ public class EventImportService : IEventImportService
                 Transaction_reference = donation.TransactionId,
                 Option = OPTION_ID
             };
+            if (possibleFraud)
+                result.Execute_timestamp = result.Execute_timestamp.AddMonths(6);
             action?.Invoke(result);
             return result;
         }
