@@ -150,14 +150,14 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
             => GetBucket(key, MaskBits(header));
         private Bucket GetBucket(string key, int maskBits)
             => new (key.GetNumeric(), maskBits);
-        public string? GetKeyForEvent(Event e)
+        public IEnumerable<string> GetKeysForEvent(Event e)
         {
             return e switch
             {
-                NewDonation nd => nd.Donation,
-                CancelDonation cd => cd.Donation,
-                UpdateCharityForDonation ucd => ucd.Donation,
-                _ => null
+                NewDonation nd => [nd.Donation],
+                CancelDonation cd => [cd.Donation],
+                UpdateCharityForDonation ucd => [ucd.Donation],
+                _ => []
             };
         }
         

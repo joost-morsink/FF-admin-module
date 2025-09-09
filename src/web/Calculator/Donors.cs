@@ -70,11 +70,11 @@ public record Donors2(int DonorCount, int DonationCount)
             => GetBucket(key, MaskBits(header));
         private Bucket GetBucket(string key, int maskBits)
             => new (key.GetNumeric(), maskBits);
-        public string? GetKeyForEvent(Event e)
+        public IEnumerable<string> GetKeysForEvent(Event e)
             => e switch
             {
-                NewDonation nd => nd.Donor,
-                _ => null
+                NewDonation nd => [nd.Donor],
+                _ => []
             };
     }
     public record Details(ImmutableDictionary<string, ImmutableList<string>> Values);

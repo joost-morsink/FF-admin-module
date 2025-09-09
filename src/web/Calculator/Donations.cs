@@ -67,13 +67,13 @@ public record Donations2(int NumberOfDonations) : IModel<Donations2, string, Don
             => GetBucket(key, MaskBits(header));
         private Bucket GetBucket(string key, int maskBits)
             => new (key.GetNumeric(), maskBits);
-        public string? GetKeyForEvent(Event e)
+        public IEnumerable<string> GetKeysForEvent(Event e)
             => e switch
             {
-                NewDonation nd => nd.Donation,
-                CancelDonation cd => cd.Donation,
-                UpdateCharityForDonation ucd => ucd.Donation,
-                _ => null
+                NewDonation nd => [nd.Donation],
+                CancelDonation cd => [cd.Donation],
+                UpdateCharityForDonation ucd => [ucd.Donation],
+                _ => []
             };
     
         public IEventProcessor<Donations2> GetProcessor(IServiceProvider serviceProvider)

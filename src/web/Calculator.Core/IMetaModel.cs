@@ -13,7 +13,7 @@ public interface IMetaModel
     IEventProcessor GetProcessor(IServiceProvider serviceProvider);
     IEventProcessor GetDetailProcessor(IServiceProvider serviceProvider);
     Bucket? GetBucket(object header, object key);
-    object? GetKeyForEvent(Event e);
+    IEnumerable<object> GetKeysForEvent(Event e);
     bool IsMegaEvent(Event e) 
         => false;
     object CleanDetail(object detail, Bucket bucket);
@@ -26,8 +26,8 @@ public interface IMetaModel<T> : IMetaModel<T, Unit, T>
     T IMetaModel<T, Unit, T>.EmptyDetail => Empty;
     Bucket? IMetaModel<T, Unit, T>.GetBucket(T header, Unit key)
         => null;
-    Unit IMetaModel<T, Unit, T>.GetKeyForEvent(Event e)
-        => Unit.Value;
+    IEnumerable<Unit> IMetaModel<T, Unit, T>.GetKeysForEvent(Event e)
+        => [Unit.Value];
     IEventProcessor<T> IMetaModel<T, Unit, T>.GetDetailProcessor(IServiceProvider serviceProvider)
         => GetProcessor(serviceProvider);
 }
@@ -59,10 +59,10 @@ public interface IMetaModel<THeader, TKey, TDetail> : IMetaModel
     Bucket? IMetaModel.GetBucket(object header, object key)
         => GetBucket((THeader)header, (TKey)key);
 
-    new TKey? GetKeyForEvent(Event e);
+    new IEnumerable<TKey> GetKeysForEvent(Event e);
 
-    object? IMetaModel.GetKeyForEvent(Event e)
-        => GetKeyForEvent(e);
+    IEnumerable<object> IMetaModel.GetKeysForEvent(Event e)
+        => GetKeysForEvent(e).Cast<object>();
 
     new IEventProcessor<TDetail> GetDetailProcessor(IServiceProvider serviceProvider);
 
