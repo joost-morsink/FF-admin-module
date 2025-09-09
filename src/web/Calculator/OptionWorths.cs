@@ -1,3 +1,4 @@
+using System.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
@@ -144,7 +145,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
             => Math.Max(4, (int)Math.Floor(Math.Log2((header.NumberOfDonations - 1.0) / 16 + 1)));
 
         public OptionWorths2 Empty => new(0, 0,ImmutableDictionary<string, Header>.Empty);
-        public Details EmptyDetail => new(ImmutableDictionary<string, Real>.Empty);
+        public Details EmptyDetail => new(ImmutableDictionary<string, EnteredDonation>.Empty);
         
         public Bucket? GetBucket(OptionWorths2 header, string key)
             => GetBucket(key, MaskBits(header));
@@ -186,7 +187,27 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
             => DonationFractionDivisor == 0 ? 1 : (Invested + Cash) / DonationFractionDivisor;
     }
     
-    public record Details(ImmutableDictionary<string, Real> Shares);
+    public record Details(ImmutableDictionary<string, EnteredDonation> Shares);
+
+    public record EnteredDonation
+    {
+        public DateTimeOffset? Timestamp { get; } 
+        public Real Share { get; }
+        public bool IsEntered => Timestamp.HasValue;
+
+        public EnteredDonation() 
+        {
+            Timestamp = null;
+            Share = 0;
+        }
+
+        public EnteredDonation(DateTimeOffset timestamp, Real share)
+        {
+            Timestamp = timestamp;
+            Share = share;
+        }
+    
+    }
     public record Entering(Real Divisor, Real Factor, ImmutableList<Donation> Donations);
     
     private class Impl : EventProcessor<OptionWorths2>
@@ -315,7 +336,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 => (await GetCurrent(cDonations, await GetPrevious(cDonations), donationId)).Values[donationId];
             
             protected override ValueTask<Details> NewDonation(Details model, NewDonation e)
-                => new(new Details(model.Shares.Add(e.Donation, 0)));
+                => new(new Details(model.Shares.Add(e.Donation, new())));
 
             protected override ValueTask<Details> CancelDonation(Details model, CancelDonation e)
                 => new(new Details(model.Shares.Remove(e.Donation)));
@@ -324,10 +345,10 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
             {
                 var optionWorth = await CurrentOptionWorthFor(e.Option);
                 var factor = optionWorth.CalculateFactor();
-                var newDetails = ImmutableDictionary<string, Real>.Empty.ToBuilder();
+                var newDetails = ImmutableDictionary<string, EnteredDonation>.Empty.ToBuilder();
                 foreach (var share in model.Shares)
                 {
-                    if (share.Value > 0) // Already entered
+                    if (share.Value.IsEntered) 
                     {
                         newDetails[share.Key] = share.Value;
                         continue;
@@ -340,7 +361,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                         continue;
                     }
 
-                    newDetails[share.Key] = donation.Amount / factor;
+                    newDetails[share.Key] = new (e.Timestamp, donation.Amount / factor);
                 }
 
                 return new(newDetails.ToImmutable());

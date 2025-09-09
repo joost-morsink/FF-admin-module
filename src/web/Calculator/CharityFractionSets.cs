@@ -65,7 +65,7 @@ public record CharityFractionSets(ImmutableDictionary<string, ImmutableDictionar
             {
                 var ow = await CurrentOptionWorths(e.Donation);
                 var donationShare = ow.Shares[e.Donation];
-                if (donationShare == 0)
+                if (!donationShare.IsEntered)
                     return model;
 
                 var donation = await CurrentDonation(e.Donation);
@@ -74,8 +74,8 @@ public record CharityFractionSets(ImmutableDictionary<string, ImmutableDictionar
                 var option = model.Shares[donation.OptionId];
 
                 var newOption = option
-                    .Mutate(donation.CharityId, x => x - donationShare)
-                    .Mutate(e.Charity, x => x + donationShare);
+                    .Mutate(donation.CharityId, x => x - donationShare.Share)
+                    .Mutate(e.Charity, x => x + donationShare.Share);
                 
                 return model.Shares.SetItem(donation.OptionId, newOption);
             }

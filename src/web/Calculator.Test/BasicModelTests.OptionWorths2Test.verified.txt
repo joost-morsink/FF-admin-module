@@ -1,22 +1,38 @@
 ﻿{
   Detail_1: {
     Shares: {
-      1: 10.0
+      1: {
+        IsEntered: true,
+        Share: 10.0,
+        Timestamp: DateTimeOffset_1
+      }
     }
   },
   Detail_2: {
     Shares: {
-      2: 5.0
+      2: {
+        IsEntered: true,
+        Share: 5.0,
+        Timestamp: DateTimeOffset_1
+      }
     }
   },
   Detail_3: {
     Shares: {
-      3: 9.264978381717109326744904262
+      3: {
+        IsEntered: true,
+        Share: 9.264978381717109326744904262,
+        Timestamp: DateTimeOffset_2
+      }
     }
   },
   Detail_4: {
     Shares: {
-      4: 9.264978381717109326744904262
+      4: {
+        IsEntered: true,
+        Share: 9.264978381717109326744904262,
+        Timestamp: DateTimeOffset_2
+      }
     }
   },
   Header: {
@@ -27,7 +43,7 @@
         DonationFractionDivisor: 33.529956763434218653489808524,
         Id: 1,
         Invested: 34.25,
-        Timestamp: DateTimeOffset_1
+        Timestamp: DateTimeOffset_3
       }
     }
   }

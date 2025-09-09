@@ -160,6 +160,7 @@ public class BasicModelTests : VerifyBase
             .AddContext<OptionWorths2>()
             .AddContext<Donors2>()
             .AddContext<CharityFractionSets>()
+            .AddContext<Allocations>()
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -263,6 +264,21 @@ public class BasicModelTests : VerifyBase
     public async Task OptionWorths2Test()
     {
         var context = await Stream.GetLast();
+        var total = await context.GetContext<OptionWorths2>();
+        var meta = OptionWorths2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1, 4))
+        {
+            var detail = (OptionWorths2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
+    [TestMethod]
+    public async Task OptionWorths2EnterTest()
+    {
+        var context = await Stream.GetAtPosition(8);
         var total = await context.GetContext<OptionWorths2>();
         var meta = OptionWorths2.GetMetaModel();
         var dict = new Dictionary<string, object>();
@@ -436,6 +452,13 @@ public class BasicModelTests : VerifyBase
             totalShares.Should().BeApproximately(ows.Worths[key].DonationFractionDivisor, PRECISION);
         }
         
+    }
+
+    [TestMethod]
+    public async Task AllocationsTest()
+    {
+        var contexts = (await Stream.GetValues<Allocations>( 8, 12, 13, 16, 17, 20)).ToListOrderedByKey();
+        await Verify(contexts);
     }
     
     [TestMethod]

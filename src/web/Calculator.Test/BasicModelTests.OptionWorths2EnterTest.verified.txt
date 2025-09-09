@@ -1,0 +1,78 @@
+﻿{
+  Detail_1: {
+    Shares: {
+      1: {
+        IsEntered: true,
+        Share: 10.0,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  Detail_2: {
+    Shares: {
+      2: {
+        IsEntered: true,
+        Share: 5.0,
+        Timestamp: DateTimeOffset_1
+      }
+    }
+  },
+  Detail_3: {
+    Shares: {
+      3: {
+        IsEntered: false
+      }
+    }
+  },
+  Detail_4: {},
+  Header: {
+    NumberOfDonations: 3,
+    TotalUnentered: 10.0,
+    Worths: {
+      1: {
+        Cash: 15.0,
+        DonationFractionDivisor: 15.0,
+        EnteringDonations: {
+          Divisor: 15.0,
+          Donations: [
+            {
+              Amount: 10.0,
+              CharityId: 1,
+              ExecuteTimestamp: DateTimeOffset_2,
+              Id: 1,
+              OptionId: 1,
+              OriginalAmount: 10.0,
+              OriginalCurrency: EUR,
+              Timestamp: DateTimeOffset_2
+            },
+            {
+              Amount: 5.0,
+              CharityId: 2,
+              ExecuteTimestamp: DateTimeOffset_3,
+              Id: 2,
+              OptionId: 1,
+              OriginalAmount: 10.0,
+              OriginalCurrency: HEUR,
+              Timestamp: DateTimeOffset_3
+            }
+          ],
+          Factor: 1.0
+        },
+        Id: 1,
+        Timestamp: DateTimeOffset_1,
+        UnenteredDonations: [
+          {
+            Amount: 10.0,
+            CharityId: 2,
+            ExecuteTimestamp: DateTimeOffset_4,
+            Id: 3,
+            OptionId: 1,
+            OriginalAmount: 10.0,
+            OriginalCurrency: EUR,
+            Timestamp: DateTimeOffset_5
+          }
+        ]
+      }
+    }
+  }
+}
