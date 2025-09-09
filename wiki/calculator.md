@@ -121,6 +121,10 @@ graph LR
     CharityBalance --> ValidationErrors
     Options --> MonthlyDonations
 
+    CharityFractionSets --> OptionWorths2
+    CharityFractionSets --> Donations2
+    Donors2
+
     click Index "./models/index"
     click HistoryHash "./models/history_hash"
     click Options "./models/options"

@@ -179,13 +179,15 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
         Real Invested,
         Real Cash,
         Real DonationFractionDivisor,
-        ImmutableList<Donation> UnenteredDonations)
+        ImmutableList<Donation> UnenteredDonations,
+        Entering? EnteringDonations)
     {
         public Real CalculateFactor()
             => DonationFractionDivisor == 0 ? 1 : (Invested + Cash) / DonationFractionDivisor;
     }
     
     public record Details(ImmutableDictionary<string, Real> Shares);
+    public record Entering(Real Divisor, Real Factor, ImmutableList<Donation> Donations);
     
     private class Impl : EventProcessor<OptionWorths2>
     {
@@ -201,7 +203,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 => new(model with
                 {
                     Worths = model.Worths.Add(e.Code,
-                        new Header(e.Code, e.Timestamp, 0, 0, 0, ImmutableList<Donation>.Empty))
+                        new Header(e.Code, e.Timestamp, 0, 0, 0, ImmutableList<Donation>.Empty, null))
                 });
 
             protected override ValueTask<OptionWorths2> NewDonation(OptionWorths2 model, NewDonation e)
@@ -213,7 +215,8 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                         {
                             UnenteredDonations = model.Worths[e.Option].UnenteredDonations.Add(
                                 new Donation(e.Donation, e.Timestamp, e.Execute_timestamp, e.Option, e.Charity,
-                                    (Real)e.Exchanged_amount, e.Currency, (Real)e.Amount))
+                                    (Real)e.Exchanged_amount, e.Currency, (Real)e.Amount)),
+                            EnteringDonations = null
                         })));
 
             protected override ValueTask<OptionWorths2> CancelDonation(OptionWorths2 model, CancelDonation e)
@@ -227,7 +230,8 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
 
                 var updatedWorth = model.Worths[search.option] with
                 {
-                    UnenteredDonations = model.Worths[search.option].UnenteredDonations.Remove(search.donation)
+                    UnenteredDonations = model.Worths[search.option].UnenteredDonations.Remove(search.donation),
+                    EnteringDonations = null
                 }; 
 
                 return new(model with
@@ -258,7 +262,8 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                             Invested = e.Invested_amount,
                             Cash = worth.Cash + entering,
                             DonationFractionDivisor = worth.DonationFractionDivisor + entering / factor,
-                            UnenteredDonations = split[false].ToImmutableList()
+                            UnenteredDonations = split[false].ToImmutableList(),
+                            EnteringDonations = new (worth.DonationFractionDivisor + entering / factor, factor, split[true].ToImmutableList())
                         })
                 });
             }
@@ -287,7 +292,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 return new(model with
                 {
                     Worths = model.Worths.SetItem(option,
-                        worth with {Timestamp = timestamp, Invested = invested(worth.Invested), Cash = cash(worth.Cash)})
+                        worth with {Timestamp = timestamp, Invested = invested(worth.Invested), Cash = cash(worth.Cash), EnteringDonations = null})
                 });
             }
         }

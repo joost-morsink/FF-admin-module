@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using VerifyTests;
 
 namespace FfAdmin.Calculator.Test;
 
 [TestClass]
 public class BasicModelTests : VerifyBase
 {
-    private static DateTimeOffset _current = new DateTimeOffset(2023, 6, 6, 0, 0, 0, TimeSpan.Zero);
+    private const decimal PRECISION = 0.000000000001m;
+    private static DateTimeOffset _current = new (2023, 6, 6, 0, 0, 0, TimeSpan.Zero);
 
     public static DateTimeOffset GetCurrent(TimeSpan? span = null) =>
         _current = _current + (span ?? TimeSpan.FromSeconds(1));
@@ -161,6 +159,7 @@ public class BasicModelTests : VerifyBase
             .AddContext<Donations2>()
             .AddContext<OptionWorths2>()
             .AddContext<Donors2>()
+            .AddContext<CharityFractionSets>()
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -407,7 +406,7 @@ public class BasicModelTests : VerifyBase
                 join w in worths on dw.OptionId equals w.Key
                 select Math.Abs(dw.TotalWorth - w.Value.TotalWorth - w.Value.UnenteredDonations.Sum(x => x.Amount));
             if (q.Any())
-                q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, 0.000000000001m));
+                q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, PRECISION));
         }
     }
 
@@ -419,6 +418,26 @@ public class BasicModelTests : VerifyBase
         await Verify(contexts);
     }
 
+    [TestMethod]
+    public async Task CharityFractionSetTest()
+    {
+        var contexts = (await Stream.GetValues<CharityFractionSets>(7, 8, 13, 14, 20)).ToListOrderedByKey();
+        await Verify(contexts);
+    }
+    [TestMethod]
+    public async Task CharityFractionSetFullShareTest()
+    {
+        var cfs = (await Stream.GetValues<CharityFractionSets>(20)).Values.First();
+        var ows = (await Stream.GetValues<OptionWorths2>(20)).Values.First();
+
+        foreach (var key in ows.Worths.Keys)
+        {
+            var totalShares = cfs.Shares[key].Values.Sum();
+            totalShares.Should().BeApproximately(ows.Worths[key].DonationFractionDivisor, PRECISION);
+        }
+        
+    }
+    
     [TestMethod]
     public async Task BulkTest()
     {

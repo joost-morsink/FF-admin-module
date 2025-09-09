@@ -85,4 +85,3 @@ public record DonationRecords(ImmutableDictionary<string, ImmutableList<Donation
 
 public record DonationRecord(DateTimeOffset Timestamp, Real Worth, Allocation? Allocation);
 public record Allocation(string Charity, Real Amount);
-
