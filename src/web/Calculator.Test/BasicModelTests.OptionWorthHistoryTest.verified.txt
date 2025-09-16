@@ -6,10 +6,12 @@
         {
           EventType: META_NEW_OPTION,
           New: {
-            CumulativeInterest: 1.0
+            CumulativeInterest: 1.0,
+            Divisor: 1.0
           },
           Old: {
-            CumulativeInterest: 1.0
+            CumulativeInterest: 1.0,
+            Divisor: 1.0
           },
           Timestamp: DateTimeOffset_1
         },
@@ -18,6 +20,7 @@
           New: {
             Cash: 15.0,
             CumulativeInterest: 1.0,
+            Divisor: 15.0,
             IdealValue: 15.000,
             Unentered: 10.0,
             Value: 15.0
@@ -33,6 +36,7 @@
           New: {
             Cash: 2.25,
             CumulativeInterest: 0.9833333333333333333333333333,
+            Divisor: 15.0,
             IdealValue: 14.88125,
             Invested: 12.50,
             Unentered: 10.0,
@@ -41,6 +45,7 @@
           Old: {
             Cash: 15.0,
             CumulativeInterest: 1.0,
+            Divisor: 15.0,
             IdealValue: 15.000,
             Unentered: 10.0,
             Value: 15.0
@@ -52,6 +57,7 @@
           New: {
             Cash: 2.25,
             CumulativeInterest: 1.0166666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 15.11875,
             Invested: 13.0,
             Unentered: 20.0,
@@ -60,6 +66,7 @@
           Old: {
             Cash: 2.25,
             CumulativeInterest: 0.9833333333333333333333333333,
+            Divisor: 15.0,
             IdealValue: 14.88125,
             Invested: 12.50,
             Unentered: 20.0,
@@ -72,6 +79,7 @@
           New: {
             Cash: 2.25,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 16.18750,
             Invested: 15.25,
             Unentered: 20.0,
@@ -80,6 +88,7 @@
           Old: {
             Cash: 2.25,
             CumulativeInterest: 1.0166666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 15.11875,
             Invested: 13.0,
             Unentered: 20.0,
@@ -92,6 +101,7 @@
           New: {
             Cash: 0.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 16.18750,
             Invested: 15.25,
             Unentered: 20.0,
@@ -100,6 +110,7 @@
           Old: {
             Cash: 2.25,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 16.18750,
             Invested: 15.25,
             Unentered: 20.0,
@@ -112,6 +123,7 @@
           New: {
             Cash: 20.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 36.18750,
             Invested: 15.25,
             Value: 36.19
@@ -119,6 +131,7 @@
           Old: {
             Cash: 0.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 15.0,
             IdealValue: 16.18750,
             Invested: 15.25,
             Unentered: 20.0,
@@ -131,6 +144,7 @@
           New: {
             Cash: 0.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 36.18750,
             Invested: 35.25,
             Value: 36.19
@@ -138,6 +152,7 @@
           Old: {
             Cash: 20.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 36.18750,
             Invested: 15.25,
             Value: 36.19
@@ -149,6 +164,7 @@
           New: {
             Cash: 0.94,
             CumulativeInterest: 1.1344294003868471953578336558,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 35.71250,
             Invested: 34.25,
             Value: 35.19
@@ -156,6 +172,7 @@
           Old: {
             Cash: 0.94,
             CumulativeInterest: 1.1666666666666666666666666667,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 36.18750,
             Invested: 35.25,
             Value: 36.19
@@ -167,6 +184,7 @@
           New: {
             Cash: 0.77,
             CumulativeInterest: 1.1344294003868471953578336558,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 35.71250,
             Invested: 34.25,
             Value: 35.02
@@ -174,6 +192,7 @@
           Old: {
             Cash: 0.94,
             CumulativeInterest: 1.1344294003868471953578336558,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 35.71250,
             Invested: 34.25,
             Value: 35.19
@@ -185,13 +204,15 @@
           New: {
             Cash: 0.77,
             CumulativeInterest: 1.1376687761732174043679930894,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 36.1176000,
-            Invested: 34.35,
+            Invested: 34.25,
             Value: 35.12
           },
           Old: {
             Cash: 0.77,
             CumulativeInterest: 1.1344294003868471953578336558,
+            Divisor: 33.529956763434218653489808524,
             IdealValue: 35.71250,
             Invested: 34.25,
             Value: 35.02

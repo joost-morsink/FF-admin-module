@@ -26,7 +26,7 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
         => Mutate(key, x => x.Add(record));
 
     private class Impl(
-        IContext<OptionWorths> cOptionWorths,
+        IContext<OptionWorths2> cOptionWorths,
         IContext<CumulativeInterest> cCumulativeInterest,
         IContext<IdealOptionValuations> cIdealOptionValuations) : EventProcessor<OptionWorthHistory>
     {
@@ -38,13 +38,13 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
         private sealed class Calc(
             IContext previousContext,
             IContext currentContext,
-            IContext<OptionWorths> cOptionWorths,
+            IContext<OptionWorths2> cOptionWorths,
             IContext<CumulativeInterest> cCumulativeInterest,
             IContext<IdealOptionValuations> cIdealOptionValuations)
             : BaseCalculation(previousContext, currentContext)
         {
-            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
-            public ValueTask<OptionWorths> PreviousOptionWorths => GetPrevious(cOptionWorths);
+            public ValueTask<OptionWorths2> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<OptionWorths2> PreviousOptionWorths => GetPrevious(cOptionWorths);
             public ValueTask<CumulativeInterest> CurrentCumulativeInterest => GetCurrent(cCumulativeInterest);
             public ValueTask<CumulativeInterest> PreviousCumulativeInterest => GetPrevious(cCumulativeInterest);
             public ValueTask<IdealOptionValuations> CurrentIdealOptionValuations => GetCurrent(cIdealOptionValuations);
@@ -53,7 +53,7 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             protected override async ValueTask<OptionWorthHistory> NewOption(OptionWorthHistory model, NewOption e)
             {
                 return model.Options.Add(e.Code, ImmutableList.Create(
-                    new OptionWorthRecord(e.Type, e.Timestamp, new Worth(0, 0, 0, 1, 0, 0), new Worth(0, 0, 0, 1, 0, 0))));
+                    new OptionWorthRecord(e.Type, e.Timestamp, new Worth(0, 0, 0, 1, 0, 0, 1), new Worth(0, 0, 0, 1, 0, 0,1))));
             }
 
             protected override ValueTask<OptionWorthHistory> ConvEnter(OptionWorthHistory model, ConvEnter e)
@@ -77,10 +77,10 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
             protected override ValueTask<OptionWorthHistory> IncreaseCash(OptionWorthHistory model, IncreaseCash e)
                 => AddRecord(model, e.Option, e);
 
-            private async ValueTask<OptionWorth> GetCurrentWorth(string option)
+            private async ValueTask<OptionWorths2.Header> GetCurrentWorth(string option)
                 => (await CurrentOptionWorths).Worths[option];
 
-            private async ValueTask<OptionWorth> GetPreviousWorth(string option)
+            private async ValueTask<OptionWorths2.Header> GetPreviousWorth(string option)
                 => (await PreviousOptionWorths).Worths[option];
 
             private async ValueTask<CumulativeInterest.DataPoint> GetCurrentCumulativeInterest(string option)
@@ -107,17 +107,18 @@ public record OptionWorthHistory(ImmutableDictionary<string, ImmutableList<Optio
                 return AddRecord(model, option, e, old, @new, oldCi.Value, newCi.Value, oldIv, newIv);
             }
 
-            private OptionWorthHistory AddRecord(OptionWorthHistory model, string option, Event e, OptionWorth old, OptionWorth @new, Real oldCi, Real newCi,
+            private OptionWorthHistory AddRecord(OptionWorthHistory model, string option, Event e, OptionWorths2.Header old, OptionWorths2.Header @new, Real oldCi,
+                Real newCi,
                 IdealValuation oldIv, IdealValuation newIv)
                 => model.Add(option, new(e.Type, e.Timestamp,
                     new(old.Cash, old.Invested, old.UnenteredDonations.Where(d => d.Timestamp <= e.Timestamp).Sum(d => d.Amount), oldCi, oldIv.IdealValue,
-                        oldIv.RealValue),
+                        oldIv.RealValue, old.DonationFractionDivisor),
                     new(@new.Cash, @new.Invested, @new.UnenteredDonations.Where(d => d.Timestamp <= e.Timestamp).Sum(d => d.Amount), newCi, newIv.IdealValue,
-                        newIv.RealValue)));
+                        newIv.RealValue, @new.DonationFractionDivisor)));
         }
     }
 }
 
-public record Worth(Real Cash, Real Invested, Real Unentered, Real CumulativeInterest, Real IdealValue, Real Value);
+public record Worth(Real Cash, Real Invested, Real Unentered, Real CumulativeInterest, Real IdealValue, Real Value, Real Divisor);
 
 public record OptionWorthRecord(EventType EventType, DateTimeOffset Timestamp, Worth Old, Worth New);

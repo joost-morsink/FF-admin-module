@@ -63,4 +63,8 @@ public static class TestExtensions
             return GetMetaModel();
         }
     }
+    
+    public static IServiceCollection AddModelCalculator<T, M, P>(this IServiceCollection services)
+        where T : class, IModelCalculator<M, P>
+        => services.AddSingleton<IModelCalculator<M, P>, T>();
 }

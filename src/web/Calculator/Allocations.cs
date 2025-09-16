@@ -52,4 +52,4 @@ public record Allocations(ImmutableList<Allocation2> Values) : IModel<Allocation
         }
     }
 }
-public record Allocation2(DateTimeOffset Timestamp, string OptionId, Real Amount, FractionSet Fractions);
+public record Allocation2(DateTimeOffset Timestamp, string OptionId, Real Amount, FractionSet CharityFractions);

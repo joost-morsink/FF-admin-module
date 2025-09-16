@@ -161,6 +161,9 @@ public class BasicModelTests : VerifyBase
             .AddContext<Donors2>()
             .AddContext<CharityFractionSets>()
             .AddContext<Allocations>()
+            
+            .AddModelCalculator<DonationRecords2, DonationRecords2.Value, string>()
+            
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -460,7 +463,17 @@ public class BasicModelTests : VerifyBase
         var contexts = (await Stream.GetValues<Allocations>( 8, 12, 13, 16, 17, 20)).ToListOrderedByKey();
         await Verify(contexts);
     }
-    
+
+    [TestMethod]
+    public async Task DonationRecords2Test()
+    {
+        var context = await Stream.GetLast();
+        var dr2 = ServiceProvider.GetRequiredService<IModelCalculator<DonationRecords2.Value, string>>();
+        var dict = new Dictionary<string, DonationRecords2.Value>();
+        foreach (var c in Enumerable.Range(1, 4))
+            dict[c.ToString()] = await dr2.Calculate(context, c.ToString());
+        await Verify(dict);
+    } 
     [TestMethod]
     public async Task BulkTest()
     {

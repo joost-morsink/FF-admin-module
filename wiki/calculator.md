@@ -85,8 +85,15 @@ The Index model keeps track of the index of the current event.
 Every index in the sequence has an event associated with it that lead to the current state.
 For the event that preceded the start state (at t=0), the [NONE](./events/NONE.md) event is assumed to have happened.
 
+Models can either be processed or calculated. 
+Processed models use a processor to apply event data to the model, as well as other model data it depends on.
+Calculated models don't use event data directly, but use a calculator to calculate its value based on the values of other models (either calculated or processed).
+
+Currently, calculated models are not cached, but are parameterized.
+
 ```mermaid
 graph LR
+    classDef calc fill:#ffc;
     Options --> AggregatedDonationsAndTransfers
     Donations --> AggregatedDonationsAndTransfers
     Options --> AmountsToTransfer
@@ -110,7 +117,6 @@ graph LR
     OptionWorths --> IdealOptionValuations
     Options --> MinimalExits
     IdealOptionValuations --> MinimalExits
-    OptionWorths --> OptionWorthHistory
     CumulativeInterest --> OptionWorthHistory
     OptionWorthHistory --> IdealOptionValuations
     Index --> ValidationErrors
@@ -121,10 +127,15 @@ graph LR
     CharityBalance --> ValidationErrors
     Options --> MonthlyDonations
 
+    OptionWorths2 --> OptionWorthHistory
     OptionWorths2 --> CharityFractionSets
     Donations2 --> CharityFractionSets
     Donors2
     CharityFractionSets --> Allocations
+
+    Donations2 --> DonationRecords2:::calc
+    OptionWorths2 --> DonationRecords2
+    OptionWorthHistory --> DonationRecords2
 
     click Index "./models/index"
     click HistoryHash "./models/history_hash"
@@ -136,6 +147,8 @@ graph LR
     click MinimalExits "./models/minimal_exits"
     click MonthlyDonations "./models/monthly_donations"
 ```
+
+_A data flow graph for all the models, blue is processed, yellow is calculated_
 
 ## Caching
 

@@ -1,6 +1,7 @@
 using FfAdmin.Calculator;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Calculator.Function;
+using FfAdmin.Common;
 using Microsoft.Extensions.Hosting;
 using FfAdmin.EventStore.AzureSql;
 #if !DEBUG
@@ -61,7 +62,10 @@ var host = new HostBuilder()
             .AddModelProcessor<Donations2, string, Donations2.Details>()
             .AddModelProcessor<OptionWorths2, string, OptionWorths2.Details>()
             .AddModelProcessor<Donors2, string, Donors2.Details>()
-            
+            .AddModelProcessor<CharityFractionSets>()
+            .AddModelProcessor<Allocations>()
+        
+            .AddModelCalculator<DonationRecords2, DonationRecords2.Value, string>()
         )
     .Build();
 
