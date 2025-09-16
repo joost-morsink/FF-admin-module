@@ -1,3 +1,4 @@
+using FfAdmin.Calculator.Core;
 using FfAdmin.Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -48,10 +49,12 @@ public class DonorDashboardStatsCalculator : BaseCalculator
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donor-dashboard/{donor}")]
         HttpRequestData request,
         string branchName,
+        int? baseSequence,
         string donor,
         FunctionContext executionContext)
     {
-        var charities = await GetModel<Charities>(branchName, null, null);
+        var stream = await GetEventStream(branchName, baseSequence, null);
+        var charities = await GetModel<Charities>(stream);
         
         return await Handle<DonorDashboardStats>(request, branchName, null,
             data => data.Donors.TryGetValue(donor, out var stat)

@@ -60,25 +60,7 @@ public abstract class BaseCalculator
         Func<T, object?>? projection = null,
         Action<HttpResponseData>? onResponse = null)
         where T : class
-    {
-        var json = await request.ReadAsStringAsync();
-        try
-        {
-            var events = ParseEvents(json);
-            var validationErrors =
-                events.Select((e, i) => e.Validate().Select(m => m with {Key = $"{i}.{m.Key}"}))
-                    .SelectMany(x => x)
-                    .ToList();
-            if (validationErrors.Count > 0)
-                return await BadRequest(request, validationErrors);
-
-            return await Handle(request, branchName, baseSequence, projection, events, onResponse);
-        }
-        catch (Exception ex) when (ex is KeyNotFoundException || ex is JsonException)
-        {
-            return await BadRequest(request, new[] {new ValidationMessage("", ex.Message)});
-        }
-    }
+        => await Handle(request, GetModel<T>, branchName, baseSequence, projection, onResponse);
 
     protected async ValueTask<HttpResponseData> BadRequest(HttpRequestData request,
         IEnumerable<ValidationMessage> messages)
@@ -89,47 +71,66 @@ public abstract class BaseCalculator
         return response;
     }
 
+    protected async Task<HttpResponseData> Handle<M>(
+        HttpRequestData request,
+        Func<EventStream, Task<M>> modelCreator,
+        string branchName,
+        int? baseSequence,
+        Func<M, object?>? projection = null,
+        Action<HttpResponseData>? onResponse = null)
+    {
+        try
+        {
+            var eventJson = request.Method == "POST" ? await request.ReadAsStringAsync() : null;
+            var events = eventJson is null ? [] : ParseEvents(eventJson).ToArray();
+            var validationErrors =
+                events.Select((e, i) => e.Validate().Select(m => m with {Key = $"{i}.{m.Key}"}))
+                    .SelectMany(x => x)
+                    .ToList();
+            if (validationErrors.Count > 0)
+                return await BadRequest(request, validationErrors);
+            
+            var eventStream = await GetEventStream(branchName, baseSequence, events);
+            var model = await modelCreator(eventStream);
+            var result = projection?.Invoke(model) ?? model;
+            var response = request.CreateResponse(HttpStatusCode.OK);
+            onResponse?.Invoke(response);
+            await response.WriteAsJsonAsync(result);
+            return response;
+        } 
+        catch (Exception ex) when (ex is KeyNotFoundException or JsonException)
+        {
+            return await BadRequest(request, new[] {new ValidationMessage("", ex.Message)});
+        }
+    }
+
     protected async Task<HttpResponseData> Handle<T>(
         HttpRequestData request,
         string branchName,
         int? baseSequence,
         Func<T, object?>? projection = null,
-        IEnumerable<Event>? events = null,
         Action<HttpResponseData>? onResponse = null)
         where T : class
-    {
-        var model = await GetModel<T>(branchName, baseSequence, events);
+        => await Handle(request, GetModel<T>, branchName, baseSequence, projection, onResponse);
 
-        var result = projection is null ? model : projection(model);
-        if (result is null)
-            return request.CreateResponse(HttpStatusCode.NotFound);
-
-        var response = request.CreateResponse(HttpStatusCode.OK);
-        onResponse?.Invoke(response);
-        await response.WriteAsJsonAsync(result);
-        return response;
-    }
     protected async Task<HttpResponseData> Handle<T,K,D>(
         HttpRequestData request,
         string branchName,
         int? baseSequence,
         K key,
-        Func<D, K, object?>? projection = null,
-        IEnumerable<Event>? events = null)
+        Func<D, K, object?>? projection = null)
         where T : class, IModel<T,K,D>
         where K : notnull
         where D : class
-    {
-        var model = await GetModel<T,K,D>(branchName, baseSequence, events, key);
-        
-        var result = projection is null ? (object?)null : projection(model, key);
-        if (result is null)
-            return request.CreateResponse(HttpStatusCode.NotFound);
-
-        var response = request.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(result);
-        return response;
-    }
+        => await Handle(request, s => GetModel<T,K,D>(s, key), branchName, baseSequence, d => projection?.Invoke(d,key));
+    
+    protected async Task<HttpResponseData> Handle<M,P>(
+        HttpRequestData request,
+        string branchName,
+        int? baseSequence,
+        P param,
+        Func<M, object?>? projection = null)
+        => await Handle(request, s => GetCalculatedModel<M, P>(s,param), branchName, baseSequence, projection);
     protected async Task<HttpResponseData> HandlePost<T,K,D>(
         HttpRequestData request,
         string branchName,
@@ -140,54 +141,19 @@ public abstract class BaseCalculator
         where T : class, IModel<T,K,D>
         where K : notnull
         where D : class
-    {
-        var json = await request.ReadAsStringAsync();
-        try
-        {
-            var events = ParseEvents(json).ToArray();
-            var validationErrors =
-                events.Select((e, i) => e.Validate().Select(m => m with {Key = $"{i}.{m.Key}"}))
-                    .SelectMany(x => x)
-                    .ToList();
-            if (validationErrors.Count > 0)
-                return await BadRequest(request, validationErrors);
-
-            return await Handle<T,K,D>(request, branchName, baseSequence, key, projection, events);
-        }
-        catch (Exception ex) when (ex is KeyNotFoundException || ex is JsonException)
-        {
-            return await BadRequest(request, new[] {new ValidationMessage("", ex.Message)});
-        }
-    }
-    protected async Task<T> GetModel<T>(string branchName, int? baseSequence, IEnumerable<Event>? events) where T : class
-    {
-        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
-        if (baseSequence.HasValue)
-            str = str.Prefix(baseSequence.Value);
-        if (events is not null)
-            str = str.AddEvents(events);
-
-        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
-        await str.Get<HistoryHash>(index);
-        var model = await str.Get<T>(index);
-        return model;
-    }
-    protected async Task<D> GetModel<T, K, D>(string branchName, int? baseSequence, IEnumerable<Event>? events, K key) 
+        => await Handle<D>(request, s => GetModel<T, K, D>(s, key), branchName, baseSequence, d => projection?.Invoke(d, key), onResponse);
+    
+    protected async Task<T> GetModel<T>(EventStream stream)
+        where T : class
+        => await stream.Get<T>(await stream.Events.Count());
+    protected async Task<D> GetModel<T,K,D>(EventStream stream, K key)
         where T : class, IModel<T,K,D>
         where K : notnull
         where D : class
-    {
-        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
-        if (baseSequence.HasValue)
-            str = str.Prefix(baseSequence.Value);
-        if (events is not null)
-            str = str.AddEvents(events);
-
-        var index = baseSequence.HasValue ? baseSequence.Value : await str.Events.Count();
-        await str.Get<HistoryHash>(index);
-        var detail = await str.Get<T, K, D>(index, key);
-        return detail;
-    }
+        => await stream.Get<T,K,D>(await stream.Events.Count(), key);
+    protected async Task<M> GetCalculatedModel<M,P>(EventStream stream, P param)
+        => await _serviceProvider.GetRequiredService<IModelCalculator<M,P>>().Calculate(await stream.GetLast(), param);
+    
 
     protected async Task<M> GetCalculatedModel<M, P>(string branchName, int? baseSequence, IEnumerable<Event>? events, P param)
     {
