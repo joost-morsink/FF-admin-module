@@ -49,7 +49,7 @@ public partial class EventStream
             return await GetAtPosition(await Events.Count());
         
         var res = new ContextImpl(this, () => GetContextAtPosition(position - 1), e, position);
-        if ((await _calculationPositions.Value.Positions).Contains(position))
+        if ((await _calculationPositions.Positions).Contains(position))
             return new CachedContext(res, () => GetContextAtPosition(position - 1), this, e, position); 
         
         return res;
@@ -68,7 +68,7 @@ public partial class EventStream
 
     public async Task<IContext> GetAtPosition(int index)
     {
-        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+        _calculationPositions = new(_modelCache.GetIndexes(), Events.StoredCount());
         var lowerbound = await _modelCache.GetIndexLowerThanOrEqual(index) ?? 0;
         await LoadContexts(lowerbound, index);
         return _contexts[index];
@@ -76,7 +76,7 @@ public partial class EventStream
 
     private record struct CalculationValues(Task<int[]> Positions, ValueTask<int> Count);
 
-    private static readonly AsyncLocal<CalculationValues> _calculationPositions = new();
+    private CalculationValues _calculationPositions;
     private static ConcurrentQueue<(int, IMetaModel, Bucket?, object)> _calculationQueue = new();
     private static readonly SemaphoreSlim _calculationSemaphore = new(1);
     private void OnCalculated(int index, IMetaModel metamodel, Bucket? bucket, object model)
@@ -90,14 +90,14 @@ public partial class EventStream
         await _calculationSemaphore.WaitAsync();
         try
         {
-            _calculationPositions.Value = new(_modelCache.GetStoredIndexes(), Events.StoredCount());
-            var positions = _modelCacheStrategy.Optimize(await _calculationPositions.Value.Positions, await _calculationPositions.Value.Count);
+            _calculationPositions = new(_modelCache.GetStoredIndexes(), Events.StoredCount());
+            var positions = _modelCacheStrategy.Optimize(await _calculationPositions.Positions, await _calculationPositions.Count);
 
             while (_calculationQueue.TryDequeue(out var item))
             {
                 var (index, metaModel, bucket, model) = item;
                 if (_modelCacheStrategy.ShouldCache(positions,
-                        await _calculationPositions.Value.Count, index))
+                        await _calculationPositions.Count, index))
                 {
                     if (bucket is null)
                         await _modelCache.Put(index, metaModel, model);
@@ -115,7 +115,7 @@ public partial class EventStream
     public async Task<T> Get<T>(int index)
         where T : class
     {
-        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+        _calculationPositions = new(_modelCache.GetIndexes(), Events.StoredCount());
 
         if (index < 0)
             throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be non-negative");
@@ -142,7 +142,7 @@ public partial class EventStream
         where K : notnull
         where D : class
     {
-        _calculationPositions.Value = new(_modelCache.GetIndexes(), Events.StoredCount());
+        _calculationPositions = new(_modelCache.GetIndexes(), Events.StoredCount());
 
         if (index < 0)
             throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be non-negative");

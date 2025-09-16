@@ -106,13 +106,7 @@ public class CalculatorClient : ICalculatorClient, ICheckOnline
     public async Task<CumulativeInterest> GetCumulativeInterest(string branch, int? at = null,
         IEnumerable<Event>? theory = null)
         => await GenericGet<ImmutableDictionary<string,CumulativeInterest.DataPoint>>("cumulative-interest", branch, at, theory);
-
-    public async Task<Donations> GetDonations(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => await GenericGet<ImmutableDictionary<string,Donation>>("donations", branch, at, theory);
-
-    public async Task<DonationRecords> GetDonationRecords(string branch, int? at = null, IEnumerable<Event>? theory = null)
-        => await GenericGet<ImmutableDictionary<string,ImmutableList<DonationRecord>>>("donation-records", branch, at, theory);
-
+    
     public async Task<HistoryHash> GetHistoryHash(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => await GenericGet<string>("history-hash", branch, at, theory);
 

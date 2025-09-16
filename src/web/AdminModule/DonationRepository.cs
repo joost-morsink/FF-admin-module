@@ -38,15 +38,6 @@ namespace FfAdmin.AdminModule
             }
         }
         Task<DonationAggregation[]> GetAggregations();
-
-        public record AlreadyImportedDonation
-        {
-            public string DonationId { get; set; } = "";
-            public string CharityId { get; set; } = "";
-        }
-        Task<AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds);
-        
-        
     }
     public class DonationRepository : IDonationRepository
     {
@@ -70,14 +61,5 @@ namespace FfAdmin.AdminModule
                     Worth = (decimal)s.Worth
                 }).ToArray();
         
-        public async Task<IDonationRepository.AlreadyImportedDonation[]> GetAlreadyImported(IEnumerable<string> extIds)
-        {
-            var donations = await _calculatorClient.GetDonations(_branch.Value);
-            return (from id in extIds
-                    let don = donations.Values.GetValueOrDefault(id)
-                    where don is not null
-                    select new IDonationRepository.AlreadyImportedDonation {DonationId = id, CharityId = don.CharityId})
-                .ToArray();
-        }
     }
 }

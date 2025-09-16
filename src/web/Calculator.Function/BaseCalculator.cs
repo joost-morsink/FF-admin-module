@@ -5,6 +5,7 @@ using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace FfAdmin.Calculator.Function;
@@ -129,6 +130,35 @@ public abstract class BaseCalculator
         await response.WriteAsJsonAsync(result);
         return response;
     }
+    protected async Task<HttpResponseData> HandlePost<T,K,D>(
+        HttpRequestData request,
+        string branchName,
+        int? baseSequence,
+        K key,
+        Func<D, K, object?>? projection = null,
+        Action<HttpResponseData>? onResponse = null)
+        where T : class, IModel<T,K,D>
+        where K : notnull
+        where D : class
+    {
+        var json = await request.ReadAsStringAsync();
+        try
+        {
+            var events = ParseEvents(json).ToArray();
+            var validationErrors =
+                events.Select((e, i) => e.Validate().Select(m => m with {Key = $"{i}.{m.Key}"}))
+                    .SelectMany(x => x)
+                    .ToList();
+            if (validationErrors.Count > 0)
+                return await BadRequest(request, validationErrors);
+
+            return await Handle<T,K,D>(request, branchName, baseSequence, key, projection, events);
+        }
+        catch (Exception ex) when (ex is KeyNotFoundException || ex is JsonException)
+        {
+            return await BadRequest(request, new[] {new ValidationMessage("", ex.Message)});
+        }
+    }
     protected async Task<T> GetModel<T>(string branchName, int? baseSequence, IEnumerable<Event>? events) where T : class
     {
         var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
@@ -157,5 +187,25 @@ public abstract class BaseCalculator
         await str.Get<HistoryHash>(index);
         var detail = await str.Get<T, K, D>(index, key);
         return detail;
+    }
+
+    protected async Task<M> GetCalculatedModel<M, P>(string branchName, int? baseSequence, IEnumerable<Event>? events, P param)
+    {
+        var calculator = _serviceProvider.GetRequiredService<IModelCalculator<M, P>>();
+        var str = await GetEventStream(branchName, baseSequence, events);
+        var context = await str.GetLast();
+        return await calculator.Calculate(context, param);
+    }
+    protected async Task<EventStream> GetEventStream(string branchName, int? baseSequence, IEnumerable<Event>? events)
+    {
+        var str = CreateEventStream(branchName, IModelCacheStrategy.Default);
+        if (baseSequence.HasValue)
+            str = str.Prefix(baseSequence.Value);
+        if (events is not null)
+            str = str.AddEvents(events);
+
+        var index = await str.Events.Count();
+        await str.Get<HistoryHash>(index);
+        return str;
     }
 }

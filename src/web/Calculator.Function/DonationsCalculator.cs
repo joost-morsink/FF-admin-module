@@ -8,22 +8,6 @@ public class DonationsCalculator : BaseCalculator
 {
     public DonationsCalculator(CalculatorDependencies dependencies) : base(dependencies) { }
 
-    [Function("Donations")]
-    public Task<HttpResponseData> GetDonations(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donations")]
-        HttpRequestData request,
-        string branchName,
-        FunctionContext executionContext,
-        int? at)
-        => Handle<Donations>(request, branchName, at, data => data.Values);
-    [Function("DonationsTheory")]
-    public Task<HttpResponseData> PostDonations(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{branchName}/donations")]
-        HttpRequestData request,
-        string branchName,
-        FunctionContext executionContext,
-        int? @base)
-        => HandlePost<Donations>(request, branchName, @base, data => data.Values);
     [Function("Donation")]
     public Task<HttpResponseData> GetDonation(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donations/{id}")]
@@ -32,7 +16,7 @@ public class DonationsCalculator : BaseCalculator
         string id,
         FunctionContext executionContext,
         int? at)
-        => Handle<Donations>(request, branchName, at, data => data.Values.GetValueOrDefault(id));
+        => Handle<Donations2, string, Donations2.Details>(request, branchName, at, id,(data,key) => data.Values.GetValueOrDefault(key));
     [Function("DonationTheory")]
     public Task<HttpResponseData> PostDonation(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{branchName}/donations/{id}")]
@@ -41,7 +25,7 @@ public class DonationsCalculator : BaseCalculator
         string id,
         FunctionContext executionContext,
         int? @base)
-        => HandlePost<Donations>(request, branchName, @base, data => data.Values.GetValueOrDefault(id));
+        => HandlePost<Donations2, string, Donations2.Details>(request, branchName, @base, id, (data, key) => data.Values.GetValueOrDefault(key));
     [Function("SplitDonationOnExistence")]
     public async Task<HttpResponseData> SplitDonationOnExistence(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "{branchName}/non-existing-donations")]
@@ -50,29 +34,16 @@ public class DonationsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? at)
     {
-        var donations = await GetModel<Donations>(branchName, at, null);
         var body = await request.ReadAsStringAsync();
-        var ids = JsonSerializer.Deserialize<string[]>(body!);
+        var ids = JsonSerializer.Deserialize<string[]>(body!) ?? [];
+        var donations = await GetCalculatedModel<DonationExistence.Result, IEnumerable<string>>(branchName, at, null, ids);
         var response = request.CreateResponse(System.Net.HttpStatusCode.OK);
-        var dict = ids!.ToLookup(id => donations.Values.ContainsKey(id))
-            .ToDictionary(x => x.Key ? "exists" : "not_exists", x => x.ToArray());
+        var dict = new Dictionary<string,string[]>()
+            {
+                ["exists"] = donations.Existing.ToArray(),
+                ["not_exists"] = donations.NotExisting.ToArray()
+            };
         await response.WriteAsJsonAsync(dict);
         return response;
     }
-}
-
-
-public class Donations2Calculator : BaseCalculator
-{
-    public Donations2Calculator(CalculatorDependencies dependencies) : base(dependencies) { }
-
-    [Function("Donations2")]
-    public Task<HttpResponseData> GetDonations2(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donations2/{id}")]
-        HttpRequestData request,
-        string branchName,
-        FunctionContext executionContext,
-        string id,
-        int? at)
-        => Handle<Donations2, string, Donations2.Details>(request, branchName, at, id, (data,k) => data.Values.GetValueOrDefault(k));
 }

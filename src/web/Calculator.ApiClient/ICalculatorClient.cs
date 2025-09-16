@@ -15,8 +15,6 @@ public interface ICalculatorClient
         IEnumerable<Event>? theory = null);
 
     Task<CumulativeInterest> GetCumulativeInterest(string branch, int? at = null, IEnumerable<Event>? theory = null);
-    Task<Donations> GetDonations(string branch, int? at = null, IEnumerable<Event>? theory = null);
-    Task<DonationRecords> GetDonationRecords(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<HistoryHash> GetHistoryHash(string branch, int? at = null, IEnumerable<Event>? theory = null);
 
     Task<IdealOptionValuations> GetIdealOptionValuations(string branch, int? at = null,
