@@ -66,6 +66,7 @@ var host = new HostBuilder()
             .AddModelProcessor<Allocations>()
         
             .AddModelCalculator<DonationRecords2, DonationRecords2.Value, string>()
+            .AddModelCalculator<DonorDashboardStats2, DonorDashboardStats2.Stat, string>()
         )
     .Build();
 

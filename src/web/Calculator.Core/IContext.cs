@@ -32,7 +32,10 @@ public interface IContext<THeader, TKey, TDetail> : IContext<THeader>
     public static new IContext<THeader, TKey, TDetail> Instance { get; } = new Impl();
     public async ValueTask<TDetail> GetValue(IContext context, THeader header, TKey key)
         => await GetValueOrNull(context, header, key) ?? throw new ArgumentException($"EventProcessor for {typeof(TDetail)} not found");
+    public async ValueTask<TDetail> GetValue(IContext context, TKey key)
+        => await GetValue(context, await GetValue(context), key);
     ValueTask<TDetail?> GetValueOrNull(IContext context, THeader header, TKey key);
+    
     private new class Impl : IContext<THeader>.Impl, IContext<THeader, TKey, TDetail>
     {
         public async ValueTask<TDetail?> GetValueOrNull(IContext context, THeader header, TKey key)
