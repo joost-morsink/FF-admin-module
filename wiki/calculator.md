@@ -130,7 +130,10 @@ graph LR
     OptionWorths2 --> OptionWorthHistory
     OptionWorths2 --> CharityFractionSets
     Donations2 --> CharityFractionSets
-    Donors2
+    Donors2 --> DonorDashboardStats2:::calc
+    Donations2 --> DonorDashboardStats2
+    DonationRecords2 --> DonorDashboardStats2
+    Donations2 --> DonationExistence:::calc
     CharityFractionSets --> Allocations
 
     Donations2 --> DonationRecords2:::calc

@@ -164,7 +164,8 @@ public class BasicModelTests : VerifyBase
             
             .AddModelCalculator<DonationRecords2, DonationRecords2.Value, string>()
             .AddModelCalculator<DonorDashboardStats2, DonorDashboardStats2.Stat, string>()
-            
+            .AddModelCalculator<DonationExistence, DonationExistence.Result, IEnumerable<string>>()
+         
             .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
@@ -485,6 +486,19 @@ public class BasicModelTests : VerifyBase
             dict[c.ToString()] = await dds2.Calculate(context, c.ToString());
         await Verify(dict);
     }
+
+    [TestMethod]
+    public async Task DonationExistenceTest()
+    {
+        var context = await Stream.GetLast();
+        var de = ServiceProvider.GetRequiredService<IModelCalculator<DonationExistence.Result, IEnumerable<string>>>();
+        var result = await de.Calculate(context, ["1", "3", "5", "6"]);
+        result.Existing.Should().Contain(["1", "3"]);
+        result.Existing.Should().HaveCount(2);
+        result.NotExisting.Should().Contain(["5", "6"]);
+        result.NotExisting.Should().HaveCount(2);        
+    }
+    
     [TestMethod]
     public async Task BulkTest()
     {
