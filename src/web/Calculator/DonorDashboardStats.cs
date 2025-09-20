@@ -72,7 +72,11 @@ public class DonorDashboardStats2(IContext<Donors2,string, Donors2.Details> cDon
 {
     public record Stat(ImmutableDictionary<string, StatDetail> Donations);
 
-    public record StatDetail(Donation Donation, ImmutableList<DonationRecord2> Records);
+    public record StatDetail(Donation Donation, ImmutableList<DonationRecord2> Records)
+    {
+        public DonationRecord2 LastRecord()
+            => Records.OrderByDescending(r => r.Timestamp).First();
+    }
     public async ValueTask<Stat> Calculate(IContext context, string parameter)
     {
         var donations = (await cDonors.GetValue(context, parameter)).Values[parameter];
