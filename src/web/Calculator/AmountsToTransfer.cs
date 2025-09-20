@@ -19,19 +19,19 @@ public record AmountsToTransfer(ImmutableDictionary<string, MoneyBag> Values) : 
     public static implicit operator AmountsToTransfer(ImmutableDictionary<string, MoneyBag> values)
         => new(values);
 
-    private class Impl(IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CurrentCharityFractionSets> cCurrentCharityFractionSets) : EventProcessor<AmountsToTransfer>
+    private class Impl(IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityFractionSets> cCharityFractionSets) : EventProcessor<AmountsToTransfer>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext context)
         {
-            return new Calc(previousContext, context, cOptions, cCharities, cCurrentCharityFractionSets);
+            return new Calc(previousContext, context, cOptions, cCharities, cCharityFractionSets);
         }
 
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CurrentCharityFractionSets> cCurrentCharityFractionSets) : BaseCalculation(previousContext, currentContext)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Charities> cCharities, IContext<CharityFractionSets> cCharityFractionSets) : BaseCalculation(previousContext, currentContext)
         {
             public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
             public ValueTask<Charities> CurrentCharities => GetCurrent(cCharities);
-            public ValueTask<CurrentCharityFractionSets> CurrentCharityFractionSets => GetCurrent(cCurrentCharityFractionSets);
+            public ValueTask<CharityFractionSets> CurrentCharityFractionSets => GetCurrent(cCharityFractionSets);
             protected override async ValueTask<AmountsToTransfer> NewCharity(AmountsToTransfer model, NewCharity e)
             {
                 var newValues = model.Values.SetItem(e.Code, MoneyBag.Empty);
@@ -48,9 +48,9 @@ public record AmountsToTransfer(ImmutableDictionary<string, MoneyBag> Values) : 
             {
                 var option = (await CurrentOptions).Values[e.Option];
                 var charities = await CurrentCharities;
-                var charityFractionSet = (await CurrentCharityFractionSets).Sets[e.Option]!;
-
-                var newValues = AddAmountToCharity(charityFractionSet.CharityFractions.Aggregate(model.Values,
+                FractionSet charityFractionSet = (await CurrentCharityFractionSets).Shares[e.Option]!;
+                
+                var newValues = AddAmountToCharity(charityFractionSet.Aggregate(model.Values,
                         (acc, frac) =>
                             AddAmountToCharity(acc, charities, charities.Values[frac.Key],
                                 option.Currency,

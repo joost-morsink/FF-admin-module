@@ -98,7 +98,7 @@ graph LR
     Donations --> AggregatedDonationsAndTransfers
     Options --> AmountsToTransfer
     Charities --> AmountsToTransfer
-    CurrentCharityFractionSets --> AmountsToTransfer
+    CharityFractionSets --> AmountsToTransfer
     Index --> AuditHistory
     HistoryHash --> AuditHistory
     CharityBalance
