@@ -206,7 +206,7 @@
             CumulativeInterest: 1.1376687761732174043679930894,
             Divisor: 33.529956763434218653489808524,
             IdealValue: 36.1176000,
-            Invested: 34.25,
+            Invested: 34.35,
             Value: 35.12
           },
           Old: {

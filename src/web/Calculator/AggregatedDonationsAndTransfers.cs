@@ -36,19 +36,19 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
     public AggregatedDonationsAndTransfers AddTransferred(Key key, string currency, Real amount)
         => Manipulate(key, v => v with {Transferred = v.Transferred.Add(currency, amount)});
     
-    public class Impl(IContext<Options> cOptions, IContext<Donations> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
+    public class Impl(IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext context)
         {
             return new Calc(previousContext, context, cOptions, cDonations);
         }
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Donations> cDonations) : BaseCalculation(previousContext, currentContext)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations) : BaseCalculation(previousContext, currentContext)
         {
             public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
 
-            public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
-
+            public async ValueTask<Donation> GetPreviousDonation(string id)
+                => (await GetCurrent(cDonations, await GetCurrent(cDonations), id)).Values[id];
        
             protected override async ValueTask<AggregatedDonationsAndTransfers> NewDonation(AggregatedDonationsAndTransfers model, NewDonation e)
             {
@@ -59,14 +59,14 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
 
             protected override async ValueTask<AggregatedDonationsAndTransfers> CancelDonation(AggregatedDonationsAndTransfers model, CancelDonation e)
             {
-                var donation = (await PreviousDonations).Values[e.Donation];
+                var donation = await GetPreviousDonation(e.Donation);
                 var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount);
             }
 
             protected override async ValueTask<AggregatedDonationsAndTransfers> UpdateCharityForDonation(AggregatedDonationsAndTransfers model, UpdateCharityForDonation e)
             {
-                var donation = (await PreviousDonations).Values[e.Donation];
+                var donation = await GetPreviousDonation(e.Donation);
                 var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount)
                     .AddDonated(new Key(e.Timestamp.Year, e.Charity), option.Currency, donation.Amount);

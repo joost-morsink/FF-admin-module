@@ -23,18 +23,19 @@ public record DonationStatistics(ImmutableDictionary<string, DonationStatistic> 
         => new(Statistics.SetItem(currency,
             mutator(Statistics.GetValueOrDefault(currency, DonationStatistic.Empty(currency)))));
 
-    private class Impl(IContext<Donations> cDonations, IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths) : EventProcessor<DonationStatistics>
+    private class Impl(IContext<Donations2, string, Donations2.Details> cDonations, IContext<Options> cOptions, IContext<OptionWorths2> cOptionWorths) : EventProcessor<DonationStatistics>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
             return new Calc(previousContext, currentContext, cDonations, cOptions, cOptionWorths);
         }
 
-        private class Calc(IContext previousContext, IContext currentContext,IContext<Donations> cDonations, IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths) : BaseCalculation(previousContext, currentContext)
+        private class Calc(IContext previousContext, IContext currentContext, IContext<Donations2, string, Donations2.Details> cDonations, IContext<Options> cOptions, IContext<OptionWorths2> cOptionWorths) : BaseCalculation(previousContext, currentContext)
         {
-            public ValueTask<Donations> CurrentDonations => GetCurrent(cDonations);
+            public async ValueTask<Donation?> GetCurrentDonation(string id)
+                => (await GetCurrent(cDonations, await GetCurrent(cDonations), id)).Values.GetValueOrDefault(id);
             public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
-            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<OptionWorths2> CurrentOptionWorths => GetCurrent(cOptionWorths);
             
             protected override async ValueTask<DonationStatistics> NewDonation(DonationStatistics model, NewDonation e)
             {
@@ -47,7 +48,7 @@ public record DonationStatistics(ImmutableDictionary<string, DonationStatistic> 
 
             protected override async ValueTask<DonationStatistics> CancelDonation(DonationStatistics model, CancelDonation e)
             {
-                var donation = (await CurrentDonations).Values.GetValueOrDefault(e.Donation);
+                var donation = await GetCurrentDonation(e.Donation);
                 if (donation is null)
                     return model;
                 var option = (await CurrentOptions).Values.GetValueOrDefault(donation.OptionId);
@@ -99,7 +100,7 @@ public record DonationStatistics(ImmutableDictionary<string, DonationStatistic> 
                     (from w in currentOptionWorths.Worths.Values
                         join o in currentOptions.Values.Values on w.Id equals o.Id
                         where o.Currency == currency
-                        select w.TotalWorth + w.UnenteredDonations.Sum(ud => ud.Amount)).Sum();
+                        select w.Cash + w.Invested + w.UnenteredDonations.Sum(ud => ud.Amount)).Sum();
                 return model.Mutate(currency, s => s with {Worth = totalWorth});
             }
         }

@@ -25,19 +25,19 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 ? valuation
                 : IdealValuation.Empty with {Timestamp = defaultTimestamp})));
 
-    private class Impl(IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths) : EventProcessor<IdealOptionValuations>
+    private class Impl(IContext<Options> cOptions, IContext<OptionWorths2> cOptionWorths) : EventProcessor<IdealOptionValuations>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
             return new Calc(previousContext, currentContext, cOptions, cOptionWorths);
         }
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<OptionWorths> cOptionWorths)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<OptionWorths2> cOptionWorths)
             : BaseCalculation(previousContext, currentContext)
         {
             public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
-            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
-            public ValueTask<OptionWorths> PreviousOptionWorths => GetPrevious(cOptionWorths);
+            public ValueTask<OptionWorths2> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<OptionWorths2> PreviousOptionWorths => GetPrevious(cOptionWorths);
             
             // On ConvEnter, the cash is added to the real value and the ideal value.
             // But we also register price information on the invested amount.
@@ -47,8 +47,8 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 var previousOptionWorths = await PreviousOptionWorths;
                 var addedCash = currentOptionWorths.Worths[e.Option].Cash
                                 - previousOptionWorths.Worths[e.Option].Cash;
-                var addedWorth = currentOptionWorths.Worths[e.Option].TotalWorth
-                                 - previousOptionWorths.Worths[e.Option].TotalWorth;
+                var addedWorth = currentOptionWorths.Worths[e.Option].TotalWorth()
+                                 - previousOptionWorths.Worths[e.Option].TotalWorth();
                 var profit = addedWorth - addedCash;
                 var reinvestmentFraction = (await CurrentOptions).Values[e.Option].ReinvestmentFraction;
 
@@ -67,8 +67,8 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
                 var currentOptionWorths = await CurrentOptionWorths;
                 var previousOptionWorths = await PreviousOptionWorths;
 
-                var addedWorth = currentOptionWorths.Worths[e.Option].TotalWorth
-                                 - previousOptionWorths.Worths[e.Option].TotalWorth;
+                var addedWorth = currentOptionWorths.Worths[e.Option].TotalWorth()
+                                 - previousOptionWorths.Worths[e.Option].TotalWorth();
                 var reinvestmentFraction = (await CurrentOptions).Values[e.Option].ReinvestmentFraction;
                 
                 return model.Mutate(e.Option,
@@ -94,8 +94,8 @@ public record IdealOptionValuations(ImmutableDictionary<string, IdealValuation> 
 
             private async ValueTask<decimal> AddedWorth(string option)
             {
-                return (await CurrentOptionWorths).Worths[option].TotalWorth
-                       - (await PreviousOptionWorths).Worths[option].TotalWorth;
+                return (await CurrentOptionWorths).Worths[option].TotalWorth()
+                       - (await PreviousOptionWorths).Worths[option].TotalWorth();
             }
 
             protected override ValueTask<IdealOptionValuations> PriceInfo(IdealOptionValuations model, PriceInfo e)

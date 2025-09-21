@@ -13,8 +13,7 @@ namespace FfAdmin.AdminModule
         Task<Option[]> GetOptions();
         Task<Option?> GetOption(string optionId);
 
-        Task<OptionWorth[]> GetOptionWorths();
-        Task<OptionWorth?> GetOptionWorth(string optionId);
+        Task<OptionWorths2.Header[]> GetOptionWorths();
 
         Task<decimal> GetLoanableCash(string optionId, DateTime at);
     }
@@ -34,15 +33,15 @@ namespace FfAdmin.AdminModule
             => (await _calculator.GetOptions(_branch.Value)).Values.Values.ToArray();
         public async Task<Option?> GetOption(string optionId)
             => (await _calculator.GetOptions(_branch.Value)).Values.GetValueOrDefault(optionId);
-        
-        public async Task<OptionWorth[]> GetOptionWorths()
-            => (await _calculator.GetOptionWorths(_branch.Value)).Worths.Values.ToArray();
-        public async Task<OptionWorth?> GetOptionWorth(string optionId)
-            => (await _calculator.GetOptionWorths(_branch.Value)).Worths.GetValueOrDefault(optionId);
+
+        public async Task<OptionWorths2.Header[]> GetOptionWorths()
+            => await _calculator.GetOptionWorths(_branch.Value);
+        public async Task<OptionWorths2.Header?> GetOptionWorth(string optionId)
+            => (await _calculator.GetOptionWorths(_branch.Value)).FirstOrDefault(x=> x.Id == optionId);
 
         public async Task<decimal> GetLoanableCash(string optionId, DateTime at)
         {
-            if (!(await _calculator.GetOptionWorths(_branch.Value)).Worths.TryGetValue(optionId, out var option))
+            if ((await _calculator.GetOptionWorths(_branch.Value)).FirstOrDefault(x => x.Id == optionId) is not {} option)
                 return 0;
             return option.UnenteredDonations.Where(d => d.ExecuteTimestamp <= at).Sum(d => d.Amount);
         }

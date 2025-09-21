@@ -20,18 +20,18 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
     public static implicit operator CumulativeInterest(ImmutableDictionary<string, DataPoint> dictionary)
         => new(dictionary);
     
-    private class ProcessorImpl(IContext<OptionWorths> cOptionWorths): EventProcessor<CumulativeInterest>
+    private class ProcessorImpl(IContext<OptionWorths2> cOptionWorths): EventProcessor<CumulativeInterest>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
             return new Calc(previousContext, currentContext, cOptionWorths);
         }
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<OptionWorths> cOptionWorths) : BaseCalculation(previousContext, currentContext)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<OptionWorths2> cOptionWorths) : BaseCalculation(previousContext, currentContext)
         {
 
-            public ValueTask<OptionWorths> CurrentOptionWorths => GetCurrent(cOptionWorths);
-            public ValueTask<OptionWorths> PreviousOptionWorths => GetPrevious(cOptionWorths);
+            public ValueTask<OptionWorths2> CurrentOptionWorths => GetCurrent(cOptionWorths);
+            public ValueTask<OptionWorths2> PreviousOptionWorths => GetPrevious(cOptionWorths);
             
             protected override async ValueTask<CumulativeInterest> NewOption(CumulativeInterest model, NewOption e)
             {
@@ -41,9 +41,9 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
             protected override async ValueTask<CumulativeInterest> ConvEnter(CumulativeInterest model, ConvEnter e)
             {
                 var prevWorth = (await PreviousOptionWorths).Worths[e.Option];
-                if (prevWorth.TotalWorth == 0)
+                if (prevWorth.TotalWorth() == 0)
                     return model;
-                var addedInterest = (e.Invested_amount - prevWorth.Invested) / prevWorth.TotalWorth;
+                var addedInterest = (e.Invested_amount - prevWorth.Invested) / prevWorth.TotalWorth();
                 return model.Options.SetItem(e.Option, new(model.Options[e.Option].Value * (1 + addedInterest), e.Timestamp));
             }
 
@@ -56,7 +56,7 @@ public record CumulativeInterest(ImmutableDictionary<string, CumulativeInterest.
             {
                 var prevWorth = (await PreviousOptionWorths).Worths[option];
                 var currWorth = (await CurrentOptionWorths).Worths[option];
-                var addedInterest = (currWorth.TotalWorth - difference - prevWorth.TotalWorth) / prevWorth.TotalWorth;
+                var addedInterest = (currWorth.TotalWorth() - difference - prevWorth.TotalWorth()) / prevWorth.TotalWorth();
                 return model.Options.SetItem(option, new(model.Options[option].Value * (1 + addedInterest), timestamp));
             }
 

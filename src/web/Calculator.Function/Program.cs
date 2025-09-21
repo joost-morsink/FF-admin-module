@@ -38,7 +38,6 @@ var host = new HostBuilder()
             .AddModelProcessor<FfAdmin.Calculator.Index>()
             
             .AddModelProcessor<Donations>()
-            .AddModelProcessor<DonationRecords>()
             .AddModelProcessor<Charities>()
             .AddModelProcessor<Options>()
             .AddModelProcessor<CharityBalance>()
@@ -47,7 +46,6 @@ var host = new HostBuilder()
             .AddModelProcessor<OptionWorths>()
             .AddModelProcessor<OptionWorthHistory>()
             .AddModelProcessor<MinimalExits>()
-            .AddModelProcessor<CurrentCharityFractionSets>()
             .AddModelProcessor<IdealOptionValuations>()
             .AddModelProcessor<AmountsToTransfer>()
             
@@ -57,7 +55,6 @@ var host = new HostBuilder()
             .AddModelProcessor<AggregatedDonationsAndTransfers>()
             
             .AddModelProcessor<Donors>()
-            .AddModelProcessor<DonorDashboardStats>()
         
             .AddModelProcessor<Donations2, string, Donations2.Details>()
             .AddModelProcessor<OptionWorths2, string, OptionWorths2.Details>()

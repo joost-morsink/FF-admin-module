@@ -148,14 +148,11 @@ public class BasicModelTests : VerifyBase
             .AddContext<MinimalExits>()
             .AddContext<ValidationErrors>()
             .AddContext<AmountsToTransfer>()
-            .AddContext<CurrentCharityFractionSets>()
-            .AddContext<DonationRecords>()
             .AddContext<HistoryHash>()
             .AddContext<CharityBalance>()
             .AddContext<CumulativeInterest>()
             .AddContext<DonationStatistics>()
             .AddContext<Donors>()
-            .AddContext<DonorDashboardStats>()
             .AddContext<Donations2>()
             .AddContext<OptionWorths2>()
             .AddContext<Donors2>()
@@ -351,22 +348,6 @@ public class BasicModelTests : VerifyBase
     }
 
     [TestMethod]
-    public async Task CurrentCharityFractionSetsTest()
-    {
-        var contexts = (await Stream.GetValues<CurrentCharityFractionSets>(8, 14)).ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
-
-    [TestMethod]
-    public async Task DonationRecordsTest()
-    {
-        var contexts = (await Stream.GetValues<DonationRecords>(18)).ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
-
-    [TestMethod]
     public async Task DonationStatisticsTest()
     {
         var contexts = (await Stream.GetValues<DonationStatistics>(4, 5, 6, 7, 8, 9, 10, 11, 12, 13))
@@ -398,37 +379,6 @@ public class BasicModelTests : VerifyBase
             dict[$"Detail_{x}"] = detail!;
         }
         await Verify(dict);
-    }
-    [TestMethod]
-    public async Task DonorDashboardStatsTest()
-    {
-        var contexts = (await Stream.GetValues<DonorDashboardStats>(18))
-            .ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
-
-    [TestMethod]
-    public async Task DonationRecordsTotalWorthTest()
-    {
-        for (int i = 0; i < 18; i++)
-        {
-            var context = await Stream.GetAtPosition(i);
-            var donations = (await context.GetContext<Donations>()).Values;
-            var worths = (await context.GetContext<OptionWorths>()).Worths;
-            var records = (await context.GetContext<DonationRecords>()).Values;
-            var q =
-                from dr in records
-                let dw = dr.Value[^1].Worth
-                group dw by donations[dr.Key].OptionId
-                into g
-                select new {OptionId = g.Key, TotalWorth = g.Sum()}
-                into dw
-                join w in worths on dw.OptionId equals w.Key
-                select Math.Abs(dw.TotalWorth - w.Value.TotalWorth - w.Value.UnenteredDonations.Sum(x => x.Amount));
-            if (q.Any())
-                q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, PRECISION));
-        }
     }
 
     [TestMethod]

@@ -95,32 +95,25 @@ Currently, calculated models are not cached, but are parameterized.
 graph LR
     classDef calc fill:#ffc;
     Options --> AggregatedDonationsAndTransfers
-    Donations --> AggregatedDonationsAndTransfers
+    Donations2 --> AggregatedDonationsAndTransfers
     Options --> AmountsToTransfer
     Charities --> AmountsToTransfer
     CharityFractionSets --> AmountsToTransfer
     Index --> AuditHistory
     HistoryHash --> AuditHistory
     CharityBalance
-    OptionWorths --> CumulativeInterest
-    Options --> CurrentCharityFractionSets
-    OptionWorths --> CurrentCharityFractionSets
-    Donations --> CurrentCharityFractionSets
-    Donations --> DonationRecords
-    OptionWorths --> DonationRecords
-    Donations --> DonationStatistics
+    OptionWorths2 --> CumulativeInterest
+    Donations2 --> DonationStatistics
     Options --> DonationStatistics
-    OptionWorths --> DonationStatistics
-    Donors --> DonorDashboardStats
-    DonationRecords --> DonorDashboardStats
+    OptionWorths2 --> DonationStatistics
     Options --> IdealOptionValuations
-    OptionWorths --> IdealOptionValuations
+    OptionWorths2 --> IdealOptionValuations
     Options --> MinimalExits
     IdealOptionValuations --> MinimalExits
     CumulativeInterest --> OptionWorthHistory
     OptionWorthHistory --> IdealOptionValuations
     Index --> ValidationErrors
-    Donations --> ValidationErrors
+    Donations2 --> ValidationErrors
     Charities --> ValidationErrors
     Options --> ValidationErrors
     AmountsToTransfer --> ValidationErrors

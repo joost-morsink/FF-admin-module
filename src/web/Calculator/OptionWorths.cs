@@ -7,6 +7,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
 {
     public static IMetaModel<OptionWorths> GetMetaModel()
         => Meta.Instance;
+
     static IMetaModel IModel.GetMetaModel()
         => GetMetaModel();
 
@@ -14,9 +15,11 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
     {
         public static Meta Instance { get; } = new();
         public override OptionWorths Empty => new(ImmutableDictionary<string, OptionWorth>.Empty);
+
         public override IEventProcessor<OptionWorths> GetProcessor(IServiceProvider serviceProvider)
             => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
     }
+
     public static implicit operator OptionWorths(ImmutableDictionary<string, OptionWorth> dict)
         => new(dict);
 
@@ -35,7 +38,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
         {
             public ValueTask<Donations> CurrentDonations => GetCurrent(cDonations);
             public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
-            
+
             protected override async ValueTask<OptionWorths> NewDonation(OptionWorths model, NewDonation e)
             {
                 return model.Mutate(e.Option, option =>
@@ -117,7 +120,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
             protected override async ValueTask<OptionWorths> IncreaseCash(OptionWorths model, IncreaseCash e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Cash = option.Cash + e.Amount});
-            
+
             protected override async ValueTask<OptionWorths> ConvInflation(OptionWorths model, ConvInflation e)
                 => model.Mutate(e.Option, option =>
                     option with {Timestamp = e.Timestamp, Invested = e.Invested_amount});
@@ -125,8 +128,13 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
     }
 }
 
-public record OptionWorth(string Id, DateTimeOffset Timestamp, Real Invested, Real Cash,
-    FractionSet DonationFractions, ImmutableList<Donation> UnenteredDonations)
+public record OptionWorth(
+    string Id,
+    DateTimeOffset Timestamp,
+    Real Invested,
+    Real Cash,
+    FractionSet DonationFractions,
+    ImmutableList<Donation> UnenteredDonations)
 {
     public Real TotalWorth => Invested + Cash;
 }
@@ -136,21 +144,26 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
 {
     static IMetaModel IModel.GetMetaModel()
         => GetMetaModel();
+
     public static IMetaModel<OptionWorths2, string, Details> GetMetaModel()
         => Meta.Instance;
+
     private class Meta : IMetaModel<OptionWorths2, string, Details>
     {
         public static Meta Instance { get; } = new();
+
         public int MaskBits(OptionWorths2 header)
             => Math.Max(4, (int)Math.Floor(Math.Log2((header.NumberOfDonations - 1.0) / 16 + 1)));
 
-        public OptionWorths2 Empty => new(0, 0,ImmutableDictionary<string, Header>.Empty);
+        public OptionWorths2 Empty => new(0, 0, ImmutableDictionary<string, Header>.Empty);
         public Details EmptyDetail => new(ImmutableDictionary<string, EnteredDonation>.Empty);
-        
+
         public Bucket? GetBucket(OptionWorths2 header, string key)
             => GetBucket(key, MaskBits(header));
+
         private Bucket GetBucket(string key, int maskBits)
-            => new (key.GetNumeric(), maskBits);
+            => new(key.GetNumeric(), maskBits);
+
         public IEnumerable<string> GetKeysForEvent(Event e)
         {
             return e switch
@@ -161,12 +174,13 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 _ => []
             };
         }
-        
+
         public IEventProcessor<OptionWorths2> GetProcessor(IServiceProvider serviceProvider)
             => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+
         public IEventProcessor<Details> GetDetailProcessor(IServiceProvider serviceProvider)
             => ActivatorUtilities.CreateInstance<DetailsImpl>(serviceProvider);
-        
+
         public Details CleanDetail(Details detail, Bucket bucket)
             => new(detail.Shares.Where(kvp => GetBucket(kvp.Key, bucket.MaskBits) == bucket).ToImmutableDictionary());
 
@@ -185,17 +199,20 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
     {
         public Real CalculateFactor()
             => DonationFractionDivisor == 0 ? 1 : (Invested + Cash) / DonationFractionDivisor;
+
+        public Real TotalWorth()
+            => Cash + Invested;
     }
-    
+
     public record Details(ImmutableDictionary<string, EnteredDonation> Shares);
 
     public record EnteredDonation
     {
-        public DateTimeOffset? Timestamp { get; } 
+        public DateTimeOffset? Timestamp { get; }
         public Real Share { get; }
         public bool IsEntered => Timestamp.HasValue;
 
-        public EnteredDonation() 
+        public EnteredDonation()
         {
             Timestamp = null;
             Share = 0;
@@ -206,10 +223,10 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
             Timestamp = timestamp;
             Share = share;
         }
-    
     }
+
     public record Entering(Real Divisor, Real Factor, ImmutableList<Donation> Donations);
-    
+
     private class Impl : EventProcessor<OptionWorths2>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
@@ -246,14 +263,13 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                     from ud in model.Worths[w].UnenteredDonations
                     where ud.Id == e.Donation
                     select (option: w, donation: ud)).FirstOrDefault();
-                if (search is (null, _) or (_,null))
+                if (search is (null, _) or (_, null))
                     return new(model);
 
                 var updatedWorth = model.Worths[search.option] with
                 {
-                    UnenteredDonations = model.Worths[search.option].UnenteredDonations.Remove(search.donation),
-                    EnteringDonations = null
-                }; 
+                    UnenteredDonations = model.Worths[search.option].UnenteredDonations.Remove(search.donation), EnteringDonations = null
+                };
 
                 return new(model with
                 {
@@ -271,7 +287,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 if (entering == 0m)
                     return new(model);
 
-                var factor = (worth with { Invested = e.Invested_amount }).CalculateFactor();
+                var factor = (worth with {Invested = e.Invested_amount}).CalculateFactor();
 
                 return new(model with
                 {
@@ -284,7 +300,7 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                             Cash = worth.Cash + entering,
                             DonationFractionDivisor = worth.DonationFractionDivisor + entering / factor,
                             UnenteredDonations = split[false].ToImmutableList(),
-                            EnteringDonations = new (worth.DonationFractionDivisor + entering / factor, factor, split[true].ToImmutableList())
+                            EnteringDonations = new(worth.DonationFractionDivisor + entering / factor, factor, split[true].ToImmutableList())
                         })
                 });
             }
@@ -303,6 +319,9 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
 
             protected override ValueTask<OptionWorths2> IncreaseCash(OptionWorths2 model, IncreaseCash e)
                 => UpdateAmounts(model, e.Option, e.Timestamp, cash: c => c + e.Amount);
+
+            protected override ValueTask<OptionWorths2> ConvInflation(OptionWorths2 model, ConvInflation e)
+                => UpdateAmounts(model, e.Option, e.Timestamp, _ => e.Invested_amount);
             
             private ValueTask<OptionWorths2> UpdateAmounts(OptionWorths2 model, string option, DateTimeOffset timestamp, Func<Real, Real>? invested = null,
                 Func<Real, Real>? cash = null)
@@ -325,16 +344,23 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
         {
             return new Calc(cOptionWorths, cDonations, previousContext, currentContext);
         }
-        private class Calc(IContext<OptionWorths2> cOptionWorths, IContext<Donations2, string, Donations2.Details> cDonations, IContext previousContext, IContext currentContext)
+
+        private class Calc(
+            IContext<OptionWorths2> cOptionWorths,
+            IContext<Donations2, string, Donations2.Details> cDonations,
+            IContext previousContext,
+            IContext currentContext)
             : BaseCalculation(previousContext, currentContext)
         {
             public async ValueTask<Header> CurrentOptionWorthFor(string optionId)
                 => (await GetCurrent(cOptionWorths)).Worths[optionId];
+
             public async ValueTask<Donation> PreviousDonationFor(string donationId)
                 => (await GetPrevious(cDonations, await GetPrevious(cDonations), donationId)).Values[donationId];
+
             public async ValueTask<Donation> CurrentDonationFor(string donationId)
                 => (await GetCurrent(cDonations, await GetPrevious(cDonations), donationId)).Values[donationId];
-            
+
             protected override ValueTask<Details> NewDonation(Details model, NewDonation e)
                 => new(new Details(model.Shares.Add(e.Donation, new())));
 
@@ -348,20 +374,21 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
                 var newDetails = ImmutableDictionary<string, EnteredDonation>.Empty.ToBuilder();
                 foreach (var share in model.Shares)
                 {
-                    if (share.Value.IsEntered) 
+                    if (share.Value.IsEntered)
                     {
                         newDetails[share.Key] = share.Value;
                         continue;
                     }
+
                     var donation = await CurrentDonationFor(share.Key);
-                    if(donation.OptionId != e.Option  // Not the current option
+                    if (donation.OptionId != e.Option // Not the current option
                         || donation.ExecuteTimestamp > e.Timestamp) // Not to be executed yet
                     {
                         newDetails[share.Key] = share.Value;
                         continue;
                     }
 
-                    newDetails[share.Key] = new (e.Timestamp, donation.Amount / factor);
+                    newDetails[share.Key] = new(e.Timestamp, donation.Amount / factor);
                 }
 
                 return new(newDetails.ToImmutable());
