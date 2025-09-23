@@ -53,6 +53,12 @@ namespace FfAdminWeb.Controllers
                     select OptionGridRow.Create(o, w);
         }
 
+        [HttpGet("{optionId}")]
+        public async Task<OptionGridRow?> GetOption(string optionId)
+        {
+            var options = await GetOptions();
+            return options.FirstOrDefault(o => o.Code == optionId);
+        }
 
         [HttpGet("{optionId}/loanable-cash")]
         public async Task<decimal> GetLoanableCash(string optionId, DateTime at)

@@ -97,6 +97,7 @@ public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IM
                         DonationFractions = fractions,
                         Invested = e.Invested_amount,
                         UnenteredDonations = donations[false].ToImmutableList()
+                        
                     };
                 });
             }

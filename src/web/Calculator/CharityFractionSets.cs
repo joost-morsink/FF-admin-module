@@ -48,7 +48,9 @@ public record CharityFractionSets(ImmutableDictionary<string, ImmutableDictionar
             protected override async ValueTask<CharityFractionSets> ConvEnter(CharityFractionSets model, ConvEnter e)
             {
                 var ow = await CurrentOptionWorths();
-                var entering = ow.Worths[e.Option].EnteringDonations!;
+                var entering = ow.Worths[e.Option].EnteringDonations;
+                if (entering is null) // No donations have entered
+                    return model;
                 var addedFractions = from d in entering.Donations
                     group d by d.CharityId
                     into g
