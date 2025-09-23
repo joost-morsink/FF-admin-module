@@ -137,14 +137,15 @@ graph LR
     click HistoryHash "./models/history_hash"
     click Options "./models/options"
     click ValidationErrors "./models/validation_errors"
-    click Donations "./models/donations"
-    click OptionWorths "./models/option_worths"
+    click Donations2 "./models/donations"
+    click OptionWorths2 "./models/option_worths"
     click IdealOptionValuations "./models/ideal_option_valuations"
     click MinimalExits "./models/minimal_exits"
     click MonthlyDonations "./models/monthly_donations"
 ```
 
-_A data flow graph for all the models, blue is processed, yellow is calculated_
+_A data flow graph for all the models. 
+Blue is processed, yellow is calculated_
 
 ## Caching
 

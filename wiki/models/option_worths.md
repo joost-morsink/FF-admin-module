@@ -1,5 +1,5 @@
 ---
-title: Model Option worths
+title: Model OptionWorths2
 author: J.W. Morsink
 archimate:
   layer: Application
@@ -7,7 +7,7 @@ archimate:
   caption: Option worths
 ---
 
-# Model Option worths
+# Model OptionWorths2
 
 This model keeps track of the worths of [investment options](../option).
 
@@ -15,35 +15,60 @@ The following information is tracked by this model:
 
 * The invested amount (can fluctuate due to stock prices fluctuating). 
 * The cash amout, is affected by some [events](../event).
-* The ownership fractions of donations in the investment option.
+* The ownership shares of donations in the investment option in its partitioned details. 
 * Unentered donations, affected by donation events. This is not yet part of the actual option's worth, but the information is needed on some conversion day events.
 
 ```plantuml
 @startyaml
-{OptionId}:
-  Timestamp: The timestamp of the latest worth determination
-  Invested: The invested amount
-  Cash: The cash amount
-  DonationFractions:
-    - Key: {DonationId}
-      Value: The ownership fraction of the donation in the option.
-    - 
-  UnenteredDonations:
-    - Id: The id of the donation
-      Timestamp: The time of donation
-      ExecuteTimestamp: The time at which the donation may be considered made.
-      OptionId: The id of the investment option
-      CharityId: The id of the charity
-      Amount: The amount of money donated, in the option's currency.
-    - 
-{OptionId}:
-  -
+NumberOfDonations: The number of donations
+TotalUnentered: The total amount of money not yet entered into the options.
+Worths: 
+  {OptionId}:
+    Id: A repetition of the option's Id
+    Timestamp: The timestamp of the latest worth determination
+    Invested: The invested amount
+    Cash: The cash amount
+    DonationFractionDivisor: The divisor for the registered donations' shares.
+    DonationFractions:
+      - Key: {DonationId}
+        Value: The@startyam ownership fraction of the donation in the option.
+      - ...
+    UnenteredDonations:
+      - Id: The id of the donation
+        Timestamp: The time of donation
+        ExecuteTimestamp: The time at which the donation may be considered made.
+        OptionId: The id of the investment option
+        CharityId: The id of the charity
+        Amount: The amount of money donated, in the option's currency.
+      - ...
+    EnteringDonations:
+      Divisor: The new DonationFractionDivisor
+      Factor: The factor needed to convert from donated amount to share size.
+      Donations:
+        - Id: The id of the donation
+          Timestamp: The time of donation
+          ExecuteTimestamp: The time at which the donation may be considered made.
+          OptionId: The id of the investment option
+          CharityId: The id of the charity
+          Amount: The amount of money donated, in the option's currency.
+          OriginalCurrency: The currency of the original donation.
+          OriginalAmount: The amount of money donated, in the original currency.
+@endyaml
+```
+
+The details are indexed by donation id and are structured as follows:
+
+```plantuml
+@startyaml
+Timestamp: The timestamp of the moment the donation entered the option.
+Share: The share the donation has in the option's worth.
+IsEntered: Calculated property indicating whether the donation has entered the option.
 @endyaml
 ```
 
 ## Events
 
-The `OptionWorths` model is affected by the following events:
+The `OptionWorths2` model is affected by the following events:
 
 * [`DONA_NEW`](../events/DONA_NEW)
 * [`DONA_CANCEL`](../events/DONA_CANCEL)
@@ -70,14 +95,15 @@ A new option is registered, without any linked donations and with 0 invested and
 
 ### CONV_ENTER
 
+This event is a so called [mega event](../model-partition#mega_event).
 The `UnenteredDonations` are checked for donations that have an `ExecuteTimestamp` earlier than the timestamp of the event. 
-Those donations are moved from the `UnenteredDonations` to the `DonationFractions` and assigned an ownership fraction of the investment option.
+Those donations are cleared from the `UnenteredDonations` and the details of those donations are assigned an ownership [share](../share) of the investment option.
 The summed amount of the moved donations is transferred into the cash part of the investment option.
 
 ### CONV_INVEST
 
 This event indicates that an investment has been made and that a cash amount has been transferred to the invested part of the investment option.
-There is no change in the `DonationFractions` nor the `UnenteredDonations`.
+There is no change in the details nor the `UnenteredDonations`.
 
 ### CONV_LIQUIDATE
 
@@ -85,7 +111,7 @@ This event indicates that a liquidation of stocks has been made and that a part 
 
 ### CONV_EXIT
 
-This event indicates the withdrawal of funds for the purpose of pay out to [charities](.charities). 
+This event indicates the withdrawal of funds for the purpose of pay out to [charities](../charities). 
 It only affects the cash part of the investment option.
 
 > **Assumption:** [`CONV_EXIT`](../events/CONV_EXIT) always immediately follows a [`CONV_LIQUIDATE`](../events/CONV_LIQUIDATE), assuming no stock price change in between. 
