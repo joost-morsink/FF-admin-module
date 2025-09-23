@@ -1,0 +1,294 @@
+﻿{
+  1: {
+    Donations: {
+      1: {
+        Donation: {
+          Amount: 10.0,
+          CharityId: 1,
+          ExecuteTimestamp: DateTimeOffset_1,
+          Id: 1,
+          OptionId: 1,
+          OriginalAmount: 10.0,
+          OriginalCurrency: EUR,
+          Timestamp: DateTimeOffset_1
+        },
+        Records: [
+          {
+            Entered: false,
+            Timestamp: DateTimeOffset_1,
+            Worth: 10.0,
+            eventType: DONA_NEW
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_2,
+            Worth: 10.0,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_3,
+            Worth: 9.833333333333333333333333333,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_4,
+            Worth: 10.166666666666666666666666667,
+            eventType: PRICE_INFO
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_5,
+            Worth: 11.666666666666666666666666667,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.8733333333333333333333333333,
+              Charity: 1
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_6,
+            Worth: 10.793333333333333333333333333,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_7,
+            Worth: 10.793333333333333333333333333,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_8,
+            Worth: 10.793333333333333333333333333,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_9,
+            Worth: 10.495092567007460624481901078,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.0507009302753983605047434835,
+              Charity: 1
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_10,
+            Worth: 10.444391636732062263977157594,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_11,
+            Worth: 10.47421571336464953486230082,
+            eventType: CONV_INFLATION
+          }
+        ]
+      },
+      2: {
+        Donation: {
+          Amount: 5.0,
+          CharityId: 2,
+          ExecuteTimestamp: DateTimeOffset_12,
+          Id: 2,
+          OptionId: 1,
+          OriginalAmount: 10.0,
+          OriginalCurrency: HEUR,
+          Timestamp: DateTimeOffset_12
+        },
+        Records: [
+          {
+            Entered: false,
+            Timestamp: DateTimeOffset_12,
+            Worth: 5.0,
+            eventType: DONA_NEW
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_2,
+            Worth: 5.0,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_3,
+            Worth: 4.9166666666666666666666666667,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_4,
+            Worth: 5.0833333333333333333333333333,
+            eventType: PRICE_INFO
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_5,
+            Worth: 5.8333333333333333333333333333,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.4366666666666666666666666667,
+              Charity: 2
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_6,
+            Worth: 5.3966666666666666666666666667,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_7,
+            Worth: 5.3966666666666666666666666666,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_8,
+            Worth: 5.3966666666666666666666666666,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_9,
+            Worth: 5.2475462835037303122409505388,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.0253504651376991802523717417,
+              Charity: 2
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_10,
+            Worth: 5.2221958183660311319885787971,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_11,
+            Worth: 5.2371078566823247674311504098,
+            eventType: CONV_INFLATION
+          }
+        ]
+      },
+      4: {
+        Donation: {
+          Amount: 10.0,
+          CharityId: 1,
+          ExecuteTimestamp: DateTimeOffset_13,
+          Id: 4,
+          OptionId: 1,
+          OriginalAmount: 10.0,
+          OriginalCurrency: EUR,
+          Timestamp: DateTimeOffset_13
+        },
+        Records: [
+          {
+            Entered: false,
+            Timestamp: DateTimeOffset_13,
+            Worth: 10.0,
+            eventType: DONA_NEW
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_7,
+            Worth: 10.0,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_8,
+            Worth: 10.0,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_9,
+            Worth: 9.723680574744404531638574192,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.0469743022934512296214423874,
+              Charity: 1
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_10,
+            Worth: 9.676706272450953302017131805,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_11,
+            Worth: 9.704338214976512848853274385,
+            eventType: CONV_INFLATION
+          }
+        ]
+      }
+    }
+  },
+  2: {
+    Donations: {
+      3: {
+        Donation: {
+          Amount: 10.0,
+          CharityId: 2,
+          ExecuteTimestamp: DateTimeOffset_14,
+          Id: 3,
+          OptionId: 1,
+          OriginalAmount: 10.0,
+          OriginalCurrency: EUR,
+          Timestamp: DateTimeOffset_15
+        },
+        Records: [
+          {
+            Entered: false,
+            Timestamp: DateTimeOffset_15,
+            Worth: 10.0,
+            eventType: DONA_NEW
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_7,
+            Worth: 10.0,
+            eventType: CONV_ENTER
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_8,
+            Worth: 10.0,
+            eventType: CONV_INVEST
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_9,
+            Worth: 9.723680574744404531638574192,
+            eventType: CONV_LIQUIDATE
+          },
+          {
+            Allocation: {
+              Amount: 0.0469743022934512296214423874,
+              Charity: 2
+            },
+            Entered: true,
+            Timestamp: DateTimeOffset_10,
+            Worth: 9.676706272450953302017131805,
+            eventType: CONV_EXIT
+          },
+          {
+            Entered: true,
+            Timestamp: DateTimeOffset_11,
+            Worth: 9.704338214976512848853274385,
+            eventType: CONV_INFLATION
+          }
+        ]
+      }
+    }
+  }
+}

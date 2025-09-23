@@ -1,0 +1,22 @@
+﻿{
+  Detail_1: {
+    Values: {
+      1: [
+        1,
+        2,
+        4
+      ]
+    }
+  },
+  Detail_2: {
+    Values: {
+      2: [
+        3
+      ]
+    }
+  },
+  Header: {
+    DonationCount: 4,
+    DonorCount: 2
+  }
+}

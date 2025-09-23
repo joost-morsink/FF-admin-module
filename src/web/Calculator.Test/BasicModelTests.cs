@@ -1,13 +1,13 @@
-using FluentAssertions.Common;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FfAdmin.Calculator.Test;
 
 [TestClass]
 public class BasicModelTests : VerifyBase
 {
-    private static DateTimeOffset _current = new DateTimeOffset(2023, 6, 6, 0, 0, 0, TimeSpan.Zero);
+    private const decimal PRECISION = 0.000000000001m;
+    private static DateTimeOffset _current = new (2023, 6, 6, 0, 0, 0, TimeSpan.Zero);
 
     public static DateTimeOffset GetCurrent(TimeSpan? span = null) =>
         _current = _current + (span ?? TimeSpan.FromSeconds(1));
@@ -148,51 +148,42 @@ public class BasicModelTests : VerifyBase
             .AddContext<MinimalExits>()
             .AddContext<ValidationErrors>()
             .AddContext<AmountsToTransfer>()
-            .AddContext<CurrentCharityFractionSets>()
-            .AddContext<DonationRecords>()
             .AddContext<HistoryHash>()
             .AddContext<CharityBalance>()
             .AddContext<CumulativeInterest>()
             .AddContext<DonationStatistics>()
             .AddContext<Donors>()
-            .AddContext<DonorDashboardStats>();
+            .AddContext<Donations2>()
+            .AddContext<OptionWorths2>()
+            .AddContext<Donors2>()
+            .AddContext<CharityFractionSets>()
+            .AddContext<Allocations>()
+            
+            .AddModelCalculator<DonationRecords2, DonationRecords2.Value, string>()
+            .AddModelCalculator<DonorDashboardStats2, DonorDashboardStats2.Stat, string>()
+            .AddModelCalculator<DonationExistence, DonationExistence.Result, IEnumerable<string>>()
+         
+            .AddSingleton<MetaModels>();
         return services.BuildServiceProvider();
     }
     private static readonly IServiceProvider ServiceProvider = GetServiceProvider();
     private static readonly EventStream Stream = EventStream.Empty(
-            IModelCacheStrategy.Default,
-            Index.GetProcessor(ServiceProvider),
-            Options.GetProcessor(ServiceProvider),
-            Charities.GetProcessor(ServiceProvider),
-            Donations.GetProcessor(ServiceProvider),
-            OptionWorths.GetProcessor(ServiceProvider),
-            OptionWorthHistory.GetProcessor(ServiceProvider),
-            IdealOptionValuations.GetProcessor(ServiceProvider),
-            MinimalExits.GetProcessor(ServiceProvider),
-            ValidationErrors.GetProcessor(ServiceProvider),
-            AmountsToTransfer.GetProcessor(ServiceProvider),
-            CurrentCharityFractionSets.GetProcessor(ServiceProvider),
-            DonationRecords.GetProcessor(ServiceProvider),
-            HistoryHash.GetProcessor(ServiceProvider),
-            CharityBalance.GetProcessor(ServiceProvider),
-            CumulativeInterest.GetProcessor(ServiceProvider),
-            DonationStatistics.GetProcessor(ServiceProvider),
-            Donors.GetProcessor(ServiceProvider),
-            DonorDashboardStats.GetProcessor(ServiceProvider))
+            ServiceProvider,
+            IModelCacheStrategy.Default)
         .AddEvents(TestEvents);
 
     [TestMethod]
     public async Task RepoTest()
     {
         var context = await Stream.GetLast();
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
         options!.Values.Should().ContainKey("1");
-        var charities = context.GetContext<Charities>();
+        var charities = await context.GetContext<Charities>();
         charities.Should().NotBeNull();
         charities!.Values.Should().HaveCountGreaterOrEqualTo(2);
         charities.Values.Should().ContainKey("1").WhoseValue.Name.Should().Be("WWF");
-        var donations = context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations>();
         donations.Should().NotBeNull();
         donations!.Values.Should().ContainKey("1").WhoseValue.Should().BeEquivalentTo(new
         {
@@ -204,9 +195,9 @@ public class BasicModelTests : VerifyBase
     public async Task UnenteredTest()
     {
         var context = await Stream.GetAtPosition(7);
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths>();
         worths.Should().NotBeNull();
         var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 0m, Invested = 0m});
@@ -217,9 +208,9 @@ public class BasicModelTests : VerifyBase
     public async Task EnterTest()
     {
         var context = await Stream.GetAtPosition(8);
-        var options = context.GetContext<Options>();
+        var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths>();
         worths.Should().NotBeNull();
         var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 15m, Invested = 0m});
@@ -230,23 +221,39 @@ public class BasicModelTests : VerifyBase
     public async Task OptionsTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Options>());
+        await Verify(await context.GetContext<Options>());
     }
 
     [TestMethod]
     public async Task CharitiesTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Charities>());
+        await Verify(await context.GetContext<Charities>());
     }
 
     [TestMethod]
     public async Task DonationsTest()
     {
         var context = await Stream.GetLast();
-        await Verify(context.GetContext<Donations>());
+        await Verify(await context.GetContext<Donations>());
     }
 
+    [TestMethod]
+    public async Task Donations2Test()
+    {
+        var context = await Stream.GetLast();
+        var total = await context.GetContext<Donations2>();
+        var meta = Donations2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+
+        foreach (var x in Enumerable.Range(1, 4))
+        {
+            var detail = (Donations2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
     [TestMethod]
     public async Task OptionWorthsTest()
     {
@@ -255,6 +262,36 @@ public class BasicModelTests : VerifyBase
         await Verify(contexts);
     }
 
+    [TestMethod]
+    public async Task OptionWorths2Test()
+    {
+        var context = await Stream.GetLast();
+        var total = await context.GetContext<OptionWorths2>();
+        var meta = OptionWorths2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1, 4))
+        {
+            var detail = (OptionWorths2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
+    [TestMethod]
+    public async Task OptionWorths2EnterTest()
+    {
+        var context = await Stream.GetAtPosition(8);
+        var total = await context.GetContext<OptionWorths2>();
+        var meta = OptionWorths2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1, 4))
+        {
+            var detail = (OptionWorths2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
+        }
+        await Verify(dict);
+    }
     [TestMethod]
     public async Task OptionWorthHistoryTest()
     {
@@ -298,7 +335,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task ValidationErrorIndicesTest()
     {
-        var context = (await Stream.GetAtPosition(16)).GetContext<ValidationErrors>();
+        var context = await (await Stream.GetAtPosition(16)).GetContext<ValidationErrors>();
         context.IsValid.Should().BeTrue();
     }
 
@@ -306,22 +343,6 @@ public class BasicModelTests : VerifyBase
     public async Task AmountsToTransferTest()
     {
         var contexts = (await Stream.GetValues<AmountsToTransfer>(13, 17, 19)).ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
-
-    [TestMethod]
-    public async Task CurrentCharityFractionSetsTest()
-    {
-        var contexts = (await Stream.GetValues<CurrentCharityFractionSets>(8, 14)).ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
-
-    [TestMethod]
-    public async Task DonationRecordsTest()
-    {
-        var contexts = (await Stream.GetValues<DonationRecords>(18)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -343,36 +364,21 @@ public class BasicModelTests : VerifyBase
 
         await Verify(contexts);
     }
-    [TestMethod]
-    public async Task DonorDashboardStatsTest()
-    {
-        var contexts = (await Stream.GetValues<DonorDashboardStats>(18))
-            .ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
 
     [TestMethod]
-    public async Task DonationRecordsTotalWorthTest()
+    public async Task Donors2Test()
     {
-        for (int i = 0; i < 18; i++)
+        var context = await Stream.GetAtPosition(18);
+        var total = await context.GetContext<Donors2>();
+        var meta = Donors2.GetMetaModel();
+        var dict = new Dictionary<string, object>();
+        dict.Add("Header", total);
+        foreach (var x in Enumerable.Range(1,2))
         {
-            var context = await Stream.GetAtPosition(i);
-            var donations = context.GetContext<Donations>().Values;
-            var worths = context.GetContext<OptionWorths>().Worths;
-            var records = context.GetContext<DonationRecords>().Values;
-            var q =
-                from dr in records
-                let dw = dr.Value[^1].Worth
-                group dw by donations[dr.Key].OptionId
-                into g
-                select new {OptionId = g.Key, TotalWorth = g.Sum()}
-                into dw
-                join w in worths on dw.OptionId equals w.Key
-                select Math.Abs(dw.TotalWorth - w.Value.TotalWorth - w.Value.UnenteredDonations.Sum(x => x.Amount));
-            if (q.Any())
-                q.Should().AllSatisfy(x => x.Should().BeApproximately(0m, 0.000000000001m));
+            var detail = (Donors2.Details?) await context.GetContext(total, x.ToString());
+            dict[$"Detail_{x}"] = detail!;
         }
+        await Verify(dict);
     }
 
     [TestMethod]
@@ -384,9 +390,69 @@ public class BasicModelTests : VerifyBase
     }
 
     [TestMethod]
+    public async Task CharityFractionSetTest()
+    {
+        var contexts = (await Stream.GetValues<CharityFractionSets>(7, 8, 13, 14, 20)).ToListOrderedByKey();
+        await Verify(contexts);
+    }
+    [TestMethod]
+    public async Task CharityFractionSetFullShareTest()
+    {
+        var cfs = (await Stream.GetValues<CharityFractionSets>(20)).Values.First();
+        var ows = (await Stream.GetValues<OptionWorths2>(20)).Values.First();
+
+        foreach (var key in ows.Worths.Keys)
+        {
+            var totalShares = cfs.Shares[key].Values.Sum();
+            totalShares.Should().BeApproximately(ows.Worths[key].DonationFractionDivisor, PRECISION);
+        }
+        
+    }
+
+    [TestMethod]
+    public async Task AllocationsTest()
+    {
+        var contexts = (await Stream.GetValues<Allocations>( 8, 12, 13, 16, 17, 20)).ToListOrderedByKey();
+        await Verify(contexts);
+    }
+
+    [TestMethod]
+    public async Task DonationRecords2Test()
+    {
+        var context = await Stream.GetLast();
+        var dr2 = ServiceProvider.GetRequiredService<IModelCalculator<DonationRecords2.Value, string>>();
+        var dict = new Dictionary<string, DonationRecords2.Value>();
+        foreach (var c in Enumerable.Range(1, 4))
+            dict[c.ToString()] = await dr2.Calculate(context, c.ToString());
+        await Verify(dict);
+    } 
+    [TestMethod]
+    public async Task DonorDashboardStats2Test()
+    {
+        var context = await Stream.GetLast();
+        var dds2 = ServiceProvider.GetRequiredService<IModelCalculator<DonorDashboardStats2.Stat, string>>();
+        var dict = new Dictionary<string, DonorDashboardStats2.Stat>();
+        foreach (var c in Enumerable.Range(1, 2))
+            dict[c.ToString()] = await dds2.Calculate(context, c.ToString());
+        await Verify(dict);
+    }
+
+    [TestMethod]
+    public async Task DonationExistenceTest()
+    {
+        var context = await Stream.GetLast();
+        var de = ServiceProvider.GetRequiredService<IModelCalculator<DonationExistence.Result, IEnumerable<string>>>();
+        var result = await de.Calculate(context, ["1", "3", "5", "6"]);
+        result.Existing.Should().Contain(["1", "3"]);
+        result.Existing.Should().HaveCount(2);
+        result.NotExisting.Should().Contain(["5", "6"]);
+        result.NotExisting.Should().HaveCount(2);        
+    }
+    
+    [TestMethod]
     public async Task BulkTest()
     {
-        var stream = EventStream.Empty(IModelCacheStrategy.Default, Donations.GetProcessor(ServiceProvider))
+        var stream = EventStream.Empty(ServiceProvider, IModelCacheStrategy.Default)
             .AddEvents(Enumerable.Range(0, 1000).Select(x => new NewDonation
             {
                 Timestamp = GetCurrent(),
@@ -400,9 +466,9 @@ public class BasicModelTests : VerifyBase
                 Execute_timestamp = GetCurrent(TimeSpan.Zero)
             }));
         for (int i = 0; i < 1000; i += 906) // 906 threw a stackoverflow, fixed now
-            (await stream.GetAtPosition(i)).GetContext<Donations>();
+            await (await stream.GetAtPosition(i)).GetContext<Donations>();
         var context = await stream.GetLast();
-        var donations = context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations>();
         donations.Should().NotBeNull();
     }
 }

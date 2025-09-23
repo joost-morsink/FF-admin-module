@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 namespace FfAdmin.ModelCache.Abstractions;
 
@@ -11,6 +10,8 @@ public static class Exts
         => Convert.ToHexString(bytes);
     public static string ToBase64String(this byte[] bytes)
         => Convert.ToBase64String(bytes);
+    public static string ToSafeBase64String(this byte[] bytes)
+        => bytes.ToBase64String().TrimEnd('=').Replace('+','-').Replace('/','_');
     public static byte[] ToByteArray(this string str)
         => Convert.FromHexString(str);
 }

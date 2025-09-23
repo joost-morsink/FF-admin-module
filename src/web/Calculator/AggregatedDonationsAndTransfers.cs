@@ -8,6 +8,18 @@ namespace FfAdmin.Calculator;
 public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDonationsAndTransfers.Key, AggregatedDonationsAndTransfers.Value> Data)
     : IModel<AggregatedDonationsAndTransfers>
 {
+    public static IMetaModel<AggregatedDonationsAndTransfers> GetMetaModel()
+        => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
+    private class Meta : IModel<AggregatedDonationsAndTransfers>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override AggregatedDonationsAndTransfers Empty { get; } = new(ImmutableDictionary<Key, Value>.Empty);
+        public override IEventProcessor<AggregatedDonationsAndTransfers> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public record struct Key(int Year, string Charity);
 
     public record struct Value(MoneyBag Donated, MoneyBag Transferred)
@@ -23,50 +35,44 @@ public record AggregatedDonationsAndTransfers(ImmutableDictionary<AggregatedDona
 
     public AggregatedDonationsAndTransfers AddTransferred(Key key, string currency, Real amount)
         => Manipulate(key, v => v with {Transferred = v.Transferred.Add(currency, amount)});
-
-
-    public static AggregatedDonationsAndTransfers Empty { get; } = new(ImmutableDictionary<Key, Value>.Empty);
-
-    public static IEventProcessor<AggregatedDonationsAndTransfers> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
-
-    public class Impl(IContext<Options> cOptions, IContext<Donations> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
+    
+    public class Impl(IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations) : EventProcessor<AggregatedDonationsAndTransfers>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext context)
         {
             return new Calc(previousContext, context, cOptions, cDonations);
         }
 
-        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Donations> cDonations) : BaseCalculation(previousContext, currentContext)
+        private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations) : BaseCalculation(previousContext, currentContext)
         {
-            public Options CurrentOptions => GetCurrent(cOptions);
+            public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
 
-            public Donations PreviousDonations => GetPrevious(cDonations);
-
+            public async ValueTask<Donation> GetPreviousDonation(string id)
+                => (await GetCurrent(cDonations, await GetCurrent(cDonations), id)).Values[id];
        
-            protected override AggregatedDonationsAndTransfers NewDonation(AggregatedDonationsAndTransfers model, NewDonation e)
+            protected override async ValueTask<AggregatedDonationsAndTransfers> NewDonation(AggregatedDonationsAndTransfers model, NewDonation e)
             {
-                var option = CurrentOptions.Values[e.Option];
+                var option = (await CurrentOptions).Values[e.Option];
                 var key = new Key(e.Timestamp.Year, e.Charity);
                 return model.AddDonated(key, option.Currency, e.Exchanged_amount);
             }
 
-            protected override AggregatedDonationsAndTransfers CancelDonation(AggregatedDonationsAndTransfers model, CancelDonation e)
+            protected override async ValueTask<AggregatedDonationsAndTransfers> CancelDonation(AggregatedDonationsAndTransfers model, CancelDonation e)
             {
-                var donation = PreviousDonations.Values[e.Donation];
-                var option = CurrentOptions.Values[donation.OptionId];
+                var donation = await GetPreviousDonation(e.Donation);
+                var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount);
             }
 
-            protected override AggregatedDonationsAndTransfers UpdateCharityForDonation(AggregatedDonationsAndTransfers model, UpdateCharityForDonation e)
+            protected override async ValueTask<AggregatedDonationsAndTransfers> UpdateCharityForDonation(AggregatedDonationsAndTransfers model, UpdateCharityForDonation e)
             {
-                var donation = PreviousDonations.Values[e.Donation];
-                var option = CurrentOptions.Values[donation.OptionId];
+                var donation = await GetPreviousDonation(e.Donation);
+                var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.AddDonated(new(e.Timestamp.Year, donation.CharityId), option.Currency, -donation.Amount)
                     .AddDonated(new Key(e.Timestamp.Year, e.Charity), option.Currency, donation.Amount);
             }
 
-            protected override AggregatedDonationsAndTransfers ConvTransfer(AggregatedDonationsAndTransfers model, ConvTransfer e)
+            protected override async ValueTask<AggregatedDonationsAndTransfers> ConvTransfer(AggregatedDonationsAndTransfers model, ConvTransfer e)
             {
                 var key = new Key(e.Timestamp.Year, e.Charity);
                 return model.AddTransferred(key, e.Currency, e.Amount);

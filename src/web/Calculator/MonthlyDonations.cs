@@ -4,6 +4,18 @@ namespace FfAdmin.Calculator;
 
 public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictionary<DateOnly, MonthlyDonations.Data>> Donations) : IModel<MonthlyDonations>
 {
+    public static IMetaModel<MonthlyDonations> GetMetaModel()
+        => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
+    private class Meta : IModel<MonthlyDonations>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override MonthlyDonations Empty => MonthlyDonations.Empty;
+        public override IEventProcessor<MonthlyDonations> GetProcessor(IServiceProvider serviceProvider)
+            => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
+    }
     private static DateOnly ToMonth(DateOnly date)
         => new (date.Year, date.Month, 1);
     private static DateOnly ToMonth(DateTimeOffset date)
@@ -45,19 +57,19 @@ public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictio
 
         private sealed class Calculation(IContext<Options> cOptions, IContext<Donations> cDonations, IContext previous, IContext current) : BaseCalculation(previous, current)
         {
-            public Options CurrentOptions => GetCurrent(cOptions);
-            public Donations PreviousDonations => GetPrevious(cDonations);
-            protected override MonthlyDonations NewDonation(MonthlyDonations model, NewDonation e)
+            public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
+            public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
+            protected override async ValueTask<MonthlyDonations> NewDonation(MonthlyDonations model, NewDonation e)
             {
-                var option = CurrentOptions.Values[e.Option];
+                var option = (await CurrentOptions).Values[e.Option];
 
                 return model.Add(e.Option, ToMonth(e.Timestamp), e.Currency, e.Amount, e.Exchanged_amount);
             }
 
-            protected override MonthlyDonations CancelDonation(MonthlyDonations model, CancelDonation e)
+            protected override async ValueTask<MonthlyDonations> CancelDonation(MonthlyDonations model, CancelDonation e)
             {
-                var donation = PreviousDonations.Values[e.Donation];
-                var option = CurrentOptions.Values[donation.OptionId];
+                var donation = (await PreviousDonations).Values[e.Donation];
+                var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.Add(option.Id, ToMonth(donation.Timestamp), donation.OriginalCurrency, -donation.OriginalAmount, -donation.Amount);
             }
         }

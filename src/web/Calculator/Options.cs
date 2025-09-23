@@ -1,14 +1,22 @@
-using FfAdmin.Calculator.Core;
-
 namespace FfAdmin.Calculator;
 
 public record Options(ImmutableDictionary<string, Option> Values) : IModel<Options>
 {
+    public static IMetaModel<Options> GetMetaModel()
+        => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
+    private class Meta : IModel<Options>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override Options Empty => new(ImmutableDictionary<string, Option>.Empty);
+
+        public override IEventProcessor<Options> GetProcessor(IServiceProvider serviceProvider)
+            => new Impl();
+    }
     public static implicit operator Options(ImmutableDictionary<string, Option> dict)
         => new(dict);
-    public static Options Empty { get; } = new(ImmutableDictionary<string, Option>.Empty);
-    public static IEventProcessor<Options> GetProcessor(IServiceProvider services)
-        => new Impl();
     
     public bool Contains(string id)
         => Values.ContainsKey(id);
@@ -20,12 +28,12 @@ public record Options(ImmutableDictionary<string, Option> Values) : IModel<Optio
 
         private sealed class Calc(IContext previousContext, IContext context) : BaseCalculation(previousContext, context)
         {
-            protected override Options NewOption(Options model, NewOption e)
+            protected override async ValueTask<Options> NewOption(Options model, NewOption e)
                 => new(model.Values.Add(e.Code,
                     new Option(e.Code, e.Name, e.Currency, (Real)e.Charity_fraction, (Real)e.Reinvestment_fraction,
                         (Real)e.FutureFund_fraction, (Real)e.Bad_year_fraction)));
 
-            protected override Options UpdateFractions(Options model, UpdateFractions e)
+            protected override async ValueTask<Options> UpdateFractions(Options model, UpdateFractions e)
                 => new (Values: model.Values.SetItem(e.Code,
                     model.Values[e.Code] with
                     {

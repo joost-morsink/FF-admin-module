@@ -1,11 +1,15 @@
 ---
-title: Model Donations
+title: Model Donations2
 author: J.W. Morsink
 ---
 
-# Model Donations
+# Model Donations2
 
 This model keeps track of all donations that have been made.
+The header contains only an integer `NumberOfDonations` for determining the amount of buckets needed for the details.
+Actual `Donation` records are indexed by `Id` in the details.
+
+An actual `Donation` is structured as follows:
 
 ```plantuml
 @startyaml

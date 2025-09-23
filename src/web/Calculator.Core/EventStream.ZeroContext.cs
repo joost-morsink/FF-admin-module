@@ -4,18 +4,21 @@ public partial class EventStream
 {
     private class ZeroContext : IContext
     {
-        private ImmutableArray<IEventProcessor> _processors;
+        private readonly MetaModels _metaModels;
 
-        public ZeroContext(ImmutableArray<IEventProcessor> processors)
+        public ZeroContext(MetaModels metaModels)
         {
-            _processors = processors;
+            _metaModels = metaModels;
         }
-        
-        public object? GetContext(Type type)
-            => _processors.Where(p => p.ModelType == type).Select(p => p.Start).FirstOrDefault();
 
-        public IEnumerable<Type> AvailableContexts => _processors.Select(p => p.ModelType);
-        public IContext Previous => this;
+        public ValueTask<object?> GetContext(Type type)
+            => new(_metaModels.Get(type)?.Empty);
+
+        public ValueTask<object?> GetContext(object header, object key)
+            => new(_metaModels.Get(header.GetType())?.EmptyDetail);
+
+        public IEnumerable<Type> AvailableContexts => _metaModels.AvailableTypes;
+        public ValueTask<IContext> Previous => new(this);
         public Event Event => NoneEvent.Instance;
     }
 }

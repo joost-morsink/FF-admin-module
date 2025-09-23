@@ -6,6 +6,18 @@ namespace FfAdmin.Calculator;
 
 public record HistoryHash : IModel<HistoryHash>
 {
+    public static IMetaModel<HistoryHash> GetMetaModel()
+        => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+    
+    private class Meta : IModel<HistoryHash>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override HistoryHash Empty => new();
+        public override IEventProcessor<HistoryHash> GetProcessor(IServiceProvider serviceProvider)
+            => new Impl();
+    }
     public static implicit operator HistoryHash(string str)
         => new(Convert.FromBase64String(str));
     public static implicit operator HistoryHash(Span<byte> bytes)
@@ -37,7 +49,7 @@ public record HistoryHash : IModel<HistoryHash>
 
         private sealed class Calc(IContext previousContext, IContext currentContext) : BaseCalculation(previousContext, currentContext)
         {
-            protected override HistoryHash Default(HistoryHash model, Event e)
+            protected override async ValueTask<HistoryHash> Default(HistoryHash model, Event e)
             {
                 using var ms = new MemoryStream();
                 ms.Write(model.Hash);

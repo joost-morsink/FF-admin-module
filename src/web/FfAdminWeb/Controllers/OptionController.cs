@@ -30,7 +30,7 @@ namespace FfAdminWeb.Controllers
             public decimal Cash_amount { get; set; }
             public decimal Invested_amount { get; set; }
 
-            public static OptionGridRow Create(Option o, OptionWorth w)
+            public static OptionGridRow Create(Option o, OptionWorths2.Header w)
                 => new()
                 {
                     Code = o.Id,
@@ -49,18 +49,15 @@ namespace FfAdminWeb.Controllers
         public async Task<IEnumerable<OptionGridRow>> GetOptions()
         {
             return from o in await _repository.GetOptions()
-                    join w in await _repository.GetOptionWorths() on o.Id equals w.Id
+                    join w in (await _repository.GetOptionWorths()) on o.Id equals w.Id 
                     select OptionGridRow.Create(o, w);
         }
 
         [HttpGet("{optionId}")]
-        public async Task<ActionResult<OptionGridRow>> GetOption(string optionId)
+        public async Task<OptionGridRow?> GetOption(string optionId)
         {
-            var o = await _repository.GetOption(optionId);
-            var w = await _repository.GetOptionWorth(optionId);
-            if (o is null || w is null)
-                return new NotFoundResult();
-            return OptionGridRow.Create(o, w);
+            var options = await GetOptions();
+            return options.FirstOrDefault(o => o.Code == optionId);
         }
 
         [HttpGet("{optionId}/loanable-cash")]

@@ -10,5 +10,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="EventStream.CachedContext.cs">
+      <DependentUpon>EventStream.cs</DependentUpon>
+    </Compile>
+    <Compile Update="EventStream.ContextImpl.cs">
+      <DependentUpon>EventStream.cs</DependentUpon>
+    </Compile>
+    <Compile Update="EventStream.ZeroContext.cs">
+      <DependentUpon>EventStream.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
 </Project>

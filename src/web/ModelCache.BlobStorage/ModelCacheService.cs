@@ -41,11 +41,11 @@ public class ModelCacheService : IModelCacheService
     {
         var client = GetContainerClient();
         var pageable = client.GetBlobsByHierarchyAsync(prefix: "data/");
-        
+        var detail = $"{type}_";   
         await foreach (var item in pageable)
         {
             var parts = item.Blob.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 3 && parts[2] == type)
+            if (parts.Length == 3 && (parts[2] == type || parts[2].StartsWith(detail)))
             {
                 var blobClient = GetBlobClient(item.Blob.Name);
                 await blobClient.DeleteIfExistsAsync();
@@ -158,6 +158,7 @@ public class ModelCacheService : IModelCacheService
     {
         var start = DateTime.UtcNow;
         var usedHashes = await GetAllHashes();
+        
         var client = GetContainerClient();
         var pageable = client.GetBlobsByHierarchyAsync(prefix: "data/");
         

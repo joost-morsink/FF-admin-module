@@ -86,52 +86,82 @@ The Index model keeps track of the index of the current event.
 Every index in the sequence has an event associated with it that lead to the current state.
 For the event that preceded the start state (at t=0), the [NONE](./events/NONE.md) event is assumed to have happened.
 
-```mermaid
-graph LR
-    Options --> AggregatedDonationsAndTransfers
-    Donations --> AggregatedDonationsAndTransfers
-    Options --> AmountsToTransfer
-    Charities --> AmountsToTransfer
-    CurrentCharityFractionSets --> AmountsToTransfer
-    Index --> AuditHistory
-    HistoryHash --> AuditHistory
-    CharityBalance
-    OptionWorths --> CumulativeInterest
-    Options --> CurrentCharityFractionSets
-    OptionWorths --> CurrentCharityFractionSets
-    Donations --> CurrentCharityFractionSets
-    Donations --> DonationRecords
-    OptionWorths --> DonationRecords
-    Donations --> DonationStatistics
-    Options --> DonationStatistics
-    OptionWorths --> DonationStatistics
-    Donors --> DonorDashboardStats
-    DonationRecords --> DonorDashboardStats
-    Options --> IdealOptionValuations
-    OptionWorths --> IdealOptionValuations
-    Options --> MinimalExits
-    IdealOptionValuations --> MinimalExits
-    OptionWorths --> OptionWorthHistory
-    CumulativeInterest --> OptionWorthHistory
-    OptionWorthHistory --> IdealOptionValuations
-    Index --> ValidationErrors
-    Donations --> ValidationErrors
-    Charities --> ValidationErrors
-    Options --> ValidationErrors
-    AmountsToTransfer --> ValidationErrors
-    CharityBalance --> ValidationErrors
-    Options --> MonthlyDonations
+Models can either be processed or calculated. 
+Processed models use a processor to apply event data to the model, as well as other model data it depends on.
+Processed models can also implement some form of [partitioning](./model_partition)
+Calculated models don't use event data directly, but use a calculator to calculate its value based on the values of other models (either calculated or processed).
 
-    click Index "./models/index"
-    click HistoryHash "./models/history_hash"
-    click Options "./models/options"
-    click ValidationErrors "./models/validation_errors"
-    click Donations "./models/donations"
-    click OptionWorths "./models/option_worths"
-    click IdealOptionValuations "./models/ideal_option_valuations"
-    click MinimalExits "./models/minimal_exits"
-    click MonthlyDonations "./models/monthly_donations"
+Currently, calculated models are not cached, but are parameterized.
+
+```plantuml
+skinparam component {
+    style rectangle
+    backgroundColor<<Calculator>> #ffffcc
+    backgroundColor<<Partitioned>> #ffcccc
+}
+    component Donations2 << Partitioned >> 
+    component Donors2 << Partitioned >>
+    component OptionWorths2 << Partitioned >>
+    component DonorDashboardStats2 << Calculator >>
+    component DonationExistence << Calculator >>
+    component DonationRecords2 << Calculator >>
+
+    [Options] -[hidden]r-> [Donations2]
+
+    [Options] --> [AggregatedDonationsAndTransfers]
+    [Options] --> [AmountsToTransfer]
+    [Options] --> [DonationStatistics]
+    [Options] --> [MinimalExits]
+    [Options] --> [IdealOptionValuations]
+    [Options] --> [ValidationErrors]
+    [Options] --> [MonthlyDonations]
+    [Donations2] --> [AggregatedDonationsAndTransfers]
+    [Donations2] --> [DonationStatistics]
+    [Donations2] --> [ValidationErrors]
+    [Donations2] --> [CharityFractionSets]
+    [Donations2] --> [DonorDashboardStats2]
+    [Donations2] --> [DonationExistence] 
+    [Donations2] ----> [DonationRecords2] 
+
+    [Donors2] --> [DonorDashboardStats2]
+    [DonationRecords2] --> [DonorDashboardStats2]
+    [Charities] --> [AmountsToTransfer]
+    [Charities] --> [ValidationErrors]
+    [CharityFractionSets] --> [AmountsToTransfer]
+    [CharityFractionSets] --> [Allocations]
+    [Index] -l-> [ValidationErrors]
+    [Index] --> [AuditHistory]
+    [HistoryHash] --> [AuditHistory]
+    [OptionWorths2] --> [CumulativeInterest]
+    [OptionWorths2] --> [DonationStatistics]
+    [OptionWorths2] --> [IdealOptionValuations]
+    [OptionWorths2] --> [OptionWorthHistory]
+    [OptionWorths2] --> [CharityFractionSets]
+    [OptionWorths2] --> [DonationRecords2]
+    [IdealOptionValuations] --> [MinimalExits]
+    [CumulativeInterest] --> [OptionWorthHistory]
+    [OptionWorthHistory] --> [IdealOptionValuations]
+    [AmountsToTransfer] --> [ValidationErrors]
+    [CharityBalance] --> [ValidationErrors]
+
+    [OptionWorthHistory] --> [DonationRecords2]
+
+    url for AmountsToTransfer is [[models/amounts_to_transfer]]
+    url for DonorDashboardStats2 is [[models/donor_dashboard_stats]]
+    url for Donors2 is [[models/donors]]
+    url for Index is [[models/index]]
+    url for HistoryHash is [[models/history_hash]]
+    url for Options is [[models/options]]
+    url for ValidationErrors is [[models/validation_errors]]
+    url for Donations2 is [[models/donations]]
+    url for OptionWorths2 is [[models/option_worths]]
+    url for IdealOptionValuations is [[models/ideal_option_valuations]]
+    url for MinimalExits is [[models/minimal_exits]]
+    url for MonthlyDonations is [[models/monthly_donations]]
 ```
+
+_A data flow graph for all the models._ 
+
 
 ## Caching
 

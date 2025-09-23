@@ -3,16 +3,10 @@ namespace FfAdmin.Calculator.Core;
 public abstract class ContextualCalculator<T> : IContextualCalculator<T>
     where T : class, IModel<T>
 {
-    object IEventProcessor.Start => Start;
-
-    object IEventProcessor.Process(object model, IContext previousContext, IContext context, Event e)
-        => Process(previousContext, context, e);
-
-    public T Start => T.Empty;
     public Type ModelType => typeof(T);
     public virtual IEnumerable<Type> Dependencies => Enumerable.Empty<Type>();
     
-    public virtual T Process(IContext previousContext, IContext context, Event e)
+    public virtual ValueTask<T> Process(IContext previousContext, IContext context, Event e)
     {
         var calculation = GetCalculation(previousContext, context);
         
@@ -26,15 +20,15 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
 
     protected class BaseCalculation(IContext previousContext, IContext currentContext)
     {
-        protected C GetCurrent<C>(IContext<C> context)
+        protected ValueTask<C> GetCurrent<C>(IContext<C> context)
             where C : class
             => context.GetValue(currentContext);
 
-        protected C GetPrevious<C>(IContext<C> context)
+        protected ValueTask<C> GetPrevious<C>(IContext<C> context)
             where C : class
             => context.GetValue(previousContext);
 
-        public virtual T Process(Event e)
+        public virtual ValueTask<T> Process(Event e)
             => e switch
             {
                 NewOption no => NewOption(no),
@@ -57,58 +51,58 @@ public abstract class ContextualCalculator<T> : IContextualCalculator<T>
                 _ => Default(e)
             };
 
-        protected virtual T NewOption(NewOption e)
+        protected virtual ValueTask<T> NewOption(NewOption e)
             => Default(e);
 
-        protected virtual T UpdateFractions(UpdateFractions e)
+        protected virtual ValueTask<T> UpdateFractions(UpdateFractions e)
             => Default(e);
 
-        protected virtual T NewCharity(NewCharity e)
+        protected virtual ValueTask<T> NewCharity(NewCharity e)
             => Default(e);
 
-        protected virtual T UpdateCharity(UpdateCharity e)
+        protected virtual ValueTask<T> UpdateCharity(UpdateCharity e)
             => Default(e);
 
-        protected virtual T CharityPartition(CharityPartition e)
+        protected virtual ValueTask<T> CharityPartition(CharityPartition e)
             => Default(e);
 
-        protected virtual T NewDonation(NewDonation e)
+        protected virtual ValueTask<T> NewDonation(NewDonation e)
             => Default(e);
 
-        protected virtual T UpdateCharityForDonation(UpdateCharityForDonation e)
+        protected virtual ValueTask<T> UpdateCharityForDonation(UpdateCharityForDonation e)
             => Default(e);
 
-        protected virtual T CancelDonation(CancelDonation e)
+        protected virtual ValueTask<T> CancelDonation(CancelDonation e)
             => Default(e);
 
-        protected virtual T ConvLiquidate(ConvLiquidate e)
+        protected virtual ValueTask<T> ConvLiquidate(ConvLiquidate e)
             => Default(e);
 
-        protected virtual T ConvExit(ConvExit e)
+        protected virtual ValueTask<T> ConvExit(ConvExit e)
             => Default(e);
 
-        protected virtual T ConvTransfer(ConvTransfer e)
+        protected virtual ValueTask<T> ConvTransfer(ConvTransfer e)
             => Default(e);
 
-        protected virtual T ConvEnter(ConvEnter e)
+        protected virtual ValueTask<T> ConvEnter(ConvEnter e)
             => Default(e);
 
-        protected virtual T ConvInvest(ConvInvest e)
+        protected virtual ValueTask<T> ConvInvest(ConvInvest e)
             => Default(e);
 
-        protected virtual T ConvInflation(ConvInflation e)
+        protected virtual ValueTask<T> ConvInflation(ConvInflation e)
             => Default(e);
         
-        protected virtual T IncreaseCash(IncreaseCash e)
+        protected virtual ValueTask<T> IncreaseCash(IncreaseCash e)
             => Default(e);
 
-        protected virtual T Audit(Audit e)
+        protected virtual ValueTask<T> Audit(Audit e)
             => Default(e);
 
-        protected virtual T PriceInfo(PriceInfo e)
+        protected virtual ValueTask<T> PriceInfo(PriceInfo e)
             => Default(e);
 
-        protected virtual T Default(Event e)
-            => T.Empty;
+        protected virtual ValueTask<T> Default(Event e)
+            => new(T.GetMetaModel().Empty);
     }
 }

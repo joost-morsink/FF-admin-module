@@ -4,12 +4,20 @@ namespace FfAdmin.Calculator;
 
 public record AuditHistory(ImmutableList<AuditMoment> Moments) : IModel<AuditHistory>
 {
+    public static IMetaModel<AuditHistory> GetMetaModel()
+        => Meta.Instance;
+    static IMetaModel IModel.GetMetaModel()
+        => GetMetaModel();
+
+    private class Meta : IModel<AuditHistory>.BaseSimpleMetaModel
+    {
+        public static Meta Instance { get; } = new();
+        public override AuditHistory Empty { get; } = new(ImmutableList<AuditMoment>.Empty);
+        public override IEventProcessor<AuditHistory> GetProcessor(IServiceProvider services)
+            => ActivatorUtilities.CreateInstance<Impl>(services);
+    }
     public static implicit operator AuditHistory(ImmutableList<AuditMoment> moments)
         => new(moments);
-    public static AuditHistory Empty { get; } = new(ImmutableList<AuditMoment>.Empty);
-
-    public static IEventProcessor<AuditHistory> GetProcessor(IServiceProvider services)
-        => ActivatorUtilities.CreateInstance<Impl>(services);
 
     public AuditHistory Add(AuditMoment moment)
         => Moments.Add(moment);
@@ -23,12 +31,12 @@ public record AuditHistory(ImmutableList<AuditMoment> Moments) : IModel<AuditHis
         private sealed class Calc(IContext previousContext, IContext currentContext, IContext<Index> cIndex, IContext<HistoryHash> cHistoryHash)
             : BaseCalculation(previousContext, currentContext)
         {
-            public Index PreviousIndex => GetPrevious(cIndex);
-            public HistoryHash PreviousHash => GetPrevious(cHistoryHash);
-            protected override AuditHistory Audit(AuditHistory model, Audit e)
+            public ValueTask<Index> PreviousIndex => GetPrevious(cIndex);
+            public ValueTask<HistoryHash> PreviousHash => GetPrevious(cHistoryHash);
+            protected override async ValueTask<AuditHistory> Audit(AuditHistory model, Audit e)
             {
-                var index = PreviousIndex.Value;
-                var hash = Convert.ToBase64String(PreviousHash.Hash);
+                var index = (await PreviousIndex).Value;
+                var hash = Convert.ToBase64String((await PreviousHash).Hash);
                 var prev = model.Moments.LastOrDefault();
 
                 var valid = e.EventCount == index && e.Hashcode == hash &&
