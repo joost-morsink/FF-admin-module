@@ -47,7 +47,7 @@
 "#donations":
   layer: Motivation
   type: Outcome
-  caption: More donation for charities \nthrough the platform
+  caption: More donations for charities \nthrough the platform
   influences:
   - to: "#income"
     caption: long-term +
@@ -63,7 +63,7 @@
 "#transparancy":
   layer: Motivation
   type: Requirement
-  caption: Transparant software \nand processes
+  caption: Transparent software \nand processes
   realizes:
   - to: "#trust"
 "#correctness":

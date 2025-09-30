@@ -40,7 +40,7 @@ url for Transfer [[./transfer]]
 @enduml
 ```
 
-A [donor](./donor) makes a [donation](./donation) (implicitly for investment in a [investment option](./option)) and selects a [charity](./charity) as a benificiary for the profits allocated to it by [allocation](./allocation). 
+A [donor](./donor) makes a [donation](./donation) (implicitly for investment in a [investment option](./option)) and selects a [charity](./charity) as a beneficiary for the profits allocated to it by [allocation](./allocation). 
 These allocated funds are transferred to the charity by a [transfer](./transfer).
 
 ## Business processes
@@ -122,7 +122,7 @@ There is a strict requirement for a correct administration.
 If funds go missing, it will affect our trustworthiness negatively.
 A separate accounting administration is kept next to the admin modules adminstration, and these should add up to the same amounts.
 
-### Transparancy
+### Transparency
 
 Being transparant in process, software and data convinces people of Give for Good's trustworthiness.
 Being transparant in data can only be made possible up to some limitations due to the GDPR.

@@ -12,7 +12,7 @@
 "#donation_admin":
   layer: Business
   type: Role
-  caption: Donations admnistrator
+  caption: Donations administrator
   triggers:
   - to: conversion_day
   - to: payout
