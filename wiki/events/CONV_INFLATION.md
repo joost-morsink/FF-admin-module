@@ -1,23 +1,31 @@
 ---
 title: CONV_INFLATION
 author: J.W. Morsink
+difficulty: medium
 ---
 
 # CONV_INFLATION
 
-This [event](../event) represents a request for inflation correction for a particular option.
+The `CONV_INFLATION` event requests an inflation correction for a specific [investment option](../option).
+This event ensures that inflation is properly administered before profits are measured or distributed.
+It directly influences the [ideal valuation](../models/ideal_option_valuations) of the option.
 
-Inflation should influence the [ideal valuation](../models/ideal_option_valuations) of an [investment option](../option), because of the need to administer inflation before measuring/determining profits.
+## Fields
 
-| Field                   | Type                | Description                                                            | Value            |
-| ----------------------- | ------------------- | ---------------------------------------------------------------------- | ---------------- |
-| `Type`                  | A                   | Identifies the event                                                   | `CONV_INFLATION` |
-| `Timestamp`             | DateTime (ISO-8601) | The timestamp of the event                                             |                  |
-| `Option`                | AN                  | The identfier for the investment option                                |                  |
-| `Invested_amount`       | N(20,4)             | The total invested amount of money in the investment fund              |                  |
-| `Inflation_factor`      | N(20,4)             | The factor by which monetray amounts should be multiplied              |                  |
+| Field             | Type                | Description                                                      | Value            |
+|-------------------|---------------------|------------------------------------------------------------------|------------------|
+| `Type`            | string              | Identifies the event                                             | `CONV_INFLATION` |
+| `Timestamp`       | DateTime (ISO-8601) | The timestamp of the event                                      |                  |
+| `Option`          | string              | The identifier for the investment option                        |                  |
+| `Invested_amount` | decimal(20,4)       | The total invested amount in the investment fund                |                  |
+| `Inflation_factor`| decimal(20,4)       | The factor by which monetary amounts should be multiplied       |                  |
 
-## Inflation factor
+## Inflation Factor
 
-We administer an inflation factor instead of a percentage to keep as much logic as possible out of the [calculator](../calculator).
-For instance, if there is a `2%` inflation, the factor is `1.02`.
+The inflation factor is administered as a multiplier rather than a percentage.
+This approach keeps calculation logic simple and consistent.
+For example, a `2%` inflation is represented by a factor of `1.02`.
+
+## Purpose
+
+This event allows the system to adjust valuations for inflation, ensuring fair and accurate profit calculations.

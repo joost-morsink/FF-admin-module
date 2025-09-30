@@ -1,20 +1,29 @@
---- 
+---
 title: CONV_TRANSFER
 author: J.W. Morsink
 ---
 
 # CONV_TRANSFER
 
-This [event](../event) represents the actual [transfer](../transfer) of [allocated money](../allocation) to the [charity](../charity).
+The `CONV_TRANSFER` event represents the actual transfer of allocated funds to a [charity](../charity).
+It finalizes the payout process by moving money from the system to the charity.
+Currency exchange may be involved if the charity receives funds in a different currency.
+
+## Fields
 
 | Field                   | Type                | Description                                                                    | Value           |
-| ----------------------- | ------------------- | ------------------------------------------------------------------------------ | --------------- |
-| `Type`                  | A                   | Identifies the event                                                           | `CONV_TRANSFER` |
-| `Timestamp`             | DateTime (ISO-8601) | The timestamp of the event                                                     |                 |
-| `Charity`               | AN                  | The identifier of the charity                                                  |                 |
-| `Currency`              | AN                  | An ISO-4217 currency code                                                      |                 |
-| `Amount`                | N(20,4)             | The amount donated to the charity                                              |                 |
-| `Exhanged_Currency`     | AN                  | An ISO-4217 currency code for the currency after exchange (charity's currency) |                 |
-| `Exchanged_Amount`      | N(20,4)             | The amount donated to the charity in the exchanged currency.                   |                 |
-| `Transaction_reference` | AN                  | External reference code for transaction                                        |                 |
-| `Exchange_reference`    | AN?                 | An optional external reference for the exchange                                |                 |
+|-------------------------|---------------------|--------------------------------------------------------------------------------|-----------------|
+| `Type`                  | string              | Identifies the event.                                                          | `CONV_TRANSFER` |
+| `Timestamp`             | DateTime (ISO-8601) | The timestamp of the event.                                                    |                 |
+| `Charity`               | string              | The identifier of the charity.                                                 |                 |
+| `Currency`              | string              | ISO-4217 currency code of the original amount.                                 |                 |
+| `Amount`                | decimal(20,4)       | The amount transferred to the charity in the original currency.                |                 |
+| `Exchanged_currency`    | string              | ISO-4217 currency code after exchange (charity's currency).                    |                 |
+| `Exchanged_amount`      | decimal(20,4)       | The amount transferred in the exchanged currency.                              |                 |
+| `Transaction_reference` | string              | External reference code for the transaction.                                   |                 |
+| `Exchange_reference`    | string (optional)   | Optional external reference for the exchange.                                  |                 |
+
+## Purpose
+
+This event is essential for tracking the final movement of funds to charities.
+It ensures accurate records of all transfers, including those involving currency exchange.

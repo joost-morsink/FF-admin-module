@@ -1,14 +1,21 @@
---- 
+---
 title: DONA_CANCEL
 author: J.W. Morsink
 ---
 
 # DONA_CANCEL
 
-This [event](../event) represents revocation of a direct debit, and is only valid if the timestamp for the cancellation lies before the execution timestamp of the original [donation](../donation).
+The `DONA_CANCEL` event represents the revocation of a direct debit donation.
+It is only valid if the cancellation timestamp is before the execution timestamp of the original [donation](../donation).
+
+## Fields
 
 | Field       | Type                | Description                                      | Value         |
-| ----------- | ------------------- | ------------------------------------------------ | ------------- |
-| `Type`      | A                   | Identifies the event                             | `DONA_CANCEL` |
-| `Timestamp` | DateTime (ISO-8601) | The timestamp of the event                       |               |
-| `Donation`  | AN                  | Identifies the donation that should be cancelled |               |
+|-------------|---------------------|--------------------------------------------------|---------------|
+| `Type`      | string              | Identifies the event.                            | `DONA_CANCEL` |
+| `Timestamp` | DateTime (ISO-8601) | The timestamp of the event.                      |               |
+| `Donation`  | string              | Identifies the donation to be cancelled.         |               |
+
+## Purpose
+
+This event ensures that donations can be revoked before they are executed, maintaining accurate records and compliance with direct debit regulations.
