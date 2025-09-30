@@ -3,34 +3,46 @@ title: Model Donations2
 author: J.W. Morsink
 ---
 
-# Model Donations2
 
-This model keeps track of all donations that have been made.
-The header contains only an integer `NumberOfDonations` for determining the amount of buckets needed for the details.
-Actual `Donation` records are indexed by `Id` in the details.
+# Donations2 Model
 
-An actual `Donation` is structured as follows:
+This model tracks all donations made through the platform, including donor, amount, currency, charity, and timestamps.
 
-```plantuml
-@startyaml
-Id: The id of the donation
-Timestamp: The time of donation
-ExecuteTimestamp: The time at which the donation may be considered made.
-OptionId: The id of the investment option
-CharityId: The id of the charity
-Amount: The amount of money donated, in the option's currency.
-OriginalCurrency: The currency of the original donation.
-OriginalAmount: The amount of money donated, in the original currency.
-@endtyaml
-```
+## Purpose
 
-Information about the [investment option](../option) and [charity](../charity) are also recorded.
+The Donations model provides a complete, auditable record of all donations, supporting reporting, allocation, and payout processes.
 
-## Events
+## Structure
 
-Events that affect this model are:
 
-* [`DONA_NEW`](../events/DONA_NEW.md) records a new donation.
-* [`DONA_CANCEL`](../events/DONA_CANCEL) removes a donation.
-* [`DONA_UPDATE_CHARITY`](../events/DONA_UPDATE_CHARITY) updates the charity id for the donation.
+Each donation entry contains the following fields:
+
+| Field            | Datatype         | Remarks                                   |
+|------------------|------------------|-------------------------------------------|
+| Id               | string           | Unique identifier for the donation        |
+| Timestamp        | DateTimeOffset   | Time of donation                          |
+| ExecuteTimestamp | DateTimeOffset   | Time at which donation is considered made |
+| OptionId         | string           | References the investment option          |
+| CharityId        | string           | References the charity                    |
+| Amount           | Real             | Amount donated (option's currency)        |
+| OriginalCurrency | string           | Currency of the original donation         |
+| OriginalAmount   | Real             | Amount in the original currency           |
+
+## Relationships
+
+- Linked to: [Donor](../donor), [Charity](../charity), [Allocation](../allocation)
+- Used by: [Calculator](../calculator), [Payout](../payout)
+- Related events: [DONA_NEW](../events/DONA_NEW), [DONA_UPDATE_CHARITY](../events/DONA_UPDATE_CHARITY), [DONA_CANCEL](../events/DONA_CANCEL)
+
+## Example
+
+| Donation ID | Donor | Charity | Amount | Currency | Timestamp | Status |
+|-------------|-------|---------|--------|----------|-----------|--------|
+| 12345       | D001  | FF      | 100.00 | EUR      | 2025-09-30T12:00:00Z | completed |
+
+## Implementation Notes
+
+- Donations are immutable once completed; updates are tracked via events.
+- Supports multiple currencies and charities.
+- Used for reporting, allocation, and payout calculations.
 

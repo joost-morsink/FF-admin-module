@@ -92,7 +92,6 @@ Processed models can also implement some form of [partitioning](./model_partitio
 Calculated models don't use event data directly, but use a calculator to calculate its value based on the values of other models (either calculated or processed).
 
 Currently, calculated models are not cached, but are parameterized.
-
 ```plantuml
 skinparam component {
     style rectangle
@@ -158,6 +157,18 @@ skinparam component {
     url for IdealOptionValuations is [[models/ideal_option_valuations]]
     url for MinimalExits is [[models/minimal_exits]]
     url for MonthlyDonations is [[models/monthly_donations]]
+    url for AggregatedDonationsAndTransfers is [[models/aggregated_donations_and_transfers]]
+    url for DonationStatistics is [[models/donation_statistics]]
+    url for CharityFractionSets is [[models/charity_fraction_sets]]
+    url for DonorDashboardStats2 is [[models/donor_dashboard_stats]]
+    url for DonationExistence is [[models/donation_existence]]
+    url for DonationRecords2 is [[models/donation_records]]
+    url for Charities is [[models/charities]]
+    url for Allocations is [[models/allocations]]
+    url for AuditHistory is [[models/audit_history]]
+    url for CumulativeInterest is [[models/cumulative_interest]]
+    url for OptionWorthHistory is [[models/option_worth_history]]
+    url for CharityBalance is [[models/charity_balance]]
 ```
 
 _A data flow graph for all the models._ 

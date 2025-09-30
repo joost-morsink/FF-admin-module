@@ -76,7 +76,7 @@ It is implemented by [CONV_TRANSFER](./events/CONV_TRANSFER) events and influenc
 ```arch(plantuml)
 $steps = (#determine, #make, #register);
 $services = (calculator, admin_ui, event_store);
-$layer4 = (#att, #payment_order, #banking, #transactions);
+$layer4 = (models/amounts_to_transfer, #payment_order, #banking, #transactions);
 $artifacts = (#pain, #camt);
 
 payout;
