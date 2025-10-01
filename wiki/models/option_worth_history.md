@@ -19,7 +19,8 @@ Each change is event-sourced, capturing both the previous and new state for ever
 
 ## Structure
 
-```yaml
+```plantuml
+@startyaml
 Options:
   {OptionId}:
     - EventType: The type of event that triggered the change (e.g. CONV_*, PRICE_INFO, etc.)
@@ -40,6 +41,7 @@ Options:
         IdealValue: New ideal value
         Value: New calculated value
         Divisor: New divisor for donation shares
+@endyaml
 ```
 
 ## Relationships

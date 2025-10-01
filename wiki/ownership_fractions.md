@@ -20,15 +20,15 @@ This aggregation ensures that the distribution of profits into [allocations](./a
 
 
 Ownership fractions are stored using two values:
+
 - **Share**: The numerator representing the number of ownership units held.
 - **Divisor**: The denominator representing the total number of units for the option.
 
 The ownership fraction for a charity (or donation) is calculated as:
 
 $$
-	\text{Ownership Fraction} = \frac{\text{Share}}{\text{Divisor}}
+    OwnershipFraction = \frac{Share}{Divisor} 
 $$
-
 
 This representation allows for precise fractional ownership, even when donations are made in varying amounts or at different times.
 Shares are never recalculated, but donations that enter the option by a [`CONV_ENTER`](./events/CONV_ENTER) event are weighed against the current option's worth to determine the share assigned.
@@ -39,8 +39,9 @@ Suppose an option has a total divisor of 1000 shares.
 Charity A receives donations totaling 400 shares, and Charity B receives donations totaling 600 shares.
 Their ownership fractions are:
 
-- Charity A: $\frac{400}{1000} = 0.4$
-- Charity B: $\frac{600}{1000} = 0.6$
+- Charity A:
+  $$ \frac{400}{1000} = 0.4 $$
+- Charity B: $$ \frac{600}{1000} = 0.6 $$
 
 ## Purpose
 

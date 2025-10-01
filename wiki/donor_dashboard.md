@@ -19,7 +19,7 @@ The motivation for having a donor dashboard is as follows:
 $stakeholders = (motivation#donor);
 $drivers = motivation#better_place;
 $goals = (motivation#trust, motivation#donations, motivation#income);
-$requirements = (motivation#insight, motivation#transparancy);
+$requirements = (motivation#insight, motivation#transparency);
 $strategy = (strategy#dashboard);
 
 $stakeholders; $drivers; $goals; $requirements; $requirements;

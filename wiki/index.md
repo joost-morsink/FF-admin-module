@@ -63,7 +63,7 @@ A part of the profits is donated to the selected charities anually, a small part
 $stakeholders = (motivation#donor, motivation#board, motivation#charities);
 $drivers = motivation#better_place;
 $goals = (motivation#trust, motivation#donations, motivation#income, motivation#roi);
-$requirements = (motivation#insight, motivation#transparancy, motivation#correctness, motivation#donating);
+$requirements = (motivation#insight, motivation#transparency, motivation#correctness, motivation#donating);
 
 $stakeholders; $drivers; $goals; $requirements;
 
@@ -78,7 +78,7 @@ $goals d $requirements;
 Motivations are realized as follows:
 
 ```arch(plantuml)
-$motivation = (motivation#insight, motivation#transparancy, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
+$motivation = (motivation#insight, motivation#transparency, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
 $strategy = (strategy#dashboard, strategy#history, strategy#donating, strategy#payout, strategy#investment);
 
 $motivation;

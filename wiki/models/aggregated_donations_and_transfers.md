@@ -19,13 +19,15 @@ For each key, the model tracks:
 - Donated amounts per currency
 - Transferred amounts per currency
 
-```yaml
+```plantuml
+@startyaml
 Year:
   CharityId:
     Donated:
       Currency: Amount
     Transferred:
       Currency: Amount
+@endyaml
 ```
 
 Amounts are stored per currency using the `MoneyBag` type, which maps currency codes to amounts.

@@ -9,7 +9,7 @@ difficulty: medium
 Complete history is a capability that realizes a complete and auditable adminstration of funds and enhances transparancy.
 
 ```arch(plantuml)
-strategy#history u (motivation#transparancy, motivation#correctness);
+strategy#history u (motivation#transparency, motivation#correctness);
 strategy#history d admin_module;
 ```
 

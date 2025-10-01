@@ -22,7 +22,7 @@ Summary statistics (such as totals and counts) are derived from the per-donation
 
 The main structure is:
 
-- `Donations`: Dictionary mapping Donation ID to `StatDetail`
+- `Donations`: Dictionary mapping Donations to `StatDetail`s
 
 Each `StatDetail` contains:
 

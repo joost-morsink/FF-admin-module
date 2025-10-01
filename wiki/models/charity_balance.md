@@ -18,9 +18,11 @@ It is used exclusively for validation.
 
 The model consists of a single field:
 
-```yaml
+```plantuml
+@startyaml
 CharityBalance:
   Amount: Net aggregated balance for all charities (decimal)
+@endyaml
 ```
 
 ## Relationships

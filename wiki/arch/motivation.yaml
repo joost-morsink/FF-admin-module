@@ -60,7 +60,7 @@
     caption: +
 
 # Requirements
-"#transparancy":
+"#transparency":
   layer: Motivation
   type: Requirement
   caption: Transparent software \nand processes
