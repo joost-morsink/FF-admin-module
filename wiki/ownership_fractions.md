@@ -41,7 +41,8 @@ Their ownership fractions are:
 
 - Charity A:
   $$ \frac{400}{1000} = 0.4 $$
-- Charity B: $$ \frac{600}{1000} = 0.6 $$
+- Charity B: 
+  $$ \frac{600}{1000} = 0.6 $$
 
 ## Purpose
 

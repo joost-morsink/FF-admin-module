@@ -6,37 +6,35 @@ difficulty: medium
 
 # Events
 
-There are different types of events that can happen and alter the state of the Give for Good administration.
-All the event types have 2 properties in common:
+Events represent discrete changes in the state of the Give for Good administration. 
+Each event records what happened and when, enabling a complete and auditable history of all actions and transactions.
 
-* type
-* timestamp
+All event types share two core properties:
 
-The first is an enumeration of the different types of events and the other is the timestamp of the exact moment the event is supposed to have happened.
+- **type:** The category and specific kind of event
+- **timestamp:** The exact moment the event is considered to have occurred
 
 ## Ordering
 
-The events are ordered sequentially, but not necessarily chronologically.
-This means the [Admin Module](./admin_module) supports non-chronological event processing.
-The system does behave best when the events are in chronological order.
+Events are stored in a sequential order, which may differ from strict chronological order. The [Admin Module](./admin_module) supports non-chronological event processing, though chronological ordering is recommended for optimal system behavior.
 
 ## Categories
 
-Almost all event types are prefixed with a string indicating the category to which the event belongs, roughly translating to the business processes that are supported by the application.
+Event types are typically prefixed to indicate their business process category:
 
 | Prefix | Description                                                                             |
 | ------ | --------------------------------------------------------------------------------------- |
-| META   | Operations on meta data suchs as [options](./option) and [charities](./charity)         |
-| DONA   | Events for [donation processes](./donation)                                             |
+| META   | Operations on meta data such as [options](./option) and [charities](./charity)          |
+| DONA   | Events related to the [donation process](./donation)                                    |
 | CONV   | Events for [conversion day](./conversion_day)                                           |
 
 ## Types
 
 | Type                                                      | Description                                                  |
 | --------------------------------------------------------- | ------------------------------------------------------------ |
-| [NONE](./events/NONE)                                     | Dummy event needed for technical reasons                     |
+| [NONE](./events/NONE)                                     | Technical placeholder event                                  |
 | [DONA_NEW](./events/DONA_NEW)                             | A new [donation](./donation) has been made                   |
-| [DONA_UPDATE_CHARITY](./events/DONA_UPDATE_CHARITY)       | An existing [donation](.donation) has been reassigned to a new [charity](./charity) |
+| [DONA_UPDATE_CHARITY](./events/DONA_UPDATE_CHARITY)       | An existing [donation](./donation) has been reassigned to a new [charity](./charity) |
 | [META_NEW_OPTION](./events/META_NEW_OPTION)               | A new [option](./option) has been registered                 |
 | [META_NEW_CHARITY](./events/META_NEW_CHARITY)             | A new [charity](./charity) has been registered               |
 | [META_UPDATE_FRACTIONS](./events/META_UPDATE_FRACTIONS)   | The [fractions](./option_fractions) of an [option](./option) have changed |
@@ -49,8 +47,10 @@ Almost all event types are prefixed with a string indicating the category to whi
 | [AUDIT](./events/AUDIT)                                   | An audit report has been consolidated                        |
 | [DONA_CANCEL](./events/DONA_CANCEL)                       | A [donation](./donation) has been cancelled                  |
 | [META_UPDATE_CHARITY](./events/META_UPDATE_CHARITY)       | A [charity](./charity) has been updated                      |
-| [CONV_INCREASE_CASH](./events/CONV_INCREASE_CASH)         | An non-donation increase in cash has been registered         |
+| [CONV_INCREASE_CASH](./events/CONV_INCREASE_CASH)         | A non-donation increase in cash has been registered          |
 | [META_CHARITY_PARTITION](./events/META_CHARITY_PARTITION) | A [theme-charity](./theme) is partitioned over other [charities](./charity) |
-| [PRICE_INFO](./events/PRICE_INFO)                         | A price information is registered                            |
+| [PRICE_INFO](./events/PRICE_INFO)                         | Price information has been registered                        |
+
+Events are the foundation for all state transitions in the platform, supporting auditability, transparency, and reliable model calculations.
 
 

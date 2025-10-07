@@ -70,8 +70,20 @@ archimate:
 
 # Payout
 
-The payout process is the process of paying the amounts [allocated](./allocation) to the [charities](./charity) and administering the payment for subtraction from the allocation amount. 
-It is implemented by [CONV_TRANSFER](./events/CONV_TRANSFER) events and influences the [Amounts to transfer model](./models/amounts_to_transfer) negatively.
+The payout capability refers to the platform's ability to execute and manage the payout process, ensuring that allocated funds are distributed to charities as intended.
+
+The payout process handles the payment of amounts [allocated](./allocation) to [charities](./charity) and records these payments for deduction from the allocation totals.
+Payments are executed through [`CONV_TRANSFER`](./events/CONV_TRANSFER) events, which update the [Amounts to transfer model](./models/amounts_to_transfer) by reducing the outstanding allocation.
+
+## Process Overview
+
+The payout process consists of three main steps:
+
+1. **Determine payouts**: Calculate the amounts to be paid to each charity based on allocations.
+2. **Make payments**: Initiate and execute the actual payments to charities.
+3. **Register payments**: Record completed payments for audit and reconciliation.
+
+These steps are supported by the calculator, admin UI, and event store services, and interact with banking and payment systems.
 
 ```arch(plantuml)
 $steps = (#determine, #make, #register);
@@ -88,5 +100,9 @@ $services d $layer4;
 $layer4 d $artifacts;
 ```
 
-Allocated funds might not be transferred every year, depending on the actual amount and costs involved in the actual transfers.
-If a transfer is postponed, it is automatically added to the next transfer.
+## Transfer Timing
+
+Allocated funds may not be transferred every year, depending on the amount and the costs involved in processing payments.
+If a transfer is postponed, the unpaid amount is automatically added to the next scheduled transfer, ensuring that charities eventually receive all allocated funds.
+
+This process ensures accurate, auditable, and efficient distribution of funds to charities, while minimizing administrative overhead and transaction costs.

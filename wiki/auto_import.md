@@ -7,22 +7,22 @@ archimate:
     type: Process
 ---
 
-# Automatic importer
+# Automatic Importer
 
-The automatic importer is a component, implemented as an Azure function, that retrieves the donations made from the [giveforgood.world](https://giveforgood.world) website on a daily basis and imports them into the [admin module](./admin_module).
+The automatic importer is an Azure Function that synchronizes donations from the [giveforgood.world](https://giveforgood.world) website into the [admin module](./admin_module) on a daily basis.
 
-## Logic
+## Import Logic
 
-For every donation the following is flowchart is followed:
+For each donation, the following process is executed:
 
 ```mermaid
 flowchart TD
     FAPD[Fetch all paid donations] --> DR
     DR{Donation registered?} -->|No| CE{Charity exists?}
-    CE -->|No| META_NEW_CHARITY --> CO{Currency = Option's currency?}
+    CE -->|No| META_NEW_CHARITY --> CO{Currency matches option?}
     CE -->|Yes| CO
     CO -->|Yes| DONA_NEW
-    CO -->|No| PER{Payment info has exchange rate?}
+    CO -->|No| PER{Exchange rate available?}
     PER --->|No| F((Import failed))
     PER -->|Yes| DONA_NEW
     DR ------->|Yes| SK((Import skipped))
@@ -32,10 +32,19 @@ flowchart TD
     click META_NEW_CHARITY "./events/META_NEW_CHARITY"
 ```
 
+- Donations are fetched and checked for prior registration.
+- If the charity does not exist, a new charity event is created.
+- Currency mismatches are handled using exchange rates if available; otherwise, the import fails for that donation.
+  - Applied exchange rates are used when available on the payment platform
+  - Otherwise an external API is used to estimate the applied exchange rate
+- Successfully processed donations are registered as new donation events.
+- Already registered donations are skipped.
+- When donations are cancelled in the mean time, cancellation events are emitted.
+
 ## Scheduling
 
-A daily import process is scheduled that takes into account the last three days.
-This way, when a job occasionally fails, the donations are imported a few days later.
-Also a monthly import is scheduled to sweep anything that still hasn't been synchronized to the admin module.
+- The import runs daily, processing donations from the last three days to ensure reliability in case of missed jobs.
+- A monthly sweep is scheduled to catch any donations not previously synchronized.
+- Before each [conversion day entry](./conversion_day#cash-in-process), the status of import jobs should be verified to ensure all donations are accounted for.
 
-Before each [enter](./conversion_day#the-in-process) the run state of these processes should be checked, to make sure all donations are taken into account.
+This process ensures that all donations are reliably imported, charities are kept up to date, and currency issues are handled appropriately.

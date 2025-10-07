@@ -6,10 +6,13 @@ difficulty: easy
 
 # ${title}
 
-A theme is a weighted collection of [charities](./charity). 
-A [donor](./donor) is able to make a [donation](./donation) with a theme as beneficiary.
-The [allocations](./allocation) that should be made to these themes are distributed between the selected charities of the theme.
-This selection can change over time, changing the ultimate beneficiary charities of all the donations made to the theme.
+A theme is a weighted group of [charities](./charity) that can be selected as the beneficiary of a [donation](./donation).
+When a [donor](./donor) makes a donation to a theme, the donation is distributed among the charities in the theme according to their assigned weights.
 
-The composition of the theme can be changed by the [META_CHARITY_PARTITION](./events/META_CHARITY_PARTITION) event, administered in the [Admin Module](./admin_module).
+The [allocations](./allocation) for donations made to a theme are divided among the selected charities, reflecting the theme's current composition.
+If the selection of charities within a theme changes, the ultimate beneficiaries of all donations made to that theme will also change accordingly.
+
+Theme composition can be updated by the [`META_CHARITY_PARTITION`](./events/META_CHARITY_PARTITION) event, which is managed in the [Admin Module](./admin_module).
+
+This flexible structure allows donors to support groups of charities with a single donation, while enabling dynamic adjustment of charity selections and weights over time.
 

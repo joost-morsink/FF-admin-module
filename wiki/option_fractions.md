@@ -1,34 +1,35 @@
 ---
-title: Option fractions
+title: Option Fractions
 author: J.W. Morsink
 difficulty: medium
 ---
 
-# Option fractions
+# Option Fractions
 
-Each [investment option](./option) is assigned:
+Each [investment option](./option) is assigned a set of fractions that determine how profits are distributed and how guaranteed payouts are handled.
 
-* a triple of fractions to determine how profits are divided, called the option fractions.
-* a fraction that represents the guaranteed annual payout, called the bad year fraction.
+## Profit Distribution Fractions
 
-## The option fractions
+Every investment option divides profits among three destinations:
 
-Each option needs to divide profits over 3 destinations:
-
-* Give for good (`G4gFraction`)
+* Give for Good (`G4gFraction`)
 * Charities (`CharityFraction`)
 * Reinvestment in the investment fund (`ReinvestmentFraction`)
 
-These three fractions are validated (by the [`ValidationErrors` model](./models/validation_errors)) to add up to 1:
+These fractions are collectively known as the option fractions.
+They must always sum to 1:
 
-$$ 
-f_{G4g} + f_{Charity} + f_{Reinvestment} = 1 
+$$
+f_{G4g} + f_{Charity} + f_{Reinvestment} = 1
 $$
 
-The fractions are set upon creation of the investment option with the [`META_NEW_OPTION`](./events/META_NEW_OPTION) event and can be modified by the [`META_UPDATE_FRACTIONS`](./events/META_UPDATE_FRACTIONS).
+Fractions are set when the investment option is created using the [`META_NEW_OPTION`](./events/META_NEW_OPTION) event, and can be updated later with the [`META_UPDATE_FRACTIONS`](./events/META_UPDATE_FRACTIONS).
+Validation is performed by the [`ValidationErrors` model](./models/validation_errors) to ensure correctness.
 
-## Bad year fraction
+## Bad Year Fraction
 
-Sometimes the stock market does not perform well over a period of time, but we still want to provide [charities](./charity) with an income. 
-We use the bad year fraction to indicate the minimal part of an [investment option's](./option) funds that is payed out to charities on a yearly basis.
-This percentage is used to calculate the exact percentage based on the date since the last [exit](./conversion_day#the-out-process).
+The bad year fraction represents the minimum annual payout to [charities](./charity), even if the stock market performs poorly.
+It guarantees that a certain percentage of an [investment option's](./option) funds will be paid out to charities each year.
+The exact payout percentage is calculated based on the time elapsed since the last [exit](./conversion_day#cash-out-process).
+
+This mechanism ensures that charities receive a stable income, regardless of market fluctuations.

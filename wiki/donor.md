@@ -12,11 +12,12 @@ archimate:
   - to: website
     caption: uses
 ---
+
 # Donor
 
-A donor is a natural person or organization that uses the Give for Good platform to make a [donation](./donation) for a beneficiary [charity](./charity).
+A [donor](./donor) is an individual or organization who contributes funds to beneficiary [charities](./charity) through the Give for Good platform.
 
-A donor uses the [Give for good website](https://giveforgood.world) to make donations and to check on [allocations](./allocation) on the [Donor dashboard](./donor_dashboard).
+Donors interact with the platform via the [Give for Good website](https://giveforgood.world), where they can make [donations](./donation), monitor the progress and impact of their contributions, and review [allocations](./allocation) using the [Donor dashboard](./donor_dashboard).
 
 ```arch(plantuml)
 > rectangle Platform as "Give for Good platform" {
@@ -26,12 +27,11 @@ A donor uses the [Give for good website](https://giveforgood.world) to make dona
 donor u (make_donation, donor_dashboard);
 ```
 
-## Data
+## Dashboard Data
 
-The following data should be retrievable from the dashboard:
+The [donor dashboard](./donor_dashboard) provides access to:
 
-* An overview of all donations made
-* A 'current' worth of the donations
-* Paid amounts to charities
-
-Graphical visualisations based on these data should be available as well.
+- A complete overview of all donations made
+- The current value of each donation
+- Records of amounts paid out to charities
+- Visualizations and reports to help donors understand the impact of their contributions

@@ -6,13 +6,18 @@ difficulty: medium
 
 # Money bag
 
-A money bag is a technical data structure that contains different amounts of money in different currencies, and supports the basic arithmetic addition operator.
-This operator groups amounts of money from the same currency before adding:
+A money bag is a technical data structure designed to hold amounts of money in multiple currencies.
+It supports arithmetic addition, automatically grouping and summing amounts by currency.
 
-$$ [1 EUR] + [2 EUR] = [3 EUR] $$
+For example:
 
-$$ [1 USD + 2 EUR] + [3 GBP + 4 EUR] = [1 USD + 6 EUR + 3 GBP] $$
+$$ [1\ \text{EUR}] + [2\ \text{EUR}] = [3\ \text{EUR}] $$
 
-The amounts of different currencies are commute with one another within the money bag:
+$$ [1\ \text{USD} + 2\ \text{EUR}] + [3\ \text{GBP} + 4\ \text{EUR}] = [1\ \text{USD} + 6\ \text{EUR} + 3\ \text{GBP}] $$
 
-$$ [1 EUR + 2 GBP] = [2 GBP + 1 EUR] $$
+Amounts in different currencies are commutative within the money bag:
+
+$$ [1\ \text{EUR} + 2\ \text{GBP}] = [2\ \text{GBP} + 1\ \text{EUR}] $$
+
+This structure simplifies calculations involving multiple currencies, ensuring that sums are always grouped and presented by currency.
+It is commonly used in financial models where transactions or balances span several currencies.

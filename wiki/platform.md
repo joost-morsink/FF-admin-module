@@ -14,12 +14,12 @@ difficulty: easy
 ---
 # Platform
 
-The Give for Good platform is composed of two main parts:
+The Give for Good platform consists of two core components:
 
-* The [Admin module](./admin_module)
-* The [Give for Good website](https://www.giveforgood.world/)
+- The [Admin module](./admin_module), which manages donations, investments, allocations, and payouts.
+- The [Give for Good website](https://www.giveforgood.world/), which provides a user interface for donors and charities.
 
-Together they implement the necessary capabilities and business processes:
+These components work together to deliver the platform's essential capabilities and business processes, including donation management, investment tracking, payout execution, and historical reporting.
 
 ```arch(plantuml)
 $capabilities = (strategy#donating, strategy#dashboard, strategy#investment, strategy#payout, strategy#history);
@@ -31,4 +31,7 @@ $capabilities; $functions; $procs;
 $capabilities d $functions;
 $functions d $procs;
 ```
+
+The platform is designed to ensure transparency, efficiency, and trust in the administration and distribution of charitable donations.
+It supports long-term investment strategies and reliable payout processes, enabling donors to maximize their impact and charities to receive stable funding.
 

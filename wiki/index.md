@@ -5,14 +5,17 @@ difficulty: easy
 ---
 # Give for Good
 
-Give for Good is a non-profit organisation that facilitates [donors](./donor) to give their favorite [charities](./charity) a recurring source of income.
-It achieves this by investing the [donation](./donation) in the stock market, with the selected charity as the ultimate benificiary of the profits made.
-At least once a year a so called [conversion day](./conversion_day) takes place by calculating exactly how much funds should be transferred to the different charities, depending on how much profit has been made and on the selected charities of the donations.
+Give for Good is a non-profit organization that empowers [donors](./donor) to provide their chosen [charities](./charity) with a recurring source of income.
+Donations are invested in the stock market, and the profits generated are allocated to the selected charities.
 
-To facilitate the business processes involved, two components play a big role in the organisation's architecture:
+At least once a year, a [conversion day](./conversion_day) is held to determine how much profit should be transferred to each charity, based on the performance of investments and donor selections.
 
-* The [Admin module](./admin_module), a module for the administration of donations, investments and transfers.
-* The [Give for Good website](https://giveforgood.world), a front end for (potential) donors.
+## Platform Components
+
+Two main components support the business processes:
+
+- The [Admin module](./admin_module): Manages donations, investments, allocations, and transfers.
+- The [Give for Good website](https://giveforgood.world): Provides a user interface for donors to make donations and track their impact.
 
 ```plantuml
 @startuml
@@ -24,7 +27,7 @@ entity Allocation
 entity Transfer
 
 Donor o-- Donation : makes
-Donation ..> Charity : benificiary
+Donation ..> Charity : beneficiary
 Option *-- Donation : invests
 
 Allocation - Donation : on behalf of n
@@ -40,24 +43,24 @@ url for Transfer [[./transfer]]
 @enduml
 ```
 
-A [donor](./donor) makes a [donation](./donation) (implicitly for investment in a [investment option](./option)) and selects a [charity](./charity) as a beneficiary for the profits allocated to it by [allocation](./allocation). 
-These allocated funds are transferred to the charity by a [transfer](./transfer).
+A [donor](./donor) makes a [donation](./donation), which is invested in an [investment option](./option) and designates a [charity](./charity) as the beneficiary.
+Profits are allocated by [allocation](./allocation) and transferred to the charity via [transfer](./transfer).
 
-## Business processes
+## Business Processes
 
-The following business processes can be identified:
+Key business processes include:
 
-* [Making a donation](./donation#making-a-donation)
-* [Conversion day](./conversion_day)
-    * [Conversion of funds going in and investing them](./conversion_day#the-in-process)
-    * [Conversion of funds going out and allocating them to charities](./conversion_day#the-out-process)
-* [Payout to charities](./payout)
-* > TODO: Other processes that are present outside of the admin module still need to be identified.
+- [Making a donation](./donation#making-a-donation)
+- [Conversion day](./conversion_day)
+  - [Cash in process](./conversion_day#cash-in-process)
+  - [Cash out process](./conversion_day#cash-out-process)
+- [Payout to charities](./payout)
+- Other processes outside the admin module (to be identified)
 
-## Organisational motivation for a platform
+## Motivation for the Platform
 
-The donated money is first invested in green/sustainable stock funds.
-A part of the profits is donated to the selected charities anually, a small part is used to support the platform, and the rest is used for reinvestment.
+Donated funds are invested in green and sustainable stock funds.
+Profits are distributed annually to charities, with a portion supporting the platform and the remainder reinvested.
 
 ```arch(plantuml)
 $stakeholders = (motivation#donor, motivation#board, motivation#charities);
@@ -75,7 +78,7 @@ $goals d $requirements;
 > motivation__donor -[hidden]d-- motivation__trust
 ```
 
-Motivations are realized as follows:
+Motivations are realized through:
 
 ```arch(plantuml)
 $motivation = (motivation#insight, motivation#transparency, motivation#correctness, motivation#donating, motivation#income, motivation#roi);
@@ -88,48 +91,44 @@ $motivation;
 >url for Platform is [[platform]]
 ```
 
-
 ## Stakeholders
 
-We identify the following stakeholders:
+- Give for Good board
+- [Charities](./charity)
+- [Donors](./donor)
 
-* Give for good board
-* [Charities](./charity)
-* [Donors](./donor)
+## Drivers and Goals
 
-## Drivers
+The main driver is to make the world a better place by providing charities with stable, recurring income.
+Key outcomes and goals include:
 
-The main driver for Give for Good is making the world a better place.
-Give for Good aims to achieve this by enabling charity stakeholders to achieve their parts by providing them with a somewhat stable recurring income.
-The following outcomes and goals influence this driver:
-
-* Gaining trust from potential donors.
-* Receiving more donations from these donors.
-* Generate a return on investment from these donations.
+- Building trust with donors
+- Increasing donations
+- Generating investment returns
 
 ## Requirements
 
-To achieve the necessary trustworthiness of a good cause, we have to have an open and correct administration of everyone's donations.
+To ensure trust, the platform maintains an open and accurate administration of all donations.
 
-### Making donations
+### Making Donations
 
-Making donations is made possible through the website [giveforgood.world](https://www.giveforgood.world) and the available plugins.
-Periodically the donations are synchronized to the admin module through a [auto importer component](./auto_import).
+Donations are made via the [Give for Good website](https://www.giveforgood.world) and associated plugins.
+Donations are periodically synchronized to the admin module using the [automatic importer](./auto_import).
 
 ### Correctness
 
-There is a strict requirement for a correct administration. 
-If funds go missing, it will affect our trustworthiness negatively.
-A separate accounting administration is kept next to the admin modules adminstration, and these should add up to the same amounts.
+A strict requirement for accurate administration is enforced.
+Any discrepancies can undermine trust.
+A separate accounting administration is maintained alongside the admin module to ensure consistency.
 
 ### Transparency
 
-Being transparant in process, software and data convinces people of Give for Good's trustworthiness.
-Being transparant in data can only be made possible up to some limitations due to the GDPR.
+Transparency in processes, software, and data is essential for trust.
+Data transparency is balanced with privacy requirements under GDPR.
 
 ### Insight
 
-The history of a donation should be made visible in a [donor dashboard](./donor_dashboard).
+Donation history is made visible in a [donor dashboard](./donor_dashboard).
 
 * The following data are made visible:
   * The original donated amount, possibly converted to the [option's](./option) currency.
@@ -139,8 +138,7 @@ The history of a donation should be made visible in a [donor dashboard](./donor_
 * These data should be visible for multiple points in time.
 * These data should alse be made visible in aggregations per donor.
 
-
-## User roles
+## User Roles
 
 ```arch(plantuml)
 $roles = (roles#donor, roles#web_admin, roles#donation_admin);

@@ -42,16 +42,26 @@ donor r  website;
 calculator l website;
 ```
 
-## Technical implementation
+## Technical Implementation
 
-The admin module uses [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) to administer changes in the (financial or meta) state of the Give for Good concept. 
-It defines [events](./event) to record these state changes, and [models](./calculator#models) to aggregate these events into insightful parts of the overall state at any given position in the event sequence.
+The admin module is built around an [event-sourced architecture](https://martinfowler.com/eaaDev/EventSourcing.html), ensuring that all changes to financial and meta state are recorded as discrete events. This approach provides a complete audit trail and supports advanced features such as branching and scenario testing.
 
-The [Calculator](./calculator) is responsible for calculating model values from the event stream. 
-Events are stored in an [event store](./event_store) that supports a simple branching system to make testing scenario's and snapshot isolation possible.
-A model cache is responsible for storing model states at certain positions in the event stream, so not everything has to be recalculated every time.
+- **Event Sourcing:**
+  - All state changes are captured as [events](./event), which are persisted in an [event store](./event_store).
+  - The event store supports branching, enabling isolated test scenarios and snapshot management.
 
-A website can be used to do all the necessary user actions for [conversion day](./conversion_day).
-This website is called the 'Admin UI'.
+- **Model Aggregation:**
+  - Domain [models](./calculator#models) aggregate events to compute the current state at any position in the event stream.
+  - The [Calculator](./calculator) service processes the event stream to derive model values.
 
-An [auto importer](./auto_import) module is responsible for importing donation and charity information as events into the admin module.
+- **Model Caching:**
+  - A model cache stores computed model states at specific event positions, reducing redundant calculations and improving performance.
+
+- **User Interfaces:**
+  - The 'Admin UI' web application allows administrators to perform all necessary actions for [conversion day](./conversion_day) and other operational tasks.
+  - The website provides a user-friendly interface for making donations and viewing donation data.
+
+- **Automated Import:**
+  - The [auto importer](./auto_import) module ingests donation and charity data, converting them into events for processing by the admin module.
+
+This architecture enables robust auditing, flexible scenario management, and efficient state computation for the Give for Good platform.

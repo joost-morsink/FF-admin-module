@@ -20,15 +20,23 @@ archimate:
 ---
 # Event Store
 
-The [Admin Module](./admin_module) stores [events](./event) in a sequential order in a store. 
-Currently this store is implemented in an Azure SQL database.
-It supports a simple branching mechanism with the following operations:
+The [Admin Module](./admin_module) records [events](./event) sequentially in the event store, which is currently implemented using Azure SQL.
 
-* Branch
-* Rebase
-* Fast forward
-* Delete
+The event store is a foundational component for event sourcing, ensuring that every change in financial or meta state is captured as an immutable event. 
+This enables full auditability, historical reconstruction, and scenario testing for the platform.
 
-There is no concept of a merge, a branch needs to be rebased on the target branch in order to fast forward the target branch.
-This ensures a purely linear history (not an acyclic directed graph).
+Events in the store drive all model calculations in the [calculator](./calculator), support automated imports via [auto_import](./auto_import), and enable branching for isolated testing and development workflows.
+
+The event store supports branching operations to manage different scenarios and histories:
+
+- **Branch:** Create a new branch from an existing sequence of events.
+- **Rebase:** Move a branch to a new base, aligning its history with another branch.
+- **Fast forward:** Advance a branch to match the latest state of another branch.
+- **Delete:** Remove a branch and its associated events.
+
+Each branch represents a separate timeline of events, allowing for parallel development, testing, or analysis without affecting the main history. This is especially useful for validating new features, running simulations, or preparing for conversion days.
+
+Merging is not supported; instead, branches must be rebased onto the target branch before fast forwarding. This design enforces a strictly linear event history, avoiding the complexity of directed acyclic graphs.
+
+The event store integrates with the [admin_ui](./admin_module), [calculator](./calculator), and other platform modules to provide a consistent and reliable source of truth for all state transitions.
 

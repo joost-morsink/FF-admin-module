@@ -30,28 +30,31 @@ calculator l website;
 The model is a cross product of all submodels.
 
 $$
-    M_t = \Pi_i m_{i,t}
+    M_t = \prod_i m_{i,t}
 $$
 
-Simple submodels can be calculated based on the old state and the event to be processed:
+Each submodel $m_{i,t}$ represents a distinct aspect of the system at time $t$.
+The overall model $M_t$ is the product of these submodels, capturing the complete state.
+
+Submodels can be updated in response to events:
 
 $$
     m_t \times E \rightarrow m_{t+1}
 $$
 
-But they also may take advantage of the information in other submodels:
+Some submodels depend on the state of other submodels, allowing for more complex updates:
 
 $$
     M_t \times E \rightarrow m_{t+1}
 $$
 
-For dependent models both the old value and the calculated values may be used:
+For models with dependencies, both the previous state and newly calculated values may be used:
 
 $$
     M_t \times m_{i,t+1} \times E \rightarrow m_{j,t+1}
 $$
 
-These submodels are of course not allowed to have circular dependencies on the calculated (t+1)submodels.
+Circular dependencies between submodels at $t+1$ are not allowed.
 
 ```plantuml
 !include <archimate/Archimate>
@@ -82,16 +85,18 @@ Because the calculation of the model is **entirely** dependent on the previous m
 
 ### Models
 
-The Index model keeps track of the index of the current event. 
-Every index in the sequence has an event associated with it that lead to the current state.
-For the event that preceded the start state (at t=0), the [NONE](./events/NONE.md) event is assumed to have happened.
+The `Index` model tracks the position of the current event in the sequence.
+Each index corresponds to an event that resulted in the present state.
+At the initial position ($t=0$), the system assumes the occurrence of the [NONE](./events/NONE.md) event.
 
-Models can either be processed or calculated. 
-Processed models use a processor to apply event data to the model, as well as other model data it depends on.
-Processed models can also implement some form of [partitioning](./model_partition)
-Calculated models don't use event data directly, but use a calculator to calculate its value based on the values of other models (either calculated or processed).
+Models are categorized as either processed or calculated:
+- **Processed models** use a processor to apply event data and, if needed, data from other models. They may also implement [partitioning](./model_partition) to optimize storage and computation.
+- **Calculated models** do not process event data directly. Instead, they use a calculator to derive their value from other models, which may themselves be processed or calculated.
 
-Currently, calculated models are not cached, but are parameterized.
+Currently, calculated models are not cached; instead, they are parameterized.
+Parameterization allows calculated models to efficiently reference partitioned models and minimize redundant computations.
+This approach improves performance and flexibility when working with large or complex model structures.
+
 ```plantuml
 skinparam component {
     style rectangle
@@ -173,27 +178,26 @@ skinparam component {
 
 _A data flow graph for all the models._ 
 
-
 ## Caching
 
-When making a request for some model, the calculator tries to minimize the work being done.
-The [branch](./branch) is checked for cached [`HistoryHash` models](./models/history_hash) which can be used to retrieved cached models of other types.
-Because the `HistoryHash` uniquely determines the entire historical sequence of events, all calculated data can be indexed by this hash.
+When a model is requested, the calculator minimizes computation by leveraging cached results.
+It checks the [branch](./branch) for cached [`HistoryHash` models](./models/history_hash), which serve as unique identifiers for the entire event sequence.
+This allows all derived model data to be efficiently indexed and retrieved using the history hash.
 
-The calculator has a caching strategy which drives the [Model cache](./model_cache) to store data on the calculator's behalf.
+The calculator uses a caching strategy, delegating storage and retrieval of model states to the [Model cache](./model_cache).
 
 ## Theories
 
-A theory is the way the calculator supports calculating models based on a current situation plus some events that have not (yet) been imported into the [Event store](./event_store).
-Using the [`ValidationErrors` model](./models/validation_errors) the set of events can be checked for errors on import on some existing sequence of events.
-Theories are also used for calculating the [`MinimalExits`](./models/minimal_exits) for an investment option.
+A theory enables the calculator to compute models based on a current state plus hypothetical events that have not yet been imported into the [Event store](./event_store).
+The [`ValidationErrors` model](./models/validation_errors) is used to validate these events before import, ensuring consistency and correctness.
+Theories also support calculations such as [`MinimalExits`](./models/minimal_exits) for investment options.
 
-Results from theory requests are not cached in the [Model cache](./model_cache).
+Results from theory-based calculations are not stored in the [Model cache](./model_cache).
 
 ## Partitioning
 
-> Paritioning is, at the time of writing, still a work in progress.
-
-Partitioning is a system that splits a model into multiple entities for storage. 
-Thereby optimizing network transfer and memory usage when [calculating](./calculator).
+Partitioning splits a model into multiple segments, improving efficiency in storage, network transfer, and memory usage during [calculation](./calculator).
+It is especially effective for models with many indexed entries, allowing dynamic partitioning based on entry count and size.
+Each partitioned model includes header data for global information and to determine the required number of partitions.
+The goal of choosing a paritioning scheme is to minimize the number of partitions affected by any single event, maximizing performance and scalability.
 

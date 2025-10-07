@@ -80,14 +80,19 @@ archimate:
     - to: models/amounts_to_transfer
 ---
 
-# Conversion day
+# Conversion Day
 
-Conversion day exist of three different subprocesses, which may or may not occur on the same day. 
-For these subprocesses, we have designed [checklists](./checklist) to aid in going through the process correctly.
+Conversion day consists of three main subprocesses, which may occur together or separately:
+
+- Cash In
+- Cash Out
+- Transfer Cash
+
+Each subprocess is supported by dedicated [checklists](./checklist) to ensure correct execution.
 
 ## Overview
 
-``` arch(plantuml)
+```arch(plantuml)
 $subprocess = (#in, #out, #transfer);
 $insteps = (#enter, #invest);
 $outsteps = (#liquidate, #exit);
@@ -113,7 +118,8 @@ admin_ui u 3 conversion_day;
 
 ## Models
 
-The conversion day process makes use of some models in the [calculator module](./calculator).
+The conversion day process relies on several models from the [calculator module](./calculator):
+
 ```arch(plantuml)
 $steps = (#enter, #invest, #liquidate, #exit, #transfer);
 
@@ -129,9 +135,9 @@ $steps;
 $steps d $models;
 ```
 
-## The in process
+## Cash In Process
 
-The in process supports the cashflow of donations into the investmet option and consists of two steps:
+The cash in process manages the flow of donations into investment options and includes two steps:
 
 * [Enter](./events/CONV_ENTER)
 * [Invest](./events/CONV_INVEST)
@@ -144,7 +150,7 @@ The investment option's [worth](./worth) is not modified by this step.
 Users may follow the [in process checklist](./guides/in_process)
 
 
-## The out process
+## Cash Out Process
 
 The out process supports the cashflow of invested funds out of the investment option for allocation of monetary funds to the [charity](./charity) and consists of two steps:
 
@@ -158,16 +164,16 @@ Exit indicates the transfer of monetary funds out of the investment option for [
 
 Users may follow the [out process checklist](./guides/out_process)
 
-### Exit
+### Exit Calculation
 
-The exit step uses the [Calculator](./calculator) for calculating two specific values:
+The exit step uses the [Calculator](./calculator) to determine:
 
-* The exit amount that should be withdrawn based on the profit since the last exit and the [reinvestment fraction](./option_fractions). This value **could** be negative.
-* The amount that should be withdrawn based on the [bad year fraction](./option_fractions#bad-year-fraction) and the amount of time since the last exit. This value is **always** positive.
+- The exit amount to withdraw, based on profit since the last exit and the [reinvestment fraction](./option_fractions). This value may be negative.
+- The amount to withdraw based on the [bad year fraction](./option_fractions#bad-year-fraction) and elapsed time since the last exit. This value is always positive.
 
-The exit amount should be the largest of these two, always resulting in a positive amount.
+The final exit amount is the greater of these two, ensuring a positive withdrawal.
 
-## The transfer process
+## Transfer Process
 
-The transfer process uses the [CONV_TRANSFER](./events/CONV_TRANSFER) event to administer exactly how much funds have been transferred to each [charity](./charity).
-This transfer process implements the [payout capability](./payout).
+The transfer process uses the [CONV_TRANSFER](./events/CONV_TRANSFER) event to record the exact funds transferred to each [charity](./charity).
+This process implements the [payout capability](./payout).
