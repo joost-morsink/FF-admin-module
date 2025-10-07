@@ -112,9 +112,9 @@ skinparam component {
 
     [Options] -[hidden]r-> [Donations2]
 
-    [Options] --> [AggregatedDonationsAndTransfers]
+    [Options] ---> [AggregatedDonationsAndTransfers]
     [Options] --> [AmountsToTransfer]
-    [Options] --> [DonationStatistics]
+    [Options] ---> [DonationStatistics]
     [Options] --> [MinimalExits]
     [Options] --> [IdealOptionValuations]
     [Options] --> [ValidationErrors]
@@ -124,7 +124,7 @@ skinparam component {
     [Donations2] --> [ValidationErrors]
     [Donations2] --> [CharityFractionSets]
     [Donations2] --> [DonorDashboardStats2]
-    [Donations2] --> [DonationExistence] 
+    [Donations2] -r-> [DonationExistence] 
     [Donations2] ----> [DonationRecords2] 
 
     [Donors2] --> [DonorDashboardStats2]
