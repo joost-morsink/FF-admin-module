@@ -174,4 +174,54 @@ public abstract class BaseCalculator
         await str.Get<HistoryHash>(index);
         return str;
     }
+
+    protected async Task<HttpResponseData> GetChart<T>(
+        HttpRequestData request,
+        string branchName,
+        int? at,
+        Func<T, string> chartGenerator)
+        where T : class
+    {
+        try
+        {
+            var data = await GetModel<T>(await GetEventStream(branchName, at, null));
+            var svg = chartGenerator(data);
+
+            var response = request.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Content-Type", "image/svg+xml");
+            await response.WriteStringAsync(svg);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = request.CreateResponse(HttpStatusCode.InternalServerError);
+            await errorResponse.WriteStringAsync($"Error generating chart: {ex.Message}");
+            return errorResponse;
+        }
+    }
+
+    protected async Task<HttpResponseData> GetChart<M, P>(
+        HttpRequestData request,
+        string branchName,
+        int? at,
+        P param,
+        Func<M, string> chartGenerator)
+    {
+        try
+        {
+            var data = await GetCalculatedModel<M, P>(await GetEventStream(branchName, at, null), param);
+            var svg = chartGenerator(data);
+
+            var response = request.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Content-Type", "image/svg+xml");
+            await response.WriteStringAsync(svg);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = request.CreateResponse(HttpStatusCode.InternalServerError);
+            await errorResponse.WriteStringAsync($"Error generating chart: {ex.Message}");
+            return errorResponse;
+        }
+    }
 }

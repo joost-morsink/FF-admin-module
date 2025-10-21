@@ -26,4 +26,15 @@ public class CumulativeInterestCalculator : BaseCalculator
         int? @base)
         => HandlePost<CumulativeInterest>(request, branchName, @base,
             data => data.Options);
+
+    [Function("CumulativeInterestChart")]
+    public Task<HttpResponseData> GetCumulativeInterestChart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/cumulative-interest/{id}/svg")]
+        HttpRequestData request,
+        string branchName,
+        string id,
+        FunctionContext executionContext,
+        int? at)
+        => GetChart<OptionWorthHistory>(request, branchName, at,
+            data => new CumulativeInterestCharting().GenerateChartSvg(data.Options[id], $"Cumulative Interest History - Option {id}"));
 }

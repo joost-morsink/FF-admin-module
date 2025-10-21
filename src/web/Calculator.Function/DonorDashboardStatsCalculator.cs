@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Net;
 using FfAdmin.Calculator.Core;
 using FfAdmin.Common;
 using Microsoft.Azure.Functions.Worker;
@@ -28,6 +29,17 @@ public class DonorDashboardStatsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => Handle<DonorDashboardStats2.Stat, string>(request, branchName, @base, id);
+
+    [Function("SingleDonorDashboardStatsChart")]
+    public Task<HttpResponseData> GetSingleDonorDashboardStatsChart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donor-dashboard-stats/{id}/svg")]
+        HttpRequestData request,
+        string branchName,
+        string id,
+        FunctionContext executionContext,
+        int? at)
+        => GetChart<DonorDashboardStats2.Stat, string>(request, branchName, at, id,
+            data => new DonorDashboardStatsCharting().GenerateChartSvg(data, $"Donor Dashboard Chart - {id}"));
 
     [Function("DonorDashboard")]
     public async Task<HttpResponseData> GetDonorDashboard(

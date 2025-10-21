@@ -27,4 +27,15 @@ public class DonationRecordsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => Handle<DonationRecords2.Value, string>(request, branchName, @base, id, data => data.Records);
+
+    [Function("DonationRecordChart")]
+    public Task<HttpResponseData> GetDonationRecordChart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/donation-records/{id}/svg")]
+        HttpRequestData request,
+        string branchName,
+        string id,
+        FunctionContext executionContext,
+        int? at)
+        => GetChart<DonationRecords2.Value, string>(request, branchName, at, id,
+            data => new DonationRecordCharting().GenerateChartSvg(data.Records, $"Donation Record Chart - {id}"));
 }

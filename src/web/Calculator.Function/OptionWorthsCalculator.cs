@@ -1,3 +1,7 @@
+using System.Net;
+using FfAdmin.Calculator;
+using FfAdmin.Calculator.Core;
+using FfAdmin.Calculator.Function;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -28,6 +32,19 @@ public class OptionWorthsCalculator : BaseCalculator
         FunctionContext executionContext,
         int? @base)
         => HandlePost<OptionWorths2>(request, branchName, @base, data => data.Worths.Values.Select(GetData));
+
+    [Function("OptionWorthHistoryChart")]
+    public Task<HttpResponseData> GetOptionWorthHistoryChart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/option-worth-history-chart/{id}")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        string id,
+        int? at)
+        => GetChart<OptionWorthHistory>(request, branchName, at,
+            data => new OptionWorthHistoryCharting()
+                .GenerateChartSvg(data.Options[id], "Option Worth History"));
+
 }
 
 public class OptionWorths2Calculator(CalculatorDependencies dependencies) : BaseCalculator(dependencies)

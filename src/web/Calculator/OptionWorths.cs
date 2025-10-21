@@ -207,22 +207,12 @@ public record OptionWorths2(int NumberOfDonations, Real TotalUnentered, Immutabl
 
     public record Details(ImmutableDictionary<string, EnteredDonation> Shares);
 
-    public record EnteredDonation
+    public record EnteredDonation(DateTimeOffset? Timestamp, Real Share)
     {
-        public DateTimeOffset? Timestamp { get; }
-        public Real Share { get; }
         public bool IsEntered => Timestamp.HasValue;
 
-        public EnteredDonation()
+        public EnteredDonation() : this(null, 0)
         {
-            Timestamp = null;
-            Share = 0;
-        }
-
-        public EnteredDonation(DateTimeOffset timestamp, Real share)
-        {
-            Timestamp = timestamp;
-            Share = share;
         }
     }
 
