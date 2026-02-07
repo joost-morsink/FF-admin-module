@@ -15,10 +15,12 @@ public static class Ext
                 var options = provider.GetRequiredService<IOptions<CalculatorClientOptions>>().Value;
                 client.BaseAddress = options.BaseUri;
                 client.Timeout = options.Timeout;
-            })
+            }).AddHttpMessageHandler<AddCalculatorTokenDelegatingHandler>()
             .Services
+            .AddScoped<AddCalculatorTokenDelegatingHandler>()
             .AddScoped<ICalculatorClient>(sp => sp.GetRequiredService<CalculatorClient>())
             .AddScoped<ICheckOnline>(sp => sp.GetRequiredService<CalculatorClient>())
+            .AddScoped<ICalculatorTokenProvider, CalculatorTokenProvider>()
             .AddOptions<CalculatorClientOptions>();
     }
 
