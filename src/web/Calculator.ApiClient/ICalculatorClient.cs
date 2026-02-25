@@ -20,6 +20,8 @@ public interface ICalculatorClient
     Task<MinimalExits> GetMinimalExits(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<Options> GetOptions(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<OptionWorths2.Header[]> GetOptionWorths(string branch, int? at = null, IEnumerable<Event>? theory = null);
+    Task<OptionWorthRecord[]> GetOptionWorthHistory(string branch, string id, int? at = null, IEnumerable<Event>? theory = null);
+    Task<string> GetOptionWorthHistoryChart(string branch, string id, int? at = null, IEnumerable<Event>? theory = null);
     Task<ValidationErrors> GetValidationErrors(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<DonationStatistics> GetDonationStatistics(string branch, int? at = null, IEnumerable<Event>? theory = null);
     Task<AuditHistory> GetAuditHistory(string branch, int? at = null, IEnumerable<Event>? theory = null);

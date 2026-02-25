@@ -23,6 +23,17 @@ public class CalculatorClient : ICalculatorClient, ICheckOnline
         _client = client;
     }
 
+    private async Task<string> GetString(string endpoint, string branch, int? at, IEnumerable<Event>? theory)
+    {
+        var parts = new List<string> {"/api/", branch, "/", endpoint};
+        if (at.HasValue)
+            parts.Add($"?at={at.Value}");
+        var response = await (theory is null
+            ? _client.GetAsync(string.Concat(parts))
+            : PostAsJsonAsync(string.Concat(parts), theory));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
     private async Task<T> GenericGet<T>(string endpoint, string branch, int? at, IEnumerable<Event>? theory)
         where T : class
     {
@@ -118,6 +129,14 @@ public class CalculatorClient : ICalculatorClient, ICheckOnline
 
     public async Task<OptionWorths2.Header[]> GetOptionWorths(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => await GenericGet<OptionWorths2.Header[]>("option-worths", branch, at, theory);
+
+    public async Task<OptionWorthRecord[]> GetOptionWorthHistory(string branch, string id, int? at = null,
+        IEnumerable<Event>? theory = null)
+        => await GenericGet<OptionWorthRecord[]>($"option-worth-history/{id}", branch, at, theory);
+    
+    public async Task<string> GetOptionWorthHistoryChart(string branch, string id, int? at = null,
+        IEnumerable<Event>? theory = null)
+        => await GetString($"option-worth-history-chart/{id}", branch, at, theory);
 
     public Task<ValidationErrors> GetValidationErrors(string branch, int? at = null, IEnumerable<Event>? theory = null)
         => GenericGet<ValidationErrors>("validation-errors", branch, at, theory);

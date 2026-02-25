@@ -103,7 +103,7 @@ public class LocalModelCacheService : IModelCacheService
     }
 
     public async Task<bool> RunGarbageCollection()
-    {
+    {       
         var allHashes = from branch in GetBranches().ToAsyncEnumerable()
             from hfb in GetHashesForBranch(branch).ToAsyncEnumerable()
             from hash in hfb.Hashes.Values.ToAsyncEnumerable()

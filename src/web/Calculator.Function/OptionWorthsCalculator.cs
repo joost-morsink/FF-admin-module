@@ -33,6 +33,16 @@ public class OptionWorthsCalculator : BaseCalculator
         int? @base)
         => HandlePost<OptionWorths2>(request, branchName, @base, data => data.Worths.Values.Select(GetData));
 
+    [Function("OptionWorthHistory")]
+    public Task<HttpResponseData> GetOptionWorthHistory(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/option-worth-history/{id}")]
+        HttpRequestData request,
+        string branchName,
+        FunctionContext executionContext,
+        string id,
+        int? at)
+        => Handle<OptionWorthHistory>(request, branchName, at, data => data.Options[id]);
+    
     [Function("OptionWorthHistoryChart")]
     public Task<HttpResponseData> GetOptionWorthHistoryChart(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{branchName}/option-worth-history-chart/{id}")]
