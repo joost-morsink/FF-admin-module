@@ -81,6 +81,7 @@ public class DonorDashboard
             Charity = charities.Values.GetValueOrDefault(Donation.CharityId)?.Name ?? Donation.CharityId;
         }
 
+        public DateOnly Date => new DateOnly(Donation.Timestamp.Year, Donation.Timestamp.Month, Donation.Timestamp.Day);
         public decimal Donated { get; }
         public decimal Profit => Worth + Allocated - Donated;
         public decimal Worth { get; }
