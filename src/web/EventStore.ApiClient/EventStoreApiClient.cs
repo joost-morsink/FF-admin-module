@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 using FfAdmin.EventStore.Abstractions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace FfAdmin.EventStore.ApiClient;
@@ -14,10 +15,12 @@ namespace FfAdmin.EventStore.ApiClient;
 public class EventStoreApiClient : IEventStore, ICheckOnline
 {
     private readonly HttpClient _client;
+    private readonly ILogger<EventStoreApiClient> _logger;
 
-    public EventStoreApiClient(HttpClient client)
+    public EventStoreApiClient(HttpClient client, ILogger<EventStoreApiClient> logger)
     {
         _client = client;
+        _logger = logger;
     }
     
     private async Task<HttpResponseMessage> PostAsJsonAsync<T>(string address, T item)
@@ -38,6 +41,7 @@ public class EventStoreApiClient : IEventStore, ICheckOnline
         try
         {
             var response = await _client.GetAsync("api/health");
+            _logger.Log(response.IsSuccessStatusCode ? LogLevel.Information : LogLevel.Warning, "EventStore API health check returned {StatusCode}", response.StatusCode);
             return response.IsSuccessStatusCode;
         }
         catch (Exception)

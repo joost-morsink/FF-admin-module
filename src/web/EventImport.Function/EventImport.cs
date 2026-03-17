@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -45,6 +44,13 @@ public class EventImport
         var response = request.CreateResponse(HttpStatusCode.OK);
 
         return response;
+    }
+    [Function("Warmup")]
+    public async Task Warmup(
+        [TimerTrigger("0 59 3 * * *")] TimerInfo timer,
+        FunctionContext executionContext)
+    {
+        await IsOnline();
     }
 
     [Function("Import")]

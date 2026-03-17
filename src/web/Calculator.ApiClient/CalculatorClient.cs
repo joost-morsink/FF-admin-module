@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FfAdmin.Calculator;
 using FfAdmin.Common;
+using Microsoft.Extensions.Logging;
 using Charity = FfAdmin.Calculator.Charity;
 
 namespace Calculator.ApiClient;
@@ -17,10 +18,12 @@ namespace Calculator.ApiClient;
 public class CalculatorClient : ICalculatorClient, ICheckOnline
 {
     private readonly HttpClient _client;
+    private readonly ILogger<CalculatorClient> _logger;
 
-    public CalculatorClient(HttpClient client)
+    public CalculatorClient(HttpClient client, ILogger<CalculatorClient> logger)
     {
         _client = client;
+        _logger = logger;
     }
 
     private async Task<string> GetString(string endpoint, string branch, int? at, IEnumerable<Event>? theory)
@@ -93,6 +96,7 @@ public class CalculatorClient : ICalculatorClient, ICheckOnline
         try
         {
             var response = await _client.GetAsync("api/health");
+            _logger.Log(response.IsSuccessStatusCode ? LogLevel.Information : LogLevel.Warning, "Calculator API health check returned {StatusCode}", response.StatusCode);
             return response.IsSuccessStatusCode;
         }
         catch (Exception)

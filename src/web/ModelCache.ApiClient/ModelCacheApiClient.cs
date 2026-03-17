@@ -8,16 +8,19 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FfAdmin.Common;
 using FfAdmin.ModelCache.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace FfAdmin.ModelCache.ApiClient;
 
 public class ModelCacheApiClient : IModelCacheService, ICheckOnline
 {
     private readonly HttpClient _client;
+    private readonly ILogger<ModelCacheApiClient> _logger;
 
-    public ModelCacheApiClient(HttpClient client)
+    public ModelCacheApiClient(HttpClient client, ILogger<ModelCacheApiClient> logger)
     {
         _client = client;
+        _logger = logger;
     }
 
     private async Task<HttpResponseMessage> PutAsJsonAsync<T>(string address, T item)
@@ -38,6 +41,7 @@ public class ModelCacheApiClient : IModelCacheService, ICheckOnline
         try
         {
             var response = await _client.GetAsync("api/health");
+            _logger.Log(response.IsSuccessStatusCode ? LogLevel.Information : LogLevel.Warning, "ModelCache API health check returned {StatusCode}", response.StatusCode);
             return response.IsSuccessStatusCode;
         }
         catch (Exception)
