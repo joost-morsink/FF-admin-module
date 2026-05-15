@@ -37,7 +37,7 @@ public partial class EventStream
         => new(_serviceProvider, _metaModels, Events.AddEvents(events), _modelCache, _modelCacheStrategy);
 
     public EventStream Prefix(int count)
-        => new(_serviceProvider, _metaModels, Events.Prefixed(count), _modelCache.GetPrefix(count), _modelCacheStrategy);
+        => new(_serviceProvider, _metaModels, Events.Prefixed(count), _modelCache.GetPrefix(count + 1), _modelCacheStrategy);
 
     private async Task<IContext> CreateContextForPosition(int position)
     {
