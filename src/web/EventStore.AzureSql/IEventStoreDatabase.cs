@@ -18,7 +18,7 @@ public class EventStoreDatabase : IEventStoreDatabase
     }
     public async Task<SqlConnection> OpenConnection()
     {
-        var con = new SqlConnection(_connectionString);
+        var con = new SqlConnection(_connectionString); 
         await con.OpenAsync();
         return con;
     }

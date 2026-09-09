@@ -8,7 +8,7 @@ export class CurrentBranch {
   }
 
   public getBranchName(): string {
-    return localStorage.getItem("branchName");
+    return localStorage.getItem("branchName") ?? "Please select branch";
   }
 
   public setBranchName(branchName: string): void {

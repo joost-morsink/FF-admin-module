@@ -34,7 +34,7 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
     HomeComponent
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
+    BrowserModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'charities', component: CharitiesComponent },
@@ -61,4 +61,3 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
   bootstrap: [AppComponent]
 })
 export class AppModule { }
-

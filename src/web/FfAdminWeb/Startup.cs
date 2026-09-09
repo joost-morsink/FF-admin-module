@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.FileProviders;
 using FfAdminWeb.Utils;
 using System.Text.Json.Serialization;
 using Calculator.ApiClient;
@@ -37,7 +37,7 @@ namespace FfAdminWeb
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/dist";
+                configuration.RootPath = "ClientApp/dist/browser";
             });
 
             services.AddHostedService<TimedHostedService>();
@@ -56,9 +56,15 @@ namespace FfAdminWeb
             }
 
             app.UseStaticFiles();
-            if (!env.IsDevelopment())
+            app.UseSpaStaticFiles();
+
+            if (env.IsDevelopment())
             {
-                app.UseSpaStaticFiles();
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(
+                        System.IO.Path.Combine(env.ContentRootPath, "ClientApp", "dist", "browser"))
+                });
             }
 
             app.UseRouting();
@@ -78,11 +84,6 @@ namespace FfAdminWeb
                 // see https://go.microsoft.com/fwlink/?linkid=864501
 
                 spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer("start");
-                }
             });
         }
     }

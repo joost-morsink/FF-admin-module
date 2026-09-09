@@ -1,4 +1,4 @@
-import { Component, Output, Inject } from '@angular/core';
+import { Component, Output, Inject, ChangeDetectionStrategy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
 import { IOption, IEventNewOption, IValidationMessage } from '../interfaces/interfaces';
@@ -9,27 +9,35 @@ import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'ff-options',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './options.component.html'
 })
-export class OptionsComponent {
-  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
-    this.fetchOptions();
+export class OptionsComponent implements OnInit {
+  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog, private cdr: ChangeDetectorRef) {
+  }
+  public ngOnInit(): void {
+    console.error('test');
+    this.fetchOptions().catch(err => console.error('fetchOptions failed', err));
   }
   public async fetchOptions(): Promise<void> {
     let opts = await this.admin.getOptions();
     this.data = opts;
+    this.cdr.detectChanges();
   }
   public async update(row: IOption) {
     let dlg = this.dialog.open(UpdateOptionDialog, {
       data: { option: row }
     });
   }
-  public data: IOption[] = null;
+  public data: IOption[] | null = null;
   public displayedColumns: string[] = ["code", "name", "currency", "fractions", "badyear", "update"];
 }
 
 @Component({
   selector: 'ff-add-option',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './addOption.component.html'
 })
 export class AddOptionComponent {
@@ -60,15 +68,15 @@ export class AddOptionComponent {
     });
     this.eventStore.getStatistics().then(stats => this.timestamp.setValue(stats.firstUnprocessed || stats.lastProcessed));
   }
-  public formGroup: UntypedFormGroup;
-  public timestamp: UntypedFormControl;
-  public code: UntypedFormControl;
-  public name: UntypedFormControl;
-  public currency: UntypedFormControl;
-  public reinvestment_fraction: UntypedFormControl;
-  public futureFund_fraction: UntypedFormControl;
-  public charity_fraction: UntypedFormControl;
-  public bad_year_fraction: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public code!: UntypedFormControl;
+  public name!: UntypedFormControl;
+  public currency!: UntypedFormControl;
+  public reinvestment_fraction!: UntypedFormControl;
+  public futureFund_fraction!: UntypedFormControl;
+  public charity_fraction!: UntypedFormControl;
+  public bad_year_fraction!: UntypedFormControl;
 
   public clickAddForm() {
     this.showAddForm = true;
@@ -92,17 +100,28 @@ export class AddOptionComponent {
       await this.eventStore.postEvent(e);
       this.showAddForm = false;
       this.newOption();
-    } catch (ex) {
+    } catch (ex: any) {
+      const controls: Record<string, UntypedFormControl> = {
+        timestamp: this.timestamp,
+        code: this.code,
+        name: this.name,
+        currency: this.currency,
+        reinvestment_fraction: this.reinvestment_fraction,
+        futureFund_fraction: this.futureFund_fraction,
+        charity_fraction: this.charity_fraction,
+        bad_year_fraction: this.bad_year_fraction
+      };
+
       for (let err of ex.error) {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
-
-        if (key in this) {
-          let control: UntypedFormControl = this[key];
-          let ve: ValidationErrors = {};
-          ve["message"] = err.message;
-
-          control.setErrors(ve);
+        let control = controls[key];
+        if (!control) {
+          continue;
         }
+
+        let ve: ValidationErrors = {};
+        ve["message"] = err.message;
+        control.setErrors(ve);
       }
       this.dialog.open(ErrorDialog, {
         data: { errors: ex.error },
@@ -115,6 +134,8 @@ export class AddOptionComponent {
 
 @Component({
   selector: 'ff-update-option-dialog',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './updateOption.dialog.html'
 })
 export class UpdateOptionDialog {
@@ -125,7 +146,7 @@ export class UpdateOptionDialog {
   {
     this.initialize(data.option);
   }
- 
+
   public updating: boolean = false;
 
   private initialize(option: IOption) {
@@ -143,15 +164,15 @@ export class UpdateOptionDialog {
     });
     this.timestamp.setValue(new Date().toISOString());
   }
-  public formGroup: UntypedFormGroup;
-  public timestamp: UntypedFormControl;
-  public code: UntypedFormControl;
-  public name: UntypedFormControl;
-  public currency: UntypedFormControl;
-  public reinvestment_fraction: UntypedFormControl;
-  public futureFund_fraction: UntypedFormControl;
-  public charity_fraction: UntypedFormControl;
-  public bad_year_fraction: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public code!: UntypedFormControl;
+  public name!: UntypedFormControl;
+  public currency!: UntypedFormControl;
+  public reinvestment_fraction!: UntypedFormControl;
+  public futureFund_fraction!: UntypedFormControl;
+  public charity_fraction!: UntypedFormControl;
+  public bad_year_fraction!: UntypedFormControl;
 
   public async updateOption(): Promise<void> {
     this.updating = true;
@@ -167,17 +188,25 @@ export class UpdateOptionDialog {
       };
       await this.eventStore.postEvent(e);
       this.dialogRef.close();
-    } catch (ex) {
+    } catch (ex: any) {
+      const controls: Record<string, UntypedFormControl> = {
+        timestamp: this.timestamp,
+        reinvestment_fraction: this.reinvestment_fraction,
+        futureFund_fraction: this.futureFund_fraction,
+        charity_fraction: this.charity_fraction,
+        bad_year_fraction: this.bad_year_fraction
+      };
+
       for (let err of ex.error) {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
-
-        if (key in this) {
-          let control: UntypedFormControl = this[key];
-          let ve: ValidationErrors = {};
-          ve["message"] = err.message;
-
-          control.setErrors(ve);
+        let control = controls[key];
+        if (!control) {
+          continue;
         }
+
+        let ve: ValidationErrors = {};
+        ve["message"] = err.message;
+        control.setErrors(ve);
       }
       this.dialog.open(ErrorDialog, {
         data: { errors: ex.error },

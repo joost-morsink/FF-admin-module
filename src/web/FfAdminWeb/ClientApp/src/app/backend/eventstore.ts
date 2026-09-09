@@ -1,5 +1,6 @@
 import {Component, Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import {IEvent, IEventStatistics, IFullEvent} from '../interfaces/interfaces';
 
 @Injectable()
@@ -9,23 +10,23 @@ export class EventStore {
   }
 
   public async postEvent(ev: IEvent) {
-    await this.http.post<void>(this.baseUrl + "eventstore/import", ev).toPromise();
+    await firstValueFrom(this.http.post<void>(this.baseUrl + "eventstore/import", ev));
   }
 
   public getStatistics(): Promise<IEventStatistics> {
-    return this.http.get<IEventStatistics>(this.baseUrl + "eventstore/statistics/main").toPromise();
+    return firstValueFrom(this.http.get<IEventStatistics>(this.baseUrl + "eventstore/statistics/main"));
   }
 
   public importCsv(formData: FormData) {
-    return this.http.post<void>(this.baseUrl + "eventstore/donations/give", formData).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + "eventstore/donations/give", formData));
   }
 
   public audit(): Promise<void> {
-    return this.http.post<void>(this.baseUrl + "eventstore/audit", {}).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + "eventstore/audit", {}));
   }
 
   public getBranches(): Promise<string[]> {
-    return this.http.get<string[]>(this.baseUrl + "eventstore/branches").toPromise();
+    return firstValueFrom(this.http.get<string[]>(this.baseUrl + "eventstore/branches"));
   }
 
   public getEvents(skip: number, limit?: number): Promise<IFullEvent[]> {
@@ -37,29 +38,29 @@ export class EventStore {
       args.push(`limit=${limit}`);
     }
     let querystring = args.length == 0 ? "" : "?" + args.join("&");
-    return this.http.get<IFullEvent[]>(this.baseUrl + `eventstore/events${querystring}`).toPromise();
+    return firstValueFrom(this.http.get<IFullEvent[]>(this.baseUrl + `eventstore/events${querystring}`));
   }
   public importEvents(events: IFullEvent[]): Promise<void> {
-    return this.http.post<void>(this.baseUrl + `eventstore/import-many`, events).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + `eventstore/import-many`, events));
   }
   public branch(branchName: string): Promise<void> {
-    return this.http.post<void>(this.baseUrl + `eventstore/branch`, { to: branchName }).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + `eventstore/branch`, { to: branchName }));
   }
 
   public newBranch(branchName: string): Promise<void> {
-    return this.http.post<void>(this.baseUrl + `eventstore/new-branch`, { name: branchName }).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + `eventstore/new-branch`, { name: branchName }));
   }
 
   public fastForward(branchName: string): Promise<void> {
-    return this.http.post<void>(this.baseUrl + `eventstore/fast-forward`, { name: branchName }).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + `eventstore/fast-forward`, { name: branchName }));
   }
 
   public rebase(branchName: string): Promise<void> {
-    return this.http.post<void>(this.baseUrl + `eventstore/rebase`, { on: branchName }).toPromise();
+    return firstValueFrom(this.http.post<void>(this.baseUrl + `eventstore/rebase`, { on: branchName }));
   }
 
   public removeBranch(branchName: string): Promise<void> {
-    return this.http.delete<void>(this.baseUrl + `eventstore/branch/${branchName}`).toPromise();
+    return firstValueFrom(this.http.delete<void>(this.baseUrl + `eventstore/branch/${branchName}`));
   }
 
 }

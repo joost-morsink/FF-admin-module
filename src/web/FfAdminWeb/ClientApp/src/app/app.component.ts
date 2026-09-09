@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { EventStore } from './backend/eventstore';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-root',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './app.component.html'
 })
 export class AppComponent {

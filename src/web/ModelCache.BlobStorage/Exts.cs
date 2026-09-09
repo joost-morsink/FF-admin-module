@@ -1,4 +1,5 @@
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FfAdmin.ModelCache.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,5 +12,10 @@ public static class Exts
         services.AddSingleton<StorageClient>();
         services.AddScoped<IModelCacheService, ModelCacheService>();
         return services;
+    }
+
+    public static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(this Task<T> source)
+    {
+        yield return await source;
     }
 }

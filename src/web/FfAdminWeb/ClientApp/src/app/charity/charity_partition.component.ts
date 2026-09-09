@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import { Admin } from '../backend/admin';
 import {ICharity, IEventCharityPartition} from '../interfaces/interfaces';
 import {ActivatedRoute, Router} from "@angular/router";
@@ -9,22 +9,28 @@ import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'ff-charity-partition',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './charity_partition.component.html'
 })
 export class CharityPartitionComponent {
-  constructor(private eventStore: EventStore, private route:ActivatedRoute, private router: Router, private dialog: MatDialog, private admin: Admin) {
+  constructor(private eventStore: EventStore, private route:ActivatedRoute, private router: Router, private dialog: MatDialog, private admin: Admin, private cdr: ChangeDetectorRef) {
     this.fetchCharities();
   }
   public async fetchCharities(): Promise<void> {
     let opts = await this.admin.getCharities();
     let current = await this.admin.getCharityPartitions(this.route.snapshot.params.id);
     this.data = opts.map(o => { return { checked: current.find(fs => fs.holder == o.code) != null, item: o }; });
-    this.subject = opts.find(o => o.code == this.route.snapshot.params.id);
+    this.subject = opts.find(o => o.code == this.route.snapshot.params.id) ?? null;
+    this.cdr.detectChanges();
   }
-  public subject: ICharity = null;
-  public data: {checked:boolean, item:ICharity}[] = null;
+  public subject: ICharity | null = null;
+  public data: {checked:boolean, item:ICharity}[] | null = null;
   public displayedColumns : string[] = ["checked","code","name","bank_name","bank_account_no","bank_bic"]
   public async save() {
+    if (!this.subject || !this.data) {
+      throw new Error("Charity partition data is not loaded.");
+    }
     let ids = this.data.filter(o => { console.log(o); return o.checked; }).map(o => o.item.code);
     console.log(ids);
     let event : IEventCharityPartition = { type: 'META_CHARITY_PARTITION',
@@ -34,7 +40,7 @@ export class CharityPartitionComponent {
     try {
       await this.eventStore.postEvent(event);
       await this.router.navigate(["charities"]);
-    } catch (ex) {
+    } catch (ex: any) {
       this.dialog.open(ErrorDialog, {
         data: { errors: ex.error },
       });

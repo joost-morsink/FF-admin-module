@@ -3,8 +3,8 @@
 <form>
   <mat-form-field>
     <mat-label>Cutoff</mat-label>
-    <input matNativeControl name="cutoff" [(formControl)]="cutoff" />
-    <mat-error *ngIf="formGroup.get('cutoff').errors"> {{ formGroup.get('cutoff').errors?.message }} </mat-error>
+    <input matNativeControl name="cutoff" [formControl]="cutoff" />
+    <mat-error *ngIf="formGroup.get('cutoff')?.errors"> {{ formGroup.get('cutoff')?.errors?.['message'] }} </mat-error>
   </mat-form-field>
   <button (click)="downloadPain()">
     <span class="inline-icon material-icons">file_download</span>Download PAIN file

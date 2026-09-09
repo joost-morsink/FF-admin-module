@@ -4,16 +4,16 @@
 
 <ff-select-option  *ngIf="step=='init'" (optionSelected)="onOptionSelected($event)"></ff-select-option>
 
-<ff-liquidation-admin *ngIf="step=='liquidate'" [option]="option" (liquidated)="onLiquidated($event)"></ff-liquidation-admin>
+<ff-liquidation-admin *ngIf="step=='liquidate'" [option]="option!" (liquidated)="onLiquidated($event)"></ff-liquidation-admin>
 
-<ff-exit-admin *ngIf="step=='exit'" [defaultTimestamp]="defaultTimestamp" [option]="option" (exited)="onExited($event)"></ff-exit-admin>
+<ff-exit-admin *ngIf="step=='exit'" [defaultTimestamp]="defaultTimestamp" [option]="option!" (exited)="onExited($event)"></ff-exit-admin>
 
 <ff-transfers-admin *ngIf="step=='transfer'" (done)="onTransferred($event)"></ff-transfers-admin>
 
-<ff-enter-admin *ngIf="step=='enter'" [option]="option" (entered)="onEntered($event)"></ff-enter-admin>
+<ff-enter-admin *ngIf="step=='enter'" [option]="option!" (entered)="onEntered($event)"></ff-enter-admin>
 
-<ff-invest-admin *ngIf="step=='invest'" [defaultTimestamp]="defaultTimestamp" [option]="option" (invested)="onInvested($event)"></ff-invest-admin>
+<ff-invest-admin *ngIf="step=='invest'" [defaultTimestamp]="defaultTimestamp" [option]="option!" (invested)="onInvested($event)"></ff-invest-admin>
 
-<ff-inflation-admin *ngIf="step=='inflation'" [option]="option" (inflation)="onInflated($event)"></ff-inflation-admin>
+<ff-inflation-admin *ngIf="step=='inflation'" [option]="option!" (inflation)="onInflated($event)"></ff-inflation-admin>
 
-<ff-price-admin *ngIf="step=='price'" [option]="option" (priced)="onPriced($event)"></ff-price-admin>
+<ff-price-admin *ngIf="step=='price'" [option]="option!" (priced)="onPriced($event)"></ff-price-admin>

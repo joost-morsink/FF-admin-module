@@ -1,23 +1,25 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
-import {FormControl, UntypedFormControl} from "@angular/forms";
+import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef} from "@angular/core";
+import {UntypedFormControl} from "@angular/forms";
 import {EventStore} from "../backend/eventstore";
 
 @Component({
   selector: 'ff-select-branch',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './select-branch.dialog.html'
 })
 export class SelectBranchDialog {
-  constructor(private eventStore: EventStore) {
-    this.branchName = new UntypedFormControl();
-    let _ = this.load();
+  constructor(private eventStore: EventStore, private cdr: ChangeDetectorRef) {
+    this.branchName = new UntypedFormControl('');
+    void this.load();
   }
 
-  public branchName: FormControl<string>;
+  public branchName: UntypedFormControl;
   public branches: string[] = [];
   public enabled: boolean = true;
 
   public getBranchName(): string {
-    return this.branchName.value;
+    return this.branchName.value || '';
   }
 
   public async load(): Promise<void> {
@@ -26,6 +28,7 @@ export class SelectBranchDialog {
       this.branches = await this.eventStore.getBranches();
     } finally {
       this.enabled = true;
+      this.cdr.detectChanges();
     }
   }
 
@@ -37,12 +40,14 @@ export class SelectBranchDialog {
 @Component(
   {
     selector: 'branch-button',
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     templateUrl: './branch-button.component.html'
   }
 )
 export class BranchButton {
-  @Input() public branch: string;
-  @Input() public enabled: boolean;
+  @Input() public branch = '';
+  @Input() public enabled = false;
   @Output() public clickBranch = new EventEmitter<string>();
 
   public click() {

@@ -4,20 +4,20 @@
     <form>
         <mat-form-field>
             <mat-label>Timestamp</mat-label> 
-            <input matNativeControl name="timestamp" [(formControl)]="timestamp" />
-            <mat-error *ngIf="formGroup.get('timestamp').errors"> {{ formGroup.get('timestamp').errors?.message }} </mat-error>
+            <input matNativeControl name="timestamp" [formControl]="timestamp" />
+            <mat-error *ngIf="formGroup.get('timestamp')?.errors"> {{ formGroup.get('timestamp')?.errors?.['message'] }} </mat-error>
         </mat-form-field>
         <br />
         <mat-form-field>
             <mat-label>Actual amount</mat-label>
-            <input matNativeControl name="amount" [(formControl)]="amount" />
-            <mat-error *ngIf="formGroup.get('amount').errors"> {{ formGroup.get('amount').errors?.message }} </mat-error>
+            <input matNativeControl name="amount" [formControl]="amount" />
+            <mat-error *ngIf="formGroup.get('amount')?.errors"> {{ formGroup.get('amount')?.errors?.['message'] }} </mat-error>
         </mat-form-field>
         <br />
         <mat-form-field>
             <mat-label>Transaction reference</mat-label>
-            <input matNativeControl name="transactionRef" [(formControl)]="transactionRef" />
-            <mat-error *ngIf="formGroup.get('transactionRef').errors"> {{ formGroup.get('transactionRef').errors?.message }} </mat-error>
+            <input matNativeControl name="transactionRef" [formControl]="transactionRef" />
+            <mat-error *ngIf="formGroup.get('transactionRef')?.errors"> {{ formGroup.get('transactionRef')?.errors?.['message'] }} </mat-error>
         </mat-form-field>
         <br/>
         <mat-checkbox [checked]="hasExchange" (change)="setHasExchange($event.checked)">Exchange?</mat-checkbox>
@@ -25,20 +25,20 @@
             <br />
             <mat-form-field>
                 <mat-label>Exchange currency</mat-label>
-                <input matNativeControl name="exchangedCurrency" [(formControl)]="exchangedCurrency" />
-                <mat-error *ngIf="formGroup.get('exchangedCurrency').errors"> {{ formGroup.get('exchangedCurrency').errors?.message }} </mat-error>
+                <input matNativeControl name="exchangedCurrency" [formControl]="exchangedCurrency" />
+                <mat-error *ngIf="formGroup.get('exchangedCurrency')?.errors"> {{ formGroup.get('exchangedCurrency')?.errors?.['message'] }} </mat-error>
             </mat-form-field>
             <br />
             <mat-form-field>
                 <mat-label>Exchange amount</mat-label>
-                <input matNativeControl name="exchangedAmount" [(formControl)]="exchangedAmount" />
-                <mat-error *ngIf="formGroup.get('exchangedAmount').errors"> {{ formGroup.get('exchangedAmount').errors?.message }} </mat-error>
+                <input matNativeControl name="exchangedAmount" [formControl]="exchangedAmount" />
+                <mat-error *ngIf="formGroup.get('exchangedAmount')?.errors"> {{ formGroup.get('exchangedAmount')?.errors?.['message'] }} </mat-error>
             </mat-form-field>
             <br />
             <mat-form-field>
                 <mat-label>Exchange reference</mat-label>
-                <input matNativeControl name="exchangeRef" [(formControl)]="exchangeRef" />
-                <mat-error *ngIf="formGroup.get('exchangeRef').errors"> {{ formGroup.get('exchangeRef').errors?.message }} </mat-error>
+                <input matNativeControl name="exchangeRef" [formControl]="exchangeRef" />
+                <mat-error *ngIf="formGroup.get('exchangeRef')?.errors"> {{ formGroup.get('exchangeRef')?.errors?.['message'] }} </mat-error>
             </mat-form-field>
         </div>
         <br />

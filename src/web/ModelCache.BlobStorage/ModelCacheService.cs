@@ -143,7 +143,7 @@ public class ModelCacheService : IModelCacheService
     {
         var client = GetContainerClient();
         IAsyncEnumerable<BlobHierarchyItem> pageable = client.GetBlobsByHierarchyAsync(prefix: "hashes/");
-        return from item in pageable.AsAsyncEnumerable()
+        return from item in pageable
             select item.Blob.Name.Substring(item.Blob.Name.LastIndexOf('/') + 1);
     }
     private async Task<HashSet<HashValue>> GetAllHashes()

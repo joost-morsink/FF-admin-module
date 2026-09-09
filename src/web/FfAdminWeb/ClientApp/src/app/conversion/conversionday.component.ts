@@ -1,4 +1,7 @@
-import { Component, EventEmitter, Input, Output, OnInit, Injectable, ViewChildren, QueryList } from '@angular/core';
+import {
+  Component, EventEmitter, Input, Output, OnInit, Injectable, ViewChildren, QueryList, ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Admin } from '../backend/admin';
@@ -10,11 +13,13 @@ type ProcessStep = 'init' | 'liquidate' | 'exit' | 'transfer' | 'enter' | 'inves
 
 @Component({
   selector: 'ff-conversion-day-component',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './conversionday.component.html'
 })
 export class ConversionDayComponent {
-  constructor(private admin: Admin) { }
-  public option: IOption;
+  constructor(private admin: Admin, private cdr: ChangeDetectorRef) { }
+  public option: IOption | null = null;
   public step: string = 'init';
   @Output() public defaultTimestamp : string = '';
 
@@ -23,51 +28,64 @@ export class ConversionDayComponent {
     this.step = option.process;
   }
   public async refreshOption() {
+    if (!this.option) {
+      throw new Error('No option selected.');
+    }
+
     this.option = await this.admin.getOption(this.option.code);
   }
   public async onLiquidated(component: LiquidationComponent) {
     this.defaultTimestamp = component.timestamp.value;
     await this.refreshOption()
     this.step = 'exit';
+    this.cdr.detectChanges();
   }
   public async onExited(dummy: any) {
     await this.refreshOption();
     this.step = 'transfer';
+    this.cdr.detectChanges();
   }
   public onTransferred(dummy: any) {
     this.step = 'enter';
+    this.cdr.detectChanges();
   }
   public async onEntered(component: EnterComponent) {
     this.defaultTimestamp = component.timestamp.value;
     await this.refreshOption();
     this.step = 'invest';
+    this.cdr.detectChanges();
   }
   public onInvested(dummy: any) {
     this.option = null;
     this.step = 'init';
+    this.cdr.detectChanges();
   }
 
   public onInflated(dummy: any) {
     this.option = null;
     this.step='init';
+    this.cdr.detectChanges();
   }
 
   public onPriced(dummy: any) {
     this.option = null;
     this.step='init';
+    this.cdr.detectChanges();
   }
 }
 
 @Component({
   selector: 'ff-select-option',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './selectOption.component.html'
 })
 export class SelectOptionComponent {
-  constructor(private admin:Admin){
+  constructor(private admin:Admin, private cdr: ChangeDetectorRef) {
     this.fetchOptions();
   }
   public displayedColumns: string[] = ["name", "liquidate", "transfer", "enter", "inflation", "price"];
-  public options: IOption[];
+  public options: IOption[] = [];
   @Output() public optionSelected: EventEmitter<{ option: IOption, process: ProcessStep }> = new EventEmitter();
 
   public click(option: IOption, process: ProcessStep) {
@@ -75,13 +93,14 @@ export class SelectOptionComponent {
   }
   public async fetchOptions() {
     this.options = await this.admin.getOptions();
+    this.cdr.detectChanges();
   }
 }
 
 export abstract class ConversionBaseComponent {
-  constructor(protected eventStore: EventStore, protected dialog: MatDialog) { }
+  constructor(protected eventStore: EventStore, protected dialog: MatDialog, protected cdr: ChangeDetectorRef) { }
 
-  public enabled: boolean;
+  public enabled = true;
 
   public async importAndProcess<T>(event: IEvent, success?: EventEmitter<T>, data?: T) {
     try {
@@ -91,47 +110,53 @@ export abstract class ConversionBaseComponent {
         success?.emit(data);
       else
         success?.emit();
-    } catch (ex) {
+    } catch (ex: any) {
+      const componentState = this as unknown as Record<string, unknown>;
       for (let err of ex.error) {
         let key = err.key[0].toLowerCase() + err.key.substring(1);
-
-        if (key in this) {
-          let control: UntypedFormControl = this[key];
-          let ve: ValidationErrors = {};
-          ve["message"] = err.message;
-
-          control.setErrors(ve);
+        let control = componentState[key];
+        if (!(control instanceof UntypedFormControl)) {
+          continue;
         }
+
+        let ve: ValidationErrors = {};
+        ve["message"] = err.message;
+        control.setErrors(ve);
       }
       this.dialog.open(ErrorDialog, {
         data: { errors: ex.error },
       });
       this.enabled = true;
     }
+    finally {
+      this.cdr.detectChanges()
+    }
   }
 }
 
 @Component({
   selector: 'ff-liquidation-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './liquidation.component.html'
 })
 export class LiquidationComponent extends ConversionBaseComponent implements OnInit {
-  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
+  @Input() public option!: IOption;
   @Output() public liquidated: EventEmitter<LiquidationComponent> = new EventEmitter<LiquidationComponent>();
 
-  public exit_amount: number;
+  public exit_amount = 0;
 
-  public compensation: UntypedFormControl;
-  public invested: UntypedFormControl;
-  public timestamp: UntypedFormControl;
-  public newInvested: UntypedFormControl;
-  public newCash: UntypedFormControl;
-  public transactionRef: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
-  public loanable: number;
+  public compensation!: UntypedFormControl;
+  public invested!: UntypedFormControl;
+  public timestamp!: UntypedFormControl;
+  public newInvested!: UntypedFormControl;
+  public newCash!: UntypedFormControl;
+  public transactionRef!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
+  public loanable = 0;
 
   public ngOnInit(): void {
     this.compensation = new UntypedFormControl("0.00");
@@ -156,6 +181,7 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   public async recalculate() {
     this.loanable = await this.admin.getLoanableCash(this.option, new Date(this.timestamp.value));
     this.exit_amount = await this.admin.calculateExit(this.option, parseFloat(this.compensation.value), parseFloat(this.invested.value), this.timestamp.value);
+    this.cdr.detectChanges();
   }
   public async increaseCash() {
     if(this.compensation.value > 0)
@@ -183,27 +209,29 @@ export class LiquidationComponent extends ConversionBaseComponent implements OnI
   }
   public zeroLiquidation() {
     this.newInvested.setValue(this.invested.value);
-    this.newCash.setValue(this.option.cash_amount + parseFloat(this.compensation.value));
+    this.newCash.setValue((this.option.cash_amount ?? 0) + parseFloat(this.compensation.value));
   }
 }
 
 @Component({
   selector: 'ff-exit-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './exit.component.html'
 })
 export class ExitComponent extends ConversionBaseComponent implements OnInit{
-  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
-  @Input() public defaultTimestamp: string;
+  @Input() public option!: IOption;
+  @Input() public defaultTimestamp = '';
   @Output() public exited: EventEmitter<void> = new EventEmitter();
 
-  public exit_amount: number;
-  public timestamp: UntypedFormControl;
-  public exitAmount: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
-  public loanable: number;
+  public exit_amount = 0;
+  public timestamp!: UntypedFormControl;
+  public exitAmount!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
+  public loanable = 0;
 
   public ngOnInit() {
     this.timestamp = new UntypedFormControl(this.defaultTimestamp || new Date().toISOString());
@@ -218,6 +246,7 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
     this.loanable = await this.admin.getLoanableCash(this.option, new Date(this.timestamp.value));
     this.exit_amount = await this.admin.calculateExit(this.option, 0, this.option.invested_amount, this.timestamp.value);
     this.exitAmount.setValue(this.exit_amount.toFixed(2));
+    this.cdr.detectChanges();
   }
   public async exit() {
     if (parseFloat(this.exitAmount.value) == 0) {
@@ -235,6 +264,8 @@ export class ExitComponent extends ConversionBaseComponent implements OnInit{
 }
 @Component({
   selector: 'ff-transfers-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './transfers.component.html'
 })
 export class TransfersComponent implements OnInit {
@@ -242,14 +273,14 @@ export class TransfersComponent implements OnInit {
     this.fetchOpenTransfers().then();
   }
   @Output() public done: EventEmitter<void> = new EventEmitter();
-  public transfers: IOpenTransfer[];
-  public file: File;
-  public fileName: string;
-  private fileInput: HTMLInputElement;
-  public formGroup: UntypedFormGroup;
-  public cutoff: UntypedFormControl;
+  public transfers: IOpenTransfer[] = [];
+  public file: File | null = null;
+  public fileName: string | null = null;
+  private fileInput: HTMLInputElement | null = null;
+  public formGroup!: UntypedFormGroup;
+  public cutoff!: UntypedFormControl;
 
-  @ViewChildren('transfer') public transferComponents: QueryList<TransferComponent>;
+  @ViewChildren('transfer') public transferComponents!: QueryList<TransferComponent>;
   public ngOnInit() {
     this.cutoff = new UntypedFormControl("5.00")
     this.formGroup = new UntypedFormGroup({ cutoff: this.cutoff })
@@ -266,22 +297,24 @@ export class TransfersComponent implements OnInit {
   public onTransferCompleted(transfer: IOpenTransfer) {
     this.transfers = this.transfers.filter(t => t.charity != transfer.charity || t.currency != transfer.currency);
   }
-  public onFileSelected(e) {
-    this.fileInput = e.target;
-    this.file = this.fileInput.files[0];
-    this.fileName = this.file?.name;
+  public onFileSelected(e: Event) {
+    this.fileInput = e.target as HTMLInputElement;
+    this.file = this.fileInput.files?.[0] ?? null;
+    this.fileName = this.file?.name ?? null;
   }
   public async executeUpload() {
     if(this.file) {
       try {
         await this.admin.importBankTransfers(this.file);
-        this.fileInput.files = null;
+        if (this.fileInput) {
+          this.fileInput.value = '';
+        }
         this.file = null;
         this.fileName = null;
         this.dialog.open(InfoDialog, {
           data: { title: "Success", message: "Import and processing successful!" }
         });
-      } catch(ex) {
+      } catch(ex: any) {
         this.dialog.open(ErrorDialog, {
           data: { errors: ex.error }
         }).afterClosed();
@@ -301,23 +334,25 @@ export class TransfersComponent implements OnInit {
 
 @Component({
   selector: 'ff-transfer',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './transfer.component.html'
 })
 export class TransferComponent extends ConversionBaseComponent implements OnInit {
-  constructor(eventStore: EventStore, dialog: MatDialog, private admin: Admin) {
-    super(eventStore, dialog);
+  constructor(eventStore: EventStore, dialog: MatDialog, private admin: Admin, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public transfer: IOpenTransfer;
+  @Input() public transfer!: IOpenTransfer;
   @Output() public completed: EventEmitter<IOpenTransfer> = new EventEmitter();
 
-  public timestamp: UntypedFormControl;
-  public amount: UntypedFormControl;
-  public transactionRef: UntypedFormControl;
-  public hasExchange: boolean;
-  public exchangedAmount: UntypedFormControl;
-  public exchangedCurrency: UntypedFormControl;
-  public exchangeRef: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public amount!: UntypedFormControl;
+  public transactionRef!: UntypedFormControl;
+  public hasExchange = false;
+  public exchangedAmount!: UntypedFormControl;
+  public exchangedCurrency!: UntypedFormControl;
+  public exchangeRef!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
 
 
   public ngOnInit() {
@@ -357,23 +392,26 @@ export class TransferComponent extends ConversionBaseComponent implements OnInit
       exchange_reference: this.hasExchange ? this.exchangeRef.value : ""
     }
     await this.importAndProcess(event, this.completed, this.transfer);
+    this.cdr.detectChanges();
   }
 }
 
 @Component({
   selector: 'ff-enter-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './enter.component.html'
 })
 export class EnterComponent extends ConversionBaseComponent implements OnInit {
-  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(eventStore: EventStore, private admin: Admin, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
+  @Input() public option!: IOption;
   @Output() public entered: EventEmitter<EnterComponent> = new EventEmitter<EnterComponent>();
 
-  public timestamp: UntypedFormControl;
-  public investedAmount: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public investedAmount!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
 
   public ngOnInit() {
     this.timestamp = new UntypedFormControl("");
@@ -397,23 +435,25 @@ export class EnterComponent extends ConversionBaseComponent implements OnInit {
 
 @Component({
   selector: 'ff-invest-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './invest.component.html'
 })
 export class InvestComponent extends ConversionBaseComponent implements OnInit {
-  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
-  @Input() public defaultTimestamp: string;
+  @Input() public option!: IOption;
+  @Input() public defaultTimestamp = '';
   @Output() public invested: EventEmitter<void> = new EventEmitter();
 
-  public transferInvestmentButtonDisabled: boolean;
-  public timestamp: UntypedFormControl;
-  public newInvested: UntypedFormControl;
-  public newCash: UntypedFormControl;
-  public transactionRef: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
-  public investment: UntypedFormControl;
+  public transferInvestmentButtonDisabled = false;
+  public timestamp!: UntypedFormControl;
+  public newInvested!: UntypedFormControl;
+  public newCash!: UntypedFormControl;
+  public transactionRef!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
+  public investment!: UntypedFormControl;
   public ngOnInit(): void {
     this.timestamp = new UntypedFormControl(this.defaultTimestamp);
     this.newInvested = new UntypedFormControl(this.option.invested_amount);
@@ -451,19 +491,21 @@ export class InvestComponent extends ConversionBaseComponent implements OnInit {
 
 @Component({
   selector: 'ff-inflation-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './inflation.component.html'
 })
 export class InflationComponent extends ConversionBaseComponent implements OnInit {
-  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
+  @Input() public option!: IOption;
   @Output() public inflation: EventEmitter<void> = new EventEmitter();
 
-  public timestamp: UntypedFormControl;
-  public invested: UntypedFormControl;
-  public inflationPercentage: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public invested!: UntypedFormControl;
+  public inflationPercentage!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
   public ngOnInit(): void {
     this.timestamp = new UntypedFormControl(new Date().toISOString());
     this.invested = new UntypedFormControl(this.option.invested_amount);
@@ -489,19 +531,21 @@ export class InflationComponent extends ConversionBaseComponent implements OnIni
 }
 @Component({
   selector: 'ff-price-admin',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './price.component.html'
 })
 export class PriceComponent extends ConversionBaseComponent implements OnInit {
-  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog) {
-    super(eventStore, dialog);
+  constructor(private admin: Admin, eventStore: EventStore, dialog: MatDialog, cdr: ChangeDetectorRef) {
+    super(eventStore, dialog, cdr);
   }
-  @Input() public option: IOption;
+  @Input() public option!: IOption;
   @Output() public priced: EventEmitter<void> = new EventEmitter();
 
-  public timestamp: UntypedFormControl;
-  public newInvested: UntypedFormControl;
-  public newCash: UntypedFormControl;
-  public formGroup: UntypedFormGroup;
+  public timestamp!: UntypedFormControl;
+  public newInvested!: UntypedFormControl;
+  public newCash!: UntypedFormControl;
+  public formGroup!: UntypedFormGroup;
   public ngOnInit(): void {
     this.timestamp = new UntypedFormControl(new Date().toISOString());
     this.newInvested = new UntypedFormControl(this.option.invested_amount);

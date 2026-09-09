@@ -18,7 +18,7 @@
     "FfAdminWeb": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:7000",
+      "applicationUrl": "http://localhost:7007",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

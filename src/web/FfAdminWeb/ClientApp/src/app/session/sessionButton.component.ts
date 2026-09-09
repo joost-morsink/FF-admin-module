@@ -1,12 +1,15 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {EventStore} from '../backend/eventstore';
 import {MatDialog} from '@angular/material/dialog';
 import {ErrorDialog} from '../dialogs/error.dialog';
 import {CurrentBranch} from "../currentBranch";
 import {SelectBranchDialog} from "./select-branch.dialog";
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'session-button',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sessionButton.component.html'
 })
 export class SessionButtonComponent {
@@ -31,7 +34,7 @@ export class SessionButtonComponent {
     try {
       this.enabled=false;
       let dlg = this.dialog.open(SelectBranchDialog);
-      let result = await dlg.beforeClosed().toPromise();
+    let result = await firstValueFrom(dlg.beforeClosed());
       console.log(result);
       let branch = dlg.componentInstance.getBranchName();
 
@@ -55,7 +58,7 @@ export class SessionButtonComponent {
           await this.eventStore.removeBranch(branch);
           this.refresh();
       }
-    } catch (ex) {
+    } catch (ex: any) {
       console.log(ex);
       let errs = ex.error || [{key: "main", message: ex.message}];
       this.dialog.open(ErrorDialog, {

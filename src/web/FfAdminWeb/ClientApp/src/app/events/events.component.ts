@@ -1,17 +1,19 @@
-import { Component,  Input } from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import { Admin } from '../backend/admin';
 import { EventStore } from '../backend/eventstore';
-import { IEventStatistics, IFullEvent } from '../interfaces/interfaces';
+import { ICharity, IEventStatistics, IFullEvent, IOption } from '../interfaces/interfaces';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialog } from '../dialogs/info.dialog';
 import { ErrorDialog } from '../dialogs/error.dialog';
 
 @Component({
   selector: 'ff-events',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './events.component.html'
 })
 export class EventsComponent {
-  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog) {
+  constructor(private admin: Admin, private eventStore: EventStore, private dialog: MatDialog, private cdr: ChangeDetectorRef) {
     this.stats = {
       processed: 0, unprocessed: 0, firstUnprocessed: new Date(), lastProcessed: new Date()
     };
@@ -31,17 +33,18 @@ export class EventsComponent {
   public async fetchStats(): Promise<void> {
     let stats = await this.eventStore.getStatistics();
     this.stats = stats;
+    this.cdr.detectChanges();
   }
   public async audit() {
-    this.executeDisabled(async () => {
+    await this.executeDisabled(async () => {
       try {
         await this.eventStore.audit();
-        this.fetchStats();
+        await this.fetchStats();
         this.dialog.open(InfoDialog, {
           data: { message: "Success!" }
         });
       }
-      catch (ex) {
+      catch (ex: any) {
         this.dialog.open(ErrorDialog, {
           data: { errors: ex.error }
         });
@@ -49,7 +52,7 @@ export class EventsComponent {
     });
   }
   public async export() {
-    this.executeDisabled(async () => {
+    await this.executeDisabled(async () => {
       try {
         let events = await this.eventStore.getEvents(0);
 
@@ -64,7 +67,7 @@ export class EventsComponent {
         a.download = "events.json";
         a.click();
       }
-      catch (ex) {
+      catch (ex: any) {
         console.log(ex);
         this.dialog.open(ErrorDialog, {
           data: { errors: ex.error }
@@ -77,45 +80,51 @@ export class EventsComponent {
 
 @Component({
   selector: 'ff-event-stats',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './eventStats.component.html'
 })
 export class EventStatsComponent {
   constructor() {
   }
 
-  @Input() public stats: IEventStatistics;
+  @Input() public stats!: IEventStatistics;
 }
 
 @Component({
   selector: 'ff-event-tile',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './eventTile.component.html'
 })
 export class EventTileComponent {
   constructor() {
   }
-  @Input() public data: IFullEvent;
+  @Input() public data!: IFullEvent;
   public getClass() {
     return this.data.type.toLowerCase().split('_').join('-');
   }
   public getDate(): string {
-    return new Date(this.data.timestamp).toLocaleString();
+    return this.data.timestamp ? new Date(this.data.timestamp).toLocaleString() : '';
   }
 }
 
 @Component({
   selector: 'ff-event-list',
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './eventList.component.html'
 })
 export class EventListComponent {
-  constructor(public eventStore: EventStore, public admin: Admin) {
+  constructor(public eventStore: EventStore, public admin: Admin, private cdr: ChangeDetectorRef) {
     this.init();
   }
-  public data: IFullEvent[];
+  public data: IFullEvent[] = [];
   public async fetch() : Promise<IFullEvent[]> {
-    let charities = (await this.admin.getCharities()).reduce((acc,x) => {
+    let charities = (await this.admin.getCharities()).reduce<Record<string, ICharity>>((acc,x) => {
       acc[x.code] = x;
       return acc; }, {});
-    let options = (await this.admin.getOptions()).reduce((acc,x) => {
+    let options = (await this.admin.getOptions()).reduce<Record<string, IOption>>((acc,x) => {
       acc[x.code]=x;
       return acc; }, {});
     let events = await this.eventStore.getEvents(0, -60);
@@ -130,5 +139,6 @@ export class EventListComponent {
   public async init() : Promise<void> {
     let results = await this.fetch();
     this.data=results.reverse();
+    this.cdr.detectChanges();
   }
 }
