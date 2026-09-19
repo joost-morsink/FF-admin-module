@@ -87,9 +87,10 @@ Because the calculation of the model is **entirely** dependent on the previous m
 
 The `Index` model tracks the position of the current event in the sequence.
 Each index corresponds to an event that resulted in the present state.
-At the initial position ($t=0$), the system assumes the occurrence of the [NONE](./events/NONE.md) event.
+At the initial position ($t=0$), the system assumes the occurrence of the [NONE](./events/NONE) event.
 
 Models are categorized as either processed or calculated:
+
 - **Processed models** use a processor to apply event data and, if needed, data from other models. They may also implement [partitioning](./model_partition) to optimize storage and computation.
 - **Calculated models** do not process event data directly. Instead, they use a calculator to derive their value from other models, which may themselves be processed or calculated.
 
