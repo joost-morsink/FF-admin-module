@@ -16,5 +16,3 @@
   triggers:
   - to: conversion_day
   - to: payout
-
-

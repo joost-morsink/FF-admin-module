@@ -1,0 +1,6 @@
+archimate:
+  layer: Business
+  type: Process
+  caption: Donating
+  triggers:
+  - to: investment_process

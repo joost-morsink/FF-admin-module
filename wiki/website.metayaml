@@ -1,0 +1,11 @@
+archimate:
+  layer: Business
+  type: Function
+  caption: giveforgood.world
+  relates: 
+  - to: donating_process
+  serves:
+  - to: roles#web_admin
+  realizes:
+  - to: strategy#donating
+  - to: strategy#dashboard

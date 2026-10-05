@@ -1,0 +1,6 @@
+archimate:
+  layer: Technology
+  type: Service
+  caption: Azure Service Bus
+  serves:
+  - to: model_cache

@@ -1,6 +1,0 @@
-layer: Application
-type: Service
-caption: Investments and Withdrawals
-serves:
-- to: conversion_day#invest
-- to: conversion_day#liquidate

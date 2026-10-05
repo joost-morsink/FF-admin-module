@@ -1,0 +1,7 @@
+archimate:
+  layer: Business
+  type: Process
+  caption: Investment
+  influences:
+  - to: payout
+    caption: long-term

@@ -16,7 +16,7 @@ If a `ValidationError` occurs at any historical index, no further [events](../ev
 @startyaml
 - Position: The integer position in the event sequence
   Message: The validation error message
--
+- ...
 @endyaml
 ```
 

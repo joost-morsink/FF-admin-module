@@ -1,0 +1,11 @@
+archimate:
+  layer: Business
+  type: Process
+  caption: Make Donation
+  url: donation
+"#select_charity":
+    layer: Business
+    type: Process
+    caption: Select Charity
+    composes:
+    - to: make_donation
