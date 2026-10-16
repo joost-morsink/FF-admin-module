@@ -1,6 +1,7 @@
 --- 
 title: META_CHARITY_PARTITION
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/CharityPartition
 ---
 
 # META_CHARITY_PARTITION

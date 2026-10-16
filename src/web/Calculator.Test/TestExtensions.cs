@@ -10,6 +10,11 @@ public static class TestExtensions
         where T : class
         => (T)(await context.GetContext(typeof(T)))!;
 
+    public static async ValueTask<D> GetContext<H, K, D>(this IContext context, K key)
+        where H : class
+        where K : notnull
+        => (D)(await context.GetContext(await context.GetContext<H>(), key))!;
+    
     public static async Task<ImmutableDictionary<int, T>> GetValues<T>(this EventStream stream, params int[] positions)
         where T : class
     {

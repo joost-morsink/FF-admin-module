@@ -1,6 +1,7 @@
 ---
 title: Model Charity Balance
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/CharityBalance
 ---
 
 

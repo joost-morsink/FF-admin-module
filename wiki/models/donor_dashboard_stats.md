@@ -5,6 +5,7 @@ archimate:
   layer: Application
   type: DataObject
   caption: Donor dashboard statistics
+about: clr:/Calculator/FfAdmin.Calculator/DonorDashboardStats
 ---
 
 

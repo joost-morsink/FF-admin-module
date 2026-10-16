@@ -7,6 +7,7 @@ archimate:
   caption: minimal exits
   serves:
   - to: conversion_day#exit
+about: clr:/Calculator/FfAdmin.Calculator/MinimalExits
 ---
 
 # Model Minimal exits

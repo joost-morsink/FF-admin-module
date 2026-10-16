@@ -2,6 +2,7 @@
 title: Model HistoryHash
 author: J.W. Morsink
 difficulty: hard
+about: clr:/Calculator/FfAdmin.Calculator/HistoryHash
 ---
 
 # Model HistoryHash

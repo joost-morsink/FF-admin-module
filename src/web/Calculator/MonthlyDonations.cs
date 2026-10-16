@@ -48,17 +48,17 @@ public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictio
     public static IEventProcessor<MonthlyDonations> GetProcessor(IServiceProvider serviceProvider)
         => ActivatorUtilities.CreateInstance<Impl>(serviceProvider);
 
-    private class Impl(IContext<Options> cOptions, IContext<Donations> cDonations) : EventProcessor<MonthlyDonations>
+    private class Impl(IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations) : EventProcessor<MonthlyDonations>
     {
         protected override BaseCalculation GetCalculation(IContext previousContext, IContext currentContext)
         {
             return new Calculation(cOptions, cDonations, previousContext, currentContext);
         }
 
-        private sealed class Calculation(IContext<Options> cOptions, IContext<Donations> cDonations, IContext previous, IContext current) : BaseCalculation(previous, current)
+        private sealed class Calculation(IContext<Options> cOptions, IContext<Donations2, string, Donations2.Details> cDonations, IContext previous, IContext current) : BaseCalculation(previous, current)
         {
             public ValueTask<Options> CurrentOptions => GetCurrent(cOptions);
-            public ValueTask<Donations> PreviousDonations => GetPrevious(cDonations);
+            public async ValueTask<Donations2.Details> PreviousDonations(string key) => await GetPrevious(cDonations, await GetPrevious(cDonations), key);
             protected override async ValueTask<MonthlyDonations> NewDonation(MonthlyDonations model, NewDonation e)
             {
                 var option = (await CurrentOptions).Values[e.Option];
@@ -68,7 +68,7 @@ public record MonthlyDonations(ImmutableDictionary<string, ImmutableSortedDictio
 
             protected override async ValueTask<MonthlyDonations> CancelDonation(MonthlyDonations model, CancelDonation e)
             {
-                var donation = (await PreviousDonations).Values[e.Donation];
+                var donation = (await PreviousDonations(e.Donation)).Values[e.Donation];
                 var option = (await CurrentOptions).Values[donation.OptionId];
                 return model.Add(option.Id, ToMonth(donation.Timestamp), donation.OriginalCurrency, -donation.OriginalAmount, -donation.Amount);
             }

@@ -1,6 +1,7 @@
 ---
 title: Model Donors2
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/Donors2
 ---
 
 # Model Donors2

@@ -1,6 +1,7 @@
 --- 
 title: META_UPDATE_CHARITY
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/UpdateCharity
 ---
 # META_UPDATE_CHARITY
 

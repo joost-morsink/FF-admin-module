@@ -1,6 +1,7 @@
 ---
 title: Model Donations Statistics
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/DonationStatistics
 ---
 
 # Model DonationsStatistics

@@ -1,6 +1,7 @@
 ---
 title: Model Charity Fraction Sets
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/CharityFractionSets
 ---
 
 # Model CharityFractionSets

@@ -1,6 +1,7 @@
 ---
 title: PRICE_INFO
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/PriceInfo
 ---
 
 # PRICE_INFO

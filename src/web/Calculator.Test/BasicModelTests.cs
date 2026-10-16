@@ -141,8 +141,6 @@ public class BasicModelTests : VerifyBase
             .AddContext<Index>()
             .AddContext<Options>()
             .AddContext<Charities>()
-            .AddContext<Donations>()
-            .AddContext<OptionWorths>()
             .AddContext<OptionWorthHistory>()
             .AddContext<IdealOptionValuations>()
             .AddContext<MinimalExits>()
@@ -152,7 +150,6 @@ public class BasicModelTests : VerifyBase
             .AddContext<CharityBalance>()
             .AddContext<CumulativeInterest>()
             .AddContext<DonationStatistics>()
-            .AddContext<Donors>()
             .AddContext<Donations2>()
             .AddContext<OptionWorths2>()
             .AddContext<Donors2>()
@@ -183,9 +180,10 @@ public class BasicModelTests : VerifyBase
         charities.Should().NotBeNull();
         charities!.Values.Should().HaveCountGreaterOrEqualTo(2);
         charities.Values.Should().ContainKey("1").WhoseValue.Name.Should().Be("WWF");
-        var donations = await context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations2>();
         donations.Should().NotBeNull();
-        donations!.Values.Should().ContainKey("1").WhoseValue.Should().BeEquivalentTo(new
+        var det = await context.GetContext<Donations2, string, Donations2.Details>("1");
+        det.Values.Should().ContainKey("1").WhoseValue.Should().BeEquivalentTo(new
         {
             OptionId = "1", CharityId = "1", Amount = 10m
         });
@@ -197,9 +195,9 @@ public class BasicModelTests : VerifyBase
         var context = await Stream.GetAtPosition(7);
         var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = await context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths2>();
         worths.Should().NotBeNull();
-        var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
+        var option = worths.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 0m, Invested = 0m});
         option.UnenteredDonations.Should().HaveCount(3);
     }
@@ -210,7 +208,7 @@ public class BasicModelTests : VerifyBase
         var context = await Stream.GetAtPosition(8);
         var options = await context.GetContext<Options>();
         options.Should().NotBeNull();
-        var worths = await context.GetContext<OptionWorths>();
+        var worths = await context.GetContext<OptionWorths2>();
         worths.Should().NotBeNull();
         var option = worths!.Worths.Should().ContainKey("1").WhoseValue;
         option.Should().BeEquivalentTo(new {Cash = 15m, Invested = 0m});
@@ -235,7 +233,13 @@ public class BasicModelTests : VerifyBase
     public async Task DonationsTest()
     {
         var context = await Stream.GetLast();
-        await Verify(await context.GetContext<Donations>());
+        var test = new
+        {
+            Header = await context.GetContext<Donations2>(),
+            Details = await Task.WhenAll(Enumerable.Range(1, 4).Select(async x => await context.GetContext<Donations2, string, Donations2.Details>(x.ToString())).ToArray())
+        };
+        await Verify(test);
+        
     }
 
     [TestMethod]
@@ -257,7 +261,7 @@ public class BasicModelTests : VerifyBase
     [TestMethod]
     public async Task OptionWorthsTest()
     {
-        var contexts = (await Stream.GetValues<OptionWorths>(7, 8, 9, 13)).ToListOrderedByKey();
+        var contexts = (await Stream.GetValues<OptionWorths2>(7, 8, 9, 13)).ToListOrderedByKey();
 
         await Verify(contexts);
     }
@@ -356,14 +360,6 @@ public class BasicModelTests : VerifyBase
         await Verify(contexts);
     }
     
-    [TestMethod]
-    public async Task DonorsTest()
-    {
-        var contexts = (await Stream.GetValues<Donors>(18))
-            .ToListOrderedByKey();
-
-        await Verify(contexts);
-    }
 
     [TestMethod]
     public async Task Donors2Test()
@@ -466,9 +462,9 @@ public class BasicModelTests : VerifyBase
                 Execute_timestamp = GetCurrent(TimeSpan.Zero)
             }));
         for (int i = 0; i < 1000; i += 906) // 906 threw a stackoverflow, fixed now
-            await (await stream.GetAtPosition(i)).GetContext<Donations>();
+            await (await stream.GetAtPosition(i)).GetContext<Donations2>();
         var context = await stream.GetLast();
-        var donations = await context.GetContext<Donations>();
+        var donations = await context.GetContext<Donations2>();
         donations.Should().NotBeNull();
     }
 }

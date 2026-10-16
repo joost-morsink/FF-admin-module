@@ -7,6 +7,7 @@ archimate:
   caption: Ideal option valuations
   serves:
   - to: conversion_day#exit
+about: clr:/Calculator/FfAdmin.Calculator/IdealOptionValuations
 ---
 
 # Model Ideal option valuations

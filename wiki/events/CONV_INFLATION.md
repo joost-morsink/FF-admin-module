@@ -2,6 +2,7 @@
 title: CONV_INFLATION
 author: J.W. Morsink
 difficulty: medium
+about: clr:/Common/FfAdmin.Common/ConvInflation
 ---
 
 # CONV_INFLATION

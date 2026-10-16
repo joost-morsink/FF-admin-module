@@ -1,6 +1,7 @@
 --- 
 title: META_NEW_OPTION
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/NewOption
 ---
 # META_NEW_OPTION
 

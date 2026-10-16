@@ -1,6 +1,7 @@
 ---
 title: Model Charities
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/Charities
 ---
 
 # Model Charities

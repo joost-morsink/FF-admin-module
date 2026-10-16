@@ -1,6 +1,7 @@
 ---
 title: Model Monthly donations
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/MonthlyDonations
 ---
 
 # Model Monthly donations

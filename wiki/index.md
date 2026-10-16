@@ -5,6 +5,14 @@ difficulty: easy
 ---
 # Give for Good
 
+```diagram/script
+diagram = { <#d> a diagram:Diagram ; diagram:contains _:hoi, _:dag.
+ _:hoi a archimate:BusinessActor; rdfs:label "hoi" . 
+ _:dag a archimate:ApplicationService; rdfs:label "dag" .
+ <#d> diagram:edge [a archimate:RealizationRelationship; diagram:source _:hoi; diagram:target _:dag].
+}
+```
+
 Give for Good is a non-profit organization that empowers [donors](./donor) to provide their chosen [charities](./charity) with a recurring source of income.
 Donations are invested in the stock market, and the profits generated are allocated to the selected charities.
 

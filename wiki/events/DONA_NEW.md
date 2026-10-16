@@ -1,6 +1,7 @@
 ---
 title: DONA_NEW
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/NewDonation
 ---
 
 # DONA_NEW

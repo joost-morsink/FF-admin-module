@@ -1,6 +1,7 @@
 ---
 title: Donation Records
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/DonationRecords
 ---
 
 # Donation Records

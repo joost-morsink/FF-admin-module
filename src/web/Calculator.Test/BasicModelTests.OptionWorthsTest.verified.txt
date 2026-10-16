@@ -1,5 +1,7 @@
 ﻿[
   {
+    NumberOfDonations: 3,
+    TotalUnentered: 25.0,
     Worths: {
       1: {
         Id: 1,
@@ -40,16 +42,40 @@
     }
   },
   {
+    NumberOfDonations: 3,
+    TotalUnentered: 10.0,
     Worths: {
       1: {
         Cash: 15.0,
-        DonationFractions: {
-          1: 0.6666666666666666666666666667,
-          2: 0.3333333333333333333333333333
+        DonationFractionDivisor: 15.0,
+        EnteringDonations: {
+          Divisor: 15.0,
+          Donations: [
+            {
+              Amount: 10.0,
+              CharityId: 1,
+              ExecuteTimestamp: DateTimeOffset_2,
+              Id: 1,
+              OptionId: 1,
+              OriginalAmount: 10.0,
+              OriginalCurrency: EUR,
+              Timestamp: DateTimeOffset_2
+            },
+            {
+              Amount: 5.0,
+              CharityId: 2,
+              ExecuteTimestamp: DateTimeOffset_3,
+              Id: 2,
+              OptionId: 1,
+              OriginalAmount: 10.0,
+              OriginalCurrency: HEUR,
+              Timestamp: DateTimeOffset_3
+            }
+          ],
+          Factor: 1.0
         },
         Id: 1,
         Timestamp: DateTimeOffset_6,
-        TotalWorth: 15.0,
         UnenteredDonations: [
           {
             Amount: 10.0,
@@ -66,17 +92,15 @@
     }
   },
   {
+    NumberOfDonations: 3,
+    TotalUnentered: 10.0,
     Worths: {
       1: {
         Cash: 2.25,
-        DonationFractions: {
-          1: 0.6666666666666666666666666667,
-          2: 0.3333333333333333333333333333
-        },
+        DonationFractionDivisor: 15.0,
         Id: 1,
         Invested: 12.50,
         Timestamp: DateTimeOffset_7,
-        TotalWorth: 14.75,
         UnenteredDonations: [
           {
             Amount: 10.0,
@@ -93,17 +117,15 @@
     }
   },
   {
+    NumberOfDonations: 4,
+    TotalUnentered: 20.0,
     Worths: {
       1: {
         Cash: 0.94,
-        DonationFractions: {
-          1: 0.6666666666666666666666666667,
-          2: 0.3333333333333333333333333333
-        },
+        DonationFractionDivisor: 15.0,
         Id: 1,
         Invested: 15.25,
         Timestamp: DateTimeOffset_8,
-        TotalWorth: 16.19,
         UnenteredDonations: [
           {
             Amount: 10.0,

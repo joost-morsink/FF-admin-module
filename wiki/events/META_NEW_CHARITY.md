@@ -1,6 +1,7 @@
 --- 
 title: META_NEW_CHARITY
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/NewCharity
 ---
 
 # META_NEW_CHARITY

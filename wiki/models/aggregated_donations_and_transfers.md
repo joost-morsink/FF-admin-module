@@ -1,6 +1,7 @@
 ---
 title: Model Aggregated Donations and Transfers
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/AggregatedDonationsAndTransfers
 ---
 
 # Model AggregatedDonationsAndTransfers

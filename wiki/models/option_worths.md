@@ -5,6 +5,7 @@ archimate:
   layer: Application
   type: DataObject
   caption: Option worths
+about: clr:/Calculator/FfAdmin.Calculator/OptionWorths2
 ---
 
 # Model OptionWorths2

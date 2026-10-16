@@ -1,6 +1,7 @@
 ---
 title: Model Cumulative Interest
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/CumulativeInterest
 ---
 
 # Model CumulativeInterest

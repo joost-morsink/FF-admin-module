@@ -5,6 +5,7 @@ archimate:
   layer: Application
   type: DataObject
   caption: Option worth history
+about: clr:/Calculator/FfAdmin.Calculator/OptionWorthHistory
 ---
 
 # Model OptionWorthHistory

@@ -1,6 +1,7 @@
 ---
 title: DONA_CANCEL
 author: J.W. Morsink
+about: clr:/Common/FfAdmin.Common/CancelDonation
 ---
 
 # DONA_CANCEL

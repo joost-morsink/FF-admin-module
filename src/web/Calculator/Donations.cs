@@ -1,5 +1,6 @@
 namespace FfAdmin.Calculator;
 
+[Obsolete("Use Donations2 instead")]
 public record Donations(ImmutableDictionary<string, Donation> Values) : IModel<Donations>
 {
     public static IMetaModel<Donations> GetMetaModel()

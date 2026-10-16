@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
 
+[Obsolete("Use OptionWorths2 instead")]
 public record OptionWorths(ImmutableDictionary<string, OptionWorth> Worths) : IModel<OptionWorths>
 {
     public static IMetaModel<OptionWorths> GetMetaModel()

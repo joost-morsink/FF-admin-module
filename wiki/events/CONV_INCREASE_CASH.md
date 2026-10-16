@@ -2,6 +2,7 @@
 title: CONV_INCREASE_CASH
 author: J.W. Morsink
 difficulty: medium
+about: clr:/Common/FfAdmin.Common/IncreaseCash
 ---
 
 # CONV_INCREASE_CASH

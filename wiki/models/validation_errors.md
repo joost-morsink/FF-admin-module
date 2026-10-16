@@ -1,6 +1,7 @@
 ---
 title: Model ValidationErrors
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/ValidationErrors
 ---
 
 # Model ValidationErrors

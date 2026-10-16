@@ -7,6 +7,7 @@ archimate:
   caption: Amounts to transfer
   accesses:
     - to: calculator
+about: clr:/Calculator/FfAdmin.Calculator/AmountsToTransfer
 ---
 
 # ${title}

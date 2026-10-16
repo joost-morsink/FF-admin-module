@@ -2,6 +2,7 @@
 title: Model Index
 author: J.W. Morsink
 difficulty: easy
+about: clr:/Calculator/FfAdmin.Calculator/Index
 ---
 
 # Index model

@@ -1,6 +1,7 @@
 ---
 title: Model Allocations
 author: J.W. Morsink
+about: clr:/Calculator/FfAdmin.Calculator/Allocations
 ---
 
 # Model Allocations

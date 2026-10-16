@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FfAdmin.Calculator;
 
+[Obsolete("Use Donors2 instead")]
 public record Donors(ImmutableDictionary<string, ImmutableList<string>> Values) : IModel<Donors>
 {
     public static IMetaModel<Donors> GetMetaModel()
