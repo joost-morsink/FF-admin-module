@@ -5,21 +5,31 @@ about: clr:/Common/FfAdmin.Common/UpdateCharity
 ---
 # META_UPDATE_CHARITY
 
+```val/ks
+@include "Module.ks" .
+_ = code | call check_event(eventtype:META_UPDATE_CHARITY, common:UpdateCharity)
+```
+
 The `META_UPDATE_CHARITY` event updates information for an existing [charity](../charity).
 Only the fields supplied in the event are updated; unspecified fields remain unchanged.
 Typical updates include bank account details and charity name.
 
 ## Fields
 
-| Field             | Type               | Description                                   | Value                 |
-|-------------------|--------------------|-----------------------------------------------|-----------------------|
-| `Type`            | string             | Identifies the event.                         | `META_UPDATE_CHARITY` |
-| `Timestamp`       | DateTime(ISO-8601) | The time of the event.                        |                       |
-| `Code`            | string             | Identifies the charity.                       |                       |
-| `Name`            | string (optional)  | The name of the charity.                      |                       |
-| `Bank_account_no` | string (optional)  | The charity's bank account number.            |                       |
-| `Bank_name`       | string (optional)  | The charity's name as registered by the bank. |                       |
-| `Bank_bic`        | string (optional)  | The charity's bank identification code.       |                       |
+```table/ks
+@include "Module.ks" .
+@prefix cls: <clr:/Common/FfAdmin.Common/UpdateCharity/> .
+docs = {
+    cls:Type ff:description "Identifies the event." ;
+        ff:value "`META_UPDATE_CHARITY`" .
+    cls:Code ff:description "Identifies the charity." .
+    cls:Name ff:description "The name of the charity." .
+    cls:Bank_account_no ff:description "The charity's bank account number." .
+    cls:Bank_name ff:description "The charity's name as registered by the bank." .
+    cls:Bank_bic ff:description "The charity's bank identification code." .
+}
+table = code | documented_event_table(common:UpdateCharity, docs)
+```
 
 ## Purpose
 

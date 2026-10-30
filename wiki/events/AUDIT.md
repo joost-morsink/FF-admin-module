@@ -7,6 +7,11 @@ about: clr:/Common/FfAdmin.Common/Audit
 
 # Audit
 
+```val/ks
+@include "Module.ks" .
+_ = code | call check_event(eventtype:AUDIT, common:Audit)
+```
+
 The `AUDIT` event records a snapshot of the system's state for verification and compliance.
 It consolidates key metrics and hash codes, allowing integrity checks of all processed events up to the audit point.
 
@@ -17,14 +22,18 @@ Audit events are essential for maintaining trust and transparency in the Give fo
 
 ## Fields
 
-| Field            | Type      | Description                                                      |
-|------------------|-----------|------------------------------------------------------------------|
-| type             | string    | Must be `AUDIT`                                                  |
-| timestamp        | datetime  | When the audit was performed                                     |
-| hashcode         | string    | Hash of the event history up to this point                       |
-| previousHashCode | string    | Hash of the previous audit event (if any)                        |
-| eventCount       | integer   | Number of events processed                                       |
-| previousCount    | integer   | Number of events at previous audit (if any)                      |
+```table/ks
+@include "Module.ks" .
+@prefix cls: <clr:/Common/FfAdmin.Common/Audit/> .
+docs = {
+    cls:Type ff:description "Must be `AUDIT`" .
+    cls:Hashcode ff:description "Hash of the event history up to this point" .
+    cls:PreviousHashCode ff:description "Hash of the previous audit event (if any)" .
+    cls:EventCount ff:description "Number of events processed" .
+    cls:PreviousCount ff:description "Number of events at previous audit (if any)" .
+}
+table = code | documented_event_table(common:Audit, docs)
+```
 
 
 ## Purpose

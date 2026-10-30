@@ -7,17 +7,27 @@ about: clr:/Common/FfAdmin.Common/ConvExit
 
 # CONV_EXIT
 
+```val/ks
+@include "Module.ks" .
+_ = code | call check_event(eventtype:CONV_EXIT, common:ConvExit)
+```
+
 The `CONV_EXIT` event marks the allocation of funds from the cash amount of an [investment option](../option) to [charities](../charity).
 This event determines the amount to be distributed, but the actual [transfer](../transfer) to charities may occur later.
 
 ## Fields
 
-| Field       | Type                | Description                             | Value       |
-| ----------- | ------------------- | --------------------------------------- | ----------- |
-| `Type`      | string              | Identifies the event                    | `CONV_EXIT` |
-| `Timestamp` | DateTime (ISO-8601) | The timestamp of the event              |             |
-| `Option`    | string              | The identifier of the investment option |             |
-| `Amount`    | decimal(20,4)       | The amount to be allocated to charities |             |
+```table/ks
+@include "Module.ks" .
+@prefix cls: <clr:/Common/FfAdmin.Common/ConvExit/> .
+docs = {
+    cls:Type ff:description "Identifies the event" ;
+        ff:value "`CONV_EXIT`" .
+    cls:Option ff:description "The identifier of the investment option" .
+    cls:Amount ff:description "The amount to be allocated to charities" .
+}
+table = code | documented_event_table(common:ConvExit, docs)
+```
 
 ## Purpose
 

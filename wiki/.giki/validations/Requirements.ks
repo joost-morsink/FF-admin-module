@@ -1,5 +1,4 @@
-@include "LoadWiki.ks" .
-@prefix archimate: <http://arch.bit-wizards.nl/archimate/> .
+@prefix archimate: <http://bit-wizards.nl/arch/archimate/> .
 
 # Get all documented requirements
 requirements = wiki | extract { ?req rdf:type archimate:Requirement}
@@ -15,9 +14,8 @@ realizations = requirements | merge capabilities
 # Verify that all requirements are realized by capabilities
 verify requirements is not empty message "No requirements found!"
 verify capabilities is not empty message "No capabilities found!"
+
 verify realizations
     each { ?req a archimate:Requirement } 
     has { ?cap a archimate:Capability . ?cap archimate:realizes ?req }
-    message "{?req} is not realized by any capability"
-
-board = wiki | extract { ?b ?p ?o. ?s ?q ?b } where { filter(?b = <about:/motivation#board>) }
+    message "{?req} is not realized by any capability."

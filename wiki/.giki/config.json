@@ -1,0 +1,18 @@
+{
+    "wiki": {
+        "base": "http://giveforgood.world/wiki/"
+    },
+    "execute": [
+        "./prelude.ks",
+        "./validations/Functions.ks"
+    ],
+    "export": {
+        "script": "./validations/Export.ks"
+    },
+    "sources": {
+        "wiki": "wiki.ttl"
+    },
+    "vocabularies": [
+        "table.ttl", "arch-core.ttl"
+    ]
+}
