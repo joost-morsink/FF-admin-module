@@ -1,5 +1,6 @@
-@include "Source.ks" .
-@include "Functions.ks" .
+@prefix arch: <http://bit-wizards.nl/arch/> .
+@prefix s: <http://schema.org/> .
+@prefix ff: <http://val.giveforgood.world/> .
 
 # Fetch all classes that implement the IModel interface and mark obsolete models.
 models = code 

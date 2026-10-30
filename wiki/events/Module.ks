@@ -1,3 +1,5 @@
+@prefix arch: <http://bit-wizards.nl/arch/> .
+@prefix table: <http://bit-wizards.nl/giki/table/> .
 @prefix eventtype: <clr:/Common/FfAdmin.Common/EventType/> .
 @prefix common: <clr:/Common/FfAdmin.Common/> .
 @prefix ff: <http://giveforgood.world/ff/> .

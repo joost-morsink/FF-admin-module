@@ -1,5 +1,5 @@
 @prefix ff: <http://val.giveforgood.world/> .
-@prefix arch: <http://arch.bit-wizards.nl/core#> .
+@prefix arch: <http://bit-wizards.nl/arch/> .
 @prefix s: <http://schema.org/> .
 @fun mark_obsolete this () {
     mark_obsolete = this 
