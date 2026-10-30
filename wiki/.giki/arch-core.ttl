@@ -1,0 +1,143 @@
+@prefix arch: <http://bit-wizards.nl/arch/> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bit-wizards.nl/arch> a owl:Ontology ;
+    rdfs:label "Assembly Analyzer core vocabulary" ;
+    rdfs:comment """The structure of .NET assemblies as produced by the analyzer.
+Only types of the analyzed assemblies are ever the subject of a dependency; referenced (external) types can only be its object.
+Private members are implementation details and have no nodes, but what they use counts as a dependency of the declaring type.""" .
+
+# ── classes ──────────────────────────────────────────────────────────────────
+
+arch:Assembly a owl:Class ; rdfs:label "Assembly" ; rdfs:comment "An assembly." .
+arch:Namespace a owl:Class ; rdfs:label "Namespace" ; rdfs:comment "A namespace within an assembly." .
+arch:Type a owl:Class ; rdfs:label "Type" ; rdfs:comment "A type; the base of class, interface, struct and enum." .
+arch:Class a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Class" .
+arch:Interface a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Interface" .
+arch:Struct a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Struct" .
+arch:Enum a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Enum" .
+arch:Method a owl:Class ; rdfs:label "Method" ; rdfs:comment "A method or constructor." .
+arch:Constructor a owl:Class ; rdfs:subClassOf arch:Method ; rdfs:label "Constructor" .
+arch:Property a owl:Class ; rdfs:label "Property" .
+arch:Field a owl:Class ; rdfs:label "Field" .
+arch:AttributeApplication a owl:Class ; rdfs:label "Attribute application" ;
+    rdfs:comment "One use of a .NET attribute on a type, method, property or field, with the arguments it was applied with." .
+arch:AttributeArgument a owl:Class ; rdfs:label "Attribute argument" ;
+    rdfs:comment "A positional constructor argument (argumentIndex), a named property or field assignment (argumentName), or an element of an array argument (argumentIndex)." .
+arch:Parameter a owl:Class ; rdfs:label "Parameter" .
+arch:GenericTypeDefinition a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Generic type definition" ;
+    rdfs:comment "An open generic type, e.g. List<>." .
+arch:GenericType a owl:Class ; rdfs:subClassOf arch:Type ; rdfs:label "Generic type" ;
+    rdfs:comment "A constructed generic type, e.g. List<string>." .
+arch:TypeArgument a owl:Class ; rdfs:label "Type argument" .
+arch:TypeParameter a owl:Class ; rdfs:label "Type parameter" .
+arch:Layer a owl:Class ; rdfs:label "Layer" .
+arch:Domain a owl:Class ; rdfs:label "Domain" .
+arch:Modifier a owl:Class ; rdfs:label "Modifier" ; rdfs:comment "A modifier that can be applied to a type or member through arch:modifier." .
+
+arch:Static a owl:NamedIndividual, arch:Modifier ; rdfs:label "Static" ;
+    rdfs:comment "The member belongs to the type instead of to an instance, or the type is a static class. Members without this modifier are instance members." .
+arch:Abstract a owl:NamedIndividual, arch:Modifier ; rdfs:label "Abstract" ;
+    rdfs:comment "An abstract class or an abstract method or property. Interfaces and their members are not marked." .
+arch:Virtual a owl:NamedIndividual, arch:Modifier ; rdfs:label "Virtual" ;
+    rdfs:comment "A method or property that introduces a virtual slot, which derived types can override. Abstract members are not marked virtual." .
+arch:Override a owl:NamedIndividual, arch:Modifier ; rdfs:label "Override" ;
+    rdfs:comment "A method or property that overrides a virtual or abstract member of a base type." .
+arch:Sealed a owl:NamedIndividual, arch:Modifier ; rdfs:label "Sealed" ;
+    rdfs:comment "A class that cannot be inherited (structs and enums are implicitly sealed and not marked), or an override that cannot be overridden further." .
+arch:Async a owl:NamedIndividual, arch:Modifier ; rdfs:label "Async" ;
+    rdfs:comment "A method compiled to an async (or async iterator) state machine." .
+arch:Unsafe a owl:NamedIndividual, arch:Modifier ; rdfs:label "Unsafe" ;
+    rdfs:comment """A method, property or field that uses pointer types in its signature (or the locals of a method). The unsafe keyword itself
+is not in metadata, so this is derived from the pointers.""" .
+arch:Record a owl:NamedIndividual, arch:Modifier ; rdfs:label "Record" ;
+    rdfs:comment "A record class or record struct, recognized by its compiler synthesized members." .
+
+# ── structure ────────────────────────────────────────────────────────────────
+
+arch:inAssembly a owl:ObjectProperty ; rdfs:label "in assembly" ; rdfs:domain arch:Type ; rdfs:range arch:Assembly .
+arch:inNamespace a owl:ObjectProperty ; rdfs:label "in namespace" ; rdfs:domain arch:Type ; rdfs:range arch:Namespace .
+arch:referencesAssembly a owl:ObjectProperty ; rdfs:label "references assembly" ; rdfs:domain arch:Assembly ; rdfs:range arch:Assembly .
+arch:hasMethod a owl:ObjectProperty ; rdfs:label "has method" ; rdfs:domain arch:Type ; rdfs:range arch:Method .
+arch:hasProperty a owl:ObjectProperty ; rdfs:label "has property" ; rdfs:domain arch:Type ; rdfs:range arch:Property .
+arch:hasNestedType a owl:ObjectProperty ; rdfs:label "has nested type" ; rdfs:domain arch:Type ; rdfs:range arch:Type ;
+    rdfs:comment "A type declares a nested type. Only nested types that have a node: private nested types and compiler-generated ones do not. Not a dependency." .
+arch:hasField a owl:ObjectProperty ; rdfs:label "has field" ; rdfs:domain arch:Type ; rdfs:range arch:Field .
+arch:hasAttribute a owl:ObjectProperty ; rdfs:label "has attribute" ;
+    rdfs:comment "A type, method, property or field is decorated with a .NET attribute; the object is the node of the attribute type (e.g. System.ObsoleteAttribute). Attributes emitted by the compiler (System.Runtime.CompilerServices) are left out. Not a dependency." .
+arch:hasAttributeApplication a owl:ObjectProperty ; rdfs:label "has attribute application" ; rdfs:range arch:AttributeApplication ;
+    rdfs:comment "A type, method, property or field is decorated with one use of an attribute. Unlike arch:hasAttribute, an attribute that is applied more than once is told apart, and the arguments are available." .
+arch:attributeType a owl:ObjectProperty ; rdfs:label "attribute type" ; rdfs:domain arch:AttributeApplication ; rdfs:range arch:Type .
+arch:hasAttributeArgument a owl:ObjectProperty ; rdfs:label "has attribute argument" ; rdfs:domain arch:AttributeApplication ; rdfs:range arch:AttributeArgument .
+arch:hasArgumentElement a owl:ObjectProperty ; rdfs:label "has argument element" ; rdfs:domain arch:AttributeArgument ; rdfs:range arch:AttributeArgument ;
+    rdfs:comment "An element of an array argument, in the order given by arch:argumentIndex." .
+arch:argumentIndex a owl:DatatypeProperty ; rdfs:label "argument index" ; rdfs:domain arch:AttributeArgument .
+arch:argumentName a owl:DatatypeProperty ; rdfs:label "argument name" ; rdfs:domain arch:AttributeArgument ;
+    rdfs:comment "The property or field a named argument is assigned to." .
+arch:argumentType a owl:ObjectProperty ; rdfs:label "argument type" ; rdfs:domain arch:AttributeArgument ; rdfs:range arch:Type .
+arch:argumentValue a owl:ObjectProperty ; rdfs:label "argument value" ; rdfs:domain arch:AttributeArgument ;
+    rdfs:comment "A literal for primitives, strings and enums (the underlying number), or the type node for a typeof argument. Absent for null; arrays use arch:hasArgumentElement." .
+arch:hasGetter a owl:ObjectProperty ; rdfs:label "has getter" ; rdfs:domain arch:Property ; rdfs:range arch:Method .
+arch:hasSetter a owl:ObjectProperty ; rdfs:label "has setter" ; rdfs:domain arch:Property ; rdfs:range arch:Method .
+arch:hasParameter a owl:ObjectProperty ; rdfs:label "has parameter" ; rdfs:domain arch:Method ; rdfs:range arch:Parameter .
+arch:parameterIndex a owl:DatatypeProperty ; rdfs:label "parameter index" ; rdfs:domain arch:Parameter ; rdfs:range xsd:integer .
+arch:genericDefinition a owl:ObjectProperty ; rdfs:label "generic definition" ; rdfs:domain arch:GenericType ; rdfs:range arch:GenericTypeDefinition .
+arch:hasTypeArgument a owl:ObjectProperty ; rdfs:label "has type argument" ; rdfs:domain arch:GenericType ; rdfs:range arch:TypeArgument .
+arch:typeArgumentIndex a owl:DatatypeProperty ; rdfs:label "type argument index" ; rdfs:domain arch:TypeArgument ; rdfs:range xsd:integer .
+arch:typeArgumentType a owl:ObjectProperty ; rdfs:label "type argument type" ; rdfs:domain arch:TypeArgument ; rdfs:range arch:Type .
+arch:hasTypeParameter a owl:ObjectProperty ; rdfs:label "has type parameter" ; rdfs:range arch:TypeParameter ;
+    rdfs:comment "A generic type definition or generic method has a type parameter." .
+arch:typeParameterIndex a owl:DatatypeProperty ; rdfs:label "type parameter index" ; rdfs:domain arch:TypeParameter ; rdfs:range xsd:integer .
+arch:inLayer a owl:ObjectProperty ; rdfs:label "in layer" ; rdfs:domain arch:Type ; rdfs:range arch:Layer .
+arch:inDomain a owl:ObjectProperty ; rdfs:label "in domain" ; rdfs:domain arch:Type ;
+    rdfs:comment "Assigned through a fact attribute; the domain is usually given by name." .
+
+# ── member modifiers ─────────────────────────────────────────────────────────
+
+arch:modifier a owl:ObjectProperty ; rdfs:label "modifier" ; rdfs:range arch:Modifier ;
+    rdfs:comment """A modifier of a type, method, property or field; there is one triple per modifier. A member without arch:Static is an instance member.
+A property has the modifiers its accessors agree on, and is unsafe when one of them is.""" .
+
+# ── member order ─────────────────────────────────────────────────────────────
+
+arch:definitionOrder a owl:DatatypeProperty ; rdfs:label "definition order" ;
+    rdfs:range xsd:integer ;
+    rdfs:comment """The 0-based position of a method, property or field among the members of the same kind declared on its type,
+in assembly metadata order, which is source order except for partial types. Members without a node (private or compiler-generated ones)
+leave gaps. Only comparable between members of the same kind on the same declaring type. Constructors and property accessors are methods.""" .
+
+# ── member types ─────────────────────────────────────────────────────────────
+
+arch:parameterType a owl:ObjectProperty ; rdfs:label "parameter type" ; rdfs:domain arch:Parameter ; rdfs:range arch:Type .
+arch:returnType a owl:ObjectProperty ; rdfs:label "return type" ; rdfs:domain arch:Method ; rdfs:range arch:Type .
+arch:propertyType a owl:ObjectProperty ; rdfs:label "property type" ; rdfs:domain arch:Property ; rdfs:range arch:Type .
+arch:fieldType a owl:ObjectProperty ; rdfs:label "field type" ; rdfs:domain arch:Field ; rdfs:range arch:Type .
+
+# ── dependencies ─────────────────────────────────────────────────────────────
+
+arch:calls a owl:ObjectProperty ; rdfs:label "calls" ; rdfs:domain arch:Method ; rdfs:range arch:Method ;
+    rdfs:comment """The method (or the lambdas, local functions and state machines it compiles to) calls the other method.
+Only emitted for methods that have a node, so not for private methods.""" .
+
+arch:dependsOn a owl:ObjectProperty ; rdfs:label "depends on" ; rdfs:domain arch:Type ; rdfs:range arch:Type ;
+    rdfs:comment """The subject type depends on the object type. The subject is always a type of an analyzed assembly; the object may be external.
+Dependencies of private members, closures, lambdas, local functions, async and iterator state machines
+count as dependencies of the type that declares them. The analyzer asserts dependsOn for every
+sub-property statement it makes, so consumers do not need RDFS reasoning.""" .
+
+arch:inherits a owl:ObjectProperty ; rdfs:subPropertyOf arch:dependsOn ; rdfs:label "inherits" ;
+    rdfs:domain arch:Type ; rdfs:range arch:Type ; rdfs:comment "The type inherits from a base class." .
+arch:implements a owl:ObjectProperty ; rdfs:subPropertyOf arch:dependsOn ; rdfs:label "implements" ;
+    rdfs:domain arch:Type ; rdfs:range arch:Type ; rdfs:comment "The type directly implements an interface." .
+arch:usesInSignature a owl:ObjectProperty ; rdfs:subPropertyOf arch:dependsOn ; rdfs:label "uses in signature" ;
+    rdfs:domain arch:Type ; rdfs:range arch:Type ;
+    rdfs:comment "A field, property, event, return, parameter or generic constraint type of any member, whatever its visibility." .
+arch:usesInBody a owl:ObjectProperty ; rdfs:subPropertyOf arch:dependsOn ; rdfs:label "uses in body" ;
+    rdfs:domain arch:Type ; rdfs:range arch:Type ;
+    rdfs:comment "A local, cast, typeof, field access, exception filter or generic argument at a call site in a method body." .
+arch:callsInto a owl:ObjectProperty ; rdfs:subPropertyOf arch:dependsOn ; rdfs:label "calls into" ;
+    rdfs:domain arch:Type ; rdfs:range arch:Type ;
+    rdfs:comment "A method body of the type calls (or takes a delegate to) a method declared on the other type." .

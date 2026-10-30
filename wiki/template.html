@@ -199,6 +199,21 @@
                 background-color: #fcc;
             }
 
+            li.validation-message {
+                list-style-type: none;
+            }
+
+            li.severity-error {
+                color: red;
+                font-weight: bold;
+            }
+            li.severity-error::before {
+                content: "❌";
+            }
+            div.validation {
+                border: 1px solid #ccc;
+            } 
+
             @media print
             {    
                 .no-print, .no-print *, .a.imagelink 

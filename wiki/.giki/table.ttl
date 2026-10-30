@@ -1,0 +1,58 @@
+@prefix table: <http://bit-wizards.nl/giki/table/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bit-wizards.nl/giki/table/> a owl:Ontology ;
+    rdfs:label "Giki table vocabulary" ;
+    rdfs:comment "Tables described in RDF: the columns, the rows and how the rows are ordered. A row is a resource; what a column shows of it is the value of one of its properties. The caption of a table, and the header of a column, is its rdfs:label." .
+
+# Structure
+
+table:Table a owl:Class ; rdfs:label "Table" ;
+    rdfs:comment "Its rdfs:label, if any, is its caption." .
+table:Column a owl:Class ; rdfs:label "Column" ;
+    rdfs:comment "Its rdfs:label is its header; without one, the local name of its table:property." .
+
+table:columns a owl:ObjectProperty ; rdfs:domain table:Table ; rdfs:range [ a owl:Class ; owl:unionOf ( table:Column rdf:List ) ] ; rdfs:label "columns" ;
+    rdfs:comment "The columns of the table: an rdf:List of them (or a single column), in the order they are shown. A table has one value, and at least one column." .
+table:rows a owl:ObjectProperty ; rdfs:domain table:Table ; rdfs:range [ a owl:Class ; owl:unionOf ( rdfs:Resource rdf:List ) ] ; rdfs:label "rows" ;
+    rdfs:comment "A row of the table, or an rdf:List of them; there may be several values. A row is a resource, not a literal. The order of the rows is that of table:order; rows that it does not tell apart stay in the order of their list, and rows that are not in a list are ordered by label and IRI." .
+
+table:property a owl:ObjectProperty ; rdfs:domain [ a owl:Class ; owl:unionOf ( table:Column table:Sort ) ] ; rdfs:range rdf:Property ; rdfs:label "property" ;
+    rdfs:comment "Of a column: the property of the rows that the column shows; a row with several values has them all in the cell. A column without a property shows the row itself. Of a sort: the property of the rows to order by, whether the table shows it or not." .
+table:link a owl:ObjectProperty ; rdfs:domain table:Column ; rdfs:range rdf:Property ; rdfs:label "link" ;
+    rdfs:comment "The property of the rows whose value is where the cell links to, an IRI (e.g. a wiki page) or a literal URL, which may be relative to the page that the table is on. Without it, a value that is an IRI links to the page in the wiki that is that IRI or is about it, if there is one; it does not link to a web address, as most identifiers in RDF lead nowhere." .
+table:separator a owl:DatatypeProperty ; rdfs:domain table:Column ; rdfs:range xsd:string ; rdfs:label "separator" ;
+    rdfs:comment "What goes between the values of a cell that has more than one. A comma and a space by default." .
+table:align a owl:ObjectProperty ; rdfs:domain table:Column ; rdfs:range table:Alignment ; rdfs:label "alignment" .
+
+table:format a owl:ObjectProperty ; rdfs:domain table:Column ; rdfs:range table:Format ; rdfs:label "format" ;
+    rdfs:comment "How the text of the values of the column is read: table:Text (the default) shows it as it is, table:Markdown reads it as markdown, so it can have emphasis, links and the like. A column with a table:template is table:Markdown unless it says otherwise." .
+table:template a owl:DatatypeProperty ; rdfs:domain table:Column ; rdfs:range xsd:string ; rdfs:label "template" ;
+    rdfs:comment "The text that goes around each value of the column, with {value} (the text of the value, as literal text) and {link} (where the value links to, empty without a link) in it; {{ and }} are a brace. It is read as table:format says, so '**{value}**' makes a value bold." .
+
+table:Format a owl:Class ; rdfs:label "Format" .
+table:Text a table:Format ; rdfs:label "Text" .
+table:Markdown a table:Format ; rdfs:label "Markdown" .
+
+table:Alignment a owl:Class ; rdfs:label "Alignment" .
+table:Left a table:Alignment ; rdfs:label "Left" .
+table:Right a table:Alignment ; rdfs:label "Right" .
+table:Center a table:Alignment ; rdfs:label "Center" .
+
+# Order
+
+table:Sort a owl:Class ; rdfs:label "Sort key" ;
+    rdfs:comment "One key to order the rows by: a column of the table or a property of the rows (exactly one of them), and a direction." .
+table:SortDirection a owl:Class ; rdfs:label "Sort direction" .
+table:Ascending a table:SortDirection ; rdfs:label "Ascending" .
+table:Descending a table:SortDirection ; rdfs:label "Descending" .
+
+table:order a owl:ObjectProperty ; rdfs:domain table:Table ; rdfs:range [ a owl:Class ; owl:unionOf ( table:Sort rdf:List ) ] ; rdfs:label "order" ;
+    rdfs:comment "How the rows are ordered: an rdf:List of sort keys, the first the most important (or a single key). A table has one value. Numbers (xsd:integer, xsd:decimal, ...) and dates (xsd:date, xsd:dateTime) are ordered as such, other values as text without regard to case; rows without a value come last. Of a row with several values the smallest is used, or the largest when descending." .
+table:column a owl:ObjectProperty ; rdfs:domain table:Sort ; rdfs:range table:Column ; rdfs:label "column" ;
+    rdfs:comment "The column of the table to order by: by what it shows." .
+table:direction a owl:ObjectProperty ; rdfs:domain table:Sort ; rdfs:range table:SortDirection ; rdfs:label "direction" ;
+    rdfs:comment "Ascending by default." .

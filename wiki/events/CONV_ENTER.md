@@ -7,18 +7,29 @@ about: clr:/Common/FfAdmin.Common/ConvEnter
 
 # CONV_ENTER
 
+```val/ks
+@include "Module.ks" .
+_ = code | call check_event(eventtype:CONV_ENTER, common:ConvEnter)
+```
+
 The `CONV_ENTER` event marks the moment when all new [donations](../donation) are incorporated into an [investment option](../option) as cash.
 Updating the invested amount is essential for processing the event correctly because it redefines [ownership fractions](../ownership_fractions) for the option.
 
 
 ## Fields
 
-| Field             | Type                | Description                                                                                                        | Value        |
-|-------------------|---------------------|--------------------------------------------------------------------------------------------------------------------|--------------|
-| `Type`            | string              | Identifies the event                                                                                               | `CONV_ENTER` |
-| `Timestamp`       | DateTime (ISO-8601) | The timestamp of the event                                                                                         |              |
-| `Option`          | string              | The identifier for the investment option                                                                           |              |
-| `Invested_amount` | decimal(20,4)       | The total invested amount of money in the investment option                                                        |              |
+```table/ks
+@include "Module.ks" .
+@prefix cls: <clr:/Common/FfAdmin.Common/ConvEnter/> .
+
+docs = {
+    cls:Invested_amount ff:description "The total invested amount of money in the investment option" .
+    cls:Option ff:description "The identifier for the investment option" .
+    cls:Type ff:description "The type of the event" ;
+        ff:value "`CONV_ENTER`" .
+}
+table = code | documented_event_table(common:ConvEnter, docs)
+```
 
 ## Purpose
 

@@ -6,17 +6,27 @@ about: clr:/Common/FfAdmin.Common/UpdateCharityForDonation
 
 # DONA_UPDATE_CHARITY
 
+```val/ks
+@include "Module.ks" .
+_ = code | call check_event(eventtype:DONA_UPDATE_CHARITY, common:UpdateCharityForDonation)
+```
+
 The `DONA_UPDATE_CHARITY` event records a [donor's](../donor) decision to change the beneficiary [charity](../charity) for a specific [donation](../donation).
 This event updates the charity that will receive the profits from the donation.
 
 ## Fields
 
-| Field       | Type                | Description                                      | Value                 |
-|-------------|---------------------|--------------------------------------------------|-----------------------|
-| `Type`      | string              | Identifies the event.                            | `DONA_UPDATE_CHARITY` |
-| `Timestamp` | DateTime (ISO-8601) | The timestamp of the event.                      |                       |
-| `Donation`  | string              | Identifies the donation to be changed.           |                       |
-| `Charity`   | string              | The identifier for the new beneficiary charity.  |                       |
+```table/ks
+@include "Module.ks" .
+@prefix cls: <clr:/Common/FfAdmin.Common/UpdateCharityForDonation/> .
+docs = {
+    cls:Type ff:description "Identifies the event." ;
+        ff:value "`DONA_UPDATE_CHARITY`" .
+    cls:Donation ff:description "Identifies the donation to be changed." .
+    cls:Charity ff:description "The identifier for the new beneficiary charity." .
+}
+table = code | documented_event_table(common:UpdateCharityForDonation, docs)
+```
 
 ## Purpose
 

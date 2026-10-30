@@ -15,9 +15,10 @@ realizations = requirements | merge capabilities
 # Verify that all requirements are realized by capabilities
 verify requirements is not empty message "No requirements found!"
 verify capabilities is not empty message "No capabilities found!"
+
 verify realizations
     each { ?req a archimate:Requirement } 
     has { ?cap a archimate:Capability . ?cap archimate:realizes ?req }
-    message "{?req} is not realized by any capability"
+    message "{?req} is not realized by any capability."
 
 board = wiki | extract { ?b ?p ?o. ?s ?q ?b } where { filter(?b = <about:/motivation#board>) }
